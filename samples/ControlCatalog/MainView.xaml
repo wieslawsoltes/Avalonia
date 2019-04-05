@@ -11,6 +11,7 @@
       <ComboBoxItem>Dark</ComboBoxItem>
     </ComboBox>
     <TabControl Classes="sidebar" Name="Sidebar">
+      <TabItem Header="Repro"><pages:ReproPage/></TabItem>
       <TabItem Header="AutoCompleteBox"><pages:AutoCompleteBoxPage/></TabItem>
       <TabItem Header="Border"><pages:BorderPage/></TabItem>
       <TabItem Header="Button"><pages:ButtonPage/></TabItem>

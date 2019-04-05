@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:ControlCatalog.Pages;assembly=ControlCatalog"
+             x:Class="ControlCatalog.Pages.ReproPage">
+    <DockPanel>
+        <TabStrip Items="{Binding Views}" SelectedItem="{Binding CurrentView, Mode=TwoWay}" Focusable="false" DockPanel.Dock="Bottom">
+            <TabStrip.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel/>
+                </ItemsPanelTemplate>
+            </TabStrip.ItemsPanel>
+            <TabStrip.DataTemplates>
+                <DataTemplate DataType="local:View">
+                    <StackPanel Orientation="Horizontal" Spacing="2">
+                        <TextBlock Text="{Binding Title}" Foreground="Red" Margin="2"/>
+                    </StackPanel>
+                </DataTemplate>
+            </TabStrip.DataTemplates>
+        </TabStrip>
+        <StackPanel Orientation="Horizontal" Spacing="2" DockPanel.Dock="Top">
+            <Button Content="RemoveCurrentView" Command="{Binding RemoveCurrentView}"/>
+            <Button Content="AddView" Command="{Binding AddView}"/>
+            <Button Content="InsertBeforeView" Command="{Binding InsertBeforeView}"/>
+            <Button Content="InsertAfterView" Command="{Binding InsertAfterView}"/>
+            <Button Content="RestoreViews" Command="{Binding RestoreViews}"/>
+        </StackPanel>
+        <Border>
+            <Carousel Items="{Binding Views}" SelectedItem="{Binding CurrentView, Mode=TwoWay}" IsVirtualized="False">
+                <Carousel.DataTemplates>
+                    <DataTemplate DataType="local:View">
+                        <Border>
+                            <TextBlock Text="{Binding Title}"/>
+                        </Border>
+                    </DataTemplate>
+                </Carousel.DataTemplates>
+            </Carousel>
+        </Border>
+    </DockPanel>
+</UserControl>
