@@ -18,11 +18,7 @@
             </TabStrip.DataTemplates>
         </TabStrip>
         <StackPanel Orientation="Horizontal" Spacing="2" DockPanel.Dock="Top">
-            <Button Content="RemoveCurrentView" Command="{Binding RemoveCurrentView}"/>
             <Button Content="AddView" Command="{Binding AddView}"/>
-            <Button Content="InsertBeforeView" Command="{Binding InsertBeforeView}"/>
-            <Button Content="InsertAfterView" Command="{Binding InsertAfterView}"/>
-            <Button Content="RestoreViews" Command="{Binding RestoreViews}"/>
         </StackPanel>
         <Border>
             <Carousel Items="{Binding Views}" SelectedItem="{Binding CurrentView, Mode=TwoWay}" IsVirtualized="False">

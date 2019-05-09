@@ -35,12 +35,9 @@ namespace ControlCatalog.Pages
         {
             return new AvaloniaList<View>()
             {
-                new View() { Title = "--0--" },
-                new View() { Title = "--1--" },
-                new View() { Title = "--2--" }
             };
         }
-        int count = 3;
+        int count = 0;
         public void RemoveCurrentView()
         {
             Views.Remove(CurrentView);
@@ -51,20 +48,6 @@ namespace ControlCatalog.Pages
         {
             Views.Add(new View() { Title = $"--{count++}--" });
             CurrentView = Views.LastOrDefault();
-        }
-
-        public void InsertBeforeView()
-        {
-            int index = Views.IndexOf(CurrentView);
-            Views.Insert(index, new View() { Title = $"--{count++}--" });
-            CurrentView = Views[index];
-        }
-
-        public void InsertAfterView()
-        {
-            int index = Views.IndexOf(CurrentView) + 1;
-            Views.Insert(index, new View() { Title = $"--{count++}--" });
-            CurrentView = Views[index];
         }
 
         public void RestoreViews()
