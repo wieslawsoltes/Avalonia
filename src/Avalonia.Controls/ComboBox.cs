@@ -202,7 +202,7 @@ namespace Avalonia.Controls
         {
             if (!e.Handled)
             {
-                if (_popup?.PopupRoot != null && ((IVisual)e.Source).GetVisualRoot() == _popup?.PopupRoot)
+                if (_popup?.IsInsidePopup((IVisual)e.Source) == true)
                 {
                     if (UpdateSelectionFromEventSource(e.Source))
                     {
@@ -302,7 +302,7 @@ namespace Avalonia.Controls
             }
         }
 
-        private bool CanFocus(IControl control) => control.Focusable && control.IsEnabledCore && control.IsVisible;
+        private bool CanFocus(IControl control) => control.Focusable && control.IsEffectivelyEnabled && control.IsVisible;
 
         private void UpdateSelectionBoxItem(object item)
         {
@@ -333,8 +333,7 @@ namespace Avalonia.Controls
             }
             else
             {
-                var selector = MemberSelector;
-                SelectionBoxItem = selector != null ? selector.Select(item) : item;
+                SelectionBoxItem = item;
             }
         }
 

@@ -39,27 +39,31 @@ namespace Avalonia.Controls.Remote.Server
             KeyboardDevice = AvaloniaLocator.Current.GetService<IKeyboardDevice>();
         }
 
-        private static RawMouseEventType GetAvaloniaEventType (Avalonia.Remote.Protocol.Input.MouseButton button, bool pressed)
+        private static RawPointerEventType GetAvaloniaEventType (Avalonia.Remote.Protocol.Input.MouseButton button, bool pressed)
         {
             switch (button)
             {
                 case Avalonia.Remote.Protocol.Input.MouseButton.Left:
-                    return pressed ? RawMouseEventType.LeftButtonDown : RawMouseEventType.LeftButtonUp;
+                    return pressed ? RawPointerEventType.LeftButtonDown : RawPointerEventType.LeftButtonUp;
 
                 case Avalonia.Remote.Protocol.Input.MouseButton.Middle:
-                    return pressed ? RawMouseEventType.MiddleButtonDown : RawMouseEventType.MiddleButtonUp;
+                    return pressed ? RawPointerEventType.MiddleButtonDown : RawPointerEventType.MiddleButtonUp;
 
                 case Avalonia.Remote.Protocol.Input.MouseButton.Right:
-                    return pressed ? RawMouseEventType.RightButtonDown : RawMouseEventType.RightButtonUp;
+                    return pressed ? RawPointerEventType.RightButtonDown : RawPointerEventType.RightButtonUp;
 
                 default:
-                    return RawMouseEventType.Move;
+                    return RawPointerEventType.Move;
             }
         }
 
-        private static InputModifiers GetAvaloniaInputModifiers (Avalonia.Remote.Protocol.Input.InputModifiers[] modifiers)
+        private static RawInputModifiers GetAvaloniaRawInputModifiers(
+            Avalonia.Remote.Protocol.Input.InputModifiers[] modifiers)
+            => (RawInputModifiers)GetAvaloniaInputModifiers(modifiers);
+        
+        private static RawInputModifiers GetAvaloniaInputModifiers (Avalonia.Remote.Protocol.Input.InputModifiers[] modifiers)
         {
-            var result = InputModifiers.None;
+            var result = RawInputModifiers.None;
 
             if (modifiers == null)
             {
@@ -71,31 +75,31 @@ namespace Avalonia.Controls.Remote.Server
                 switch (modifier)
                 {
                     case Avalonia.Remote.Protocol.Input.InputModifiers.Control:
-                        result |= InputModifiers.Control;
+                        result |= RawInputModifiers.Control;
                         break;
 
                     case Avalonia.Remote.Protocol.Input.InputModifiers.Alt:
-                        result |= InputModifiers.Alt;
+                        result |= RawInputModifiers.Alt;
                         break;
 
                     case Avalonia.Remote.Protocol.Input.InputModifiers.Shift:
-                        result |= InputModifiers.Shift;
+                        result |= RawInputModifiers.Shift;
                         break;
 
                     case Avalonia.Remote.Protocol.Input.InputModifiers.Windows:
-                        result |= InputModifiers.Windows;
+                        result |= RawInputModifiers.Meta;
                         break;
 
                     case Avalonia.Remote.Protocol.Input.InputModifiers.LeftMouseButton:
-                        result |= InputModifiers.LeftMouseButton;
+                        result |= RawInputModifiers.LeftMouseButton;
                         break;
 
                     case Avalonia.Remote.Protocol.Input.InputModifiers.MiddleMouseButton:
-                        result |= InputModifiers.MiddleMouseButton;
+                        result |= RawInputModifiers.MiddleMouseButton;
                         break;
 
                     case Avalonia.Remote.Protocol.Input.InputModifiers.RightMouseButton:
-                        result |= InputModifiers.RightMouseButton;
+                        result |= RawInputModifiers.RightMouseButton;
                         break;
                 }
             }
@@ -166,11 +170,11 @@ namespace Avalonia.Controls.Remote.Server
                 {
                     Dispatcher.UIThread.Post(() =>
                     {
-                        Input?.Invoke(new RawMouseEventArgs(
+                        Input?.Invoke(new RawPointerEventArgs(
                             MouseDevice, 
                             0, 
                             InputRoot, 
-                            RawMouseEventType.Move, 
+                            RawPointerEventType.Move, 
                             new Point(pointer.X, pointer.Y), 
                             GetAvaloniaInputModifiers(pointer.Modifiers)));
                     }, DispatcherPriority.Input);
@@ -179,7 +183,7 @@ namespace Avalonia.Controls.Remote.Server
                 {
                     Dispatcher.UIThread.Post(() =>
                     {
-                        Input?.Invoke(new RawMouseEventArgs(
+                        Input?.Invoke(new RawPointerEventArgs(
                             MouseDevice,
                             0,
                             InputRoot,
@@ -192,7 +196,7 @@ namespace Avalonia.Controls.Remote.Server
                 {
                     Dispatcher.UIThread.Post(() =>
                     {
-                        Input?.Invoke(new RawMouseEventArgs(
+                        Input?.Invoke(new RawPointerEventArgs(
                             MouseDevice,
                             0,
                             InputRoot,
@@ -225,7 +229,7 @@ namespace Avalonia.Controls.Remote.Server
                             0,
                             key.IsDown ? RawKeyEventType.KeyDown : RawKeyEventType.KeyUp,
                             (Key)key.Key,
-                            GetAvaloniaInputModifiers(key.Modifiers)));
+                            GetAvaloniaRawInputModifiers(key.Modifiers)));
                     }, DispatcherPriority.Input);
                 }
                 if(obj is TextInputEventMessage text)

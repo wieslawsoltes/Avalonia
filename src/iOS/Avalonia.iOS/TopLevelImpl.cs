@@ -86,13 +86,13 @@ namespace Avalonia.iOS
             {
                 var location = touch.LocationInView(this).ToAvalonia();
 
-                Input?.Invoke(new RawMouseEventArgs(
+                Input?.Invoke(new RawPointerEventArgs(
                     iOSPlatform.MouseDevice,
                     (uint)touch.Timestamp,
                     _inputRoot,
-                    RawMouseEventType.LeftButtonUp,
+                    RawPointerEventType.LeftButtonUp,
                     location,
-                    InputModifiers.None));
+                    RawInputModifiers.None));
             }
         }
 
@@ -104,11 +104,11 @@ namespace Avalonia.iOS
             {
                 var location = touch.LocationInView(this).ToAvalonia();
                 _touchLastPoint = location;
-                Input?.Invoke(new RawMouseEventArgs(iOSPlatform.MouseDevice, (uint)touch.Timestamp, _inputRoot,
-                    RawMouseEventType.Move, location, InputModifiers.None));
+                Input?.Invoke(new RawPointerEventArgs(iOSPlatform.MouseDevice, (uint)touch.Timestamp, _inputRoot,
+                    RawPointerEventType.Move, location, RawInputModifiers.None));
 
-                Input?.Invoke(new RawMouseEventArgs(iOSPlatform.MouseDevice, (uint)touch.Timestamp, _inputRoot,
-                    RawMouseEventType.LeftButtonDown, location, InputModifiers.None));
+                Input?.Invoke(new RawPointerEventArgs(iOSPlatform.MouseDevice, (uint)touch.Timestamp, _inputRoot,
+                    RawPointerEventType.LeftButtonDown, location, RawInputModifiers.None));
             }
         }
 
@@ -119,20 +119,22 @@ namespace Avalonia.iOS
             {
                 var location = touch.LocationInView(this).ToAvalonia();
                 if (iOSPlatform.MouseDevice.Captured != null)
-                    Input?.Invoke(new RawMouseEventArgs(iOSPlatform.MouseDevice, (uint)touch.Timestamp, _inputRoot,
-                        RawMouseEventType.Move, location, InputModifiers.LeftMouseButton));
+                    Input?.Invoke(new RawPointerEventArgs(iOSPlatform.MouseDevice, (uint)touch.Timestamp, _inputRoot,
+                        RawPointerEventType.Move, location, RawInputModifiers.LeftMouseButton));
                 else
                 {
                     //magic number based on test - correction of 0.02 is working perfect
                     double correction = 0.02;
 
                     Input?.Invoke(new RawMouseWheelEventArgs(iOSPlatform.MouseDevice, (uint)touch.Timestamp,
-                        _inputRoot, location, (location - _touchLastPoint) * correction, InputModifiers.LeftMouseButton));
+                        _inputRoot, location, (location - _touchLastPoint) * correction, RawInputModifiers.LeftMouseButton));
                 }
                 _touchLastPoint = location;
             }
         }
         
         public ILockedFramebuffer Lock() => new EmulatedFramebuffer(this);
+
+        public IPopupImpl CreatePopup() => null;
     }
 }

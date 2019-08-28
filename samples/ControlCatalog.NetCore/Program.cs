@@ -1,17 +1,23 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using Avalonia;
+using Avalonia.Controls;
+using Avalonia.LinuxFramebuffer.Output;
 using Avalonia.Skia;
 using Avalonia.ReactiveUI;
+using Avalonia.Dialogs;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ControlCatalog.NetCore
 {
     static class Program
     {
 
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
             Thread.CurrentThread.TrySetApartmentState(ApartmentState.STA);
             if (args.Contains("--wait-for-attach"))
@@ -25,19 +31,28 @@ namespace ControlCatalog.NetCore
                 }
             }
 
-            if (args.Contains("--fbdev"))
-                AppBuilder.Configure<App>().InitializeWithLinuxFramebuffer(tl =>
-                {
-                    tl.Content = new MainView();
-                    System.Threading.ThreadPool.QueueUserWorkItem(_ => ConsoleSilencer());
-                });
-            else
-                BuildAvaloniaApp().Start(AppMain, args);
-        }
+            var builder = BuildAvaloniaApp();
 
-        static void AppMain(Application app, string[] args)
-        {
-            app.Run(new MainWindow());
+            double GetScaling()
+            {
+                var idx = Array.IndexOf(args, "--scaling");
+                if (idx != 0 && args.Length > idx + 1 &&
+                    double.TryParse(args[idx + 1], NumberStyles.Any, CultureInfo.InvariantCulture, out var scaling))
+                    return scaling;
+                return 1;
+            }
+            if (args.Contains("--fbdev"))
+            {
+                SilenceConsole();
+                return builder.StartLinuxFbDev(args, scaling: GetScaling());
+            }
+            else if (args.Contains("--drm"))
+            {
+                SilenceConsole();
+                return builder.StartLinuxDrm(args, scaling: GetScaling());
+            }
+            else
+                return builder.StartWithClassicDesktopLifetime(args);
         }
 
         /// <summary>
@@ -46,15 +61,25 @@ namespace ControlCatalog.NetCore
         public static AppBuilder BuildAvaloniaApp()
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
+                .With(new X11PlatformOptions { EnableMultiTouch = true })
+                .With(new Win32PlatformOptions
+                {
+                    EnableMultitouch = true,
+                    AllowEglInitialization = true
+                })
                 .UseSkia()
                 .UseReactiveUI()
-                .UseDataGrid();
+                .UseManagedSystemDialogs();
 
-        static void ConsoleSilencer()
+        static void SilenceConsole()
         {
-            Console.CursorVisible = false;
-            while (true)
-                Console.ReadKey(true);
+            new Thread(() =>
+            {
+                Console.CursorVisible = false;
+                while (true)
+                    Console.ReadKey(true);
+            })
+            { IsBackground = true }.Start();
         }
     }
 }
