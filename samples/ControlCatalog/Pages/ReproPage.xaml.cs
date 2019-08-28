@@ -31,13 +31,25 @@ namespace ControlCatalog.Pages
             set => SetValue(CurrentViewProperty, value);
         }
 
+        private int count = 0;
+
+        public ReproPage()
+        {
+            this.InitializeComponent();
+            RestoreViews();
+            DataContext = this;
+        }
+
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
+        }
+
         public AvaloniaList<View> CreateViews()
         {
-            return new AvaloniaList<View>()
-            {
-            };
+            return new AvaloniaList<View>();
         }
-        int count = 0;
+
         public void RemoveCurrentView()
         {
             Views.Remove(CurrentView);
@@ -54,20 +66,6 @@ namespace ControlCatalog.Pages
         {
             Views = CreateViews();
             CurrentView = Views.FirstOrDefault();
-        }
-
-        public ReproPage()
-        {
-            this.InitializeComponent();
-
-            RestoreViews();
-
-            DataContext = this;
-        }
-
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
         }
     }
 }

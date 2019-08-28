@@ -19,6 +19,8 @@
         </TabStrip>
         <StackPanel Orientation="Horizontal" Spacing="2" DockPanel.Dock="Top">
             <Button Content="AddView" Command="{Binding AddView}"/>
+            <Button Content="RemoveCurrentView" Command="{Binding RemoveCurrentView}"/>
+            <Button Content="RestoreViews" Command="{Binding RestoreViews}"/>
         </StackPanel>
         <Border>
             <Carousel Items="{Binding Views}" SelectedItem="{Binding CurrentView, Mode=TwoWay}" IsVirtualized="False">
