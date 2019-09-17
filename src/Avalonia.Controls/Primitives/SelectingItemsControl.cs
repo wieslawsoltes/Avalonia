@@ -112,7 +112,7 @@ namespace Avalonia.Controls.Primitives
         private bool _syncingSelectedItems;
         private int _updateCount;
         private int _updateSelectedIndex;
-        private IList _updateSelectedItems;
+        private object _updateSelectedItem;
 
         /// <summary>
         /// Initializes static members of the <see cref="SelectingItemsControl"/> class.
@@ -160,7 +160,7 @@ namespace Avalonia.Controls.Primitives
                 else
                 {
                     _updateSelectedIndex = value;
-                    _updateSelectedItems = null;
+                    _updateSelectedItem = null;
                 }
             }
         }
@@ -183,7 +183,7 @@ namespace Avalonia.Controls.Primitives
                 }
                 else
                 {
-                    _updateSelectedItems = new AvaloniaList<object>(value);
+                    _updateSelectedItem = value;
                     _updateSelectedIndex = int.MinValue;
                 }
             }
@@ -855,11 +855,6 @@ namespace Avalonia.Controls.Primitives
                     _selectedItem = ElementAt(Items, _selectedIndex);
                     RaisePropertyChanged(SelectedIndexProperty, -1, _selectedIndex, BindingPriority.LocalValue);
                     RaisePropertyChanged(SelectedItemProperty, null, _selectedItem, BindingPriority.LocalValue);
-
-                    if (AutoScrollToSelectedItem)
-                    {
-                        ScrollIntoView(_selectedIndex);
-                    }
                 }
             }
 
@@ -979,13 +974,14 @@ namespace Avalonia.Controls.Primitives
             }
 
             var item = ElementAt(Items, index);
+            var itemChanged = !Equals(item, oldItem);
             var added = -1;
             HashSet<int> removed = null;
 
             _selectedIndex = index;
             _selectedItem = item;
 
-            if (oldIndex != index || _selection.HasMultiple)
+            if (oldIndex != index || itemChanged || _selection.HasMultiple)
             {
                 if (clear)
                 {
@@ -1022,7 +1018,7 @@ namespace Avalonia.Controls.Primitives
                     index);
             }
 
-            if (!Equals(item, oldItem))
+            if (itemChanged)
             {
                 RaisePropertyChanged(
                     SelectedItemProperty,
@@ -1044,6 +1040,11 @@ namespace Avalonia.Controls.Primitives
                     added != -1 ? new[] { ElementAt(Items, added) } : Array.Empty<object>(),
                     removed?.Select(x => ElementAt(Items, x)).ToArray() ?? Array.Empty<object>());
                 RaiseEvent(e);
+            }
+
+            if (AutoScrollToSelectedItem && _selectedIndex != -1)
+            {
+                ScrollIntoView(_selectedItem);
             }
         }
 
@@ -1074,9 +1075,9 @@ namespace Avalonia.Controls.Primitives
             {
                 SelectedIndex = _updateSelectedIndex;
             }
-            else if (_updateSelectedItems != null)
+            else if (_updateSelectedItem != null)
             {
-                SelectedItems = _updateSelectedItems;
+                SelectedItem = _updateSelectedItem;
             }
         }
 
