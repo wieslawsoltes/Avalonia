@@ -9,9 +9,10 @@ using Avalonia.Platform;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using Avalonia.Visuals.Media.Imaging;
+using SkiaSharp;
 using Svg.Skia;
 
-namespace ControlCatalog.Pages
+namespace Svg.Skia.Avalonia
 {
     internal static class Extensions
     {
@@ -20,7 +21,7 @@ namespace ControlCatalog.Pages
         public static Uri GetContextBaseUri(this IServiceProvider ctx) => ctx.GetService<IUriContext>().BaseUri;
     }
 
-    public class SvgTypeConverter : TypeConverter
+    internal class SvgTypeConverter : TypeConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
@@ -34,37 +35,36 @@ namespace ControlCatalog.Pages
                 ? new Uri(s, UriKind.Relative)
                 : new Uri(s, UriKind.RelativeOrAbsolute);
 
-            var skSvg = new SKSvg();
+            var skSvg = new Svg();
             if (uri.IsAbsoluteUri && uri.IsFile)
             {
                 skSvg.Load(uri.LocalPath);
-                return new Svg(skSvg);
+                return skSvg;
             }
             else
             {
                 var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
                 skSvg.Load(assets.Open(uri, context.GetContextBaseUri()));
             }
-            return new Svg(skSvg);
+            return skSvg;
         }
     }
 
     [TypeConverter(typeof(SvgTypeConverter))]
-    public class Svg
+    public interface ISvg : IDisposable
     {
-        public Svg(SKSvg value)
-        {
-            Value = value;
-        }
+        SKPicture Picture { get; set; }
+    }
 
-        public SKSvg Value { get; }
+    internal class Svg : SKSvg, ISvg
+    {
     }
 
     internal class SKSvgCustomDrawOperation : ICustomDrawOperation
     {
-        private readonly SKSvg _svg;
+        private readonly ISvg _svg;
 
-        public SKSvgCustomDrawOperation(Rect bounds, SKSvg svg)
+        public SKSvgCustomDrawOperation(Rect bounds, ISvg svg)
         {
             _svg = svg;
             Bounds = bounds;
@@ -94,20 +94,20 @@ namespace ControlCatalog.Pages
 
     public class SvgImage : AvaloniaObject, IImage, IAffectsRender
     {
-        public static readonly StyledProperty<Svg> SourceProperty =
-            AvaloniaProperty.Register<SvgImage, Svg>(nameof(Source));
+        public static readonly StyledProperty<ISvg> SourceProperty =
+            AvaloniaProperty.Register<SvgImage, ISvg>(nameof(Source));
 
         public event EventHandler Invalidated;
 
         [Content]
-        public Svg Source
+        public ISvg Source
         {
             get => GetValue(SourceProperty);
             set => SetValue(SourceProperty, value);
         }
 
-        public Size Size => Source?.Value?.Picture != null ?
-            new Size(Source.Value.Picture.CullRect.Width, Source.Value.Picture.CullRect.Height) : default;
+        public Size Size =>
+            Source?.Picture != null ? new Size(Source.Picture.CullRect.Width, Source.Picture.CullRect.Height) : default;
 
         void IImage.Draw(
             DrawingContext context,
@@ -116,13 +116,12 @@ namespace ControlCatalog.Pages
             BitmapInterpolationMode bitmapInterpolationMode)
         {
             var source = Source;
-
             if (source == null)
             {
                 return;
             }
 
-            var bounds = source.Value.Picture.CullRect;
+            var bounds = source.Picture.CullRect;
             var scale = Matrix.CreateScale(
                 destRect.Width / sourceRect.Width,
                 destRect.Height / sourceRect.Height);
@@ -133,7 +132,10 @@ namespace ControlCatalog.Pages
             using (context.PushClip(destRect))
             using (context.PushPreTransform(translate * scale))
             {
-                context.Custom(new SKSvgCustomDrawOperation(new Rect(0, 0, bounds.Width, bounds.Height), source.Value));
+                context.Custom(
+                    new SKSvgCustomDrawOperation(
+                        new Rect(0, 0, bounds.Width, bounds.Height),
+                        source));
             }
         }
 
