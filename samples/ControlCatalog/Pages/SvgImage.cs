@@ -10,7 +10,6 @@ using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using Avalonia.Visuals.Media.Imaging;
 using SkiaSharp;
-using Svg.Skia;
 
 namespace Svg.Skia.Avalonia
 {
