@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:pages="clr-namespace:ControlCatalog.Pages"
              x:Class="ControlCatalog.Pages.ImagePage">
   <DockPanel>
     <StackPanel DockPanel.Dock="Top" Orientation="Vertical" Spacing="4">
@@ -22,14 +23,17 @@
       </DockPanel>
 
       <DockPanel Grid.Column="1" Grid.Row="1" Margin="16">
-        <TextBlock DockPanel.Dock="Top" Classes="h3" Margin="0 8">Drawing</TextBlock>
+        <DockPanel.Resources>
+          <pages:SvgImage x:Key="__tiger" Source="/Assets/__tiger.svg"/>
+        </DockPanel.Resources>
+        <TextBlock DockPanel.Dock="Top" Classes="h3" Margin="0 8">Svg</TextBlock>
         <ComboBox Name="drawingStretch" DockPanel.Dock="Top" SelectedIndex="2" SelectionChanged="DrawingStretchChanged">
           <ComboBoxItem>None</ComboBoxItem>
           <ComboBoxItem>Fill</ComboBoxItem>
           <ComboBoxItem>Uniform</ComboBoxItem>
           <ComboBoxItem>UniformToFill</ComboBoxItem>
         </ComboBox>
-        <Image Name="drawingImage">
+        <!--<Image Name="drawingImage">
           <Image.Source>
             <DrawingImage>
               <GeometryDrawing Brush="Red">
@@ -44,7 +48,13 @@
               </GeometryDrawing>
             </DrawingImage>
           </Image.Source>
-        </Image>
+        </Image>-->
+        <!--<Image Name="drawingImage">
+          <Image.Source>
+            <pages:SvgImage Source="/Assets/__tiger.svg"/>
+          </Image.Source>
+        </Image>-->
+        <Image Name="drawingImage" Source="{DynamicResource __tiger}"/>
       </DockPanel>
     </Grid>
     
