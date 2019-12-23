@@ -11,22 +11,27 @@
     <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,*" Margin="64">
       
       <DockPanel Grid.Column="0" Grid.Row="1" Margin="16">
-        <TextBlock DockPanel.Dock="Top" Classes="h3" Margin="0 8">Bitmap</TextBlock>
+        <TextBlock DockPanel.Dock="Top" Classes="h3" Margin="0 8">Svg (Source)</TextBlock>
         <ComboBox Name="bitmapStretch" DockPanel.Dock="Top" SelectedIndex="2" SelectionChanged="BitmapStretchChanged">
           <ComboBoxItem>None</ComboBoxItem>
           <ComboBoxItem>Fill</ComboBoxItem>
           <ComboBoxItem>Uniform</ComboBoxItem>
           <ComboBoxItem>UniformToFill</ComboBoxItem>
         </ComboBox>
-        <Image Name="bitmapImage"
-               Source="/Assets/delicate-arch-896885_640.jpg"/>
+        <!--<Image Name="bitmapImage"
+               Source="/Assets/delicate-arch-896885_640.jpg"/>-->
+        <Image Name="bitmapImage">
+          <Image.Source>
+            <svg:SvgImage Source="/Assets/__AJ_Digital_Camera.svg"/>
+          </Image.Source>
+        </Image>
       </DockPanel>
 
       <DockPanel Grid.Column="1" Grid.Row="1" Margin="16">
         <DockPanel.Resources>
           <svg:SvgImage x:Key="__tiger" Source="/Assets/__tiger.svg"/>
         </DockPanel.Resources>
-        <TextBlock DockPanel.Dock="Top" Classes="h3" Margin="0 8">Svg</TextBlock>
+        <TextBlock DockPanel.Dock="Top" Classes="h3" Margin="0 8">Svg (Resources)</TextBlock>
         <ComboBox Name="drawingStretch" DockPanel.Dock="Top" SelectedIndex="2" SelectionChanged="DrawingStretchChanged">
           <ComboBoxItem>None</ComboBoxItem>
           <ComboBoxItem>Fill</ComboBoxItem>
@@ -47,11 +52,6 @@
                 </PathGeometry>
               </GeometryDrawing>
             </DrawingImage>
-          </Image.Source>
-        </Image>-->
-        <!--<Image Name="drawingImage">
-          <Image.Source>
-            <svg:SvgImage Source="/Assets/__tiger.svg"/>
           </Image.Source>
         </Image>-->
         <Image Name="drawingImage" Source="{DynamicResource __tiger}"/>
