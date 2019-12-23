@@ -34,18 +34,18 @@ namespace Svg.Skia.Avalonia
                 ? new Uri(s, UriKind.Relative)
                 : new Uri(s, UriKind.RelativeOrAbsolute);
 
-            var skSvg = new Svg();
+            var svg = new Svg();
             if (uri.IsAbsoluteUri && uri.IsFile)
             {
-                skSvg.Load(uri.LocalPath);
-                return skSvg;
+                svg.Load(uri.LocalPath);
+                return svg;
             }
             else
             {
                 var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-                skSvg.Load(assets.Open(uri, context.GetContextBaseUri()));
+                svg.Load(assets.Open(uri, context.GetContextBaseUri()));
             }
-            return skSvg;
+            return svg;
         }
     }
 
