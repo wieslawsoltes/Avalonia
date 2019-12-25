@@ -19,7 +19,7 @@
     <EmbeddedResource Include="Assets\Fonts\SourceSansPro-Regular.ttf" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Svg.Skia" Version="0.0.2-preview.0" />
+    <PackageReference Include="Svg.Skia" Version="0.0.2-preview.1" />
   </ItemGroup>
 
   <ItemGroup>
