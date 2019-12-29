@@ -1,6 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:svg="clr-namespace:Svg.Skia.Avalonia"
+             xmlns:svg="clr-namespace:Svg.Skia.Avalonia;assembly=Svg.Skia.Avalonia"
              x:Class="ControlCatalog.Pages.ImagePage">
   <DockPanel>
     <StackPanel DockPanel.Dock="Top" Orientation="Vertical" Spacing="4">
