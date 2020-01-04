@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Svg.Skia" Version="0.0.4-preview.0" />
+    <PackageReference Include="Svg.Skia" Version="0.0.5-preview.0" />
   </ItemGroup>
 
 </Project>
