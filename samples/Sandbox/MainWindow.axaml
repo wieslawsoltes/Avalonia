@@ -1,7 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'
         xmlns:controls="clr-namespace:SimpleDraw.Controls;assembly=SimpleDraw"
-        Background="White"
+        Width="1100" Height="650" Background="White"
         x:Class="Sandbox.MainWindow">
     <Grid x:Name="inputGrid" Background="Transparent">
         <controls:SimpleCanvas x:Name="simpleCanvas" InputSource="{Binding #inputGrid}" Background="WhiteSmoke" Width="{Binding Width}" Height="{Binding Height}"/>
