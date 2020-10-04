@@ -10,6 +10,7 @@ namespace Sandbox
         {
             this.InitializeComponent();
             this.AttachDevTools();
+            DataContext = SimpleDraw.AvaloniaApp.Create();
         }
 
         private void InitializeComponent()
