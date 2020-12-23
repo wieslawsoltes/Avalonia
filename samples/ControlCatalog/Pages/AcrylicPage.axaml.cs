@@ -29,7 +29,6 @@ namespace ControlCatalog.Pages
 
         public void Dispose()
         {
-            _canvas.Flush();
         }
     }
     
