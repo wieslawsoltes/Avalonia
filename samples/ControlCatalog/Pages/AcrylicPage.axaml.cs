@@ -67,7 +67,20 @@ namespace ControlCatalog.Pages
             picture.Serialize(stream);
         }
     }
-
+    
+    public static class SvgRenderer
+    {
+        public static void Render(Control target, Size size, Stream stream, double dpi = 96, bool useDeferredRenderer = false)
+        {
+            using var wstream = new SKManagedWStream(stream);
+            var bounds = SKRect.Create(new SKSize((float)size.Width, (float)size.Height));
+            using var canvas = SKSvgCanvas.Create(bounds, wstream);
+            target.Measure(size);
+            target.Arrange(new Rect(size));
+            CanvasRenderer.Render(target, canvas, dpi, useDeferredRenderer);
+        }
+    }
+    
     public class AcrylicPage : UserControl
     {
         public static readonly StyledProperty<bool> ButtonEnableProperty = AvaloniaProperty.Register<AcrylicPage, bool>("ButtonEnable");
@@ -92,7 +105,10 @@ namespace ControlCatalog.Pages
                     if (result is { } path)
                     {
                         using var stream = File.Create(path);
+                        //SkpRenderer.Render(this, this.Bounds.Size, stream, 96, false);
                         SkpRenderer.Render(this, this.Bounds.Size, stream, 96, true);
+                        //SvgRenderer.Render(this, this.Bounds.Size, stream, 96, false);
+                        //SvgRenderer.Render(this, this.Bounds.Size, stream, 96, true);
                     }
                 }
             }, RoutingStrategies.Tunnel);
