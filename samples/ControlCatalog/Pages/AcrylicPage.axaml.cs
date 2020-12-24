@@ -39,7 +39,6 @@ namespace ControlCatalog.Pages
             var bounds = SKRect.Create(new SKSize((float)size.Width, (float)size.Height));
             using var pictureRecorder = new SKPictureRecorder();
             using var canvas = pictureRecorder.BeginRecording(bounds);
-            using var renderer = new ImmediateRenderer(target);
             target.Measure(size);
             target.Arrange(new Rect(size));
             using var renderTarget = new CanvasRenderTarget(canvas, dpi);
@@ -48,8 +47,7 @@ namespace ControlCatalog.Pages
             picture.Serialize(stream);
         }
     }
-    
-    
+
     public class AcrylicPage : UserControl
     {
         public static readonly StyledProperty<bool> ButtonEnableProperty = AvaloniaProperty.Register<AcrylicPage, bool>("ButtonEnable");
