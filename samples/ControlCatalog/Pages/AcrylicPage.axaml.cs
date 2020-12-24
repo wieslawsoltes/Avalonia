@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -15,7 +16,7 @@ namespace ControlCatalog.Pages
     {
         private readonly SKCanvas _canvas;
         private readonly double _dpi;
-            
+
         public CanvasRenderTarget(SKCanvas canvas, double dpi)
         {
             _canvas = canvas;
@@ -32,17 +33,36 @@ namespace ControlCatalog.Pages
         }
     }
     
+    public static class CanvasRenderer
+    {
+        public static void Render(Control target, SKCanvas canvas, double dpi = 96, bool useDeferredRenderer = false)
+        {
+            var renderTarget = new CanvasRenderTarget(canvas, dpi);
+            if (useDeferredRenderer)
+            {
+                using var renderer = new DeferredRenderer(target, renderTarget);
+                renderer.Start();
+                var renderLoopTask = renderer as IRenderLoopTask;
+                renderLoopTask.Update(TimeSpan.Zero);
+                renderLoopTask.Render();
+            }
+            else
+            {
+                ImmediateRenderer.Render(target, renderTarget);
+            }
+        }
+    }
+    
     public static class SkpRenderer
     {
-        public static void Render(Control target, Size size, Stream stream, double dpi = 96)
+        public static void Render(Control target, Size size, Stream stream, double dpi = 96, bool useDeferredRenderer = false)
         {
             var bounds = SKRect.Create(new SKSize((float)size.Width, (float)size.Height));
             using var pictureRecorder = new SKPictureRecorder();
             using var canvas = pictureRecorder.BeginRecording(bounds);
             target.Measure(size);
             target.Arrange(new Rect(size));
-            using var renderTarget = new CanvasRenderTarget(canvas, dpi);
-            ImmediateRenderer.Render(target, renderTarget);
+            CanvasRenderer.Render(target, canvas, dpi, useDeferredRenderer);
             using var picture = pictureRecorder.EndRecording();
             picture.Serialize(stream);
         }
@@ -72,7 +92,7 @@ namespace ControlCatalog.Pages
                     if (result is { } path)
                     {
                         using var stream = File.Create(path);
-                        SkpRenderer.Render(this, this.Bounds.Size, stream);
+                        SkpRenderer.Render(this, this.Bounds.Size, stream, 96, true);
                     }
                 }
             }, RoutingStrategies.Tunnel);
