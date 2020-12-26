@@ -45,6 +45,8 @@ namespace ControlCatalog.Pages
                 var renderLoopTask = renderer as IRenderLoopTask;
                 renderLoopTask.Update(TimeSpan.Zero);
                 renderLoopTask.Render();
+                renderLoopTask.Update(TimeSpan.FromSeconds(1));
+                renderLoopTask.Render();
             }
             else
             {
