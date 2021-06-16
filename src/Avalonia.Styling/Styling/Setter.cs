@@ -62,7 +62,7 @@ namespace Avalonia.Styling
         /// <summary>
         /// Gets or sets the property animator.
         /// </summary>
-        public Type? Animator { get; set; }
+        Type? IAnimationSetter.Animator { get; set; }
 
         public ISetterInstance Instance(IStyleable target)
         {

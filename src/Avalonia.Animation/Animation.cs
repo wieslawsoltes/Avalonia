@@ -90,6 +90,12 @@ namespace Avalonia.Animation
                 (o, v) => o._speedRatio = v,
                 defaultBindingMode: BindingMode.TwoWay);
 
+        /// <summary>
+        /// Defines the Animator property.
+        /// </summary>
+        public static readonly AttachedProperty<Type> AnimatorProperty =
+            AvaloniaProperty.RegisterAttached<Animation, IAvaloniaObject, Type>("Animator", null);
+
         private TimeSpan _duration;
         private IterationCount _iterationCount = new IterationCount(1);
         private PlaybackDirection _playbackDirection;
@@ -194,6 +200,26 @@ namespace Avalonia.Animation
         [Content]
         public KeyFrames Children { get; } = new KeyFrames();
 
+        /// <summary>
+        /// Gets the value of the Animator attached property for an avalonia object.
+        /// </summary>
+        /// <param name="obj">The avalonia object.</param>
+        /// <returns>The property animator type.</returns>
+        public static Type GetAnimator(IAvaloniaObject obj)
+        {
+            return obj.GetValue(AnimatorProperty);
+        }
+
+        /// <summary>
+        /// Sets the value of the Animator attached property for an avalonia object.
+        /// </summary>
+        /// <param name="obj">The avalonia object.</param>
+        /// <param name="value">The property animator value.</param>
+        public static void SetAnimator(IAvaloniaObject obj, Type value)
+        {
+            obj.SetValue(AnimatorProperty, value);
+        }
+
         private readonly static List<(Func<AvaloniaProperty, bool> Condition, Type Animator)> Animators = new List<(Func<AvaloniaProperty, bool>, Type)>
         {
             ( prop => typeof(bool).IsAssignableFrom(prop.PropertyType), typeof(BoolAnimator) ),
@@ -248,7 +274,7 @@ namespace Avalonia.Animation
             {
                 foreach (var setter in keyframe.Setters)
                 {
-                    var handler = setter.Animator ?? GetAnimatorType(setter.Property);
+                    var handler = Animation.GetAnimator(setter) ?? GetAnimatorType(setter.Property);
 
                     if (handler == null)
                     {
