@@ -1,6 +1,10 @@
 ﻿using Avalonia.Platform;
 using Avalonia.Rendering;
+#if SKIASHARPSHIM
+using ShimSkiaSharp;
+#else
 using SkiaSharp;
+#endif
 
 namespace Avalonia.Skia.Helpers
 {

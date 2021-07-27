@@ -11,7 +11,11 @@ using Avalonia.OpenGL;
 using Avalonia.OpenGL.Imaging;
 using Avalonia.Platform;
 using Avalonia.Visuals.Media.Imaging;
+#if SKIASHARPSHIM
+using ShimSkiaSharp;
+#else
 using SkiaSharp;
+#endif
 
 namespace Avalonia.Skia
 {

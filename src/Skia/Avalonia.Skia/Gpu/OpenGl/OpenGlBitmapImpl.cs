@@ -4,7 +4,11 @@ using System.IO;
 using Avalonia.OpenGL;
 using Avalonia.OpenGL.Imaging;
 using Avalonia.Utilities;
+#if SKIASHARPSHIM
+using ShimSkiaSharp;
+#else
 using SkiaSharp;
+#endif
 using static Avalonia.OpenGL.GlConsts;
 
 namespace Avalonia.Skia

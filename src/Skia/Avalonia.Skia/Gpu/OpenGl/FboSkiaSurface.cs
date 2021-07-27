@@ -1,6 +1,10 @@
 using System;
 using Avalonia.OpenGL;
+#if SKIASHARPSHIM
+using ShimSkiaSharp;
+#else
 using SkiaSharp;
+#endif
 using static Avalonia.OpenGL.GlConsts;
 namespace Avalonia.Skia
 {

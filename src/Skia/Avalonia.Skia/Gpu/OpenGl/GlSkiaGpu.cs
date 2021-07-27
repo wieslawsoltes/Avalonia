@@ -5,7 +5,11 @@ using Avalonia.Logging;
 using Avalonia.OpenGL;
 using Avalonia.OpenGL.Imaging;
 using Avalonia.OpenGL.Surfaces;
+#if SKIASHARPSHIM
+using ShimSkiaSharp;
+#else
 using SkiaSharp;
+#endif
 
 namespace Avalonia.Skia
 {

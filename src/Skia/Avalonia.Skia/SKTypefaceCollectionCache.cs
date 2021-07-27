@@ -3,7 +3,11 @@ using System.Collections.Concurrent;
 using Avalonia.Media;
 using Avalonia.Media.Fonts;
 using Avalonia.Platform;
+#if SKIASHARPSHIM
+using ShimSkiaSharp;
+#else
 using SkiaSharp;
+#endif
 
 namespace Avalonia.Skia
 {

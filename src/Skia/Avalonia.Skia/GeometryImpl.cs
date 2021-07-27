@@ -1,7 +1,11 @@
 using System;
 using Avalonia.Media;
 using Avalonia.Platform;
+#if SKIASHARPSHIM
+using ShimSkiaSharp;
+#else
 using SkiaSharp;
+#endif
 
 namespace Avalonia.Skia
 {

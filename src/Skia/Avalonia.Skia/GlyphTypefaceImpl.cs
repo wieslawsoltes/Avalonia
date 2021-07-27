@@ -2,7 +2,11 @@
 using System.Runtime.InteropServices;
 using Avalonia.Platform;
 using HarfBuzzSharp;
+#if SKIASHARPSHIM
+using ShimSkiaSharp;
+#else
 using SkiaSharp;
+#endif
 
 namespace Avalonia.Skia
 {

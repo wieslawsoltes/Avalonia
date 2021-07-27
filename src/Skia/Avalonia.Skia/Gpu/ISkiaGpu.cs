@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
 using Avalonia.OpenGL.Imaging;
+#if SKIASHARPSHIM
+using ShimSkiaSharp;
+#else
 using SkiaSharp;
+#endif
 
 namespace Avalonia.Skia
 {
