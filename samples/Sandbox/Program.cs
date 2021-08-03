@@ -10,6 +10,13 @@ namespace Sandbox
         public static AppBuilder BuildAvaloniaApp() =>
             AppBuilder.Configure<App>()
                 .UsePlatformDetect()
+                .With(new Win32PlatformOptions()
+                {
+                    UseDeferredRendering = true,
+                    AllowEglInitialization = false,
+                    UseWindowsUIComposition = false,
+                    UseWgl = false
+                })
                 .LogToTrace();
     }
 }
