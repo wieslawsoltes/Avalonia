@@ -1,0 +1,26 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:c="using:Sandbox">
+    <Design.PreviewWith>
+        <Border Padding="10">
+            <c:TagControl Content="Test" />
+        </Border>
+    </Design.PreviewWith>
+
+    <Style Selector="c|TagControl">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <ContentPresenter Name="PART_ContentPresenter"
+                                  Content="{TemplateBinding Content}">
+                    <ContentPresenter.ContentTemplate>
+                        <DataTemplate DataType="x:String">
+                            <TextBlock Text="{Binding .}"
+                                       TextTrimming="CharacterEllipsis" />
+                        </DataTemplate>
+                    </ContentPresenter.ContentTemplate>
+                </ContentPresenter>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+</Styles>
