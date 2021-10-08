@@ -3,6 +3,6 @@
         xmlns:c="clr-namespace:Sandbox"
         x:Class="Sandbox.MainWindow">
     <Panel HorizontalAlignment="Center" VerticalAlignment="Center">
-        <c:TagControl Content="Test"/>
+        <c:TagControl Content="Test" Width="28"/>
     </Panel>
 </Window>
