@@ -31,10 +31,6 @@ namespace Avalonia.Win32
                     {
                         newItem.Items = Populate(item.Menu);
                     }
-                    else if (item.HasClickHandlers && item is INativeMenuItemExporterEventsImplBridge bridge)
-                    {
-                        newItem.Click += (_, __) => bridge.RaiseClicked();
-                    }
 
                     yield return newItem;
                 }
