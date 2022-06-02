@@ -5,10 +5,26 @@ using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
+using Avalonia.Threading;
 using ControlCatalog.ViewModels;
 
 namespace ControlCatalog
 {
+    public class Test : Border
+    {
+        public Test()
+        {
+            DispatcherTimer.Run(
+                () =>
+                {
+                    InvalidateVisual();
+                    return true;
+                },
+                TimeSpan.FromMilliseconds(50),
+                DispatcherPriority.Render);
+        }
+    }
+    
     public class MainWindow : Window
     {
         private WindowNotificationManager _notificationArea;
@@ -19,7 +35,7 @@ namespace ControlCatalog
             this.InitializeComponent();
 
             //Renderer.DrawFps = true;
-            //Renderer.DrawDirtyRects = Renderer.DrawFps = true;
+            Renderer.DrawDirtyRects = Renderer.DrawFps = true;
 
             _notificationArea = new WindowNotificationManager(this)
             {

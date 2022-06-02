@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:ControlSamples;assembly=ControlSamples"
              xmlns:models="clr-namespace:ControlCatalog.Models"
-             xmlns:pages="clr-namespace:ControlCatalog.Pages">
+             xmlns:pages="clr-namespace:ControlCatalog.Pages"
+             xmlns:controlCatalog="clr-namespace:ControlCatalog">
   <Grid>
     <Grid.Styles>
       <Style Selector="TextBlock.h2">
@@ -13,6 +14,9 @@
       </Style>
     </Grid.Styles>
     <controls:HamburgerMenu Name="Sidebar">
+      <TabItem Header="Test">
+        <controlCatalog:Test Background="Red" Width="15" Height="15" />
+      </TabItem>
       <TabItem Header="Acrylic">
         <pages:AcrylicPage />
       </TabItem>
