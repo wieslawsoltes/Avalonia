@@ -34,8 +34,8 @@ namespace ControlCatalog
         {
             this.InitializeComponent();
 
-            //Renderer.DrawFps = true;
-            Renderer.DrawDirtyRects = Renderer.DrawFps = true;
+            Renderer.DrawFps = true;
+            //Renderer.DrawDirtyRects = Renderer.DrawFps = true;
 
             _notificationArea = new WindowNotificationManager(this)
             {
