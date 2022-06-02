@@ -117,6 +117,7 @@ namespace ControlCatalog.NetCore
                 {
                     EnableMultitouch = true
                 })
+                .With(new AvaloniaNativePlatformOptions { UseDeferredRendering = true, UseGpu = true })
                 .UseSkia()
                 .AfterSetup(builder =>
                 {
