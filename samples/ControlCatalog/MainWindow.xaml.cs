@@ -43,10 +43,10 @@ namespace ControlCatalog
                 MaxItems = 3
             };
 
-            DataContext = new MainWindowViewModel(_notificationArea);
-            _recentMenu = ((NativeMenu.GetMenu(this).Items[0] as NativeMenuItem).Menu.Items[2] as NativeMenuItem).Menu;
+            //DataContext = new MainWindowViewModel(_notificationArea);
+            //_recentMenu = ((NativeMenu.GetMenu(this).Items[0] as NativeMenuItem).Menu.Items[2] as NativeMenuItem).Menu;
 
-            ExtendClientAreaChromeHints = Avalonia.Platform.ExtendClientAreaChromeHints.OSXThickTitleBar;
+            //ExtendClientAreaChromeHints = Avalonia.Platform.ExtendClientAreaChromeHints.OSXThickTitleBar;
         }
 
         public static string MenuQuitHeader => RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? "Quit Avalonia" : "E_xit";
