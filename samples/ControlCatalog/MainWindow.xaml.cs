@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using Avalonia.Threading;
 using ControlCatalog.ViewModels;
 
@@ -12,11 +13,18 @@ namespace ControlCatalog
 {
     public class Test : Border
     {
+        
         public Test()
         {
+            var count = 0;
+            var brushes = new[] { Brushes.Red, Brushes.Green, Brushes.Blue };
             DispatcherTimer.Run(
                 () =>
                 {
+                    Background = brushes[count];
+                    count++;
+                    if (count >= brushes.Length)
+                        count = 0;
                     InvalidateVisual();
                     return true;
                 },
@@ -34,7 +42,7 @@ namespace ControlCatalog
         {
             this.InitializeComponent();
 
-            Renderer.DrawFps = true;
+            //Renderer.DrawFps = true;
             //Renderer.DrawDirtyRects = Renderer.DrawFps = true;
 
             _notificationArea = new WindowNotificationManager(this)
