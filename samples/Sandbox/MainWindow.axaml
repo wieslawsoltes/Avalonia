@@ -1,5 +1,15 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'
+        MinWidth="720" MinHeight="480"
+        WindowStartupLocation="CenterScreen"
+        ExtendClientAreaTitleBarHeightHint="50"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="Default, PreferSystemChrome, OSXThickTitleBar"
+        Background="Blue"
+        Name="MainWindow"
+        WindowState="Maximized"
         x:Class="Sandbox.MainWindow">
-    <TextBox />
+  <Border Margin="{Binding #MainWindow.OffScreenMargin}" BorderBrush="Red" BorderThickness="1" Background="Green">
+    <Button Content="Maximize" VerticalAlignment="Top" Name="MaximizeButton" Click="MaximizeButton_OnClick" />
+  </Border>
 </Window>
