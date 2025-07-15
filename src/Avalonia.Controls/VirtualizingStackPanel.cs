@@ -159,7 +159,6 @@ namespace Avalonia.Controls
 
             try
             {
-                _realizedElements?.ValidateStartU(Orientation);
                 _realizedElements ??= new();
                 _measureElements ??= new();
 
@@ -562,28 +561,10 @@ namespace Avalonia.Controls
             if (_realizedElements is null)
                 return _lastEstimatedElementSizeU;
 
-            var orientation = Orientation;
-            var total = 0.0;
-            var divisor = 0.0;
-
-            // Average the desired size of the realized, measured elements.
-            foreach (var element in _realizedElements.Elements)
-            {
-                if (element is null || !element.IsMeasureValid)
-                    continue;
-                var sizeU = orientation == Orientation.Horizontal ?
-                    element.DesiredSize.Width :
-                    element.DesiredSize.Height;
-                total += sizeU;
-                ++divisor;
-            }
-
-            // Check we have enough information on which to base our estimate.
-            if (divisor == 0 || total == 0)
-                return _lastEstimatedElementSizeU;
-
-            // Store and return the estimate.
-            return _lastEstimatedElementSizeU = total / divisor;
+            var result = _realizedElements.EstimateElementSizeU();
+            if (result >= 0)
+                _lastEstimatedElementSizeU = result;
+            return _lastEstimatedElementSizeU;
         }
 
         private void GetOrEstimateAnchorElementForViewport(
@@ -593,64 +574,26 @@ namespace Avalonia.Controls
             out int index,
             out double position)
         {
-            // We have no elements, or we're at the start of the viewport.
-            if (itemCount <= 0 || MathUtilities.IsZero(viewportStartU))
+            if (_realizedElements is null)
             {
                 index = 0;
                 position = 0;
                 return;
             }
 
-            // If we have realised elements and a valid StartU then try to use this information to
-            // get the anchor element.
-            if (_realizedElements?.StartU is { } u && !double.IsNaN(u))
-            {
-                var orientation = Orientation;
-
-                for (var i = 0; i < _realizedElements.Elements.Count; ++i)
-                {
-                    if (_realizedElements.Elements[i] is not { } element)
-                        continue;
-
-                    var sizeU = orientation == Orientation.Horizontal ?
-                        element.DesiredSize.Width :
-                        element.DesiredSize.Height;
-                    var endU = u + sizeU;
-
-                    if (endU > viewportStartU && u < viewportEndU)
-                    {
-                        index = _realizedElements.FirstIndex + i;
-                        position = u;
-                        return;
-                    }
-
-                    u = endU;
-                }
-            }
-
-            // We don't have any realized elements in the requested viewport, or can't rely on
-            // StartU being valid. Estimate the index using only the estimated element size.
-            var estimatedSize = EstimateElementSizeU();
-
-            // Estimate the element at the start of the viewport.
-            var startIndex = Math.Min((int)(viewportStartU / estimatedSize), itemCount - 1);
-            index = startIndex;
-            position = startIndex * estimatedSize;
+            (index, position) = _realizedElements.GetOrEstimateAnchorElementForViewport(
+                viewportStartU,
+                viewportEndU,
+                itemCount,
+                ref _lastEstimatedElementSizeU);
         }
 
         private double GetOrEstimateElementU(int index)
         {
-            // Return the position of the existing element if realized.
-            var u = _realizedElements?.GetElementU(index) ?? double.NaN;
+            if (_realizedElements is null)
+                return index * _lastEstimatedElementSizeU;
 
-            if (!double.IsNaN(u))
-                return u;
-
-            // Estimate the element size.
-            var estimatedSize = EstimateElementSizeU();
-
-            // TODO: Use _startU to work this out.
-            return index * estimatedSize;
+            return _realizedElements.GetOrEstimateElementU(index, ref _lastEstimatedElementSizeU);
         }
 
 
