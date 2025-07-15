@@ -563,6 +563,13 @@ namespace Avalonia.Controls.Utils
 
                 if (!element.IsMeasureValid)
                 {
+                    var newSize = orientation == Orientation.Horizontal ?
+                        element.Width :
+                        element.Height;
+
+                    if (!double.IsNaN(newSize))
+                        _sizes[i] = newSize;
+
                     _startUUnstable = true;
                     break;
                 }
