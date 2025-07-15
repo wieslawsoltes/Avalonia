@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Avalonia.Utilities;
+using Avalonia.Layout;
 
 namespace Avalonia.Controls.Utils
 {
@@ -540,6 +541,42 @@ namespace Avalonia.Controls.Utils
             _startUUnstable = false;
             _elements?.Clear();
             _sizes?.Clear();
+        }
+
+        /// <summary>
+        /// Validates that <see cref="StartU"/> is still valid.
+        /// </summary>
+        /// <param name="orientation">The panel orientation.</param>
+        /// <remarks>
+        /// If the U size of any element in the realized elements has changed,
+        /// then the value of <see cref="StartU"/> should be considered unstable.
+        /// </remarks>
+        public void ValidateStartU(Orientation orientation)
+        {
+            if (_elements is null || _sizes is null || _startUUnstable)
+                return;
+
+            for (var i = 0; i < _elements.Count; ++i)
+            {
+                if (_elements[i] is not { } element)
+                    continue;
+
+                if (!element.IsMeasureValid)
+                {
+                    _startUUnstable = true;
+                    break;
+                }
+
+                var sizeU = orientation == Orientation.Horizontal ?
+                    element.DesiredSize.Width :
+                    element.DesiredSize.Height;
+
+                if (sizeU != _sizes[i])
+                {
+                    _startUUnstable = true;
+                    break;
+                }
+            }
         }
     }
 }

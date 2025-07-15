@@ -157,8 +157,11 @@ namespace Avalonia.Controls
 
             _isInLayout = true;
 
+            var previousEstimatedSize = _lastEstimatedElementSizeU;
+
             try
             {
+                _realizedElements?.ValidateStartU(Orientation);
                 _realizedElements ??= new();
                 _measureElements ??= new();
 
@@ -181,6 +184,15 @@ namespace Avalonia.Controls
                 // Now swap the measureElements and realizedElements collection.
                 (_measureElements, _realizedElements) = (_realizedElements, _measureElements);
                 _measureElements.ResetForReuse();
+
+                // Update the cached estimated element size now that we have the
+                // latest measurements.
+                _ = EstimateElementSizeU();
+
+                if (!MathUtilities.AreClose(previousEstimatedSize, _lastEstimatedElementSizeU))
+                {
+                    InvalidateMeasure();
+                }
 
                 // If there is a focused element is outside the visible viewport (i.e.
                 // _focusedElement is non-null), ensure it's measured.
