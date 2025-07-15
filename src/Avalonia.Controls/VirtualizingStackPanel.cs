@@ -64,6 +64,7 @@ namespace Avalonia.Controls
         private bool _isInLayout;
         private bool _isWaitingForViewportUpdate;
         private double _lastEstimatedElementSizeU = 25;
+        private const double EstimatedSizeSmoothing = 0.5;
         private RealizedStackElements? _measureElements;
         private RealizedStackElements? _realizedElements;
         private IScrollAnchorProvider? _scrollAnchorProvider;
@@ -575,8 +576,14 @@ namespace Avalonia.Controls
 
             var result = _realizedElements.EstimateElementSizeU();
             if (result >= 0)
-                _lastEstimatedElementSizeU = result;
+                UpdateEstimatedElementSize(result);
             return _lastEstimatedElementSizeU;
+        }
+
+        private void UpdateEstimatedElementSize(double newEstimate)
+        {
+            _lastEstimatedElementSizeU = (_lastEstimatedElementSizeU * (1 - EstimatedSizeSmoothing)) +
+                (newEstimate * EstimatedSizeSmoothing);
         }
 
         private void GetOrEstimateAnchorElementForViewport(
@@ -593,11 +600,14 @@ namespace Avalonia.Controls
                 return;
             }
 
+            var estimate = _lastEstimatedElementSizeU;
             (index, position) = _realizedElements.GetOrEstimateAnchorElementForViewport(
                 viewportStartU,
                 viewportEndU,
                 itemCount,
-                ref _lastEstimatedElementSizeU);
+                ref estimate);
+            if (estimate >= 0)
+                UpdateEstimatedElementSize(estimate);
         }
 
         private double GetOrEstimateElementU(int index)
@@ -605,7 +615,11 @@ namespace Avalonia.Controls
             if (_realizedElements is null)
                 return index * _lastEstimatedElementSizeU;
 
-            return _realizedElements.GetOrEstimateElementU(index, ref _lastEstimatedElementSizeU);
+            var estimate = _lastEstimatedElementSizeU;
+            var result = _realizedElements.GetOrEstimateElementU(index, ref estimate);
+            if (estimate >= 0)
+                UpdateEstimatedElementSize(estimate);
+            return result;
         }
 
 
