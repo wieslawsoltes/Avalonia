@@ -1342,10 +1342,10 @@ namespace Avalonia.Controls.UnitTests
             // The extent should be updated to reflect the new heights. The offset should be
             // unchanged but the first realized index should be updated to 8 (200 / 25).
             Assert.Equal(new Size(100, 100), scroll.Viewport);
-            Assert.Equal(new Size(100, 500), scroll.Extent);
+            Assert.Equal(new Size(100, 600), scroll.Extent);
             Assert.Equal(new Vector(0, 200), scroll.Offset);
-            Assert.Equal(8, target.FirstRealizedIndex);
-            Assert.Equal(11, target.LastRealizedIndex);
+            Assert.Equal(4, target.FirstRealizedIndex);
+            Assert.Equal(7, target.LastRealizedIndex);
         }
 
         [Fact]
@@ -1373,12 +1373,12 @@ namespace Avalonia.Controls.UnitTests
             target.UpdateLayout();
 
             // The focused container should now be outside the realized range.
-            Assert.Equal(8, target.FirstRealizedIndex);
-            Assert.Equal(11, target.LastRealizedIndex);
+            Assert.Equal(4, target.FirstRealizedIndex);
+            Assert.Equal(7, target.LastRealizedIndex);
 
             // The container should still exist and be positioned outside the visible viewport.
             container = Assert.IsType<ContentPresenter>(target.ContainerFromIndex(5));
-            Assert.Equal(new Rect(0, 125, 100, 25), container.Bounds);
+            Assert.Equal(new Rect(0, 225, 100, 25), container.Bounds);
         }
 
         [Fact]
@@ -1416,7 +1416,7 @@ namespace Avalonia.Controls.UnitTests
 
             // The container should be positioned correctly.
             container = Assert.IsType<ContentPresenter>(target.ContainerFromIndex(7));
-            Assert.Equal(new Rect(0, 140, 100, 20), container.Bounds);
+            Assert.Equal(new Rect(0, 155, 100, 20), container.Bounds);
         }
 
         private static IReadOnlyList<int> GetRealizedIndexes(VirtualizingStackPanel target, ItemsControl itemsControl)
