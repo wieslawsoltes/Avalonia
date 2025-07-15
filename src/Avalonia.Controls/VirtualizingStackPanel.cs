@@ -64,7 +64,6 @@ namespace Avalonia.Controls
         private bool _isInLayout;
         private bool _isWaitingForViewportUpdate;
         private double _lastEstimatedElementSizeU = 25;
-        private const double EstimatedSizeSmoothing = 0.5;
         private RealizedStackElements? _measureElements;
         private RealizedStackElements? _realizedElements;
         private IScrollAnchorProvider? _scrollAnchorProvider;
@@ -158,7 +157,6 @@ namespace Avalonia.Controls
 
             _isInLayout = true;
 
-            var previousEstimatedSize = _lastEstimatedElementSizeU;
 
             try
             {
@@ -189,11 +187,6 @@ namespace Avalonia.Controls
                 // Update the cached estimated element size now that we have the
                 // latest measurements.
                 _ = EstimateElementSizeU();
-
-                if (!MathUtilities.AreClose(previousEstimatedSize, _lastEstimatedElementSizeU))
-                {
-                    InvalidateMeasure();
-                }
 
                 // If there is a focused element is outside the visible viewport (i.e.
                 // _focusedElement is non-null), ensure it's measured.
@@ -582,8 +575,7 @@ namespace Avalonia.Controls
 
         private void UpdateEstimatedElementSize(double newEstimate)
         {
-            _lastEstimatedElementSizeU = (_lastEstimatedElementSizeU * (1 - EstimatedSizeSmoothing)) +
-                (newEstimate * EstimatedSizeSmoothing);
+            _lastEstimatedElementSizeU = newEstimate;
         }
 
         private void GetOrEstimateAnchorElementForViewport(
