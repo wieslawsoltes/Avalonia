@@ -6,7 +6,8 @@ using Avalonia.Utilities;
 namespace Avalonia.Controls.Utils
 {
     /// <summary>
-    /// Stores the realized element state for a <see cref="TreeDataGridPresenterBase{TItem}"/>.
+    /// Stores the realized element state for a virtualizing panel that arranges its
+    /// children in a stack layout, such as <see cref="VirtualizingStackPanel"/>.
     /// </summary>
     internal class RealizedStackElements
     {
@@ -51,7 +52,7 @@ namespace Avalonia.Controls.Utils
         /// </summary>
         /// <param name="index">The index of the element.</param>
         /// <param name="element">The element.</param>
-        /// <param name="u">The position of the elemnt on the primary axis.</param>
+        /// <param name="u">The position of the element on the primary axis.</param>
         /// <param name="sizeU">The size of the element on the primary axis.</param>
         public void Add(int index, Control element, double u, double sizeU)
         {
@@ -212,7 +213,9 @@ namespace Avalonia.Controls.Utils
             // Store the estimated size for the next layout pass.
             estimatedElementSizeU = estimatedSize;
 
-            // TODO: Use _startU to work this out.
+            if (!_startUUnstable)
+                return _startU + (index - FirstIndex) * estimatedSize;
+
             return index * estimatedSize;
         }
 
