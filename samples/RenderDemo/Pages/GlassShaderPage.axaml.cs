@@ -16,7 +16,7 @@ public partial class GlassShaderPage : UserControl
     private const string ShaderTemplate = @"uniform shader input;
 
 half4 main(float2 coord)
-{
+{{
     const float angle = {0};
     const float intensity = {1};
     const float refraction = {2};
@@ -33,7 +33,7 @@ half4 main(float2 coord)
     color.b += offset.y * dispersion;
     color = mix(color, half4(1.0, 1.0, 1.0, color.a), frost * 0.25);
     return color;
-}";
+}}";
 
     public GlassShaderPage()
     {
