@@ -73,6 +73,9 @@
     <TabItem Header="WriteableBitmap">
       <pages:WriteableBitmapPage />
     </TabItem>
+    <TabItem Header="Pixel Shader">
+      <pages:PixelShaderPage />
+    </TabItem>
     <TabItem Header="GlyphRun">
       <pages:GlyphRunPage />
     </TabItem>

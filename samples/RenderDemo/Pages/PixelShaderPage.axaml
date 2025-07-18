@@ -1,0 +1,14 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="RenderDemo.Pages.PixelShaderPage">
+  <Canvas Width="200" Height="200" Background="White">
+    <Rectangle x:Name="Target" Width="200" Height="200">
+      <Rectangle.Fill>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+          <GradientStop Color="Red" Offset="0" />
+          <GradientStop Color="Blue" Offset="1" />
+        </LinearGradientBrush>
+      </Rectangle.Fill>
+    </Rectangle>
+  </Canvas>
+</UserControl>

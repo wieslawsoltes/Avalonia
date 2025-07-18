@@ -44,6 +44,20 @@ partial class DrawingContextImpl
             return SKImageFilter.CreateDropShadow((float)drop.OffsetX, (float)drop.OffsetY, sigma, sigma, color);
         }
 
+        if (effect is IPixelShaderEffect pixelShader)
+        {
+            var runtimeEffect = SKRuntimeEffect.Create(pixelShader.ShaderSource, out var errors);
+            if (runtimeEffect is not null)
+            {
+                using var colorFilter = runtimeEffect.ToColorFilter();
+                return SKImageFilter.CreateColorFilter(colorFilter);
+            }
+            else
+            {
+                throw new InvalidOperationException($"Failed to compile shader: {errors}");
+            }
+        }
+
         return null;
     }
     
