@@ -1,18 +1,19 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:viewModels="using:RenderDemo.ViewModels"
-             x:Class="RenderDemo.Pages.GlassShaderPage">
+             x:Class="RenderDemo.Pages.GlassShaderPage"
+             x:DataType="viewModels:GlassShaderViewModel">
   <UserControl.DataContext>
     <viewModels:GlassShaderViewModel />
   </UserControl.DataContext>
-  <Grid ColumnDefinitions="Auto,200" Padding="10" Spacing="10" x:Name="RootGrid">
+  <Grid ColumnDefinitions="Auto,200" Margin="10" ColumnSpacing="10" x:Name="RootGrid">
     <Grid Width="200" Height="200" x:Name="BackgroundArea">
       <Image x:Name="BackgroundImage"
              Source="avares://ControlCatalog/Assets/image1.jpg"
              Stretch="UniformToFill" />
       <Rectangle x:Name="Target" Width="200" Height="200" Opacity="0.8">
         <Rectangle.Fill>
-          <VisualBrush Visual="{x:Reference BackgroundImage}" Stretch="Fill" />
+          <VisualBrush Visual="{Binding ElementName=BackgroundImage}" Stretch="Fill" />
         </Rectangle.Fill>
       </Rectangle>
     </Grid>
