@@ -17,6 +17,7 @@
     <ProjectReference Include="..\..\src\Linux\Avalonia.LinuxFramebuffer\Avalonia.LinuxFramebuffer.csproj" />
     <ProjectReference Include="..\MiniMvvm\MiniMvvm.csproj" />
     <ProjectReference Include="..\SampleControls\ControlSamples.csproj" />
+    <ProjectReference Include="..\ControlCatalog\ControlCatalog.csproj" />
   </ItemGroup>
   <Import Project="..\..\build\SampleApp.props" />
   <Import Project="..\..\build\EmbedXaml.props" />
