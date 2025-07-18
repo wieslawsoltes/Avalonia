@@ -31,6 +31,7 @@ half4 main(float2 coord)
     color.rgb += noise * intensity;
     color.r += offset.x * dispersion;
     color.b += offset.y * dispersion;
+    color = mix(color, half4(1.0, 1.0, 1.0, color.a), frost * 0.25);
     return color;
 }";
 

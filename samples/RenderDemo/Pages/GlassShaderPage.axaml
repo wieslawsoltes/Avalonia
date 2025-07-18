@@ -5,17 +5,17 @@
   <UserControl.DataContext>
     <viewModels:GlassShaderViewModel />
   </UserControl.DataContext>
-  <Grid ColumnDefinitions="Auto,200" Padding="10" Spacing="10">
-    <Canvas Width="200" Height="200" Background="White">
-      <Rectangle x:Name="Target" Width="200" Height="200">
+  <Grid ColumnDefinitions="Auto,200" Padding="10" Spacing="10" x:Name="RootGrid">
+    <Grid Width="200" Height="200" x:Name="BackgroundArea">
+      <Image x:Name="BackgroundImage"
+             Source="avares://ControlCatalog/Assets/image1.jpg"
+             Stretch="UniformToFill" />
+      <Rectangle x:Name="Target" Width="200" Height="200" Opacity="0.8">
         <Rectangle.Fill>
-          <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="Orange" Offset="0" />
-            <GradientStop Color="Purple" Offset="1" />
-          </LinearGradientBrush>
+          <VisualBrush Visual="{x:Reference BackgroundImage}" Stretch="Fill" />
         </Rectangle.Fill>
       </Rectangle>
-    </Canvas>
+    </Grid>
     <StackPanel Grid.Column="1" Spacing="4">
       <TextBlock Text="Angle" />
       <Slider Minimum="0" Maximum="6.283" Value="{Binding Angle}" />
