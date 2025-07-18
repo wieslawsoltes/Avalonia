@@ -76,6 +76,9 @@
     <TabItem Header="Pixel Shader">
       <pages:PixelShaderPage />
     </TabItem>
+    <TabItem Header="Glass Shader">
+      <pages:GlassShaderPage />
+    </TabItem>
     <TabItem Header="GlyphRun">
       <pages:GlyphRunPage />
     </TabItem>

@@ -1,0 +1,34 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:viewModels="using:RenderDemo.ViewModels"
+             x:Class="RenderDemo.Pages.GlassShaderPage">
+  <UserControl.DataContext>
+    <viewModels:GlassShaderViewModel />
+  </UserControl.DataContext>
+  <Grid ColumnDefinitions="Auto,200" Padding="10" Spacing="10">
+    <Canvas Width="200" Height="200" Background="White">
+      <Rectangle x:Name="Target" Width="200" Height="200">
+        <Rectangle.Fill>
+          <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="Orange" Offset="0" />
+            <GradientStop Color="Purple" Offset="1" />
+          </LinearGradientBrush>
+        </Rectangle.Fill>
+      </Rectangle>
+    </Canvas>
+    <StackPanel Grid.Column="1" Spacing="4">
+      <TextBlock Text="Angle" />
+      <Slider Minimum="0" Maximum="6.283" Value="{Binding Angle}" />
+      <TextBlock Text="Intensity" />
+      <Slider Minimum="0" Maximum="1" Value="{Binding Intensity}" />
+      <TextBlock Text="Refraction" />
+      <Slider Minimum="0" Maximum="10" Value="{Binding Refraction}" />
+      <TextBlock Text="Depth" />
+      <Slider Minimum="0" Maximum="10" Value="{Binding Depth}" />
+      <TextBlock Text="Dispersion" />
+      <Slider Minimum="0" Maximum="1" Value="{Binding Dispersion}" />
+      <TextBlock Text="Frost" />
+      <Slider Minimum="0" Maximum="2" Value="{Binding Frost}" />
+    </StackPanel>
+  </Grid>
+</UserControl>
