@@ -40,7 +40,15 @@ src/tools/XamlDebugMetadataScanner/
 - ✅ `--recursive`: Scan subdirectories
 - ✅ `--verbose`: Show detailed output
 - ✅ `--json`: Machine-readable output
+- ✅ `--xaml-file`: Analyze specific XAML file for control-to-position mapping
 - ✅ `--help`: Usage information
+
+### 5. **XAML File Mapping (NEW)**
+- ✅ **Control Detection**: Groups sequence points into logical control boundaries
+- ✅ **Position Mapping**: Maps controls to exact line/column positions in XAML
+- ✅ **Control Classification**: Infers control types (SimpleControl, BasicControl, ContainerControl, ComplexControl)
+- ✅ **Property Analysis**: Detects multi-line definitions, nesting levels, attribute patterns
+- ✅ **Method Correlation**: Links controls to their compilation methods (!XamlIlPopulate, InitializeComponent)
 
 ## 🧪 Testing Results
 
@@ -161,18 +169,22 @@ dotnet run -- --path "samples/Sandbox/bin/Debug/net8.0"
 # Scan with all options
 dotnet run -- --path "path/to/assemblies" --recursive --verbose --json
 
+# Analyze specific XAML file
+dotnet run -- --path "samples/Sandbox/bin/Debug/net8.0" --xaml-file MainWindow.axaml
+
 # Use the build script for examples
 ./build-and-run.sh
 ```
 
 ## ✨ Key Achievements
 
-1. **✅ Complete Implementation** - All requested features working
+1. **✅ Complete Implementation** - All requested features working including XAML file mapping
 2. **✅ Production Ready** - Robust error handling and validation  
 3. **✅ Well Documented** - Comprehensive README and examples
 4. **✅ Tested Thoroughly** - Verified on real Avalonia projects
 5. **✅ Extensible Design** - JSON output enables automation
 6. **✅ Cross-Platform** - Works on all .NET 8 supported platforms
+7. **✅ XAML Control Mapping** - NEW: Maps runtime controls to exact XAML positions
 
 ## 🔮 Future Enhancements
 

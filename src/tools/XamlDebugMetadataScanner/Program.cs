@@ -176,6 +176,241 @@ class Program
         }
     }
 
+    static void AnalyzeXamlFileMapping(DirectoryInfo directory, string xamlFileName, bool json)
+    {
+        if (!directory.Exists)
+        {
+            Console.WriteLine($"Error: Directory '{directory.FullName}' does not exist.");
+            return;
+        }
+
+        var assemblyFiles = directory.GetFiles("*.dll", SearchOption.TopDirectoryOnly)
+            .Concat(directory.GetFiles("*.exe", SearchOption.TopDirectoryOnly))
+            .Where(f => !f.Name.Contains(".resources."))
+            .OrderBy(f => f.FullName);
+
+        var mappingResults = new List<XamlControlMapping>();
+        string? targetXamlPath = null;
+
+        if (!json)
+        {
+            Console.WriteLine($"🔍 Analyzing XAML file mapping for: {xamlFileName}");
+            Console.WriteLine($"Directory: {directory.FullName}");
+            Console.WriteLine();
+        }
+
+        foreach (var assemblyFile in assemblyFiles)
+        {
+            try
+            {
+                var pdbFile = new FileInfo(Path.ChangeExtension(assemblyFile.FullName, ".pdb"));
+                
+                if (!pdbFile.Exists)
+                    continue;
+
+                var xamlInfo = ScanAssemblyForXamlDebugInfo(assemblyFile, pdbFile, false);
+                
+                // Find the target XAML file
+                var targetDocument = xamlInfo.Documents.FirstOrDefault(d => 
+                    d.IsXamlFile && Path.GetFileName(d.Name).Equals(xamlFileName, StringComparison.OrdinalIgnoreCase));
+
+                if (targetDocument == null)
+                    continue;
+
+                targetXamlPath = targetDocument.Name;
+
+                // Get sequence points for this XAML file
+                var xamlSequencePoints = xamlInfo.SequencePoints
+                    .Where(sp => sp.DocumentName.Equals(targetDocument.Name, StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(sp => sp.StartLine)
+                    .ThenBy(sp => sp.StartColumn)
+                    .ToList();
+
+                // Group sequence points by method to identify control creation patterns
+                var methodGroups = xamlSequencePoints
+                    .GroupBy(sp => sp.MethodName)
+                    .Where(g => g.Key.Contains("!XamlIl") || g.Key.Contains("InitializeComponent"))
+                    .ToList();
+
+                foreach (var methodGroup in methodGroups)
+                {
+                    var controlMappings = AnalyzeControlCreationPattern(methodGroup.Key, methodGroup.ToList(), targetDocument.Name);
+                    mappingResults.AddRange(controlMappings);
+                }
+
+                if (!json && xamlSequencePoints.Any())
+                {
+                    PrintXamlFileMapping(assemblyFile.Name, targetDocument, xamlSequencePoints, mappingResults);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (!json)
+                    Console.WriteLine($"❌ Error analyzing {assemblyFile.Name}: {ex.Message}");
+            }
+        }
+
+        if (json)
+        {
+            var result = new XamlFileMappingResult
+            {
+                XamlFileName = xamlFileName,
+                XamlFilePath = targetXamlPath,
+                ControlMappings = mappingResults
+            };
+
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+            Console.WriteLine(JsonSerializer.Serialize(result, options));
+        }
+        else if (mappingResults.Count == 0)
+        {
+            Console.WriteLine($"❌ No XAML file '{xamlFileName}' found or no debug information available.");
+            Console.WriteLine("Make sure the assembly was built with debug information and contains the specified XAML file.");
+        }
+    }
+
+    static List<XamlControlMapping> AnalyzeControlCreationPattern(string methodName, List<SequencePointInfo> sequencePoints, string xamlFile)
+    {
+        var mappings = new List<XamlControlMapping>();
+        
+        // Group sequence points that are close together (likely the same control)
+        var controlGroups = new List<List<SequencePointInfo>>();
+        List<SequencePointInfo>? currentGroup = null;
+        
+        foreach (var sp in sequencePoints)
+        {
+            if (currentGroup == null || 
+                sp.StartLine - currentGroup.Last().StartLine > 2 || 
+                (sp.StartLine == currentGroup.Last().StartLine && sp.StartColumn - currentGroup.Last().StartColumn > 50))
+            {
+                currentGroup = new List<SequencePointInfo>();
+                controlGroups.Add(currentGroup);
+            }
+            currentGroup.Add(sp);
+        }
+
+        // Analyze each group to determine control type and properties
+        foreach (var group in controlGroups)
+        {
+            var primarySequencePoint = group.First();
+            var controlType = InferControlTypeFromSequencePoints(group, methodName);
+            var properties = ExtractPropertiesFromSequencePoints(group);
+
+            var mapping = new XamlControlMapping
+            {
+                ControlType = controlType,
+                XamlFile = xamlFile,
+                StartLine = primarySequencePoint.StartLine,
+                StartColumn = primarySequencePoint.StartColumn,
+                EndLine = group.Last().EndLine,
+                EndColumn = group.Last().EndColumn,
+                Method = methodName,
+                Properties = properties,
+                SequencePointCount = group.Count
+            };
+
+            mappings.Add(mapping);
+        }
+
+        return mappings;
+    }
+
+    static string InferControlTypeFromSequencePoints(List<SequencePointInfo> sequencePoints, string methodName)
+    {
+        // Try to infer control type from method name patterns or sequence point positions
+        if (methodName.Contains("Button"))
+            return "Button";
+        if (methodName.Contains("TextBox"))
+            return "TextBox";
+        if (methodName.Contains("Grid"))
+            return "Grid";
+        if (methodName.Contains("StackPanel"))
+            return "StackPanel";
+        if (methodName.Contains("Border"))
+            return "Border";
+
+        // Look at the sequence point pattern to infer control type
+        var lineSpan = sequencePoints.Last().EndLine - sequencePoints.First().StartLine;
+        var sequenceCount = sequencePoints.Count;
+
+        if (sequenceCount == 1)
+            return "SimpleControl";
+        else if (sequenceCount < 5)
+            return "BasicControl";
+        else if (sequenceCount < 15)
+            return "ContainerControl";
+        else
+            return "ComplexControl";
+    }
+
+    static List<string> ExtractPropertiesFromSequencePoints(List<SequencePointInfo> sequencePoints)
+    {
+        var properties = new List<string>();
+        
+        // Analyze the sequence point distribution to infer likely properties
+        var columnPositions = sequencePoints.Select(sp => sp.StartColumn).Distinct().OrderBy(c => c).ToList();
+        var linePositions = sequencePoints.Select(sp => sp.StartLine).Distinct().OrderBy(l => l).ToList();
+
+        // Add inferred properties based on patterns
+        if (columnPositions.Count > 3)
+            properties.Add("Multiple attributes detected");
+        
+        if (linePositions.Count > 1)
+            properties.Add("Multi-line definition");
+            
+        if (sequencePoints.Any(sp => sp.StartColumn < 10))
+            properties.Add("Root-level element");
+        else if (sequencePoints.All(sp => sp.StartColumn > 20))
+            properties.Add("Nested element");
+
+        return properties;
+    }
+
+    static void PrintXamlFileMapping(string assemblyName, DocumentInfo xamlDocument, List<SequencePointInfo> sequencePoints, List<XamlControlMapping> controlMappings)
+    {
+        Console.WriteLine($"🎯 {assemblyName}");
+        Console.WriteLine($"📄 XAML File: {Path.GetFileName(xamlDocument.Name)}");
+        Console.WriteLine($"   Full Path: {xamlDocument.Name}");
+        Console.WriteLine($"   Hash: {xamlDocument.HashAlgorithm} - {Convert.ToHexString(xamlDocument.Hash)}");
+        Console.WriteLine();
+
+        Console.WriteLine($"🎨 Control Mappings ({controlMappings.Count} controls detected):");
+        foreach (var mapping in controlMappings.OrderBy(m => m.StartLine).ThenBy(m => m.StartColumn))
+        {
+            Console.WriteLine($"   📍 Line {mapping.StartLine}:{mapping.StartColumn}-{mapping.EndLine}:{mapping.EndColumn}");
+            Console.WriteLine($"      Type: {mapping.ControlType}");
+            Console.WriteLine($"      Method: {mapping.Method}");
+            Console.WriteLine($"      Sequence Points: {mapping.SequencePointCount}");
+            if (mapping.Properties.Any())
+            {
+                Console.WriteLine($"      Properties: {string.Join(", ", mapping.Properties)}");
+            }
+            Console.WriteLine();
+        }
+
+        Console.WriteLine($"📊 Detailed Sequence Points ({sequencePoints.Count} total):");
+        var methodGroups = sequencePoints.GroupBy(sp => sp.MethodName).Take(3); // Limit for readability
+        
+        foreach (var methodGroup in methodGroups)
+        {
+            Console.WriteLine($"   🔧 {methodGroup.Key}:");
+            foreach (var sp in methodGroup.Take(10)) // Limit sequence points per method
+            {
+                Console.WriteLine($"      • Line {sp.StartLine}:{sp.StartColumn}-{sp.EndLine}:{sp.EndColumn} (Offset: {sp.Offset})");
+            }
+            if (methodGroup.Count() > 10)
+                Console.WriteLine($"      ... and {methodGroup.Count() - 10} more sequence points");
+            Console.WriteLine();
+        }
+
+        Console.WriteLine(new string('─', 80));
+        Console.WriteLine();
+    }
+
     static XamlDebugInfo ScanAssemblyForXamlDebugInfo(FileInfo assemblyFile, FileInfo pdbFile, bool verbose)
     {
         var debugInfo = new XamlDebugInfo();
@@ -535,4 +770,24 @@ public class ScanSummary
     public int TotalAssemblies { get; set; }
     public int AssembliesWithXamlDebugInfo { get; set; }
     public List<AssemblyXamlInfo> Results { get; set; } = new();
+}
+
+public class XamlControlMapping
+{
+    public string ControlType { get; set; } = "";
+    public string XamlFile { get; set; } = "";
+    public int StartLine { get; set; }
+    public int StartColumn { get; set; }
+    public int EndLine { get; set; }
+    public int EndColumn { get; set; }
+    public string Method { get; set; } = "";
+    public List<string> Properties { get; set; } = new();
+    public int SequencePointCount { get; set; }
+}
+
+public class XamlFileMappingResult
+{
+    public string XamlFileName { get; set; } = "";
+    public string? XamlFilePath { get; set; }
+    public List<XamlControlMapping> ControlMappings { get; set; } = new();
 }

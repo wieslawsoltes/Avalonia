@@ -1,6 +1,22 @@
-# XAML Debug Metadata Scanner
+# XAML Debug Metadata S```bash
+# Scan a single directory
+XamlDebugMetadataScanner --path /path/to/assemblies
 
-A command-line tool for scanning .NET assemblies and their PDB files to extract and display XAML-related debug metadata that Avalonia emits during XAML compilation.
+# Scan recursively with verbose output
+XamlDebugMetadataScanner --path /path/to/assemblies --recursive --verbose
+
+# Output as JSON for automation/integration
+XamlDebugMetadataScanner --path /path/to/assemblies --json
+
+# Analyze specific XAML file for control-to-position mapping
+XamlDebugMetadataScanner --path /path/to/assemblies --xaml-file MainWindow.axaml
+
+# Combine XAML analysis with JSON output
+XamlDebugMetadataScanner --path /path/to/assemblies --xaml-file MainWindow.axaml --json
+
+# Short form
+XamlDebugMetadataScanner -p /path/to/assemblies -r -v -j -x MainWindow.axaml
+```mand-line tool for scanning .NET assemblies and their PDB files to extract and display XAML-related debug metadata that Avalonia emits during XAML compilation.
 
 ## What it does
 
@@ -18,6 +34,7 @@ This tool analyzes:
 - ✅ XAML-specific filtering to focus on relevant debug information
 - ✅ Summary statistics
 - ✅ Verbose mode for comprehensive output
+- ✅ XAML file-specific analysis with control-to-position mapping
 
 ## Usage
 
@@ -41,6 +58,7 @@ XamlDebugMetadataScanner -p /path/to/assemblies -r -v -j
 - `-r, --recursive` - Scan subdirectories recursively (default: false)
 - `-v, --verbose` - Show verbose output including non-XAML files (default: false)
 - `-j, --json` - Output results in JSON format for programmatic consumption (default: false)
+- `-x, --xaml-file` - Specific XAML file to analyze for control-to-position mapping (e.g., MainWindow.axaml)
 
 ## Example Output
 
@@ -113,6 +131,61 @@ When using the `--json` flag, the tool outputs structured data perfect for autom
       ],
       "xamlSequencePoints": [...],
       "xamlVariables": [...]
+    }
+  ]
+}
+```
+
+## XAML File Mapping
+
+The `--xaml-file` option provides detailed analysis of a specific XAML file, mapping runtime controls to exact source positions:
+
+```
+🔍 Analyzing XAML file mapping for: MainWindow.axaml
+Directory: /path/to/assemblies
+
+🎯 Sandbox.dll
+📄 XAML File: MainWindow.axaml
+   Full Path: /path/to/MainWindow.axaml
+   Hash: SHA1 - 1F7128898FB176A74DFF2DCCF56EA811C8875729
+
+🎨 Control Mappings (3 controls detected):
+   📍 Line 1:2-1:8
+      Type: BasicControl
+      Method: MainWindow.!XamlIlPopulate
+      Sequence Points: 2
+      Properties: Root-level element
+
+   📍 Line 4:10-5:28
+      Type: BasicControl
+      Method: MainWindow.!XamlIlPopulate
+      Sequence Points: 3
+      Properties: Multi-line definition
+
+📊 Detailed Sequence Points (6 total):
+   🔧 MainWindow.!XamlIlPopulate:
+      • Line 1:2-1:8 (Offset: 0)
+      • Line 4:10-4:20 (Offset: 54)
+      • Line 5:14-5:23 (Offset: 76)
+```
+
+### JSON Output for XAML Mapping
+
+```json
+{
+  "xamlFileName": "MainWindow.axaml",
+  "xamlFilePath": "/path/to/MainWindow.axaml",
+  "controlMappings": [
+    {
+      "controlType": "BasicControl",
+      "xamlFile": "/path/to/MainWindow.axaml",
+      "startLine": 1,
+      "startColumn": 2,
+      "endLine": 1,
+      "endColumn": 8,
+      "method": "MainWindow.!XamlIlPopulate",
+      "properties": ["Root-level element"],
+      "sequencePointCount": 2
     }
   ]
 }
