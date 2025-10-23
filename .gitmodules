@@ -7,3 +7,9 @@
 [submodule "Avalonia.Controls.DataGrid"]
 	path = external/Avalonia.Controls.DataGrid
 	url = https://github.com/AvaloniaUI/Avalonia.Controls.DataGrid.git
+[submodule "external/microsoft-ui-xaml"]
+	path = external/microsoft-ui-xaml
+	url = https://github.com/microsoft/microsoft-ui-xaml.git
+[submodule "external/Avalonia.Controls.ItemsRepeater"]
+	path = external/Avalonia.Controls.ItemsRepeater
+	url = https://github.com/AvaloniaUI/Avalonia.Controls.ItemsRepeater.git

@@ -14,6 +14,29 @@
 - **Navigation/Transition Integration:** No built-in handshake between `TransitioningContentControl`, `Frame`, or `NavigationView` and composition animations.
 - **Tooling Support:** No sample, documentation, or reusable helpers to demonstrate connected animations in `ControlCatalog` or docs.
 
+## WinUI Connected Animation API Surface
+- `ConnectedAnimationService`
+   - Static accessor `GetForCurrentView()`; properties `DefaultDuration`, `DefaultEasingFunction`.
+   - Methods `PrepareToAnimate(string key, UIElement element)`, `GetAnimation(string key)`, overloads that accept hints.
+- `ConnectedAnimation`
+   - Methods `TryStart(UIElement destination)`, `TryStart(UIElement destination, IEnumerable<UIElement> coordinatedElements)`, `TryCancel()`, `TryAnimateScroll(ScrollViewer)`.
+   - Property `Configuration` with built-in implementations: `GravityConnectedAnimationConfiguration`, `DirectConnectedAnimationConfiguration`, `BasicConnectedAnimationConfiguration`.
+   - Completion semantics: returns `bool` to indicate whether animation could start; automatically expires (~3 seconds) if not started.
+- `ListViewBase.PrepareConnectedAnimation(...)` and `TryStartConnectedAnimationAsync(...)` helpers for item containers.
+- `CompositionScopedBatch`
+   - Created via `Compositor.CreateScopedBatch(CompositionBatchTypes.Animation|Effect)`.
+   - Members `Suspend()`, `Resume()`, `End()`, `Completed`, state accessors `IsActive`, `IsEnded`.
+   - Aggregates explicit animations and implicit animations triggered while the batch is active; cancellation surfaced through `CompositionBatchCompletedEventArgs.IsCanceled`.
+- Supporting types: `SuppressNavigationTransitionInfo` (suppress default transitions when using connected animations), navigation events (`OnNavigatingFrom`, `NavigationMode`), list coordination entry points.
+
+## Findings from microsoft-ui-xaml Source
+- `external/microsoft-ui-xaml/src/dxaml/xcp/components/animation/ConnectedAnimation.cpp` drives a full state machine (`Idle` → `Initialized` → `Prepared` → `Started` → `Running` → `Complete`/`Canceled`) and keeps both source and destination metadata (`ConnectedAnimationElementInfo`) so transforms and unclipped/clipped bounds can be recomputed if the live tree moves. A constant `s_timeout = 2000` enforces the WinUI ~2s expiry for prepared-but-not-started animations.
+- The implementation hides the original element by capturing a composition surface via `CreateSnapshotBrush`, then hosts it on a hand-off visual provided by `ConnectedAnimationRoot`. Animations start inside a scoped batch and completion is funneled through `OnAnimationCompleted` → `TryToCompleteAnimation`, ensuring coordinated animations (base + derived) finish together before the overlay is removed.
+- `TimeManager::StartWUCAnimation` (see `external/microsoft-ui-xaml/src/dxaml/xcp/components/animation/TimeManager.cpp`) documents that a `CompositionScopedBatch` automatically contains *every* animation that begins between `CreateScopedBatch(...)` and `End()`. There is no manual “add animation” call; bookkeeping happens by creating the batch immediately before `StartAnimation`.
+- Implicit show/hide animations also rely on batches: `CUIElement::PlayImplicitAnimation` in `external/microsoft-ui-xaml/src/dxaml/xcp/components/elements/UIElement.cpp` creates a scoped batch ahead of `StartAnimationGroup` so the implicit animation joins it, then registers `Completed` to resume layout work once the show/hide finishes.
+- When an animation is stopped early (e.g., property overwrite), the scoped batch still completes. `FacadeAnimationHelper::ScopedBatchCompleted` (`external/microsoft-ui-xaml/src/dxaml/xcp/components/elements/FacadeAnimationHelper.cpp`) uses the completion callback to push the final composition value back into dependency properties, while `CancelSingleAnimation` unregisters the handler when the new value should win immediately. Consumers can inspect `CompositionBatchCompletedEventArgs::IsCanceled`, but most XAML code simply reacts on completion regardless of cancelation.
+- Porting `ConnectedAnimation.cpp` to Avalonia means more than a direct transcription: it depends on internal types such as `CUIElement`, `DCompTreeHost`, `ConnectedAnimationRoot`, and WinRT composition interfaces (`WUComp::*`). The transferable pieces are the state machine, timeout rules, snapshot/overlay workflow, and use of batches to coordinate completion; platform bindings, memory management helpers, and ETW logging would need Avalonia-specific replacements.
+
 ## Implementation Milestones
 
 ### Milestone 0 – Composition Infrastructure Enhancements
@@ -22,7 +45,8 @@
    - Introduce a lightweight `CompositionSurfaceBrush` analogue so a surface can be painted on a `CompositionSurfaceVisual` without custom rendering code.
    - Ensure surfaces respect DPI/render scaling and support async disposal on render thread.
 2. **Public Scoped Batch Wrapper**
-   - Add a managed `CompositionScopedBatch` class with `Completed` events, delegating to existing compositor batch infrastructure. This is needed to know when to show/hide destination elements.
+   - Add a managed `CompositionScopedBatch` class with `Completed` events, delegating to existing compositor batch infrastructure. The API should mirror WinUI: creation via `CreateScopedBatch`, `Suspend`/`Resume`/`End`, `IsActive`, `IsEnded`, and a `Completed` event carrying `IsCanceled`/`Failed` state.
+   - Mirror WinUI semantics observed in `TimeManager.cpp`/`UIElement.cpp`: every animation that starts after `CreateScopedBatch` and before `End` automatically joins the batch, including implicit `StartAnimationGroup` calls. Completion must fire even when animations are stopped or properties are overwritten so cleanup (e.g., pushing final values from composition back into Avalonia properties) can run.
 3. **Visual Coordinate Utilities**
    - Provide helpers to fetch the global transform and bounds for a `Visual`/`CompositionVisual` (e.g., `CompositionVisual.TryGetGlobalBounds()`) so connected animations can position overlay visuals correctly across nested transforms.
    - Handle multi-monitor scaling and `TopLevel.RenderScaling`.
@@ -39,6 +63,12 @@
 3. **Overlay Layer Management**
    - Add an internal `ConnectedAnimationLayer` to each `TopLevel` that is inserted above normal content (similar to popup/adorner layers) to host temporary composition visuals.
    - Ensure overlay participates in hit-testing appropriately (non-interactive) and handles window resizing or DPI changes by updating overlay transforms.
+
+### Behavior Notes & Edge Cases
+- Batches track lifecycle, not end state: when a property is overwritten mid-animation, Avalonia must stop the animation yet still raise `Completed` (flagged `IsCanceled=true`) so callers waiting on the batch can de-register handlers or apply final state, matching WinUI’s behavior in `FacadeAnimationHelper`.
+- Prepared connected animations should expire if not started quickly (WinUI expects disposal around the 3s mark) to avoid stale overlays.
+- `Suspend`/`Resume` must gate implicit animations so mutation outside the scope is excluded, matching WinUI semantics.
+- Coordinate timing so overlay visuals hide source elements only after snapshots capture and scoped batch has begun, mirroring WinUI’s “freeze” period.
 
 ### Milestone 2 – Framework Integration & Sample
 1. **Navigation Helpers**
@@ -72,10 +102,11 @@
 - Unit tests for service state machine (prepare/start/cancel).
 - Integration tests in `Avalonia.Controls.Tests` simulating navigation and asserting overlay visual lifecycle.
 - Automated visual regression (Playwright) capturing before/after frames to verify animation completes and final layout matches expectation.
+- WinUI parity harness: a WinUI sample/test app that exercises the same scenarios (implicit animation inclusion, cancellation by property overwrite, timeout expiration) to use as behavioral oracle.
 - Manual test checklist for multi-window scenarios, resizing during animation, and high-DPI monitors.
 
 ## Deliverables
 - New public APIs (`ConnectedAnimationService`, configuration types, helper methods) with XML docs.
 - Composition infrastructure extensions (surface helpers, scoped batch). Covered by unit tests.
 - ControlCatalog demo page and updated docs.
-- Migration guidance for developers familiar with WinUI connected animations.
+- Migration guidance for developers familiar with WinUI connected animations, including API surface parity tables and references to the WinUI sample suite.
