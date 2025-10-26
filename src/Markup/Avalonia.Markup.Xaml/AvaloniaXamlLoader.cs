@@ -1,5 +1,8 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Reflection;
+using Avalonia.Markup.Xaml.HotReload;
 using Avalonia.Platform;
 
 namespace Avalonia.Markup.Xaml
@@ -103,6 +106,9 @@ namespace Avalonia.Markup.Xaml
             if (runtimeLoader != null)
             {
                 var asset = assetLocator.OpenAndGetAssembly(uri, baseUri);
+#if !NETSTANDARD2_0
+                TryRegisterHotReloadManifest(asset.assembly);
+#endif
                 using (var stream = asset.stream)
                 {
                     var document = new RuntimeXamlLoaderDocument(absoluteUri, stream) { ServiceProvider = sp };
@@ -116,4 +122,24 @@ namespace Avalonia.Markup.Xaml
         }
         
     }
+
+#if !NETSTANDARD2_0
+    static void TryRegisterHotReloadManifest(Assembly? assembly)
+    {
+        try
+        {
+            var location = assembly?.Location;
+            if (string.IsNullOrEmpty(location))
+                return;
+
+            var manifestPath = Path.ChangeExtension(location, ".axaml.hotreload.json");
+            if (manifestPath != null && File.Exists(manifestPath))
+                RuntimeHotReloadService.RegisterManifestPath(manifestPath);
+        }
+        catch
+        {
+            // Ignore manifest registration failures.
+        }
+    }
+#endif
 }

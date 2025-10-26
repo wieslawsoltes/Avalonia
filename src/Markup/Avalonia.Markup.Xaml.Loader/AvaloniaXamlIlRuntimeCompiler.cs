@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
+using Avalonia.Markup.Xaml.HotReload;
 using Avalonia.Markup.Xaml.XamlIl.CompilerExtensions;
 using Avalonia.Markup.Xaml.XamlIl.Runtime;
 using Avalonia.Platform;
@@ -397,6 +398,8 @@ namespace Avalonia.Markup.Xaml.XamlIl
                 compiler.Compile(document.XamlDocument, document.TypeBuilderProvider, document.Uri, document.FileSource);
                 return _sreTypeSystem.GetType(document.TypeBuilderProvider.PopulateDeclaringType.CreateType());
             }).ToArray();
+
+            TryRegisterHotReloadMetadata(parsedDocuments, createdTypes, originalDocuments);
             
             clrPropertyBuilder.CreateTypeInfo();
             indexerClosureType.CreateTypeInfo();
@@ -445,7 +448,9 @@ namespace Avalonia.Markup.Xaml.XamlIl
                             target => { populateCb(serviceProvider, target); }));
                     try
                     {
-                        return Activator.CreateInstance(targetType)!;
+                        var createdInstance = Activator.CreateInstance(targetType)!;
+                        RuntimeHotReloadService.Track(createdInstance);
+                        return createdInstance;
                     }
                     finally
                     {
@@ -456,11 +461,14 @@ namespace Avalonia.Markup.Xaml.XamlIl
                 var createCb = Expression.Lambda<Func<IServiceProvider, object>>(
                     Expression.Convert(Expression.Call(
                         created.GetMethod(AvaloniaXamlIlCompiler.BuildName)!, isp), typeof(object)), isp).Compile();
-                return createCb(serviceProvider);
+                var newInstance = createCb(serviceProvider);
+                RuntimeHotReloadService.Track(newInstance);
+                return newInstance;
             }
             else
             {
                 populateCb(serviceProvider, rootInstance);
+                RuntimeHotReloadService.Track(rootInstance);
                 return rootInstance;
             }
         }
@@ -494,6 +502,57 @@ namespace Avalonia.Markup.Xaml.XamlIl
                 .Replace("?", "_")
                 .Replace("=", "_")
                 .Replace(".", "_");
+        }
+
+        static void TryRegisterHotReloadMetadata(
+            IReadOnlyList<XamlDocumentResource> documents,
+            IReadOnlyList<Type> createdTypes,
+            IReadOnlyList<RuntimeXamlLoaderDocument> originalDocuments)
+        {
+#if NETSTANDARD2_0
+            return;
+#else
+            try
+            {
+                var manifest = new Dictionary<string, RuntimeHotReloadMetadata>(StringComparer.Ordinal);
+
+                for (var i = 0; i < documents.Count; ++i)
+                {
+                    var createdType = createdTypes[i];
+                    var populate = createdType.GetMethod(AvaloniaXamlIlCompiler.PopulateName);
+                    if (populate is null)
+                        continue;
+
+                    var parameters = populate.GetParameters();
+                    if (parameters.Length < 2)
+                        continue;
+
+                    var targetType = parameters[1].ParameterType;
+                    var key = targetType.FullName ?? targetType.Name;
+
+                    var build = createdType.GetMethod(AvaloniaXamlIlCompiler.BuildName);
+
+                    var metadata = new RuntimeHotReloadMetadata(
+                        createdType.Assembly.GetName().Name ?? createdType.Assembly.FullName ?? string.Empty,
+                        createdType.FullName ?? createdType.Name,
+                        AvaloniaXamlIlCompiler.PopulateName,
+                        targetType.FullName ?? targetType.Name,
+                        build is null ? null : AvaloniaXamlIlCompiler.BuildName,
+                        build?.ReturnType.FullName ?? build?.ReturnType.Name);
+
+                    manifest[key] = metadata;
+                }
+
+                if (manifest.Count > 0)
+                {
+                    RuntimeHotReloadService.RegisterRange(manifest);
+                }
+            }
+            catch
+            {
+                // Hot reload registration failures should not break runtime loading.
+            }
+#endif
         }
         
 #if RUNTIME_XAML_CECIL

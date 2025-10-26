@@ -1,0 +1,26 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <AvaloniaHotReloadEnabled Condition="'$(AvaloniaHotReloadEnabled)' == ''">true</AvaloniaHotReloadEnabled>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(AvaloniaHotReloadEnabled)' == 'true'">
+    <AvaloniaHotReloadManifest Include="$(IntermediateOutputPath)$(TargetFileName).axaml.hotreload.json"
+                               Condition="Exists('$(IntermediateOutputPath)$(TargetFileName).axaml.hotreload.json')" />
+  </ItemGroup>
+
+  <Target Name="AvaloniaCopyHotReloadManifests"
+          DependsOnTargets="CopyFilesToOutputDirectory"
+          Condition="@(AvaloniaHotReloadManifest->Count()) &gt; 0">
+    <Copy SourceFiles="@(AvaloniaHotReloadManifest)"
+          DestinationFiles="@(AvaloniaHotReloadManifest->'$(TargetDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+    <ItemGroup>
+      <FileWrites Include="@(AvaloniaHotReloadManifest->'$(TargetDir)%(Filename)%(Extension)')" />
+      <UpToDateCheckBuilt Include="@(AvaloniaHotReloadManifest->'$(IntermediateOutputPath)%(Filename)%(Extension)')" />
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup Condition="'$(AvaloniaHotReloadEnabled)' == 'true'">
+    <WatchHotReloadIncludes Include="@(AvaloniaHotReloadManifest)" />
+  </ItemGroup>
+</Project>
