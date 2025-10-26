@@ -545,7 +545,8 @@ namespace Avalonia.Markup.Xaml.XamlIl
                         AvaloniaXamlIlCompiler.PopulateName,
                         targetType.FullName ?? targetType.Name,
                         build is null ? null : AvaloniaXamlIlCompiler.BuildName,
-                        build?.ReturnType.FullName ?? build?.ReturnType.Name);
+                        build?.ReturnType.FullName ?? build?.ReturnType.Name,
+                        null);
 
                     manifest[key] = metadata;
                 }

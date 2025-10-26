@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Threading;
 using Avalonia;
+using Avalonia.Threading;
 
 namespace Avalonia.Markup.Xaml.HotReload;
 
@@ -19,6 +22,8 @@ public static class RuntimeHotReloadService
     private static readonly List<Func<IReadOnlyDictionary<string, RuntimeHotReloadMetadata>>> s_manifestProviders = new();
     private static readonly HashSet<string> s_registeredManifestPaths = new(StringComparer.OrdinalIgnoreCase);
     private static bool s_manifestPathsInitialized;
+    private static readonly Dictionary<string, FileSystemWatcher> s_directoryWatchers = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly Dictionary<string, string> s_sourceToType = new(StringComparer.OrdinalIgnoreCase);
 
     [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     public static RuntimeHotReloadManager GetOrCreate()
@@ -39,14 +44,23 @@ public static class RuntimeHotReloadService
     /// </summary>
     [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     public static void Register(string xamlClassName, RuntimeHotReloadMetadata metadata)
-        => GetOrCreate().Register(xamlClassName, metadata);
+    {
+        var manager = GetOrCreate();
+        manager.Register(xamlClassName, metadata);
+        RegisterWatcherForEntry(xamlClassName, metadata);
+    }
 
     /// <summary>
     /// Registers multiple manifest entries with the current manager if present.
     /// </summary>
     [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     public static void RegisterRange(IEnumerable<KeyValuePair<string, RuntimeHotReloadMetadata>> manifest)
-        => GetOrCreate().RegisterRange(manifest);
+    {
+        var entries = manifest as IList<KeyValuePair<string, RuntimeHotReloadMetadata>> ?? manifest.ToList();
+        var manager = GetOrCreate();
+        manager.RegisterRange(entries);
+        RegisterWatchersForManifest(entries);
+    }
 
     /// <summary>
     /// Loads metadata entries from the specified manifest file and registers them.
@@ -151,6 +165,13 @@ public static class RuntimeHotReloadService
             s_manifestProviders.Clear();
             s_registeredManifestPaths.Clear();
             s_manifestPathsInitialized = false;
+            foreach (var watcher in s_directoryWatchers.Values)
+                watcher.Dispose();
+            s_directoryWatchers.Clear();
+            s_sourceToType.Clear();
+#if !NETSTANDARD2_0
+            s_lastReload.Clear();
+#endif
         }
     }
 
@@ -201,4 +222,172 @@ public static class RuntimeHotReloadService
 
         ReloadRegisteredManifests();
     }
+
+    private static void RegisterWatchersForManifest(IEnumerable<KeyValuePair<string, RuntimeHotReloadMetadata>> manifest)
+    {
+        foreach (var entry in manifest)
+            RegisterWatcherForEntry(entry.Key, entry.Value);
+    }
+
+    private static void RegisterWatcherForEntry(string typeName, RuntimeHotReloadMetadata metadata)
+    {
+#if NETSTANDARD2_0
+        _ = typeName;
+        _ = metadata;
+#else
+        if (string.IsNullOrEmpty(metadata.SourcePath))
+            return;
+
+        string fullPath;
+        try
+        {
+            fullPath = Path.GetFullPath(metadata.SourcePath);
+        }
+        catch
+        {
+            return;
+        }
+
+        lock (s_gate)
+        {
+            s_sourceToType[fullPath] = typeName;
+        }
+
+        EnsureDirectoryWatcher(fullPath);
+#endif
+    }
+
+#if !NETSTANDARD2_0
+    private static readonly Dictionary<string, DateTime> s_lastReload = new(StringComparer.OrdinalIgnoreCase);
+
+    private static void EnsureDirectoryWatcher(string fullSourcePath)
+    {
+        var directory = Path.GetDirectoryName(fullSourcePath);
+        if (string.IsNullOrEmpty(directory))
+            return;
+
+        lock (s_gate)
+        {
+            if (s_directoryWatchers.ContainsKey(directory))
+                return;
+
+            var watcher = new FileSystemWatcher(directory)
+            {
+                IncludeSubdirectories = false,
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName | NotifyFilters.DirectoryName,
+                EnableRaisingEvents = true
+            };
+            watcher.Changed += OnWatcherChanged;
+            watcher.Created += OnWatcherChanged;
+            watcher.Renamed += OnWatcherRenamed;
+            s_directoryWatchers[directory] = watcher;
+        }
+    }
+
+    private static void OnWatcherChanged(object? sender, FileSystemEventArgs e)
+    {
+        if (e.ChangeType == WatcherChangeTypes.Deleted)
+            return;
+
+        HandleSourceChange(e.FullPath);
+    }
+
+    private static void OnWatcherRenamed(object? sender, RenamedEventArgs e)
+    {
+        var oldFull = Path.GetFullPath(e.OldFullPath);
+        var newFull = Path.GetFullPath(e.FullPath);
+        string? typeName = null;
+
+        lock (s_gate)
+        {
+            if (s_sourceToType.TryGetValue(oldFull, out var value))
+            {
+                s_sourceToType.Remove(oldFull);
+                s_sourceToType[newFull] = value;
+                typeName = value;
+            }
+            else if (s_sourceToType.TryGetValue(newFull, out value))
+            {
+                typeName = value;
+            }
+        }
+
+        if (typeName != null)
+            HandleSourceChange(newFull);
+    }
+
+    private static void HandleSourceChange(string path)
+    {
+        string? typeName;
+        path = Path.GetFullPath(path);
+        lock (s_gate)
+        {
+            if (!s_sourceToType.TryGetValue(path, out typeName))
+                return;
+
+            if (s_lastReload.TryGetValue(path, out var last) && (DateTime.UtcNow - last).TotalMilliseconds < 150)
+                return;
+
+            s_lastReload[path] = DateTime.UtcNow;
+        }
+
+        void Apply() => ApplyHotReloadFromFile(path, typeName!);
+
+        if (Dispatcher.UIThread.CheckAccess())
+            Apply();
+        else
+            Dispatcher.UIThread.Post(Apply);
+    }
+
+    private static void ApplyHotReloadFromFile(string sourcePath, string typeName)
+    {
+        string xaml;
+        for (var attempt = 0; ; attempt++)
+        {
+            try
+            {
+                xaml = File.ReadAllText(sourcePath);
+                break;
+            }
+            catch when (attempt < 4)
+            {
+                System.Threading.Thread.Sleep(50);
+            }
+            catch
+            {
+                return;
+            }
+        }
+
+        var targetType = RuntimeHotReloadManager.ResolveRuntimeType(typeName);
+        if (targetType is null)
+            return;
+
+        var baseUri = new Uri(sourcePath, UriKind.Absolute);
+        var configuration = new RuntimeXamlLoaderConfiguration { LocalAssembly = targetType.Assembly };
+
+        try
+        {
+            AvaloniaRuntimeXamlLoader.Load(new RuntimeXamlLoaderDocument(baseUri, xaml), configuration);
+        }
+        catch
+        {
+            return;
+        }
+
+        var manager = GetOrCreate();
+        var instances = manager.GetTrackedInstancesSnapshot(typeName);
+        foreach (var instance in instances)
+        {
+            try
+            {
+                AvaloniaRuntimeXamlLoader.Load(new RuntimeXamlLoaderDocument(baseUri, instance, xaml), configuration);
+            }
+            catch
+            {
+                // Ignore per-instance failures to avoid breaking the session.
+            }
+        }
+    }
+#endif
 }

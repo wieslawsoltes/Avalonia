@@ -312,7 +312,8 @@ public class HotReloadPrototypeTests : ScopedTestBase
             introspection.PopulateMethod?.Name,
             introspection.PopulateTargetType.FullName ?? introspection.PopulateTargetType.Name,
             introspection.BuildMethod?.Name,
-            introspection.BuildMethod?.ReturnType.FullName ?? introspection.BuildMethod?.ReturnType.Name);
+            introspection.BuildMethod?.ReturnType.FullName ?? introspection.BuildMethod?.ReturnType.Name,
+            null);
     }
 
     private static RuntimeXamlLoaderConfiguration CreateConfiguration() =>

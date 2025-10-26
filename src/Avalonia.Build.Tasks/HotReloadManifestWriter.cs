@@ -16,9 +16,10 @@ internal static class HotReloadManifestWriter
         public string PopulateMethodName = string.Empty;
         public string? BuildMethodName;
         public string? BuildReturnTypeName;
+        public string? SourcePath;
     }
 
-    public static HotReloadManifestEntry? CreateHotReloadEntry(XamlDocumentTypeBuilderProvider provider)
+    public static HotReloadManifestEntry? CreateHotReloadEntry(XamlDocumentTypeBuilderProvider provider, string? sourcePath)
     {
         var populateMethod = provider.PopulateMethod;
         if (populateMethod.Parameters.Count < 2)
@@ -34,7 +35,8 @@ internal static class HotReloadManifestWriter
             BuilderTypeName = GetTypeFullName(provider.PopulateDeclaringType),
             PopulateMethodName = populateMethod.Name,
             BuildMethodName = provider.BuildMethod?.Name,
-            BuildReturnTypeName = provider.BuildMethod?.ReturnType is { } rt ? GetTypeFullName(rt) : null
+            BuildReturnTypeName = provider.BuildMethod?.ReturnType is { } rt ? GetTypeFullName(rt) : null,
+            SourcePath = sourcePath
         };
 
         return entry;
@@ -73,6 +75,21 @@ internal static class HotReloadManifestWriter
 
             sb.Append(", \"BuildReturnTypeName\": ");
             sb.Append(entry.BuildReturnTypeName is null ? "null" : "\"" + EscapeJson(entry.BuildReturnTypeName) + "\"");
+
+            var sourcePath = entry.SourcePath;
+            if (!string.IsNullOrEmpty(sourcePath))
+            {
+                try
+                {
+                    sourcePath = Path.GetFullPath(sourcePath);
+                }
+                catch
+                {
+                }
+            }
+
+            sb.Append(", \"SourcePath\": ");
+            sb.Append(string.IsNullOrEmpty(sourcePath) ? "null" : "\"" + EscapeJson(sourcePath) + "\"");
 
             sb.Append(" }");
             if (++index < map.Count)

@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Avalonia.Platform;
 #if !NETSTANDARD2_0
@@ -135,8 +136,25 @@ namespace Avalonia.Markup.Xaml
                 return;
 
             var manifestPath = Path.ChangeExtension(location, ".axaml.hotreload.json");
-            if (manifestPath != null && File.Exists(manifestPath))
-                RuntimeHotReloadService.RegisterManifestPath(manifestPath);
+            if (manifestPath != null)
+            {
+                if (File.Exists(manifestPath))
+                {
+                    RuntimeHotReloadService.RegisterManifestPath(manifestPath);
+                }
+                else if (assembly != null)
+                {
+                    var resourceName = assembly
+                        .GetManifestResourceNames()
+                        .FirstOrDefault(n => n.EndsWith(".axaml.hotreload.json", StringComparison.OrdinalIgnoreCase));
+                    if (resourceName != null)
+                    {
+                        using var manifestStream = assembly.GetManifestResourceStream(resourceName);
+                        if (manifestStream != null)
+                            RuntimeHotReloadService.RegisterManifest(manifestStream);
+                    }
+                }
+            }
         }
         catch
         {

@@ -6,6 +6,11 @@
     <AvaloniaIncludeApplicationIconAsWindowIcon Condition="'$(AvaloniaIncludeApplicationIconAsWindowIcon)' == ''">true</AvaloniaIncludeApplicationIconAsWindowIcon>
   </PropertyGroup>
 
+  <Import Project="$(MSBuildThisFileDirectory)Avalonia.HotReload.targets"
+          Condition="Exists('$(MSBuildThisFileDirectory)Avalonia.HotReload.targets')" />
+  <Import Project="$(MSBuildThisFileDirectory)..\..\build\Avalonia.HotReload.targets"
+          Condition="!Exists('$(MSBuildThisFileDirectory)Avalonia.HotReload.targets')" />
+
   <PropertyGroup>
     <!-- Enable property page if VisualStudioVersion is great or equal 17.0 and Language is'not VB.NET -->
     <AvaloniaEnablePropertyPage Condition="'$(AvaloniaEnablePropertyPage)' == '' and '$(VisualStudioVersion)' &gt;= '17.0' and '$(Language)' != 'VB'">true</AvaloniaEnablePropertyPage>

@@ -3,26 +3,88 @@
     <AvaloniaHotReloadEnabled Condition="'$(AvaloniaHotReloadEnabled)' == ''">true</AvaloniaHotReloadEnabled>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);AvaloniaCollectHotReloadOutputs</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetsForGetReferenceCopyLocalPaths>$(TargetsForGetReferenceCopyLocalPaths);AvaloniaAddHotReloadManifestCopyLocal</TargetsForGetReferenceCopyLocalPaths>
+  </PropertyGroup>
+
   <ItemGroup Condition="'$(AvaloniaHotReloadEnabled)' == 'true'">
-    <AvaloniaHotReloadManifest Include="$(IntermediateOutputPath)$(TargetFileName).axaml.hotreload.json"
-                               Condition="Exists('$(IntermediateOutputPath)$(TargetFileName).axaml.hotreload.json')" />
+    <AvaloniaHotReloadManifestCandidate Include="$(IntermediateOutputPath)$(TargetName).axaml.hotreload.json" />
   </ItemGroup>
 
   <Target Name="AvaloniaCopyHotReloadManifests"
-          DependsOnTargets="CopyFilesToOutputDirectory"
-          Condition="@(AvaloniaHotReloadManifest->Count()) &gt; 0">
+          AfterTargets="CopyFilesToOutputDirectory"
+          Condition="'@(AvaloniaHotReloadManifestCandidate)' != ''">
+    <ItemGroup>
+      <AvaloniaHotReloadManifest Include="@(AvaloniaHotReloadManifestCandidate)"
+                                 Condition="Exists('%(Identity)')" />
+    </ItemGroup>
+
+    <Message Importance="Low"
+             Condition="'@(AvaloniaHotReloadManifest)' != ''"
+             Text="AvaloniaHotReload: %(AvaloniaHotReloadManifest.Identity) -> $(TargetDir)%(AvaloniaHotReloadManifest.Filename)%(AvaloniaHotReloadManifest.Extension)" />
+
     <Copy SourceFiles="@(AvaloniaHotReloadManifest)"
           DestinationFiles="@(AvaloniaHotReloadManifest->'$(TargetDir)%(Filename)%(Extension)')"
           SkipUnchangedFiles="true" />
     <ItemGroup>
       <FileWrites Include="@(AvaloniaHotReloadManifest->'$(TargetDir)%(Filename)%(Extension)')" />
       <UpToDateCheckBuilt Include="@(AvaloniaHotReloadManifest->'$(IntermediateOutputPath)%(Filename)%(Extension)')" />
+      <ReferenceCopyLocalPaths Include="@(AvaloniaHotReloadManifest->'$(TargetDir)%(Filename)%(Extension)')">
+        <ReferenceSourceTarget>ProjectReference</ReferenceSourceTarget>
+      </ReferenceCopyLocalPaths>
+      <AvaloniaHotReloadManifestOutput Include="@(AvaloniaHotReloadManifest->'$(TargetDir)%(Filename)%(Extension)')" />
+      <ContentWithTargetPath Include="@(AvaloniaHotReloadManifest)">
+        <TargetPath>%(Filename)%(Extension)</TargetPath>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </ContentWithTargetPath>
     </ItemGroup>
   </Target>
 
+  <Target Name="AvaloniaCollectHotReloadOutputs"
+          DependsOnTargets="AvaloniaCopyHotReloadManifests"
+          Condition="'@(AvaloniaHotReloadManifestOutput)' != ''">
+    <ItemGroup>
+      <TfmSpecificProjectOutput Include="@(AvaloniaHotReloadManifestOutput)">
+        <TargetPath>%(Filename)%(Extension)</TargetPath>
+        <FinalOutputPath>%(FullPath)</FinalOutputPath>
+      </TfmSpecificProjectOutput>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="AvaloniaAddHotReloadManifestCopyLocal"
+          DependsOnTargets="AvaloniaCopyHotReloadManifests"
+          Condition="'@(AvaloniaHotReloadManifestOutput)' != ''">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Include="@(AvaloniaHotReloadManifestOutput)">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <ReferenceSourceTarget>ProjectReference</ReferenceSourceTarget>
+      </ReferenceCopyLocalPaths>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="AvaloniaEmbedHotReloadManifests"
+          AfterTargets="CompileAvaloniaXaml"
+          BeforeTargets="CoreCompile"
+          Condition="'@(AvaloniaHotReloadManifestCandidate)' != ''">
+    <ItemGroup>
+      <EmbeddedResource Include="@(AvaloniaHotReloadManifestCandidate)"
+                        Condition="Exists('%(Identity)')">
+        <LogicalName>Avalonia.HotReload.%(Filename)%(Extension)</LogicalName>
+      </EmbeddedResource>
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup Condition="'$(AvaloniaHotReloadEnabled)' == 'true' and '@(Page)' != ''">
+    <_AvaloniaHotReloadPage Include="@(Page)" Condition="'%(Extension)' == '.xaml'" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(AvaloniaHotReloadEnabled)' == 'true'">
-    <WatchHotReloadIncludes Include="@(AvaloniaHotReloadManifest)" />
+    <WatchHotReloadIncludes Include="@(AvaloniaHotReloadManifestCandidate)" />
     <Watch Include="@(AvaloniaResource)" />
-    <Watch Include="@(Page)" Condition="'%(Page.Extension)' == '.xaml'" />
+    <Watch Include="@(_AvaloniaHotReloadPage)" />
   </ItemGroup>
 </Project>

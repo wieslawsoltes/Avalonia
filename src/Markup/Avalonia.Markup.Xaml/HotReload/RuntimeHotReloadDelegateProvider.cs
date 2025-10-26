@@ -15,7 +15,8 @@ public sealed record RuntimeHotReloadMetadata(
     string? PopulateMethodName,
     string? PopulateTargetTypeName,
     string? BuildMethodName,
-    string? BuildReturnTypeName);
+    string? BuildReturnTypeName,
+    string? SourcePath);
 
 /// <summary>
 /// Provides compiled delegates for building and populating XAML instances.

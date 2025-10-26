@@ -235,7 +235,7 @@ public sealed class RuntimeHotReloadManager
     }
 
     [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
-    private static Type? ResolveRuntimeType(string? typeName)
+    internal static Type? ResolveRuntimeType(string? typeName)
     {
         if (string.IsNullOrWhiteSpace(typeName))
             return null;
@@ -271,4 +271,25 @@ public sealed class RuntimeHotReloadManager
 
     private static IServiceProvider EnsureServiceProvider(IServiceProvider? serviceProvider)
         => serviceProvider ?? XamlIlRuntimeHelpers.CreateRootServiceProviderV3(null);
+
+    internal IReadOnlyList<object> GetTrackedInstancesSnapshot(string typeName)
+    {
+        lock (_gate)
+        {
+            if (!_trackedInstances.TryGetValue(typeName, out var list) || list.Count == 0)
+                return Array.Empty<object>();
+
+            var result = new List<object>(list.Count);
+            for (var i = list.Count - 1; i >= 0; --i)
+            {
+                var instance = list[i].Target;
+                if (instance is null)
+                    list.RemoveAt(i);
+                else
+                    result.Add(instance);
+            }
+
+            return result;
+        }
+    }
 }

@@ -74,6 +74,8 @@
   <Import Project="..\..\..\build\DevAnalyzers.props" />
   <Import Project="..\..\..\build\TrimmingEnable.props" />
   <Import Project="..\..\..\build\NullableEnable.props" />
+  <Import Project="..\..\..\build\Avalonia.HotReload.targets"
+          Condition="Exists('..\..\..\build\Avalonia.HotReload.targets')" />
 
   <ItemGroup Label="InternalsVisibleTo">
     <InternalsVisibleTo Include="Avalonia.Designer.HostApp, PublicKey=$(AvaloniaPublicKey)" />
