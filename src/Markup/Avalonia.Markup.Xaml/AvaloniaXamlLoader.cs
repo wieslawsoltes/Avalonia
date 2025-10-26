@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -144,14 +145,26 @@ namespace Avalonia.Markup.Xaml
                 }
                 else if (assembly != null)
                 {
-                    var resourceName = assembly
+                    var resourceNames = assembly
                         .GetManifestResourceNames()
-                        .FirstOrDefault(n => n.EndsWith(".axaml.hotreload.json", StringComparison.OrdinalIgnoreCase));
-                    if (resourceName != null)
+                        .Where(n => n.EndsWith(".axaml.hotreload.json", StringComparison.OrdinalIgnoreCase))
+                        .ToArray();
+                    foreach (var resourceName in resourceNames)
                     {
-                        using var manifestStream = assembly.GetManifestResourceStream(resourceName);
-                        if (manifestStream != null)
-                            RuntimeHotReloadService.RegisterManifest(manifestStream);
+                        static IReadOnlyDictionary<string, RuntimeHotReloadMetadata> LoadFromResource(Assembly sourceAssembly, string name)
+                        {
+                            using var stream = sourceAssembly.GetManifestResourceStream(name);
+                            if (stream is null)
+                                return new Dictionary<string, RuntimeHotReloadMetadata>(StringComparer.Ordinal);
+                            return RuntimeHotReloadManifest.Load(stream);
+                        }
+
+                        var manifest = LoadFromResource(assembly, resourceName);
+                        if (manifest.Count == 0)
+                            continue;
+
+                        RuntimeHotReloadService.RegisterManifestProvider(() => LoadFromResource(assembly, resourceName));
+                        RuntimeHotReloadService.RegisterRange(manifest);
                     }
                 }
             }
