@@ -20,6 +20,7 @@ public static class RuntimeHotReloadService
     private static readonly HashSet<string> s_registeredManifestPaths = new(StringComparer.OrdinalIgnoreCase);
     private static bool s_manifestPathsInitialized;
 
+    [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     public static RuntimeHotReloadManager GetOrCreate()
     {
         var manager = AvaloniaLocator.Current.GetService<RuntimeHotReloadManager>();
@@ -36,12 +37,14 @@ public static class RuntimeHotReloadService
     /// <summary>
     /// Registers metadata for a single XAML class with the current manager if present.
     /// </summary>
+    [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     public static void Register(string xamlClassName, RuntimeHotReloadMetadata metadata)
         => GetOrCreate().Register(xamlClassName, metadata);
 
     /// <summary>
     /// Registers multiple manifest entries with the current manager if present.
     /// </summary>
+    [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     public static void RegisterRange(IEnumerable<KeyValuePair<string, RuntimeHotReloadMetadata>> manifest)
         => GetOrCreate().RegisterRange(manifest);
 
@@ -88,17 +91,20 @@ public static class RuntimeHotReloadService
     /// <summary>
     /// Clears cached delegates for all registered XAML classes.
     /// </summary>
+    [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     public static void ClearDelegates() => GetOrCreate().ClearDelegates();
 
     /// <summary>
     /// Clears cached delegates for the specified XAML classes.
     /// </summary>
+    [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     public static void InvalidateDelegates(IEnumerable<string> xamlClassNames)
         => GetOrCreate().InvalidateDelegates(xamlClassNames);
 
     /// <summary>
     /// Registers a live instance that should receive hot reload updates when metadata changes.
     /// </summary>
+    [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     public static void Track(object instance) => GetOrCreate().TrackInstance(instance);
 
     /// <summary>
@@ -148,6 +154,7 @@ public static class RuntimeHotReloadService
         }
     }
 
+    [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     private static void EnsureManifestPathsRegistered()
     {
         lock (s_gate)

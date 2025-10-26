@@ -1,3 +1,5 @@
+#if !NETSTANDARD2_0
+using System.Reflection.Metadata;
 [assembly: System.Reflection.Metadata.MetadataUpdateHandler(typeof(Avalonia.Markup.Xaml.HotReload.RuntimeHotReloadMetadataUpdateHandler))]
 
 namespace Avalonia.Markup.Xaml.HotReload;
@@ -24,3 +26,4 @@ internal static class RuntimeHotReloadMetadataUpdateHandler
         RuntimeHotReloadService.ReloadRegisteredManifests();
     }
 }
+#endif

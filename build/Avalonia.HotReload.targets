@@ -22,5 +22,7 @@
 
   <ItemGroup Condition="'$(AvaloniaHotReloadEnabled)' == 'true'">
     <WatchHotReloadIncludes Include="@(AvaloniaHotReloadManifest)" />
+    <Watch Include="@(AvaloniaResource)" />
+    <Watch Include="@(Page)" Condition="'%(Page.Extension)' == '.xaml'" />
   </ItemGroup>
 </Project>

@@ -65,10 +65,10 @@ namespace Avalonia.Build.Tasks
                 var refAsm = refTypeSystem?.TargetAssemblyDefinition;
                 if (!skipXamlCompilation)
                 {
-	                var compileRes = CompileCore(
+                var compileRes = CompileCore(
                         engine, typeSystem, projectDirectory, verifyIl,
                         defaultCompileBindings, logImportance, diagnosticsFilter,
-                        debuggerLaunch, verboseExceptions);
+                        debuggerLaunch, verboseExceptions, output);
 	                if (compileRes == null)
 	                    return new CompileResult(true);
 	                if (compileRes == false)
@@ -108,7 +108,8 @@ namespace Avalonia.Build.Tasks
             MessageImportance logImportance,
             XamlCompilerDiagnosticsFilter diagnosticsFilter,
             bool debuggerLaunch,
-            bool verboseExceptions)
+            bool verboseExceptions,
+            string outputAssembly)
         {
             if (debuggerLaunch)
             {
@@ -277,7 +278,7 @@ namespace Avalonia.Build.Tasks
                     && m.Parameters[1].ParameterType.FullName == "System.String"
                     && m.Parameters[2].ParameterType.FullName == "System.StringComparison"));
             
-            var hotReloadEntries = new List<HotReloadManifestEntry>();
+            var hotReloadEntries = new List<HotReloadManifestWriter.HotReloadManifestEntry>();
 
             bool CompileGroup(IResourceGroup group)
             {
@@ -453,7 +454,7 @@ namespace Avalonia.Build.Tasks
                             res.Uri, res
                         );
 
-                        var hotEntry = CreateHotReloadEntry(document.TypeBuilderProvider);
+                        var hotEntry = HotReloadManifestWriter.CreateHotReloadEntry(document.TypeBuilderProvider);
                         if (hotEntry is not null)
                             hotReloadEntries.Add(hotEntry);
 
@@ -676,7 +677,7 @@ namespace Avalonia.Build.Tasks
             }
 
             if (hotReloadEntries.Count != 0)
-                WriteHotReloadManifest(output, typeSystem.TargetAssemblyDefinition.Name.Name, hotReloadEntries);
+                HotReloadManifestWriter.WriteHotReloadManifest(outputAssembly, typeSystem.TargetAssemblyDefinition.Name.Name, hotReloadEntries);
             
             loaderDispatcherMethod.Body.Instructions.Add(Instruction.Create(OpCodes.Ldnull));
             loaderDispatcherMethod.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
@@ -747,126 +748,4 @@ namespace Avalonia.Build.Tasks
         }
     }
 
-    private sealed class HotReloadManifestEntry
-    {
-        public string TargetTypeName = string.Empty;
-        public string BuilderTypeName = string.Empty;
-        public string PopulateMethodName = string.Empty;
-        public string? BuildMethodName;
-        public string? BuildReturnTypeName;
-    }
-
-    private static HotReloadManifestEntry? CreateHotReloadEntry(
-        XamlDocumentTypeBuilderProvider provider)
-    {
-        var populateMethod = provider.PopulateMethod;
-        var parameters = populateMethod.Parameters;
-        if (parameters.Count < 2)
-            return null;
-
-        var targetType = parameters[1].Type;
-        if (targetType is null)
-            return null;
-
-        var builderType = provider.PopulateDeclaringType;
-
-        var entry = new HotReloadManifestEntry
-        {
-            TargetTypeName = GetTypeFullName(targetType),
-            BuilderTypeName = GetTypeFullName(builderType),
-            PopulateMethodName = populateMethod.Name,
-            BuildMethodName = provider.BuildMethod?.Name,
-            BuildReturnTypeName = provider.BuildMethod?.ReturnType is { } rt ? GetTypeFullName(rt) : null
-        };
-
-        return entry;
-    }
-
-    private static string GetTypeFullName(IXamlType type)
-        => string.IsNullOrEmpty(type.FullName) ? type.Name : type.FullName;
-
-    private static void WriteHotReloadManifest(string outputAssembly, string? assemblyName, IReadOnlyList<HotReloadManifestEntry> entries)
-    {
-        if (string.IsNullOrEmpty(outputAssembly) || entries.Count == 0)
-            return;
-
-        assemblyName ??= Path.GetFileNameWithoutExtension(outputAssembly);
-        var manifestPath = Path.ChangeExtension(outputAssembly, ".axaml.hotreload.json");
-        var directory = Path.GetDirectoryName(manifestPath);
-        if (!string.IsNullOrEmpty(directory))
-            Directory.CreateDirectory(directory);
-
-        var map = new Dictionary<string, HotReloadManifestEntry>(StringComparer.Ordinal);
-        foreach (var entry in entries)
-            map[entry.TargetTypeName] = entry;
-
-        var sb = new StringBuilder();
-        sb.AppendLine("{");
-
-        var index = 0;
-        foreach (var kvp in map)
-        {
-            var entry = kvp.Value;
-            sb.Append("  \"").Append(EscapeJson(kvp.Key)).Append("\": {");
-            sb.Append("\"AssemblyName\": \"").Append(EscapeJson(assemblyName)).Append("\",");
-            sb.Append(" \"BuilderTypeName\": \"").Append(EscapeJson(entry.BuilderTypeName)).Append("\",");
-            sb.Append(" \"PopulateMethodName\": \"").Append(EscapeJson(entry.PopulateMethodName)).Append("\",");
-            sb.Append(" \"PopulateTargetTypeName\": \"").Append(EscapeJson(entry.TargetTypeName)).Append("\"");
-
-            sb.Append(", \"BuildMethodName\": ");
-            sb.Append(entry.BuildMethodName is null ? "null" : "\"" + EscapeJson(entry.BuildMethodName) + "\"");
-
-            sb.Append(", \"BuildReturnTypeName\": ");
-            sb.Append(entry.BuildReturnTypeName is null ? "null" : "\"" + EscapeJson(entry.BuildReturnTypeName) + "\"");
-
-            sb.Append(" }");
-            if (++index < map.Count)
-                sb.Append(',');
-            sb.AppendLine();
-        }
-
-        sb.Append('}');
-
-        File.WriteAllText(manifestPath, sb.ToString());
-    }
-
-    private static string EscapeJson(string value)
-    {
-        var sb = new StringBuilder();
-        foreach (var ch in value)
-        {
-            switch (ch)
-            {
-                case '"':
-                    sb.Append("\\\"");
-                    break;
-                case '\\':
-                    sb.Append("\\\\");
-                    break;
-                case '\n':
-                    sb.Append("\\n");
-                    break;
-                case '\r':
-                    sb.Append("\\r");
-                    break;
-                case '\t':
-                    sb.Append("\\t");
-                    break;
-                default:
-                    if (ch < 32)
-                    {
-                        sb.Append("\\u");
-                        sb.Append(((int)ch).ToString("x4"));
-                    }
-                    else
-                    {
-                        sb.Append(ch);
-                    }
-
-                    break;
-            }
-        }
-
-        return sb.ToString();
-    }
 }

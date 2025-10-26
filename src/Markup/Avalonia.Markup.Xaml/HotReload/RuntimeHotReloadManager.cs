@@ -17,11 +17,13 @@ public sealed class RuntimeHotReloadManager
     private readonly Dictionary<string, List<WeakReference>> _trackedInstances;
     private readonly Func<RuntimeHotReloadMetadata, RuntimeHotReloadDelegates> _delegateFactory;
 
+    [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     public RuntimeHotReloadManager()
-        : this(RuntimeHotReloadDelegateProvider.CreateDelegates)
+        : this(metadata => RuntimeHotReloadDelegateProvider.CreateDelegates(metadata))
     {
     }
 
+    [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     public RuntimeHotReloadManager(Func<RuntimeHotReloadMetadata, RuntimeHotReloadDelegates> delegateFactory)
     {
         _delegateFactory = delegateFactory ?? throw new ArgumentNullException(nameof(delegateFactory));
@@ -30,6 +32,7 @@ public sealed class RuntimeHotReloadManager
         _trackedInstances = new Dictionary<string, List<WeakReference>>(StringComparer.Ordinal);
     }
 
+    [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     public void Register(string xamlClassName, RuntimeHotReloadMetadata metadata)
     {
         if (xamlClassName is null)
@@ -47,6 +50,7 @@ public sealed class RuntimeHotReloadManager
         UpdatePopulateOverride(xamlClassName, metadata);
     }
 
+    [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     public void RegisterRange(IEnumerable<KeyValuePair<string, RuntimeHotReloadMetadata>> manifest)
     {
         if (manifest is null)
@@ -203,6 +207,7 @@ public sealed class RuntimeHotReloadManager
         }
     }
 
+    [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     private void UpdatePopulateOverride(string xamlClassName, RuntimeHotReloadMetadata metadata)
     {
         var targetType = ResolveRuntimeType(metadata.PopulateTargetTypeName);
@@ -229,6 +234,7 @@ public sealed class RuntimeHotReloadManager
         }
     }
 
+    [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     private static Type? ResolveRuntimeType(string? typeName)
     {
         if (string.IsNullOrWhiteSpace(typeName))

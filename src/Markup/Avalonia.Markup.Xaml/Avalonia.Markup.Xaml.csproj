@@ -49,11 +49,6 @@
     <Compile Include="Templates\Template.cs" />
     <Compile Include="Templates\TemplateContent.cs" />
     <Compile Include="Templates\TreeDataTemplate.cs" />
-    <Compile Include="HotReload\RuntimeHotReloadDelegateProvider.cs" />
-    <Compile Include="HotReload\RuntimeHotReloadManager.cs" />
-    <Compile Include="HotReload\RuntimeHotReloadService.cs" />
-    <Compile Include="HotReload\RuntimeHotReloadManifest.cs" />
-    <Compile Include="HotReload\RuntimeHotReloadMetadataUpdateHandler.cs" />
     <Compile Include="XamlIl\Runtime\IAvaloniaXamlIlControlTemplateProvider.cs" />
     <Compile Include="XamlIl\Runtime\IAvaloniaXamlIlParentStackProvider.cs" />
     <Compile Include="XamlIl\Runtime\IAvaloniaXamlIlXmlNamespaceInfoProviderV1.cs" />
@@ -67,6 +62,14 @@
     <ProjectReference Include="..\..\Avalonia.Controls\Avalonia.Controls.csproj" />
     <ProjectReference Include="..\Avalonia.Markup\Avalonia.Markup.csproj" />
     <None Include="..\..\..\build\Avalonia.HotReload.targets" Pack="true" PackagePath="build/" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
+    <Compile Include="HotReload\RuntimeHotReloadDelegateProvider.cs" />
+    <Compile Include="HotReload\RuntimeHotReloadManager.cs" />
+    <Compile Include="HotReload\RuntimeHotReloadService.cs" />
+    <Compile Include="HotReload\RuntimeHotReloadManifest.cs" />
+    <Compile Include="HotReload\RuntimeHotReloadMetadataUpdateHandler.cs" />
+    <Compile Include="HotReload\IXamlHotReloadable.cs" />
   </ItemGroup>
   <Import Project="..\..\..\build\DevAnalyzers.props" />
   <Import Project="..\..\..\build\TrimmingEnable.props" />

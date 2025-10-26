@@ -2,8 +2,10 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
-using Avalonia.Markup.Xaml.HotReload;
 using Avalonia.Platform;
+#if !NETSTANDARD2_0
+using Avalonia.Markup.Xaml.HotReload;
+#endif
 
 namespace Avalonia.Markup.Xaml
 {

@@ -9,7 +9,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
-using Avalonia.Markup.Xaml.HotReload;
 using Avalonia.Markup.Xaml.XamlIl.CompilerExtensions;
 using Avalonia.Markup.Xaml.XamlIl.Runtime;
 using Avalonia.Platform;
@@ -449,7 +448,9 @@ namespace Avalonia.Markup.Xaml.XamlIl
                     try
                     {
                         var createdInstance = Activator.CreateInstance(targetType)!;
+                        #if !NETSTANDARD2_0
                         RuntimeHotReloadService.Track(createdInstance);
+#endif
                         return createdInstance;
                     }
                     finally
@@ -462,13 +463,17 @@ namespace Avalonia.Markup.Xaml.XamlIl
                     Expression.Convert(Expression.Call(
                         created.GetMethod(AvaloniaXamlIlCompiler.BuildName)!, isp), typeof(object)), isp).Compile();
                 var newInstance = createCb(serviceProvider);
+                #if !NETSTANDARD2_0
                 RuntimeHotReloadService.Track(newInstance);
+#endif
                 return newInstance;
             }
             else
             {
                 populateCb(serviceProvider, rootInstance);
+                #if !NETSTANDARD2_0
                 RuntimeHotReloadService.Track(rootInstance);
+#endif
                 return rootInstance;
             }
         }
@@ -493,6 +498,7 @@ namespace Avalonia.Markup.Xaml.XamlIl
             return LoadGroupSre(documents, configuration);
 #endif
         }
+#endif
 
         private static string? GetSafeUriIdentifier(Uri? uri)
         {
@@ -504,6 +510,7 @@ namespace Avalonia.Markup.Xaml.XamlIl
                 .Replace(".", "_");
         }
 
+#if !NETSTANDARD2_0
         static void TryRegisterHotReloadMetadata(
             IReadOnlyList<XamlDocumentResource> documents,
             IReadOnlyList<Type> createdTypes,
@@ -636,3 +643,6 @@ namespace Avalonia.Markup.Xaml.XamlIl
 #endif
     }
 }
+#if !NETSTANDARD2_0
+using Avalonia.Markup.Xaml.HotReload;
+#endif
