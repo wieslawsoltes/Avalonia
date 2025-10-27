@@ -17,9 +17,13 @@ internal static class HotReloadManifestWriter
         public string? BuildMethodName;
         public string? BuildReturnTypeName;
         public string? SourcePath;
+        public string? RelativeSourcePath;
     }
 
-    public static HotReloadManifestEntry? CreateHotReloadEntry(XamlDocumentTypeBuilderProvider provider, string? sourcePath)
+    public static HotReloadManifestEntry? CreateHotReloadEntry(
+        XamlDocumentTypeBuilderProvider provider,
+        string? sourcePath,
+        string? projectDirectory)
     {
         var populateMethod = provider.PopulateMethod;
         if (populateMethod.Parameters.Count < 2)
@@ -36,7 +40,8 @@ internal static class HotReloadManifestWriter
             PopulateMethodName = populateMethod.Name,
             BuildMethodName = provider.BuildMethod?.Name,
             BuildReturnTypeName = provider.BuildMethod?.ReturnType is { } rt ? GetTypeFullName(rt) : null,
-            SourcePath = sourcePath
+            SourcePath = sourcePath,
+            RelativeSourcePath = CreateRelativeSourcePath(sourcePath, projectDirectory)
         };
 
         return entry;
@@ -91,6 +96,10 @@ internal static class HotReloadManifestWriter
             sb.Append(", \"SourcePath\": ");
             sb.Append(string.IsNullOrEmpty(sourcePath) ? "null" : "\"" + EscapeJson(sourcePath) + "\"");
 
+            var relativeSourcePath = entry.RelativeSourcePath;
+            sb.Append(", \"RelativeSourcePath\": ");
+            sb.Append(string.IsNullOrEmpty(relativeSourcePath) ? "null" : "\"" + EscapeJson(relativeSourcePath) + "\"");
+
             sb.Append(" }");
             if (++index < map.Count)
                 sb.Append(',');
@@ -137,5 +146,41 @@ internal static class HotReloadManifestWriter
         }
 
         return sb.ToString();
+    }
+
+    private static string? CreateRelativeSourcePath(string? sourcePath, string? projectDirectory)
+    {
+        if (string.IsNullOrEmpty(sourcePath) || string.IsNullOrEmpty(projectDirectory))
+            return null;
+
+        try
+        {
+            var fullSource = Path.GetFullPath(sourcePath);
+            var fullProject = Path.GetFullPath(projectDirectory);
+
+            if (!fullProject.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal) &&
+                !fullProject.EndsWith(Path.AltDirectorySeparatorChar.ToString(), StringComparison.Ordinal))
+            {
+                fullProject += Path.DirectorySeparatorChar;
+            }
+
+            var projectUri = new Uri(fullProject, UriKind.Absolute);
+            var sourceUri = new Uri(fullSource, UriKind.Absolute);
+
+            if (!projectUri.IsBaseOf(sourceUri))
+                return null;
+
+            var relative = projectUri.MakeRelativeUri(sourceUri).ToString();
+            if (string.IsNullOrEmpty(relative))
+                return string.Empty;
+
+            relative = Uri.UnescapeDataString(relative);
+            relative = relative.Replace('/', Path.DirectorySeparatorChar);
+            return relative;
+        }
+        catch
+        {
+            return null;
+        }
     }
 }

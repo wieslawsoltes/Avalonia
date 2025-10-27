@@ -26,6 +26,24 @@ namespace Avalonia.Remote.Protocol.Designer
     {
         public string SessionId { get; set; }
     }
+
+    [AvaloniaRemoteMessageGuid("1CE49F2E-1DE4-4724-96DD-1B2FCFBEBA13")]
+    public class HotReloadStatusMessage
+    {
+        public string[] ManifestPaths { get; set; } = Array.Empty<string>();
+        public string[] WatcherPaths { get; set; } = Array.Empty<string>();
+        public HotReloadStatusRegistration[] Registrations { get; set; } = Array.Empty<HotReloadStatusRegistration>();
+    }
+
+    public class HotReloadStatusRegistration
+    {
+        public string XamlClassName { get; set; } = string.Empty;
+        public string? SourcePath { get; set; }
+        public string? RelativeSourcePath { get; set; }
+        public bool SourceExists { get; set; }
+        public int TrackedInstanceCount { get; set; }
+        public int LiveInstanceCount { get; set; }
+    }
     
     public class ExceptionDetails
     {

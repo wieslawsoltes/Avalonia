@@ -199,9 +199,12 @@ public sealed class RuntimeHotReloadManager
                     delegates.Populate(provider, instance);
                     InvokeHotReloadHook(instance);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Ignore populate failures on stale instances
+                    HotReloadDiagnostics.ReportError(
+                        "Failed to populate tracked instance for '{0}' during hot reload refresh.",
+                        ex,
+                        xamlClassName);
                 }
             }
         }
@@ -271,6 +274,43 @@ public sealed class RuntimeHotReloadManager
 
     private static IServiceProvider EnsureServiceProvider(IServiceProvider? serviceProvider)
         => serviceProvider ?? XamlIlRuntimeHelpers.CreateRootServiceProviderV3(null);
+
+    internal IReadOnlyList<RuntimeHotReloadRegistration> CreateSnapshot()
+    {
+        lock (_gate)
+        {
+            if (_metadata.Count == 0)
+                return Array.Empty<RuntimeHotReloadRegistration>();
+
+            var registrations = new List<RuntimeHotReloadRegistration>(_metadata.Count);
+            foreach (var pair in _metadata)
+            {
+                var trackedCount = 0;
+                var liveCount = 0;
+                if (_trackedInstances.TryGetValue(pair.Key, out var instances))
+                {
+                    trackedCount = instances.Count;
+                    if (trackedCount > 0)
+                    {
+                        foreach (var reference in instances)
+                        {
+                            if (reference.IsAlive)
+                                liveCount++;
+                        }
+                    }
+                }
+
+                registrations.Add(
+                    new RuntimeHotReloadRegistration(
+                        pair.Key,
+                        pair.Value,
+                        trackedCount,
+                        liveCount));
+            }
+
+            return registrations.ToArray();
+        }
+    }
 
     internal IReadOnlyList<object> GetTrackedInstancesSnapshot(string typeName)
     {

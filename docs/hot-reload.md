@@ -1,0 +1,133 @@
+# Avalonia XAML Hot Reload
+
+This document describes the runtime and build infrastructure that powers Avalonia’s XAML hot reload experience, and explains how to configure or extend it for specific applications, libraries, and tooling scenarios.
+
+## Overview
+
+The Avalonia runtime is capable of reloading XAML pages in-place without restarting the application. The workflow is composed of the following pieces:
+
+1. **Hot reload manifests** are generated at build time for every assembly that contains compiled XAML. Each manifest is a JSON file (`*.axaml.hotreload.json`) that maps an `x:Class` name to the dynamic builder metadata emitted by the XAML compiler.
+2. **Runtime discovery and tracking** is handled by `RuntimeHotReloadService`, which locates manifests, tracks live instances, and provides APIs to apply hot updates.
+3. **Loader integration** ensures that manifests are discovered automatically when XAML is loaded at runtime and that edit sessions can reload the correct XAML.
+4. **Tooling coordination** (for example dotnet-watch) ensures that edited source files are sent to the runtime without incurring expensive rebuild loops.
+
+The sections below outline each component and the relevant configuration points.
+
+## Build Pipeline
+
+The MSBuild target `build/Avalonia.HotReload.targets` is imported by the Avalonia packages. It coordinates manifest generation and copies the manifests into the consuming application so the runtime can register them.
+
+Key behaviours:
+
+- Manifest generation occurs as part of the XAML compiler task. The `HotReloadManifestWriter` creates a JSON file alongside the intermediate assembly.
+- The `AvaloniaCopyHotReloadManifests` target copies manifests into the output directory. When `DotNetWatchBuild=true` (i.e. when dotnet-watch is generating its watch list) the copy is skipped to avoid feeding build outputs back into the watch pipeline.
+- By default only `.axaml` / `.xaml` resources are added to the `Watch` item list. You can opt back into watching all assets by setting `AvaloniaHotReloadWatchAssets=true` in a project file.
+- The `Watch` items themselves are disabled unless you explicitly set `AvaloniaHotReloadEnableDotNetWatchRebuild=true`. This avoids dotnet-watch rebuild loops; runtime file watchers handle the live updates.
+
+### Opt-in properties
+
+Add these properties to a project that should override the defaults:
+
+```xml
+<!-- Enable dotnet-watch rebuilds for this project -->
+<AvaloniaHotReloadEnableDotNetWatchRebuild>true</AvaloniaHotReloadEnableDotNetWatchRebuild>
+
+<!-- Also watch non-XAML resources -->
+<AvaloniaHotReloadWatchAssets>true</AvaloniaHotReloadWatchAssets>
+```
+
+## Runtime Components
+
+- `RuntimeHotReloadService` registers manifests, tracks live instances, and exposes a file watcher that reloads XAML when source files change. It uses `AvaloniaLocator` to share a single service instance across the app.
+- `RuntimeHotReloadManager` manages dynamic delegates for the generated builder types and invokes `IXamlHotReloadable.OnHotReload()` hooks.
+- `RuntimeHotReloadDelegateProvider` reflects the dynamic assembly emitted by the runtime XAML compiler to obtain `Build` / `Populate` delegates.
+- `RuntimeHotReloadMetadataUpdateHandler` hooks the .NET metadata update pipeline and clears cached delegates when Roslyn applies an edit-and-continue update.
+- `AvaloniaXamlLoader` now registers both on-disk and embedded hot reload manifests. If the `.axaml.hotreload.json` is embedded into the assembly (for example in single-file distributions) the loader registers a manifest provider that re-hydrates the JSON stream on each update cycle.
+
+## Tooling Integration
+
+### dotnet-watch
+
+The default configuration is optimized for the runtime hot reload loop:
+
+- `.axaml` edits are applied by the runtime without forcing `dotnet watch` to rebuild.
+- If you need rebuild-triggered behaviour (for example to regenerate resources or run custom tooling) set the `AvaloniaHotReloadEnableDotNetWatchRebuild` property as shown above.
+- `dotnet watch list` should complete in seconds; long runs usually indicate that a project opted into watching large asset trees.
+
+### IDE support
+
+IDE tooling that already listens for hot reload deltas (Visual Studio, Rider via dotnet-watch, etc.) does not require additional configuration. Extensions that want to monitor Avalonia-specific resources can rely on the manifest JSON format (`AvaloniaHotReloadManifestEntry`) and the runtime service APIs.
+
+## Troubleshooting
+
+- **No updates when editing XAML:** Ensure the assembly ships with its `.axaml.hotreload.json`. When trimming or single-file publishing, rely on the embedded-manifest registration (`AvaloniaXamlLoader` handles this automatically).
+- **dotnet watch rebuild loops / slow startup:** Leave `AvaloniaHotReloadEnableDotNetWatchRebuild` at its default (`false`). If previously enabled, remove the property or set it explicitly to `false`.
+- **Need to hot reload non-XAML assets:** Set `AvaloniaHotReloadWatchAssets=true` in the specific project; be aware this re-enables watching all assets.
+
+## Reference
+
+- `build/Avalonia.HotReload.targets` – MSBuild entry point for manifests and watch configuration.
+- `src/Avalonia.Build.Tasks/HotReloadManifestWriter.cs` – Manifest generator.
+- `src/Markup/Avalonia.Markup.Xaml/HotReload` – Runtime service, manager, metadata definitions, metadata update handler.
+- `src/Markup/Avalonia.Markup.Xaml/AvaloniaXamlLoader.cs` – Runtime manifest registration.
+
+## Critical Assessment
+
+### Manifest Registration Fails When Source Paths Are Missing
+
+- Manifest watchers throw when the original source directory no longer exists (for example after publishing, running on another machine, or referencing a NuGet-dropped library). `EnsureDirectoryWatcher` constructs a `FileSystemWatcher` without checking `Directory.Exists`, so an `ArgumentException` escapes and the manifest registration is swallowed by the parent `catch` (src/Markup/Avalonia.Markup.Xaml/HotReload/RuntimeHotReloadService.cs:232, src/Markup/Avalonia.Markup.Xaml/AvaloniaXamlLoader.cs:133). The result is that the manifest never loads and hot reload silently stops working for every view in that assembly.
+- Because the registration failure is caught and discarded, users receive no diagnostics and cannot discover why hot reload never activated. The runtime only surfaces a blank experience, reinforcing the perception that hot reload is unreliable.
+
+### Machine-Absolute Source Paths Break Remote or Container Scenarios
+
+- The manifest writer persists `SourcePath` as a fully qualified machine path (src/Avalonia.Build.Tasks/HotReloadManifestWriter.cs:79). When the app runs from a published output, container image, or under continuous integration the original source tree is absent, so the runtime cannot reopen the XAML file.
+- The runtime has no fallback transport for content updates. Once the local file read fails, the feature is effectively disabled for class libraries, remote developers, or cloud-hosted preview targets.
+
+### File-Watcher Loop Performs Excessive Work on the UI Thread
+
+- Every change triggers `ApplyHotReloadFromFile`, which re-opens the XAML, rebuilds a runtime dynamic assembly, and replays `Populate` against every tracked instance (src/Markup/Avalonia.Markup.Xaml/HotReload/RuntimeHotReloadService.cs:342). On complex views with dozens of live instances (e.g., templated controls or designer previews) this causes frame hitches and, in practice, encourages teams to disable hot reload.
+- Back-to-back save bursts are throttled by a hard-coded 150 ms gate (src/Markup/Avalonia.Markup.Xaml/HotReload/RuntimeHotReloadService.cs:328). This is insufficient for large files: saves triggered by IDE formatters or git operations still enqueue duplicate rebuilds that stall the UI thread.
+
+### Tooling Integration Is Limited to Opportunistic File Watching
+
+- The MSBuild targets intentionally disable `dotnet watch` rebuilds and only watch `.axaml` files unless you opt-in. When projects span multiple repositories or when assets are generated, the runtime never receives updated manifests, so hot reload remains stale.
+- IDE integrations receive no structured protocol. They must poll the filesystem and guess the manifests, duplicating logic and making consistent UX (for example between Visual Studio, Rider, Live Previewer) hard to achieve.
+
+### Diagnostics and Observability Are Lacking
+
+- All critical failures—including manifest registration, watcher creation, and runtime reload exceptions—are swallowed (src/Markup/Avalonia.Markup.Xaml/HotReload/RuntimeHotReloadService.cs:217). Developers cannot tell whether the system is idle or broken.
+- There is no way to enumerate the registered manifests or tracked instances at runtime, so tooling cannot present status or guidance to the user.
+
+## Architecture & Fix Proposals
+
+### Immediate Hardening
+
+- Guard watcher creation with `Directory.Exists` and skip watcher registration when the source is unavailable. Keep the manifest metadata loaded so IDE-driven transports can still patch views.
+- Emit structured tracing (EventSource/ILogger) behind an opt-in `AvaloniaHotReloadDiagnostics` flag. Surface manifest registration failures, file watcher errors, and per-instance reload faults so tooling and developers can act.
+- Extend the manifest schema with a relative project path (or content hash) so that when the absolute path is unusable the runtime can request the payload from tooling.
+- Allow `RuntimeHotReloadService` to report the manifests and tracked instances it believes are active. This enables status UIs and makes it clear when hot reload is inactive.
+
+### Hot Reload Transport & Tooling Contract
+
+- Introduce an `IHotReloadTransport` abstraction inside the runtime that can accept content updates via local named pipes, Unix sockets, or HTTP/WebSocket endpoints so tooling has a reliable push channel.
+- Ship a lightweight CLI (`avalonia-hot`) that wraps `dotnet watch` and streams file diffs into the transport, removing the dependence on fragile filesystem mirroring.
+- Update MSBuild targets to emit the manifest plus a deterministic `ContentId` per XAML file so tooling can push `{ContentId, xaml}` payloads without re-parsing the manifest every time.
+
+### Runtime Pipeline Improvements
+
+- Cache the parsed XAML-to-IL graph between reloads. Instead of recompiling the entire document for every instance, compile once per change, cache the dynamic builder, and only invoke `Populate` on tracked instances.
+- Move the UI-thread work onto a background dispatcher queue. Parse and compile on a thread pool, then marshal the minimal diff (new delegates) back to the UI thread, drastically reducing UI hitches.
+- Replace the fixed 150 ms debounce with an adaptive scheduler that coalesces rapid edits per file and supports cancellation when newer content arrives.
+- Expose optional view-model safe hooks so that reloads can preserve state or run user-provided migrations between XAML schema changes.
+
+### Tooling & UX Enhancements
+
+- Surface hot reload status in the developer tools overlay: show per-file success/failure, last update time, and the active transport.
+- Provide opt-in validation that warns when the source path in the manifest does not exist at startup, guiding developers to enable the new transport or copy sources.
+- Document a contract for custom IDEs: how to discover `ContentId`, negotiate transport, push deltas, and query runtime status.
+
+## Implementation Roadmap
+
+- Measure and fix the watcher crash bug, add diagnostics, and release as a patch to unblock existing users.
+- Implement the transport abstraction and CLI tooling alongside updated MSBuild targets so `dotnet watch` and IDE integrations can migrate without breaking older workflows.
+- Optimize the runtime pipeline (compile caching, async reload, adaptive throttling) and add public status APIs so tooling can provide feedback.

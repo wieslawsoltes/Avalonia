@@ -169,9 +169,12 @@ namespace Avalonia.Markup.Xaml
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // Ignore manifest registration failures.
+            HotReloadDiagnostics.ReportError(
+                "Failed to register embedded hot reload manifest for assembly '{0}'.",
+                ex,
+                assembly?.FullName ?? "<unknown>");
         }
     }
 #endif

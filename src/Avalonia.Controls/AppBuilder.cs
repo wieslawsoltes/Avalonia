@@ -21,6 +21,13 @@ namespace Avalonia
         private Func<Application>? _appFactory;
         private IApplicationLifetime? _lifetime;
 
+        static AppBuilder()
+        {
+#if DEBUG
+            EnableHotReloadDiagnosticsForDebugBuilds();
+#endif
+        }
+
         /// <summary>
         /// Gets or sets a method to call the initialize the runtime platform services (e. g. AssetLoader)
         /// </summary>
@@ -86,6 +93,17 @@ namespace Avalonia
         private AppBuilder()
         {
         }
+#if DEBUG
+        private static void EnableHotReloadDiagnosticsForDebugBuilds()
+        {
+            const string diagnosticsSwitch = "AvaloniaHotReloadDiagnostics";
+            if (!AppContext.TryGetSwitch(diagnosticsSwitch, out var enabled) || !enabled)
+                AppContext.SetSwitch(diagnosticsSwitch, true);
+
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AVALONIA_HOTRELOAD_DIAGNOSTICS")))
+                Environment.SetEnvironmentVariable("AVALONIA_HOTRELOAD_DIAGNOSTICS", "1");
+        }
+#endif
         
         /// <summary>
         /// Begin configuring an <see cref="Application"/>.

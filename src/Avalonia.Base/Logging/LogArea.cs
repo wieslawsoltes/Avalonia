@@ -84,5 +84,10 @@ namespace Avalonia.Logging
         /// The log event comes from VNC Platform
         /// </summary>
         public const string VncPlatform = nameof(VncPlatform);
+
+        /// <summary>
+        /// The log event comes from the hot reload subsystem.
+        /// </summary>
+        public const string HotReload = nameof(HotReload);
     }
 }

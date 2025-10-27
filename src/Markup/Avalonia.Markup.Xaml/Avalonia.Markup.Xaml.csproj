@@ -64,11 +64,13 @@
     <None Include="..\..\..\build\Avalonia.HotReload.targets" Pack="true" PackagePath="build/" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
+    <Compile Include="HotReload\HotReloadDiagnostics.cs" />
     <Compile Include="HotReload\RuntimeHotReloadDelegateProvider.cs" />
     <Compile Include="HotReload\RuntimeHotReloadManager.cs" />
     <Compile Include="HotReload\RuntimeHotReloadService.cs" />
     <Compile Include="HotReload\RuntimeHotReloadManifest.cs" />
     <Compile Include="HotReload\RuntimeHotReloadMetadataUpdateHandler.cs" />
+    <Compile Include="HotReload\RuntimeHotReloadStatus.cs" />
     <Compile Include="HotReload\IXamlHotReloadable.cs" />
   </ItemGroup>
   <Import Project="..\..\..\build\DevAnalyzers.props" />

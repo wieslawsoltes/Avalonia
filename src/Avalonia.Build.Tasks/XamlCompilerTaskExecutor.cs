@@ -454,7 +454,10 @@ namespace Avalonia.Build.Tasks
                             res.Uri, res
                         );
 
-                        var hotEntry = HotReloadManifestWriter.CreateHotReloadEntry(document.TypeBuilderProvider, res.FilePath);
+                        var hotEntry = HotReloadManifestWriter.CreateHotReloadEntry(
+                            document.TypeBuilderProvider,
+                            res.FilePath,
+                            projectDirectory);
                         if (hotEntry is not null)
                             hotReloadEntries.Add(hotEntry);
 

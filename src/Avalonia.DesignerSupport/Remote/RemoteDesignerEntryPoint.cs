@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading;
@@ -9,6 +11,9 @@ using Avalonia.Remote.Protocol;
 using Avalonia.Remote.Protocol.Designer;
 using Avalonia.Remote.Protocol.Viewport;
 using Avalonia.Threading;
+#if !NETSTANDARD2_0
+using Avalonia.Markup.Xaml.HotReload;
+#endif
 
 namespace Avalonia.DesignerSupport.Remote
 {
@@ -186,6 +191,7 @@ namespace Avalonia.DesignerSupport.Remote
             transport.Start();
             Log("Sending StartDesignerSessionMessage");
             transport.Send(new StartDesignerSessionMessage {SessionId = args.SessionId});
+            SendHotReloadStatusSnapshot();
             
             Dispatcher.UIThread.MainLoop(CancellationToken.None);
         }
@@ -246,7 +252,52 @@ namespace Avalonia.DesignerSupport.Remote
                         Exception = new ExceptionDetails(e),
                     });
                 }
+                SendHotReloadStatusSnapshot();
             }
         }, obj);
+
+#if NETSTANDARD2_0
+    private static void SendHotReloadStatusSnapshot()
+    {
+    }
+#else
+    private static void SendHotReloadStatusSnapshot()
+    {
+        if (s_transport is null)
+            return;
+
+        try
+        {
+            var snapshot = RuntimeHotReloadService.GetStatusSnapshot();
+            var registrations = snapshot.Registrations.Select(r =>
+            {
+                var sourcePath = r.Metadata.SourcePath;
+                var sourceExists = !string.IsNullOrEmpty(sourcePath) && File.Exists(sourcePath);
+                return new HotReloadStatusRegistration
+                {
+                    XamlClassName = r.XamlClassName,
+                    SourcePath = sourcePath,
+                    RelativeSourcePath = r.Metadata.RelativeSourcePath,
+                    SourceExists = sourceExists,
+                    TrackedInstanceCount = r.TrackedInstanceCount,
+                    LiveInstanceCount = r.LiveInstanceCount
+                };
+            }).ToArray();
+
+            var message = new HotReloadStatusMessage
+            {
+                ManifestPaths = snapshot.ManifestPaths?.ToArray() ?? Array.Empty<string>(),
+                WatcherPaths = snapshot.WatcherPaths?.ToArray() ?? Array.Empty<string>(),
+                Registrations = registrations
+            };
+
+            s_transport.Send(message);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Failed to emit hot reload status snapshot: {ex}");
+        }
+    }
+#endif
     }
 }

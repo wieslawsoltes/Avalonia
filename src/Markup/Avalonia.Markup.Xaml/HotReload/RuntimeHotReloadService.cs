@@ -68,8 +68,18 @@ public static class RuntimeHotReloadService
     [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     public static void RegisterManifest(string path)
     {
-        var manifest = RuntimeHotReloadManifest.Load(path);
-        RegisterRange(manifest);
+        try
+        {
+            var manifest = RuntimeHotReloadManifest.Load(path);
+            RegisterRange(manifest);
+        }
+        catch (Exception ex)
+        {
+            HotReloadDiagnostics.ReportError(
+                "Failed to load hot reload manifest '{0}'.",
+                ex,
+                path);
+        }
     }
 
     /// <summary>
@@ -78,8 +88,17 @@ public static class RuntimeHotReloadService
     [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     public static void RegisterManifest(Stream manifestStream)
     {
-        var manifest = RuntimeHotReloadManifest.Load(manifestStream);
-        RegisterRange(manifest);
+        try
+        {
+            var manifest = RuntimeHotReloadManifest.Load(manifestStream);
+            RegisterRange(manifest);
+        }
+        catch (Exception ex)
+        {
+            HotReloadDiagnostics.ReportError(
+                "Failed to load hot reload manifest from stream.",
+                ex);
+        }
     }
 
     /// <summary>
@@ -148,11 +167,59 @@ public static class RuntimeHotReloadService
 
         foreach (var provider in providers)
         {
-            var manifest = provider();
-            if (manifest is null)
-                continue;
-            RegisterRange(manifest);
+            try
+            {
+                var manifest = provider();
+                if (manifest is null)
+                {
+                    HotReloadDiagnostics.ReportWarning(
+                        "Hot reload manifest provider returned no data.");
+                    continue;
+                }
+
+                try
+                {
+                    RegisterRange(manifest);
+                }
+                catch (Exception ex)
+                {
+                    HotReloadDiagnostics.ReportError(
+                        "Failed to register hot reload manifest entries provided by a manifest provider.",
+                        ex);
+                }
+            }
+            catch (Exception ex)
+            {
+                HotReloadDiagnostics.ReportError(
+                    "Hot reload manifest provider threw an exception.",
+                    ex);
+            }
         }
+    }
+
+    /// <summary>
+    /// Produces a snapshot of the currently registered hot reload manifests, watchers, and tracked instances.
+    /// </summary>
+    public static RuntimeHotReloadStatus GetStatusSnapshot()
+    {
+        string[] manifestPaths;
+        string[] watcherPaths;
+
+        lock (s_gate)
+        {
+            manifestPaths = s_registeredManifestPaths.Count == 0
+                ? Array.Empty<string>()
+                : s_registeredManifestPaths.ToArray();
+
+            watcherPaths = s_sourceToType.Count == 0
+                ? Array.Empty<string>()
+                : s_sourceToType.Keys.ToArray();
+        }
+
+        var manager = AvaloniaLocator.Current.GetService<RuntimeHotReloadManager>();
+        var registrations = manager?.CreateSnapshot() ?? Array.Empty<RuntimeHotReloadRegistration>();
+
+        return new RuntimeHotReloadStatus(manifestPaths, watcherPaths, registrations);
     }
 
     /// <summary>
@@ -196,7 +263,15 @@ public static class RuntimeHotReloadService
                     if (string.IsNullOrEmpty(path))
                         continue;
                     if (File.Exists(path))
+                    {
                         RegisterManifestPath(path);
+                    }
+                    else
+                    {
+                        HotReloadDiagnostics.ReportWarning(
+                            "Hot reload manifest path '{0}' was not found.",
+                            path);
+                    }
                 }
             }
 
@@ -205,6 +280,12 @@ public static class RuntimeHotReloadService
             {
                 foreach (var file in Directory.EnumerateFiles(baseDir, "*.axaml.hotreload.json"))
                     RegisterManifestPath(file);
+            }
+            else if (!string.IsNullOrEmpty(baseDir))
+            {
+                HotReloadDiagnostics.ReportWarning(
+                    "Hot reload base directory '{0}' was not found.",
+                    baseDir);
             }
 
             var entryAssembly = Assembly.GetEntryAssembly();
@@ -215,9 +296,11 @@ public static class RuntimeHotReloadService
                     RegisterManifestPath(candidate);
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // Ignore manifest auto-registration errors.
+            HotReloadDiagnostics.ReportError(
+                "Automatic hot reload manifest discovery failed.",
+                ex);
         }
 
         ReloadRegisteredManifests();
@@ -236,15 +319,35 @@ public static class RuntimeHotReloadService
         _ = metadata;
 #else
         if (string.IsNullOrEmpty(metadata.SourcePath))
+        {
+            if (!string.IsNullOrEmpty(metadata.RelativeSourcePath))
+            {
+                HotReloadDiagnostics.ReportWarning(
+                    "Hot reload metadata for '{0}' had no absolute source path; available relative path: '{1}'.",
+                    typeName,
+                    metadata.RelativeSourcePath);
+            }
+            else
+            {
+                HotReloadDiagnostics.ReportWarning(
+                    "Hot reload metadata for '{0}' did not include a source path; skipping file watcher.",
+                    typeName);
+            }
             return;
+        }
 
         string fullPath;
         try
         {
             fullPath = Path.GetFullPath(metadata.SourcePath);
         }
-        catch
+        catch (Exception ex)
         {
+            HotReloadDiagnostics.ReportError(
+                "Failed to normalize hot reload source path for '{0}' ({1}).",
+                ex,
+                typeName,
+                metadata.SourcePath ?? "<null>");
             return;
         }
 
@@ -265,22 +368,39 @@ public static class RuntimeHotReloadService
         var directory = Path.GetDirectoryName(fullSourcePath);
         if (string.IsNullOrEmpty(directory))
             return;
+        if (!Directory.Exists(directory))
+        {
+            HotReloadDiagnostics.ReportWarning(
+                "Hot reload source directory '{0}' was not found; disabling file watcher.",
+                directory);
+            return;
+        }
 
         lock (s_gate)
         {
             if (s_directoryWatchers.ContainsKey(directory))
                 return;
 
-            var watcher = new FileSystemWatcher(directory)
+            try
             {
-                IncludeSubdirectories = false,
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName | NotifyFilters.DirectoryName,
-                EnableRaisingEvents = true
-            };
-            watcher.Changed += OnWatcherChanged;
-            watcher.Created += OnWatcherChanged;
-            watcher.Renamed += OnWatcherRenamed;
-            s_directoryWatchers[directory] = watcher;
+                var watcher = new FileSystemWatcher(directory)
+                {
+                    IncludeSubdirectories = false,
+                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName | NotifyFilters.DirectoryName,
+                    EnableRaisingEvents = true
+                };
+                watcher.Changed += OnWatcherChanged;
+                watcher.Created += OnWatcherChanged;
+                watcher.Renamed += OnWatcherRenamed;
+                s_directoryWatchers[directory] = watcher;
+            }
+            catch (Exception ex)
+            {
+                HotReloadDiagnostics.ReportError(
+                    "Failed to create file watcher for '{0}'.",
+                    ex,
+                    directory);
+            }
         }
     }
 
@@ -323,7 +443,12 @@ public static class RuntimeHotReloadService
         lock (s_gate)
         {
             if (!s_sourceToType.TryGetValue(path, out typeName))
+            {
+                HotReloadDiagnostics.ReportInfo(
+                    "Received hot reload notification for untracked source '{0}'.",
+                    path);
                 return;
+            }
 
             if (s_lastReload.TryGetValue(path, out var last) && (DateTime.UtcNow - last).TotalMilliseconds < 150)
                 return;
@@ -341,8 +466,10 @@ public static class RuntimeHotReloadService
 
     private static void ApplyHotReloadFromFile(string sourcePath, string typeName)
     {
-        string xaml;
-        for (var attempt = 0; ; attempt++)
+        string? xaml = null;
+        Exception? readException = null;
+
+        for (var attempt = 0; attempt < 5; attempt++)
         {
             try
             {
@@ -353,15 +480,33 @@ public static class RuntimeHotReloadService
             {
                 System.Threading.Thread.Sleep(50);
             }
-            catch
+            catch (Exception ex)
             {
-                return;
+                readException = ex;
+                break;
             }
+        }
+
+        if (xaml is null)
+        {
+            if (readException is not null)
+            {
+                HotReloadDiagnostics.ReportError(
+                    "Failed to read XAML source '{0}' for hot reload.",
+                    readException,
+                    sourcePath);
+            }
+            return;
         }
 
         var targetType = RuntimeHotReloadManager.ResolveRuntimeType(typeName);
         if (targetType is null)
+        {
+            HotReloadDiagnostics.ReportWarning(
+                "Unable to resolve runtime type '{0}' for hot reload.",
+                typeName);
             return;
+        }
 
         var baseUri = new Uri(sourcePath, UriKind.Absolute);
         var configuration = new RuntimeXamlLoaderConfiguration { LocalAssembly = targetType.Assembly };
@@ -370,8 +515,12 @@ public static class RuntimeHotReloadService
         {
             AvaloniaRuntimeXamlLoader.Load(new RuntimeXamlLoaderDocument(baseUri, xaml), configuration);
         }
-        catch
+        catch (Exception ex)
         {
+            HotReloadDiagnostics.ReportError(
+                "Failed to apply hot reload to '{0}'.",
+                ex,
+                typeName);
             return;
         }
 
@@ -383,9 +532,12 @@ public static class RuntimeHotReloadService
             {
                 AvaloniaRuntimeXamlLoader.Load(new RuntimeXamlLoaderDocument(baseUri, instance, xaml), configuration);
             }
-            catch
+            catch (Exception ex)
             {
-                // Ignore per-instance failures to avoid breaking the session.
+                HotReloadDiagnostics.ReportError(
+                    "Failed to apply hot reload to an instance of '{0}'.",
+                    ex,
+                    typeName);
             }
         }
     }

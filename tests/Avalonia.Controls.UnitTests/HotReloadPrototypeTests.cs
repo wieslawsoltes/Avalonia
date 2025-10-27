@@ -313,6 +313,7 @@ public class HotReloadPrototypeTests : ScopedTestBase
             introspection.PopulateTargetType.FullName ?? introspection.PopulateTargetType.Name,
             introspection.BuildMethod?.Name,
             introspection.BuildMethod?.ReturnType.FullName ?? introspection.BuildMethod?.ReturnType.Name,
+            null,
             null);
     }
 
