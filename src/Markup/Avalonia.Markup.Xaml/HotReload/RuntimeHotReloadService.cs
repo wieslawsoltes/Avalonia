@@ -7,12 +7,12 @@ using System.Reflection;
 using System.Threading;
 using Avalonia;
 using Avalonia.Threading;
+using Avalonia.Markup.Xaml;
 
 namespace Avalonia.Markup.Xaml.HotReload;
 
-/// <summary>
-/// Helper facade for accessing <see cref="RuntimeHotReloadManager"/> through <see cref="AvaloniaLocator"/>.
-/// </summary>
+[UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Runtime hot reload is a development-only feature that requires dynamic access to generated types.")]
+[UnconditionalSuppressMessage("AOT", "IL3050", Justification = "Runtime hot reload is a development-only feature that requires dynamic code generation.")]
 public static class RuntimeHotReloadService
 {
     /// <summary>
@@ -348,7 +348,7 @@ public static class RuntimeHotReloadService
 
     private static void RegisterWatcherForEntry(string typeName, RuntimeHotReloadMetadata metadata)
     {
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 && !NET6_0_OR_GREATER
         _ = typeName;
         _ = metadata;
 #else
@@ -394,8 +394,10 @@ public static class RuntimeHotReloadService
 #endif
     }
 
-#if !NETSTANDARD2_0
+#if !NETSTANDARD2_0 || NET6_0_OR_GREATER
     private static readonly Dictionary<string, DateTime> s_lastReload = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly MethodInfo? s_runtimeXamlLoaderMethod = Type.GetType("Avalonia.Markup.Xaml.AvaloniaRuntimeXamlLoader, Avalonia.Markup.Xaml.Loader")?
+        .GetMethod("Load", BindingFlags.Public | BindingFlags.Static, binder: null, new[] { typeof(RuntimeXamlLoaderDocument), typeof(RuntimeXamlLoaderConfiguration) }, modifiers: null);
 
     private static void EnsureDirectoryWatcher(string fullSourcePath)
     {
@@ -438,6 +440,7 @@ public static class RuntimeHotReloadService
         }
     }
 
+    [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     private static void OnWatcherChanged(object? sender, FileSystemEventArgs e)
     {
         if (e.ChangeType == WatcherChangeTypes.Deleted)
@@ -446,6 +449,7 @@ public static class RuntimeHotReloadService
         HandleSourceChange(e.FullPath);
     }
 
+    [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     private static void OnWatcherRenamed(object? sender, RenamedEventArgs e)
     {
         var oldFull = Path.GetFullPath(e.OldFullPath);
@@ -470,6 +474,7 @@ public static class RuntimeHotReloadService
             HandleSourceChange(newFull);
     }
 
+    [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     private static void HandleSourceChange(string path)
     {
         string? typeName;
@@ -490,14 +495,47 @@ public static class RuntimeHotReloadService
             s_lastReload[path] = DateTime.UtcNow;
         }
 
-        void Apply() => ApplyHotReloadFromFile(path, typeName!);
+        void ApplyWithProcessingDisabled()
+        {
+            using (Dispatcher.UIThread.DisableProcessing())
+            {
+                ApplyHotReloadFromFile(path, typeName!);
+            }
+        }
 
         if (Dispatcher.UIThread.CheckAccess())
-            Apply();
+        {
+            try
+            {
+                ApplyWithProcessingDisabled();
+            }
+            catch (Exception ex)
+            {
+                HotReloadDiagnostics.ReportError(
+                    "Failed to apply hot reload for '{0}'.",
+                    ex,
+                    typeName!);
+            }
+        }
         else
-            Dispatcher.UIThread.Post(Apply);
+        {
+            try
+            {
+                Dispatcher.UIThread.InvokeAsync(
+                    ApplyWithProcessingDisabled,
+                    DispatcherPriority.Send).GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            {
+                HotReloadDiagnostics.ReportError(
+                    "Failed to apply hot reload for '{0}'.",
+                    ex,
+                    typeName!);
+            }
+        }
     }
 
+    [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     private static void ApplyHotReloadFromFile(string sourcePath, string typeName)
     {
         string? xaml = null;
@@ -547,7 +585,13 @@ public static class RuntimeHotReloadService
 
         try
         {
-            AvaloniaRuntimeXamlLoader.Load(new RuntimeXamlLoaderDocument(baseUri, xaml), configuration);
+            if (s_runtimeXamlLoaderMethod == null)
+            {
+                HotReloadDiagnostics.ReportWarning("Runtime XAML loader is not available; skipping hot reload for '{0}'.", typeName);
+                return;
+            }
+
+            s_runtimeXamlLoaderMethod.Invoke(null, new object[] { new RuntimeXamlLoaderDocument(baseUri, xaml), configuration });
         }
         catch (Exception ex)
         {
@@ -564,7 +608,7 @@ public static class RuntimeHotReloadService
         {
             try
             {
-                AvaloniaRuntimeXamlLoader.Load(new RuntimeXamlLoaderDocument(baseUri, instance, xaml), configuration);
+                s_runtimeXamlLoaderMethod.Invoke(null, new object[] { new RuntimeXamlLoaderDocument(baseUri, instance, xaml), configuration });
             }
             catch (Exception ex)
             {

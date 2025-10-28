@@ -90,6 +90,13 @@ namespace Avalonia.Media
                     return glyphTypeface;
                 }
 
+#if DEBUG
+                Console.WriteLine($"[HotReload] Could not create glyphTypeface for '{FontFamily?.Name ?? "<null>"}' (key: {FontFamily?.Key}, style: {Style}, weight: {Weight}, stretch: {Stretch}).");
+                if (FontManager.Current.TryGetGlyphTypeface(new Typeface(FontManager.Current.DefaultFontFamily, Style, Weight, Stretch), out glyphTypeface))
+                    return glyphTypeface;
+                if (FontManager.Current.TryGetGlyphTypeface(new Typeface(FontManager.Current.DefaultFontFamily), out glyphTypeface))
+                    return glyphTypeface;
+#endif
                 throw new InvalidOperationException(
                     $"Could not create glyphTypeface. Font family: {FontFamily?.Name} (key: {FontFamily?.Key}). Style: {Style}. Weight: {Weight}. Stretch: {Stretch}");
             }

@@ -4,6 +4,10 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform;
+#if !NETSTANDARD2_0
+using System.IO;
+using Avalonia.Markup.Xaml.HotReload;
+#endif
 using Avalonia.Styling;
 using Avalonia.Themes.Simple;
 using Avalonia.Themes.Fluent;
@@ -29,6 +33,45 @@ namespace ControlCatalog
             Styles.Add(_themeStylesContainer);
 
             AvaloniaXamlLoader.Load(this);
+
+#if !NETSTANDARD2_0
+            var hotReloadService = RuntimeHotReloadService.GetOrCreate();
+            var manifestPath = Path.Combine(AppContext.BaseDirectory, "ControlCatalog.axaml.hotreload.json");
+            if (File.Exists(manifestPath))
+            {
+                var tfa = typeof(RuntimeHotReloadManifest).Assembly.GetCustomAttributes(typeof(System.Runtime.Versioning.TargetFrameworkAttribute), false);
+                if (tfa.Length > 0 && tfa[0] is System.Runtime.Versioning.TargetFrameworkAttribute attr)
+                {
+                    Console.WriteLine($"[HotReload] RuntimeHotReloadManifest TFM: {attr.FrameworkName}");
+                }
+                try
+                {
+                    var manifest = RuntimeHotReloadManifest.Load(manifestPath);
+                    Console.WriteLine($"[HotReload] Manifest entries: {manifest.Count}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[HotReload] Failed to load manifest directly: {ex}");
+                }
+                RuntimeHotReloadService.RegisterManifestPath(manifestPath);
+                RuntimeHotReloadService.ReloadRegisteredManifests();
+                var snapshot = RuntimeHotReloadService.GetStatusSnapshot();
+                Console.WriteLine($"[HotReload] Registered manifests: {string.Join(", ", snapshot.ManifestPaths)}");
+                Console.WriteLine($"[HotReload] Watcher count: {snapshot.WatcherPaths.Count}");
+                foreach (var registration in snapshot.Registrations)
+                {
+                    Console.WriteLine($"[HotReload] Registration: {registration.XamlClassName} tracked={registration.TrackedInstanceCount} live={registration.LiveInstanceCount}");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"[HotReload] Manifest not found at {manifestPath}");
+            }
+#endif
+
+#if DEBUG
+            Environment.SetEnvironmentVariable("AVALONIA_DISABLE_TEXT_POOL_VERIFICATION", "1");
+#endif
 
             _fluentTheme = (FluentTheme)Resources["FluentTheme"]!;
             _simpleTheme = (SimpleTheme)Resources["SimpleTheme"]!;

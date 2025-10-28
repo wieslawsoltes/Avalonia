@@ -14,6 +14,7 @@ using Avalonia.LogicalTree;
 using Avalonia.Rendering.Composition;
 using Avalonia.Threading;
 using Avalonia.Vulkan;
+using Avalonia.Logging;
 using ControlCatalog.Pages;
 
 namespace ControlCatalog.NetCore
@@ -164,7 +165,7 @@ namespace ControlCatalog.NetCore
                         : OperatingSystem.IsLinux() ? new EmbedSampleGtk()
                         : null;
                 })
-                .LogToTrace();
+                .LogToTrace(LogEventLevel.Debug, LogArea.HotReload);
 
         static void SilenceConsole()
         {

@@ -15,6 +15,8 @@ namespace Avalonia.Media.TextFormatting
     internal sealed class FormattingObjectPool
     {
         [ThreadStatic] private static FormattingObjectPool? t_instance;
+        private static readonly bool s_skipVerification =
+            string.Equals(Environment.GetEnvironmentVariable("AVALONIA_DISABLE_TEXT_POOL_VERIFICATION"), "1", StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         /// Gets an instance of this class for the current thread.
@@ -35,6 +37,8 @@ namespace Avalonia.Media.TextFormatting
         [Conditional("DEBUG")]
         public void VerifyAllReturned()
         {
+            if (s_skipVerification)
+                return;
             TextRunLists.VerifyAllReturned();
             UnshapedTextRunLists.VerifyAllReturned();
             TextLines.VerifyAllReturned();

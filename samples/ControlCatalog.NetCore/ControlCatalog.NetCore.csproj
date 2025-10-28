@@ -26,8 +26,16 @@
     <ProjectReference Include="..\..\src\Linux\Avalonia.LinuxFramebuffer\Avalonia.LinuxFramebuffer.csproj" />
     <ProjectReference Include="..\ControlCatalog\ControlCatalog.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.X11\Avalonia.X11.csproj" />
+    <ProjectReference Include="..\..\src\Markup\Avalonia.Markup.Xaml.Loader\Avalonia.Markup.Xaml.Loader.csproj" />
     <!-- For native controls test -->
     <PackageReference Include="MonoMac.NetStandard" Version="0.0.4" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)' != '' and '$(AvsCurrentTargetFramework)' != ''">
+    <None Include="..\ControlCatalog\obj\$(Configuration)\$(AvsCurrentTargetFramework)\ControlCatalog.axaml.hotreload.json">
+      <Link>ControlCatalog.axaml.hotreload.json</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <PropertyGroup>
