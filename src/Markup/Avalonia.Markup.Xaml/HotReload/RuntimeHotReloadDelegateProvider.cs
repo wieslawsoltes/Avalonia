@@ -46,7 +46,7 @@ public static class RuntimeHotReloadDelegateProvider
         if (metadata is null)
             throw new ArgumentNullException(nameof(metadata));
 
-        assemblyResolver ??= ResolveDynamicAssembly;
+        assemblyResolver ??= ResolveAssembly;
 
         var builderType = GetBuilderType(metadata, assemblyResolver);
 
@@ -54,7 +54,7 @@ public static class RuntimeHotReloadDelegateProvider
         var populateTargetType = ResolveType(metadata.PopulateTargetTypeName, populateMethod.GetParameters().ElementAtOrDefault(1)?.ParameterType);
 
         var populateDelegate = PopulateDelegate(populateMethod, populateTargetType);
-        var buildDelegate = BuildDelegate(builderType, metadata.BuildMethodName, metadata.BuildReturnTypeName);
+        var buildDelegate = CreateBuildDelegate(metadata, builderType, populateTargetType, populateDelegate);
 
         return new RuntimeHotReloadDelegates(buildDelegate, populateDelegate);
     }
@@ -78,6 +78,46 @@ public static class RuntimeHotReloadDelegateProvider
             call = Expression.Convert(call, typeof(object));
 
         return Expression.Lambda<Func<IServiceProvider, object>>(call, serviceProviderParameter).Compile();
+    }
+
+    [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
+    private static Func<IServiceProvider, object> CreateBuildDelegate(
+        RuntimeHotReloadMetadata metadata,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.NonPublicMethods)] Type builderType,
+        Type populateTargetType,
+        Action<IServiceProvider, object> populateDelegate)
+    {
+        if (!string.IsNullOrEmpty(metadata.BuildMethodName))
+            return BuildDelegate(builderType, metadata.BuildMethodName, metadata.BuildReturnTypeName);
+
+        var expectedReturnType = ResolveType(metadata.BuildReturnTypeName, populateTargetType);
+        if (!expectedReturnType.IsAssignableFrom(populateTargetType))
+        {
+            throw new InvalidOperationException(
+                $"Populate target '{populateTargetType.FullName}' is not assignable to build return type '{expectedReturnType.FullName}'.");
+        }
+
+        if (populateTargetType.IsAbstract)
+            throw new InvalidOperationException(
+                $"Unable to build instances of abstract type '{populateTargetType.FullName}' without a generated build method.");
+
+        return serviceProvider =>
+        {
+            object instance;
+            try
+            {
+                instance = Activator.CreateInstance(populateTargetType)!;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(
+                    $"Failed to create an instance of '{populateTargetType.FullName}' for hot reload. Provide a parameterless constructor or a build method.",
+                    ex);
+            }
+
+            populateDelegate(serviceProvider, instance);
+            return instance;
+        };
     }
 
     private static Action<IServiceProvider, object> PopulateDelegate(MethodInfo method, Type targetType)
@@ -110,10 +150,34 @@ public static class RuntimeHotReloadDelegateProvider
                    $"Method '{methodName}' was not found on builder type '{builderType.FullName}'.");
     }
 
-    private static Assembly? ResolveDynamicAssembly(string assemblyName) =>
-        AppDomain.CurrentDomain.GetAssemblies()
-            .Where(a => a.IsDynamic)
-            .FirstOrDefault(a => string.Equals(a.GetName().Name, assemblyName, StringComparison.Ordinal));
+    private static Assembly? ResolveAssembly(string assemblyName)
+    {
+        Assembly? staticMatch = null;
+
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            var name = assembly.GetName();
+            if (!string.Equals(name.Name, assemblyName, StringComparison.Ordinal))
+                continue;
+
+            if (assembly.IsDynamic)
+                return assembly;
+
+            staticMatch ??= assembly;
+        }
+
+        if (staticMatch != null)
+            return staticMatch;
+
+        try
+        {
+            return Assembly.Load(new AssemblyName(assemblyName));
+        }
+        catch
+        {
+            return null;
+        }
+    }
 
     [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     private static Type ResolveType(string? typeName, Type? fallback)
@@ -143,7 +207,7 @@ public static class RuntimeHotReloadDelegateProvider
     {
         var assembly = assemblyResolver(metadata.AssemblyName)
                        ?? throw new InvalidOperationException(
-                           $"Unable to locate dynamic assembly '{metadata.AssemblyName}'.");
+                           $"Unable to locate assembly '{metadata.AssemblyName}'.");
 
         var type = assembly.GetType(metadata.BuilderTypeName)
                    ?? throw new InvalidOperationException(

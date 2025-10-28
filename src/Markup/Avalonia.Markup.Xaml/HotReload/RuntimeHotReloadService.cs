@@ -20,6 +20,7 @@ public static class RuntimeHotReloadService
     /// </summary>
     private static readonly object s_gate = new();
     private static readonly List<Func<IReadOnlyDictionary<string, RuntimeHotReloadMetadata>>> s_manifestProviders = new();
+    private static readonly Dictionary<string, Func<IReadOnlyDictionary<string, RuntimeHotReloadMetadata>>> s_manifestProvidersByKey = new(StringComparer.Ordinal);
     private static readonly HashSet<string> s_registeredManifestPaths = new(StringComparer.OrdinalIgnoreCase);
     private static bool s_manifestPathsInitialized;
     private static readonly Dictionary<string, FileSystemWatcher> s_directoryWatchers = new(StringComparer.OrdinalIgnoreCase);
@@ -117,7 +118,7 @@ public static class RuntimeHotReloadService
                 return;
         }
 
-        RegisterManifestProvider(() => RuntimeHotReloadManifest.Load(path));
+        RegisterManifestProvider(() => RuntimeHotReloadManifest.Load(path), path);
         ReloadRegisteredManifests();
     }
 
@@ -144,12 +145,44 @@ public static class RuntimeHotReloadService
     /// Registers a callback that supplies manifest entries whenever hot reload is triggered.
     /// </summary>
     public static void RegisterManifestProvider(Func<IReadOnlyDictionary<string, RuntimeHotReloadMetadata>> provider)
+        => RegisterManifestProvider(provider, cacheKey: null);
+
+    public static void RegisterManifestProvider(
+        Func<IReadOnlyDictionary<string, RuntimeHotReloadMetadata>> provider,
+        string? cacheKey)
     {
         if (provider is null)
             throw new ArgumentNullException(nameof(provider));
 
         lock (s_gate)
+        {
+            if (!string.IsNullOrEmpty(cacheKey))
+            {
+                if (s_manifestProvidersByKey.TryGetValue(cacheKey, out var existing))
+                {
+                    if (ReferenceEquals(existing, provider))
+                        return;
+
+                    var index = s_manifestProviders.IndexOf(existing);
+                    if (index >= 0)
+                        s_manifestProviders[index] = provider;
+                    else
+                        s_manifestProviders.Add(provider);
+
+                    s_manifestProvidersByKey[cacheKey] = provider;
+                    return;
+                }
+
+                s_manifestProvidersByKey[cacheKey] = provider;
+            }
+            else
+            {
+                if (s_manifestProviders.Contains(provider))
+                    return;
+            }
+
             s_manifestProviders.Add(provider);
+        }
     }
 
     /// <summary>
@@ -230,6 +263,7 @@ public static class RuntimeHotReloadService
         lock (s_gate)
         {
             s_manifestProviders.Clear();
+            s_manifestProvidersByKey.Clear();
             s_registeredManifestPaths.Clear();
             s_manifestPathsInitialized = false;
             foreach (var watcher in s_directoryWatchers.Values)

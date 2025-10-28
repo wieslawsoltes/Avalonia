@@ -287,6 +287,50 @@ public class HotReloadPrototypeTests : ScopedTestBase
         Assert.Equal("Updated", Assert.IsType<TextBlock>(control.Content).Text);
     }
 
+    [Fact]
+    public void RuntimeHotReloadDelegateProvider_Resolves_Static_Assembly()
+    {
+        var metadata = new RuntimeHotReloadMetadata(
+            typeof(HotReloadPrototypeStaticBuilder).Assembly.GetName().Name ?? string.Empty,
+            typeof(HotReloadPrototypeStaticBuilder).FullName ?? typeof(HotReloadPrototypeStaticBuilder).Name,
+            nameof(HotReloadPrototypeStaticBuilder.Populate),
+            typeof(HotReloadPrototypeControl).FullName ?? typeof(HotReloadPrototypeControl).Name,
+            nameof(HotReloadPrototypeStaticBuilder.Build),
+            typeof(HotReloadPrototypeControl).FullName ?? typeof(HotReloadPrototypeControl).Name,
+            null,
+            null);
+
+        var delegates = RuntimeHotReloadDelegateProvider.CreateDelegates(metadata);
+        var serviceProvider = XamlIlRuntimeHelpers.CreateRootServiceProviderV3(null);
+        var control = (HotReloadPrototypeControl)delegates.Build(serviceProvider);
+
+        Assert.Equal("Static", Assert.IsType<TextBlock>(control.Content).Text);
+
+        control.Content = null;
+        delegates.Populate(serviceProvider, control);
+        Assert.Equal("Static", Assert.IsType<TextBlock>(control.Content).Text);
+    }
+
+    [Fact]
+    public void RuntimeHotReloadDelegateProvider_Falls_Back_When_Build_Missing()
+    {
+        var metadata = new RuntimeHotReloadMetadata(
+            typeof(HotReloadPrototypeStaticBuilder).Assembly.GetName().Name ?? string.Empty,
+            typeof(HotReloadPrototypeStaticBuilder).FullName ?? typeof(HotReloadPrototypeStaticBuilder).Name,
+            nameof(HotReloadPrototypeStaticBuilder.Populate),
+            typeof(HotReloadPrototypeControl).FullName ?? typeof(HotReloadPrototypeControl).Name,
+            null,
+            typeof(HotReloadPrototypeControl).FullName ?? typeof(HotReloadPrototypeControl).Name,
+            null,
+            null);
+
+        var delegates = RuntimeHotReloadDelegateProvider.CreateDelegates(metadata);
+        var serviceProvider = XamlIlRuntimeHelpers.CreateRootServiceProviderV3(null);
+        var control = (HotReloadPrototypeControl)delegates.Build(serviceProvider);
+
+        Assert.Equal("Static", Assert.IsType<TextBlock>(control.Content).Text);
+    }
+
     private static RuntimeBuilderIntrospection CaptureBuilderIntrospection(Func<object> loader)
     {
         var (builderType, _) = CaptureBuilderType(loader);
@@ -367,6 +411,21 @@ public class HotReloadPrototypeTests : ScopedTestBase
         MethodInfo? BuildMethod,
         Type PopulateTargetType);
 
+}
+
+internal static class HotReloadPrototypeStaticBuilder
+{
+    public static HotReloadPrototypeControl Build(IServiceProvider serviceProvider)
+    {
+        var control = new HotReloadPrototypeControl();
+        Populate(serviceProvider, control);
+        return control;
+    }
+
+    public static void Populate(IServiceProvider serviceProvider, HotReloadPrototypeControl control)
+    {
+        control.Content = new TextBlock { Text = "Static" };
+    }
 }
 
 public class HotReloadPrototypeControl : UserControl

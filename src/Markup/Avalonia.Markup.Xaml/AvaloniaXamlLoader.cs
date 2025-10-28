@@ -163,7 +163,8 @@ namespace Avalonia.Markup.Xaml
                         if (manifest.Count == 0)
                             continue;
 
-                        RuntimeHotReloadService.RegisterManifestProvider(() => LoadFromResource(assembly, resourceName));
+                        var providerKey = $"{assembly.FullName}|{resourceName}";
+                        RuntimeHotReloadService.RegisterManifestProvider(() => LoadFromResource(assembly, resourceName), providerKey);
                         RuntimeHotReloadService.RegisterRange(manifest);
                     }
                 }

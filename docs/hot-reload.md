@@ -102,10 +102,14 @@ IDE tooling that already listens for hot reload deltas (Visual Studio, Rider via
 
 ### Immediate Hardening
 
-- Guard watcher creation with `Directory.Exists` and skip watcher registration when the source is unavailable. Keep the manifest metadata loaded so IDE-driven transports can still patch views.
-- Emit structured tracing (EventSource/ILogger) behind an opt-in `AvaloniaHotReloadDiagnostics` flag. Surface manifest registration failures, file watcher errors, and per-instance reload faults so tooling and developers can act.
-- Extend the manifest schema with a relative project path (or content hash) so that when the absolute path is unusable the runtime can request the payload from tooling.
-- Allow `RuntimeHotReloadService` to report the manifests and tracked instances it believes are active. This enables status UIs and makes it clear when hot reload is inactive.
+**Findings**
+- Critical — `CreateDelegates` never finds builder types from the shipped manifests, because it only searches `AppDomain` for dynamic assemblies. Build-time manifests (for example `ControlCatalog.axaml.hotreload.json:2`) point to real assemblies like `ControlCatalog.dll`, so `ResolveDynamicAssembly` in `src/Markup/Avalonia.Markup.Xaml/HotReload/RuntimeHotReloadDelegateProvider.cs:113` short-circuits with “Unable to locate dynamic assembly …”, and `RuntimeHotReloadService.RegisterRange` fails to register any entry. Hot reload can’t start for precompiled XAML.
+- Critical — even after fixing the lookup, `BuildDelegate` in `RuntimeHotReloadDelegateProvider.cs:62-80` throws whenever a manifest entry has `BuildMethodName = null`. That’s the default for every compiled `x:Class` (see how `HotReloadManifestWriter` serialises it in `src/Avalonia.Build.Tasks/HotReload/HotReloadManifestWriter.cs:36-45` and the generated data in `samples/ControlCatalog/bin/Debug/net8.0/ControlCatalog.axaml.hotreload.json:2`). The exception bubbles out of `RuntimeHotReloadService.RegisterRange`, so nothing gets registered/tracked. We at least need a populate-only path (e.g. fall back to `Activator.CreateInstance` or skip `Build` when it’s missing).
+- Major — embedded manifests are re-registered on every call to `AvaloniaXamlLoader.Load`. The loader adds a new provider each time (`src/Markup/Avalonia.Markup.Xaml/AvaloniaXamlLoader.cs:166-167`), and `RuntimeHotReloadService.RegisterManifestProvider` just appends it to `s_manifestProviders` (`src/Markup/Avalonia.Markup.Xaml/HotReload/RuntimeHotReloadService.cs:146-152`). After a few loads you end up with dozens of identical providers; every `ReloadRegisteredManifests` call replays the same manifest over and over, repeatedly repopulating tracked controls and driving up CPU/allocations. The provider list needs deduping (e.g. keyed by assembly/resource) or a guard to register once per assembly.
+
+**Open questions / next steps:**
+1. After unblocking registration, can we add a regression test that loads a real manifest (with null `BuildMethodName`) to catch both failures?
+2. Once providers are deduped, it’d be good to measure that we only repopulate once per reload.
 
 ### Hot Reload Transport & Tooling Contract
 

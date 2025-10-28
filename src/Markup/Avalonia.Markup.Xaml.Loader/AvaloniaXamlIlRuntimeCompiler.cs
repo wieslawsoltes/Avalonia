@@ -11,6 +11,9 @@ using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using Avalonia.Markup.Xaml.XamlIl.CompilerExtensions;
 using Avalonia.Markup.Xaml.XamlIl.Runtime;
+#if !NETSTANDARD2_0
+using Avalonia.Markup.Xaml.HotReload;
+#endif
 using Avalonia.Platform;
 using XamlX;
 using XamlX.Ast;
@@ -413,7 +416,6 @@ namespace Avalonia.Markup.Xaml.XamlIl
         {
             return LoadGroupSreCore(new[] { document }, configuration).Single();
         }
-#endif
 
         [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = XamlX.TrimmingMessages.GeneratedTypes)]
         [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = XamlX.TrimmingMessages.GeneratedTypes)]
@@ -563,7 +565,8 @@ namespace Avalonia.Markup.Xaml.XamlIl
             }
 #endif
         }
-        
+#endif
+
 #if RUNTIME_XAML_CECIL
         private static Dictionary<string, (Action<IServiceProvider, object> populate, Func<IServiceProvider, object>
                 build)>
@@ -645,6 +648,3 @@ namespace Avalonia.Markup.Xaml.XamlIl
 #endif
     }
 }
-#if !NETSTANDARD2_0
-using Avalonia.Markup.Xaml.HotReload;
-#endif
