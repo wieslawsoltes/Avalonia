@@ -158,7 +158,48 @@ Refer to `docs/control-catalog-hot-reload.md` for the full walkthrough.
 
 ---
 
-## 7. Testing & Observability
+## 7. Granular Watchers & Partial Diff Reload
+
+### 7.1 Objectives
+
+- Detect XAML edits at the granularity of templates, resources, and inline controls.
+- Compile and ship only the delta for touched parts, leaving unaffected controls alive.
+- Maintain view and resource state while still guaranteeing consistency when diffs fail.
+
+### 7.2 Incremental Watch Pipeline
+
+- **Syntax-aware watchers:** Extend the XAML project graph so each file is represented as a tree of addressable parts (root control, `Style`, `DataTemplate`, `ResourceDictionary` entries). File system events are mapped to tree nodes using a cached parse with stable node IDs (path + spine index).
+- **Incremental parsing cache:** Cache the parsed syntax tree, semantic bindings, and resource metadata for every node. When a change lands, reparse only the affected span and invalidate dependent nodes rather than the entire file.
+- **Unified subscriptions:** IDE hot reload, `dotnet watch`, and the ControlCatalog harness subscribe through a shared watcher service. Events are emitted with the list of changed node IDs and a summary of affected bindings, enabling tooling to preview the impact before reloading.
+
+### 7.3 Partial Diff Emission
+
+- **Addressable IR:** Introduce a part-addressable intermediate representation in the XamlX compiler so every node carries its deterministic ID and source span metadata.
+- **Tree differ:** Compare the cached IR for a node with the newly parsed version (e.g., GumTree-style diff) and emit high-level operations such as `ReplaceNode`, `UpdateProperty`, `AddChild`, and `RemoveChild`. The differ collapses cosmetic changes (whitespace, attribute reordering) so runtime patches stay minimal.
+- **Payload serializer:** Package diff operations as a transport payload (JSON or binary) that also includes dependency hints (resource keys, referenced types). Version the payload so older runtimes fall back to full reloads.
+
+### 7.4 Runtime State Preservation
+
+- **Selective patching:** The runtime patcher resolves live controls via `NameScope`, templated parents, and resource keys. Only nodes marked in the diff are recreated; untouched controls keep their `DataContext`, bindings, and registered handlers.
+- **State providers:** Existing `IXamlHotReloadStateProvider` implementations continue to run, but only for the instances that are actually replaced. Controls that survive the diff skip snapshot/restore, avoiding unnecessary churn.
+- **Failure fallback:** If applying a diff throws or produces an inconsistent tree, the runtime rolls back to a full reload of the file, preserving the current stability guarantees.
+
+### 7.5 Compiler & Runtime Workstreams
+
+1. **Infrastructure:** Establish syntax tree caching, stable node IDs, and hash-based change detection that plugs into the XamlX front-end.
+2. **Diff Engine:** Build the structural differ and IR serializer, including unit tests covering complex templates and merged dictionaries.
+3. **Emitter & Transport:** Extend the existing hot reload transport to ship diff payloads, add schema versioning, and surface diagnostics when the payload is discarded.
+4. **Runtime Application:** Implement the diff applier service, ensure dispatcher-thread guarantees, and validate template/resource refresh scenarios.
+
+### 7.6 Milestone Plan
+
+- **M1 Discovery:** Audit the current XamlX pipeline, document change points, and spike syntax tree caching with node IDs.
+- **M2 Incremental Parsing:** Implement part-level watchers, validate them inside ControlCatalog, and measure latency under rapid edits.
+- **M3 Diff Prototype:** Produce partial diff payloads for a single file, create a minimal runtime applier, and integrate with tooling.
+- **M4 Robustness:** Expand coverage to merged dictionaries, global resources, and templated controls; add telemetry and error recovery.
+- **M5 Tooling & Docs:** Expose CLI/IDE toggles, update developer documentation, and provide a stability playbook for the new pipeline.
+
+## 8. Testing & Observability
 
 - **Async reload API:** `ApplyHotReloadAsync` ensures tests can `await` dispatcher work without blocking.
 - **Stress tests:** `tests/Avalonia.Markup.Xaml.UnitTests/HotReload/RuntimeHotReloadServiceStressTests.cs` validates rapid reload cycles.
@@ -167,7 +208,7 @@ Refer to `docs/control-catalog-hot-reload.md` for the full walkthrough.
 
 ---
 
-## 8. Future Work
+## 9. Future Work
 
 - **Transport abstraction:** decouple from file-system watchers to support remote tooling or IDE push protocols.
 - **Template diffing:** explore minimal-template updates instead of full reapply for large control trees.
@@ -176,7 +217,7 @@ Refer to `docs/control-catalog-hot-reload.md` for the full walkthrough.
 
 ---
 
-## 9. Appendix – Code Reference Map
+## 10. Appendix – Code Reference Map
 
 ```
 src/
