@@ -38,11 +38,60 @@ Add these properties to a project that should override the defaults:
 
 ## Runtime Components
 
-- `RuntimeHotReloadService` registers manifests, tracks live instances, and exposes a file watcher that reloads XAML when source files change. It uses `AvaloniaLocator` to share a single service instance across the app.
+- `RuntimeHotReloadService` registers manifests, tracks live instances, exposes a file watcher that reloads XAML when source files change, and snapshots mutable state (including read-only lists/dictionaries) so user interactions survive the reload.
 - `RuntimeHotReloadManager` manages dynamic delegates for the generated builder types and invokes `IXamlHotReloadable.OnHotReload()` hooks.
 - `RuntimeHotReloadDelegateProvider` reflects the dynamic assembly emitted by the runtime XAML compiler to obtain `Build` / `Populate` delegates.
 - `RuntimeHotReloadMetadataUpdateHandler` hooks the .NET metadata update pipeline and clears cached delegates when Roslyn applies an edit-and-continue update.
 - `AvaloniaXamlLoader` now registers both on-disk and embedded hot reload manifests. If the `.axaml.hotreload.json` is embedded into the assembly (for example in single-file distributions) the loader registers a manifest provider that re-hydrates the JSON stream on each update cycle.
+- `IXamlHotReloadStateProvider` is an optional interface that controls can implement to capture and restore bespoke state if the automatic property/collection snapshots are not sufficient.
+
+### Opt-in State Preservation
+
+Most views can rely on the automatic property/collection snapshotting added to `RuntimeHotReloadService`, but some controls carry richer runtime state that deserves explicit handling. Good candidates for implementing `IXamlHotReloadStateProvider` include:
+
+- `SelectingItemsControl` derivatives (`ListBox`, `ComboBox`, `NavigationView`) to keep the user’s current selection.
+- `TabControl` and `TreeView` to retain which tabs or nodes are expanded.
+- `DataGrid` to preserve column order, sort descriptors, and the current cell.
+- Composite layouts such as `SplitView`, `Grid` + `GridSplitter`, or docking shells that track user-resized panels.
+
+Implementations can capture any lightweight structure and replay it after the populate pass:
+
+```csharp
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml.HotReload;
+
+public sealed class HotReloadAwareTreeView : TreeView, IXamlHotReloadStateProvider
+{
+    private sealed record Snapshot(object? Selected, IReadOnlyList<object> Expanded);
+
+    public object? CaptureHotReloadState()
+    {
+        return new Snapshot(SelectedItem, GetExpandedNodes());
+    }
+
+    public void RestoreHotReloadState(object? state)
+    {
+        if (state is not Snapshot snapshot)
+            return;
+
+        SelectedItem = snapshot.Selected;
+        RestoreExpandedNodes(snapshot.Expanded);
+    }
+
+    private IReadOnlyList<object> GetExpandedNodes()
+    {
+        // Walk the item containers to capture which branches the user opened.
+        return Array.Empty<object>();
+    }
+
+    private void RestoreExpandedNodes(IEnumerable<object> nodes)
+    {
+        // Use the recorded identifiers to re-expand the matching branches.
+    }
+}
+```
+
+Keep snapshots focused—capture identifiers or lightweight DTOs rather than full control instances—and prefer immutable records so they can be reused if multiple reloads happen before a user interaction.
 
 ## Tooling Integration
 

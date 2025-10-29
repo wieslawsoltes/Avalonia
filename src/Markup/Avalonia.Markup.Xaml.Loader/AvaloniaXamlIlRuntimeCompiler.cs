@@ -401,7 +401,9 @@ namespace Avalonia.Markup.Xaml.XamlIl
                 return _sreTypeSystem.GetType(document.TypeBuilderProvider.PopulateDeclaringType.CreateType());
             }).ToArray();
 
+#if !NETSTANDARD2_0
             TryRegisterHotReloadMetadata(parsedDocuments, createdTypes, originalDocuments);
+#endif
             
             clrPropertyBuilder.CreateTypeInfo();
             indexerClosureType.CreateTypeInfo();

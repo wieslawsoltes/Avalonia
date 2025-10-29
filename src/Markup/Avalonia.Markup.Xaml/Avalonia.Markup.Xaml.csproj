@@ -72,6 +72,7 @@
     <Compile Include="HotReload\RuntimeHotReloadMetadataUpdateHandler.cs" />
     <Compile Include="HotReload\RuntimeHotReloadStatus.cs" />
     <Compile Include="HotReload\IXamlHotReloadable.cs" />
+    <Compile Include="HotReload\IXamlHotReloadStateProvider.cs" />
   </ItemGroup>
   <Import Project="..\..\..\build\DevAnalyzers.props" />
   <Import Project="..\..\..\build\TrimmingEnable.props" />

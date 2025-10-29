@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -606,9 +607,11 @@ public static class RuntimeHotReloadService
         var instances = manager.GetTrackedInstancesSnapshot(typeName);
         foreach (var instance in instances)
         {
+            var snapshot = CaptureInstanceSnapshot(instance);
             try
             {
                 s_runtimeXamlLoaderMethod.Invoke(null, new object[] { new RuntimeXamlLoaderDocument(baseUri, instance, xaml), configuration });
+                RestoreInstanceSnapshot(instance, snapshot);
             }
             catch (Exception ex)
             {
@@ -620,4 +623,201 @@ public static class RuntimeHotReloadService
         }
     }
 #endif
+
+    /// <summary>
+    /// Captures relevant state for a tracked instance so it can be restored after the populate pass.
+    /// </summary>
+    private static InstanceSnapshot? CaptureInstanceSnapshot(object instance)
+    {
+        if (instance is null)
+            return null;
+
+        var type = instance.GetType();
+        var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+        if (properties.Length == 0)
+            return null;
+
+        List<PropertySnapshot>? propertySnapshots = null;
+        List<CollectionSnapshot>? collectionSnapshots = null;
+        foreach (var property in properties)
+        {
+            if (property.GetIndexParameters().Length != 0)
+                continue;
+
+            object? value;
+            try
+            {
+                value = property.CanRead ? property.GetValue(instance) : null;
+            }
+            catch
+            {
+                // Ignore properties that throw during capture.
+                continue;
+            }
+
+            if (property.CanRead && property.CanWrite)
+            {
+                propertySnapshots ??= new List<PropertySnapshot>();
+                propertySnapshots.Add(new PropertySnapshot(property, value));
+                continue;
+            }
+
+            if (value is null)
+                continue;
+
+            if (value is IList list)
+            {
+                var items = new object?[list.Count];
+                for (var i = 0; i < list.Count; i++)
+                    items[i] = list[i];
+                collectionSnapshots ??= new List<CollectionSnapshot>();
+                collectionSnapshots.Add(CollectionSnapshot.ForList(property, items));
+            }
+            else if (value is IDictionary dictionary)
+            {
+                var entries = new KeyValuePair<object?, object?>[dictionary.Count];
+                var index = 0;
+                foreach (DictionaryEntry entry in dictionary)
+                {
+                    entries[index++] = new KeyValuePair<object?, object?>(entry.Key, entry.Value);
+                }
+
+                collectionSnapshots ??= new List<CollectionSnapshot>();
+                collectionSnapshots.Add(CollectionSnapshot.ForDictionary(property, entries));
+            }
+        }
+
+        var hasCustomState = false;
+        object? customState = null;
+        if (instance is IXamlHotReloadStateProvider stateProvider)
+        {
+            try
+            {
+                customState = stateProvider.CaptureHotReloadState();
+                hasCustomState = true;
+            }
+            catch
+            {
+                // Ignore custom state exceptions so we still restore the basics.
+            }
+        }
+
+        if (propertySnapshots is null && collectionSnapshots is null && !hasCustomState)
+            return null;
+
+        return new InstanceSnapshot(propertySnapshots, collectionSnapshots, hasCustomState, customState);
+    }
+
+    /// <summary>
+    /// Restores state captured by <see cref="CaptureInstanceSnapshot"/>.
+    /// </summary>
+    private static void RestoreInstanceSnapshot(object instance, InstanceSnapshot? snapshot)
+    {
+        if (snapshot is null)
+            return;
+
+        if (snapshot.Properties is { } propertySnapshots)
+        {
+            foreach (var entry in propertySnapshots)
+            {
+                try
+                {
+                    entry.Property.SetValue(instance, entry.Value);
+                }
+                catch
+                {
+                    // Ignore properties that cannot be restored.
+                }
+            }
+        }
+
+        if (snapshot.Collections is { } collections)
+        {
+            foreach (var entry in collections)
+            {
+                try
+                {
+                    switch (entry.Kind)
+                    {
+                        case CollectionSnapshotKind.List:
+                        {
+                            if (entry.Property.GetValue(instance) is IList list && !list.IsReadOnly && !list.IsFixedSize)
+                            {
+                                list.Clear();
+                                var items = entry.ListItems;
+                                if (items is not null)
+                                {
+                                    for (var i = 0; i < items.Length; i++)
+                                        list.Add(items[i]);
+                                }
+                            }
+                            break;
+                        }
+                        case CollectionSnapshotKind.Dictionary:
+                        {
+                            if (entry.Property.GetValue(instance) is IDictionary dictionary && !dictionary.IsReadOnly && !dictionary.IsFixedSize)
+                            {
+                                dictionary.Clear();
+                                var pairs = entry.DictionaryEntries;
+                                if (pairs is not null)
+                                {
+                                    for (var i = 0; i < pairs.Length; i++)
+                                    {
+                                        var pair = pairs[i];
+                                        if (pair.Key is null)
+                                            continue;
+                                        dictionary[pair.Key] = pair.Value;
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+                catch
+                {
+                    // Ignore collections that cannot be restored.
+                }
+            }
+        }
+
+        if (snapshot.HasCustomState && instance is IXamlHotReloadStateProvider stateProvider)
+        {
+            try
+            {
+                stateProvider.RestoreHotReloadState(snapshot.CustomState);
+            }
+            catch
+            {
+                // Ignore custom restore errors to avoid breaking reload.
+            }
+        }
+    }
+
+    private sealed record PropertySnapshot(PropertyInfo Property, object? Value);
+
+    private sealed record CollectionSnapshot(
+        PropertyInfo Property,
+        CollectionSnapshotKind Kind,
+        object?[]? ListItems,
+        KeyValuePair<object?, object?>[]? DictionaryEntries)
+    {
+        public static CollectionSnapshot ForList(PropertyInfo property, object?[] items)
+            => new(property, CollectionSnapshotKind.List, items, null);
+
+        public static CollectionSnapshot ForDictionary(PropertyInfo property, KeyValuePair<object?, object?>[] entries)
+            => new(property, CollectionSnapshotKind.Dictionary, null, entries);
+    }
+
+    private sealed record InstanceSnapshot(
+        List<PropertySnapshot>? Properties,
+        List<CollectionSnapshot>? Collections,
+        bool HasCustomState,
+        object? CustomState);
+
+    private enum CollectionSnapshotKind
+    {
+        List,
+        Dictionary
+    }
 }

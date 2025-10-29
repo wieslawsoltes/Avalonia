@@ -26,9 +26,46 @@ This guide explains how the Avalonia ControlCatalog sample enables XAML hot relo
 - `ControlCatalog.NetCore` copies the generated manifest into its output directory so the runtime can discover it automatically and references `Avalonia.Markup.Xaml.Loader` so runtime compilation is available (`samples/ControlCatalog.NetCore/ControlCatalog.NetCore.csproj:27`).
 - `App.Initialize` forces the hot reload service to spin up early, explicitly registers the manifest found in the output folder, logs the number of watched sources, and disables debug-only text layout pool verification to avoid false crashes during reload (`samples/ControlCatalog/App.xaml.cs:29`).
 - `TextBoxPage` registers itself with the tracker after loading (`samples/ControlCatalog/Pages/TextBoxPage.xaml.cs:12`).
-- Hot reload work now executes synchronously on the UI dispatcher with processing disabled, ensuring the entire app is paused during updates (`src/Markup/Avalonia.Markup.Xaml/HotReload/RuntimeHotReloadService.cs:472`).
+- Hot reload work now executes synchronously on the UI dispatcher with processing disabled, ensuring the entire app is paused during updates (`src/Markup/Avalonia.Markup.Xaml/HotReload/RuntimeHotReloadService.cs:501`).
+- Tracked instances keep their public property values: the service snapshots readable/writeable properties, preserves read-only lists/dictionaries, and restores them afterward (`src/Markup/Avalonia.Markup.Xaml/HotReload/RuntimeHotReloadService.cs:630`).
 - `Typeface.GlyphTypeface` now logs missing glyphs and falls back to the default font in Debug builds so dynamic reload doesn’t trigger fatal font-loading exceptions (`src/Avalonia.Base/Media/Typeface.cs:83`).
 - The text formatting pool verification is skipped while the sample is running in Debug (`AVALONIA_DISABLE_TEXT_POOL_VERIFICATION=1`) to avoid false positives when the runtime swaps controls mid-layout (`src/Avalonia.Base/Media/TextFormatting/FormattingObjectPool.cs:22`).
+
+### Preserving Complex State
+
+Automatic snapshots already keep simple properties and read-only collections, but several ControlCatalog pages benefit from deeper preservation. Likely candidates include:
+
+- `SelectingItemsControl` demos (`ListBox`, `ComboBox`, `TreeView`, `NavigationView`) where the current selection or expansion matters.
+- `TabControl` and `DockPanel` samples that expose user-reorderable layouts.
+- `DataGrid` grids with user-driven column sort/width changes.
+
+These controls can implement `IXamlHotReloadStateProvider` to capture custom metadata before a reload and replay it afterwards:
+
+```csharp
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml.HotReload;
+
+public sealed class HotReloadAwareListBox : ListBox, IXamlHotReloadStateProvider
+{
+    private sealed record Snapshot(object? Selected, IReadOnlyList<object?> SelectedItems);
+
+    public object? CaptureHotReloadState()
+        => new Snapshot(SelectedItem, SelectedItems.Cast<object?>().ToList());
+
+    public void RestoreHotReloadState(object? state)
+    {
+        if (state is not Snapshot snapshot)
+            return;
+
+        SelectedItem = snapshot.Selected;
+        SelectedItems.Clear();
+        foreach (var item in snapshot.SelectedItems)
+            SelectedItems.Add(item);
+    }
+}
+```
+
+Within the ControlCatalog, you can either wrap the existing demo control in a derived type like the sample above or add the interface directly to the code-behind for pages that need it. The key is to keep the captured payload lightweight (identifiers or indices rather than whole control trees) so consecutive reloads remain fast.
 
 ## Enabling Diagnostics Output
 
@@ -70,7 +107,7 @@ Avalonia’s hot reload flow consists of coordinated build- and run-time stages:
 
 ### Runtime Components
 
-- `RuntimeHotReloadService` (singleton via `AvaloniaLocator`) discovers manifests, sets up file-system watchers, and orchestrates reload cycles. It keeps track of base directories, environment-provided manifest paths, and embedded manifests.
+- `RuntimeHotReloadService` (singleton via `AvaloniaLocator`) discovers manifests, sets up file-system watchers, orchestrates reload cycles, snapshots mutable state (including read-only lists/dictionaries), and cooperates with `IXamlHotReloadStateProvider` for deeper, opt-in preservation.
 - `RuntimeHotReloadManager` caches metadata, compiles delegates to the generated build/populate methods, and keeps weak references to tracked instances so it can re-populate them after an update.
 - `RuntimeHotReloadDelegateProvider` resolves the generated builder types (dynamic or static assemblies), creates delegates for build/populate invocations, and falls back to instantiate controls when only populate metadata is present.
 - `RuntimeHotReloadManifest` loads/saves the JSON manifest files at runtime, so your app can refresh entries without rebuilding.
