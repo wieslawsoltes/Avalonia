@@ -383,13 +383,20 @@ namespace Avalonia.Controls
                 }
             }
 
-            if (hasResources)
-            {
-                owner.NotifyHostedResourcesChanged(ResourcesChangedToken.Create());
-            }
+        if (hasResources)
+        {
+            owner.NotifyHostedResourcesChanged(ResourcesChangedToken.Create());
         }
+    }
 
-        private sealed class DeferredItem : IDeferredContent
+#if !NETSTANDARD2_0
+    internal void NotifyHotReload()
+    {
+        RaiseResourcesChanged();
+    }
+#endif
+
+    private sealed class DeferredItem : IDeferredContent
         {
             private readonly Func<IServiceProvider?,object?> _factory;
             public DeferredItem(Func<IServiceProvider?, object?> factory) => _factory = factory;

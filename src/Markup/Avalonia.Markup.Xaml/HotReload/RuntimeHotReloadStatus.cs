@@ -11,11 +11,15 @@ public sealed class RuntimeHotReloadStatus
     public RuntimeHotReloadStatus(
         IReadOnlyList<string> manifestPaths,
         IReadOnlyList<string> watcherPaths,
-        IReadOnlyList<RuntimeHotReloadRegistration> registrations)
+        IReadOnlyList<RuntimeHotReloadRegistration> registrations,
+        IReadOnlyList<string> activeViews,
+        IReadOnlyDictionary<string, int> replacementStats)
     {
         ManifestPaths = manifestPaths ?? Array.Empty<string>();
         WatcherPaths = watcherPaths ?? Array.Empty<string>();
         Registrations = registrations ?? Array.Empty<RuntimeHotReloadRegistration>();
+        ActiveViews = activeViews ?? Array.Empty<string>();
+        ReplacementStats = replacementStats ?? new Dictionary<string, int>();
     }
 
     public IReadOnlyList<string> ManifestPaths { get; }
@@ -23,6 +27,10 @@ public sealed class RuntimeHotReloadStatus
     public IReadOnlyList<string> WatcherPaths { get; }
 
     public IReadOnlyList<RuntimeHotReloadRegistration> Registrations { get; }
+
+    public IReadOnlyList<string> ActiveViews { get; }
+
+    public IReadOnlyDictionary<string, int> ReplacementStats { get; }
 }
 
 /// <summary>

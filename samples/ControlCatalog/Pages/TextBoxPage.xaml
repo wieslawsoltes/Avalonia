@@ -4,6 +4,7 @@
              xmlns:sys="using:System">
   <StackPanel Orientation="Vertical" Spacing="4">
     <Label Classes="h1">A control into which the user can input text</Label>
+    <Label Classes="h1">A control into which the user can input text</Label>
 
     <WrapPanel Margin="-8,0"
                HorizontalAlignment="Center">

@@ -6,7 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Threading;
 using Avalonia.Markup.Xaml;
 
@@ -26,6 +28,22 @@ public static class RuntimeHotReloadService
     private static bool s_manifestPathsInitialized;
     private static readonly Dictionary<string, FileSystemWatcher> s_directoryWatchers = new(StringComparer.OrdinalIgnoreCase);
     private static readonly Dictionary<string, string> s_sourceToType = new(StringComparer.OrdinalIgnoreCase);
+
+#if !NETSTANDARD2_0 || NET6_0_OR_GREATER
+    private static readonly object s_reloadQueueGate = new();
+    private static Task s_reloadQueue = Task.CompletedTask;
+    private static readonly object s_throttleGate = new();
+    private static readonly Dictionary<string, ThrottleState> s_throttleStates = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly TimeSpan s_throttleBurstWindow = TimeSpan.FromMilliseconds(150);
+    private static readonly TimeSpan s_throttleResetWindow = TimeSpan.FromMilliseconds(750);
+    private static readonly TimeSpan s_throttleMaxDelay = TimeSpan.FromMilliseconds(1500);
+
+    internal static Task WaitForPendingReloadsAsync()
+    {
+        lock (s_reloadQueueGate)
+            return s_reloadQueue;
+    }
+#endif
 
     [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     public static RuntimeHotReloadManager GetOrCreate()
@@ -142,6 +160,30 @@ public static class RuntimeHotReloadService
     [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     public static void Track(object instance) => GetOrCreate().TrackInstance(instance);
 
+#if !NETSTANDARD2_0 || NET6_0_OR_GREATER
+    /// <summary>
+    /// Explicitly registers a hot-reloadable view so that its state and reload lifecycle are tracked.
+    /// </summary>
+    public static void RegisterHotReloadView(IHotReloadableView view)
+    {
+        if (view is null)
+            throw new ArgumentNullException(nameof(view));
+
+        GetOrCreate().TrackInstance(view);
+    }
+
+    /// <summary>
+    /// Removes a hot-reloadable view from the registry.
+    /// </summary>
+    public static void UnregisterHotReloadView(IHotReloadableView view)
+    {
+        if (view is null)
+            throw new ArgumentNullException(nameof(view));
+
+        HotReloadViewRegistry.Unregister(view);
+    }
+#endif
+
     /// <summary>
     /// Registers a callback that supplies manifest entries whenever hot reload is triggered.
     /// </summary>
@@ -252,8 +294,12 @@ public static class RuntimeHotReloadService
 
         var manager = AvaloniaLocator.Current.GetService<RuntimeHotReloadManager>();
         var registrations = manager?.CreateSnapshot() ?? Array.Empty<RuntimeHotReloadRegistration>();
+        var activeViews = HotReloadViewRegistry.GetActiveViews()
+            .Select(v => v.GetType().FullName ?? v.GetType().Name)
+            .ToArray();
+        var replacements = HotReloadViewRegistry.GetReplacementStats();
 
-        return new RuntimeHotReloadStatus(manifestPaths, watcherPaths, registrations);
+        return new RuntimeHotReloadStatus(manifestPaths, watcherPaths, registrations, activeViews, replacements);
     }
 
     /// <summary>
@@ -273,6 +319,10 @@ public static class RuntimeHotReloadService
             s_sourceToType.Clear();
 #if !NETSTANDARD2_0
             s_lastReload.Clear();
+#endif
+#if !NETSTANDARD2_0 || NET6_0_OR_GREATER
+            lock (s_reloadQueueGate)
+                s_reloadQueue = Task.CompletedTask;
 #endif
         }
     }
@@ -496,45 +546,144 @@ public static class RuntimeHotReloadService
             s_lastReload[path] = DateTime.UtcNow;
         }
 
-        void ApplyWithProcessingDisabled()
+#if NETSTANDARD2_0 && !NET6_0_OR_GREATER
+        Dispatcher.UIThread.Post(
+            () => ApplyHotReloadOnUiThread(path, typeName!),
+            DispatcherPriority.Send);
+#else
+        QueueHotReload(path, typeName!);
+#endif
+    }
+
+#if !NETSTANDARD2_0 || NET6_0_OR_GREATER
+    private static Task QueueHotReload(string sourcePath, string typeName)
+        => EnqueueHotReloadWork(() => ApplyHotReloadFromFileAsync(sourcePath, typeName), sourcePath);
+
+    private static Task EnqueueHotReloadWork(Func<Task> work, string? throttleKey = null)
+    {
+        lock (s_reloadQueueGate)
         {
-            using (Dispatcher.UIThread.DisableProcessing())
+            var continuation = s_reloadQueue
+                .ContinueWith(
+                    _ => throttleKey is null
+                        ? work()
+                        : ApplyThrottledAsync(work, throttleKey),
+                    CancellationToken.None,
+                    TaskContinuationOptions.None,
+                    TaskScheduler.Default)
+                .Unwrap();
+
+            s_reloadQueue = continuation;
+            return continuation;
+        }
+    }
+
+    private static async Task ApplyHotReloadFromFileAsync(string sourcePath, string typeName)
+    {
+        var scope = typeName;
+        HotReloadDiagnostics.ReportReloadStart(scope, "ApplyFromFile", new object?[] { Path.GetFileName(sourcePath) });
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        try
+        {
+            await Dispatcher.UIThread.InvokeAsync(
+                () => ApplyHotReloadOnUiThread(sourcePath, typeName),
+                DispatcherPriority.Send);
+            stopwatch.Stop();
+            HotReloadDiagnostics.ReportReloadSuccess(scope, stopwatch.Elapsed, "ApplyFromFile", new object?[] { Path.GetFileName(sourcePath) });
+        }
+        catch (Exception ex)
+        {
+            stopwatch.Stop();
+            HotReloadDiagnostics.ReportError(
+                "Failed to apply hot reload for '{0}'.",
+                ex,
+                typeName);
+            HotReloadDiagnostics.ReportReloadFailure(scope, stopwatch.Elapsed, "ApplyFromFile", ex, new object?[] { Path.GetFileName(sourcePath) });
+        }
+    }
+
+    private static async Task ApplyHotReloadFromXamlAsync(string typeName, string xaml)
+    {
+        var scope = typeName;
+        HotReloadDiagnostics.ReportReloadStart(scope, "ApplyFromXaml", Array.Empty<object?>());
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        try
+        {
+            await Dispatcher.UIThread.InvokeAsync(
+                () => ApplyHotReloadFromXamlOnUiThread(typeName, xaml),
+                DispatcherPriority.Send);
+            stopwatch.Stop();
+            HotReloadDiagnostics.ReportReloadSuccess(scope, stopwatch.Elapsed, "ApplyFromXaml", Array.Empty<object?>());
+        }
+        catch (Exception ex)
+        {
+            stopwatch.Stop();
+            HotReloadDiagnostics.ReportError(
+                "Failed to apply hot reload for '{0}'.",
+                ex,
+                typeName);
+            HotReloadDiagnostics.ReportReloadFailure(scope, stopwatch.Elapsed, "ApplyFromXaml", ex, Array.Empty<object?>());
+        }
+    }
+
+    private static async Task ApplyThrottledAsync(Func<Task> work, string throttleKey)
+    {
+        TimeSpan delay;
+        ThrottleState state;
+        lock (s_throttleGate)
+        {
+            if (!s_throttleStates.TryGetValue(throttleKey, out state!))
             {
-                ApplyHotReloadFromFile(path, typeName!);
+                state = new ThrottleState();
+                s_throttleStates[throttleKey] = state;
             }
+
+            var now = DateTime.UtcNow;
+            if (state.LastDispatchUtc != default && now - state.LastDispatchUtc >= s_throttleResetWindow)
+                state.Delay = TimeSpan.Zero;
+
+            if (state.LastRequestUtc != default && now - state.LastRequestUtc < s_throttleBurstWindow)
+            {
+                if (state.Delay == TimeSpan.Zero)
+                    state.Delay = s_throttleBurstWindow;
+                else
+                {
+                    var increased = state.Delay.TotalMilliseconds * 2;
+                    if (increased > s_throttleMaxDelay.TotalMilliseconds)
+                        increased = s_throttleMaxDelay.TotalMilliseconds;
+                    state.Delay = TimeSpan.FromMilliseconds(increased);
+                }
+            }
+            else if (state.Delay > TimeSpan.Zero && now - state.LastRequestUtc >= s_throttleResetWindow)
+            {
+                state.Delay = TimeSpan.Zero;
+            }
+
+            state.LastRequestUtc = now;
+            delay = state.Delay;
         }
 
-        if (Dispatcher.UIThread.CheckAccess())
+        if (delay > TimeSpan.Zero)
+            await Task.Delay(delay).ConfigureAwait(false);
+
+        await work().ConfigureAwait(false);
+
+        lock (s_throttleGate)
         {
-            try
+            if (s_throttleStates.TryGetValue(throttleKey, out state!))
             {
-                ApplyWithProcessingDisabled();
-            }
-            catch (Exception ex)
-            {
-                HotReloadDiagnostics.ReportError(
-                    "Failed to apply hot reload for '{0}'.",
-                    ex,
-                    typeName!);
-            }
-        }
-        else
-        {
-            try
-            {
-                Dispatcher.UIThread.InvokeAsync(
-                    ApplyWithProcessingDisabled,
-                    DispatcherPriority.Send).GetAwaiter().GetResult();
-            }
-            catch (Exception ex)
-            {
-                HotReloadDiagnostics.ReportError(
-                    "Failed to apply hot reload for '{0}'.",
-                    ex,
-                    typeName!);
+                state.LastDispatchUtc = DateTime.UtcNow;
             }
         }
     }
+
+    private sealed class ThrottleState
+    {
+        public TimeSpan Delay;
+        public DateTime LastRequestUtc;
+        public DateTime LastDispatchUtc;
+    }
+#endif
 
     [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     private static void ApplyHotReloadFromFile(string sourcePath, string typeName)
@@ -572,6 +721,106 @@ public static class RuntimeHotReloadService
             return;
         }
 
+        ApplyHotReloadCore(xaml, sourcePath, typeName);
+    }
+
+    [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
+    public static Task ApplyHotReloadAsync(string typeName, string xaml)
+    {
+        if (typeName is null)
+            throw new ArgumentNullException(nameof(typeName));
+        if (xaml is null)
+            throw new ArgumentNullException(nameof(xaml));
+
+#if !NETSTANDARD2_0 || NET6_0_OR_GREATER
+        if (Dispatcher.UIThread.CheckAccess())
+        {
+            ApplyHotReloadFromXamlOnUiThread(typeName, xaml);
+            return Task.CompletedTask;
+        }
+
+        return EnqueueHotReloadWork(() => ApplyHotReloadFromXamlAsync(typeName, xaml));
+#else
+        var tcs = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        Dispatcher.UIThread.Post(
+            () =>
+            {
+                try
+                {
+                    ApplyHotReloadFromXamlOnUiThread(typeName, xaml);
+                    tcs.SetResult(null);
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                }
+            },
+            DispatcherPriority.Send);
+        return tcs.Task;
+#endif
+    }
+
+    private static void ApplyHotReloadOnUiThread(string sourcePath, string typeName)
+    {
+        try
+        {
+            var scope = typeName;
+        HotReloadDiagnostics.ReportReloadStart(scope, "ApplyFromFileUI", new object?[] { Path.GetFileName(sourcePath) });
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            try
+            {
+                ApplyHotReloadFromFile(sourcePath, typeName);
+                stopwatch.Stop();
+                HotReloadDiagnostics.ReportReloadSuccess(scope, stopwatch.Elapsed, "ApplyFromFileUI", new object?[] { Path.GetFileName(sourcePath) });
+            }
+            catch (Exception ex)
+            {
+                stopwatch.Stop();
+                HotReloadDiagnostics.ReportReloadFailure(scope, stopwatch.Elapsed, "ApplyFromFileUI", ex, new object?[] { Path.GetFileName(sourcePath) });
+                throw;
+            }
+        }
+        catch (Exception ex)
+        {
+            HotReloadDiagnostics.ReportError(
+                "Failed to apply hot reload for '{0}'.",
+                ex,
+                typeName);
+        }
+    }
+
+    private static void ApplyHotReloadFromXamlOnUiThread(string typeName, string xaml)
+    {
+        try
+        {
+            var scope = typeName;
+            HotReloadDiagnostics.ReportReloadStart(scope, "ApplyFromXamlUI", Array.Empty<object?>());
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            try
+            {
+                ApplyHotReloadCore(xaml, null, typeName);
+                stopwatch.Stop();
+                HotReloadDiagnostics.ReportReloadSuccess(scope, stopwatch.Elapsed, "ApplyFromXamlUI", Array.Empty<object?>());
+            }
+            catch (Exception ex)
+            {
+                stopwatch.Stop();
+                HotReloadDiagnostics.ReportReloadFailure(scope, stopwatch.Elapsed, "ApplyFromXamlUI", ex, Array.Empty<object?>());
+                throw;
+            }
+        }
+        catch (Exception ex)
+        {
+            HotReloadDiagnostics.ReportError(
+                "Failed to apply hot reload for '{0}'.",
+                ex,
+                typeName);
+        }
+    }
+
+    [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
+    private static void ApplyHotReloadCore(string xaml, string? sourcePath, string typeName)
+    {
         var targetType = RuntimeHotReloadManager.ResolveRuntimeType(typeName);
         if (targetType is null)
         {
@@ -581,8 +830,14 @@ public static class RuntimeHotReloadService
             return;
         }
 
-        var baseUri = new Uri(sourcePath, UriKind.Absolute);
-        var configuration = new RuntimeXamlLoaderConfiguration { LocalAssembly = targetType.Assembly };
+        HotReloadStaticHookInvoker.Invoke(targetType);
+        if (targetType is not null)
+            HotReloadResourceDictionaryRegistry.NotifyTypeReloaded(targetType);
+
+        var baseUri = sourcePath is not null
+            ? new Uri(sourcePath, UriKind.Absolute)
+            : new Uri($"memory://hotreload/{typeName}", UriKind.Absolute);
+        var configuration = new RuntimeXamlLoaderConfiguration { LocalAssembly = targetType!.Assembly };
 
         try
         {
@@ -607,11 +862,20 @@ public static class RuntimeHotReloadService
         var instances = manager.GetTrackedInstancesSnapshot(typeName);
         foreach (var instance in instances)
         {
+            if (instance is IHotReloadableView view)
+                HotReloadViewRegistry.NotifyReloading(view);
+
             var snapshot = CaptureInstanceSnapshot(instance);
             try
             {
                 s_runtimeXamlLoaderMethod.Invoke(null, new object[] { new RuntimeXamlLoaderDocument(baseUri, instance, xaml), configuration });
                 RestoreInstanceSnapshot(instance, snapshot);
+
+                if (instance is IHotReloadableView reloaded)
+                    HotReloadViewRegistry.NotifyReloaded(reloaded);
+
+                if (instance is ResourceDictionary dictionary)
+                    HotReloadResourceDictionaryRegistry.NotifyReloaded(dictionary);
             }
             catch (Exception ex)
             {
@@ -622,6 +886,14 @@ public static class RuntimeHotReloadService
             }
         }
     }
+
+    internal static void ApplyHotReloadForTests(string typeName, string xaml)
+        => ApplyHotReloadAsync(typeName, xaml).GetAwaiter().GetResult();
+#endif
+
+#if NETSTANDARD2_0 && !NET6_0_OR_GREATER
+    internal static void ApplyHotReloadForTests(string typeName, string xaml)
+        => ApplyHotReloadAsync(typeName, xaml).GetAwaiter().GetResult();
 #endif
 
     /// <summary>

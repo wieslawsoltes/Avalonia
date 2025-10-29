@@ -44,6 +44,7 @@ Add these properties to a project that should override the defaults:
 - `RuntimeHotReloadMetadataUpdateHandler` hooks the .NET metadata update pipeline and clears cached delegates when Roslyn applies an edit-and-continue update.
 - `AvaloniaXamlLoader` now registers both on-disk and embedded hot reload manifests. If the `.axaml.hotreload.json` is embedded into the assembly (for example in single-file distributions) the loader registers a manifest provider that re-hydrates the JSON stream on each update cycle.
 - `IXamlHotReloadStateProvider` is an optional interface that controls can implement to capture and restore bespoke state if the automatic property/collection snapshots are not sufficient.
+- `IHotReloadableView` works together with `IHotReloadViewHandler` to provide pre/post reload hooks. Avalonia assigns a `DefaultHotReloadViewHandler` that reapplies templates, invalidates layout, and refreshes visuals; controls can swap in a custom handler when additional platform work is required.
 
 ### Opt-in State Preservation
 
@@ -53,6 +54,8 @@ Most views can rely on the automatic property/collection snapshotting added to `
 - `TabControl` and `TreeView` to retain which tabs or nodes are expanded.
 - `DataGrid` to preserve column order, sort descriptors, and the current cell.
 - Composite layouts such as `SplitView`, `Grid` + `GridSplitter`, or docking shells that track user-resized panels.
+
+Core controls now ship with built-in implementations where it adds immediate value: `TreeView` remembers expanded branches and selection, `TabControl` keeps the active tab, and the `DataGrid` restores column sizes/reordering after each reload.
 
 Implementations can capture any lightweight structure and replay it after the populate pass:
 
@@ -91,7 +94,74 @@ public sealed class HotReloadAwareTreeView : TreeView, IXamlHotReloadStateProvid
 }
 ```
 
+### Re-registering platform handlers
+
+When a control bridges to native adapters (for example through `Control.Handler`) you may need to detach and recreate that integration when a reload swaps types. Assign a custom `ReloadHandler` while delegating to the built-in handler so template refresh still occurs:
+
+```csharp
+public sealed class NativeHostView : NativeControlHost, IHotReloadableView
+{
+    public IHotReloadViewHandler? ReloadHandler { get; set; } = new NativeHandlerReload();
+
+    public void Reload()
+    {
+        // Re-run bindings or local initialization if required.
+    }
+
+    public void TransferState(IControl newView)
+    {
+        if (newView is NativeHostView host)
+            host.ConnectionDescriptor = ConnectionDescriptor;
+    }
+
+    private sealed class NativeHandlerReload : IHotReloadViewHandler
+    {
+        public void OnBeforeReload(IHotReloadableView view)
+        {
+            if (view is Control control)
+                control.Handler?.Detach();
+        }
+
+        public void OnAfterReload(IHotReloadableView view)
+        {
+            if (view is Control control)
+            {
+                control.Handler?.Detach();
+                control.Handler = PlatformHandlerRegistry.Attach(control);
+
+                // Preserve Avalonia's default template/style refresh.
+                DefaultHotReloadViewHandler.Instance.OnAfterReload(view);
+            }
+        }
+    }
+}
+```
+
+Guidance for custom handlers:
+
+- Detach existing handlers in `OnBeforeReload` to avoid leaking native resources.
+- Recreate the handler via the usual attachment path in `OnAfterReload`.
+- Call `DefaultHotReloadViewHandler.Instance.OnAfterReload(view)` so templates, styles, and layout invalidations still run.
+- Because `HotReloadViewRegistry` automatically tracks every `IHotReloadableView`, simply assigning a handler is enough to participate in the lifecycle.
+
 Keep snapshots focused—capture identifiers or lightweight DTOs rather than full control instances—and prefer immutable records so they can be reused if multiple reloads happen before a user interaction.
+
+### Testing and diagnostics entry points
+
+- `RuntimeHotReloadService.ApplyHotReloadAsync(string typeName, string xaml)` allows test harnesses to push in-memory XAML without touching the file system. The method queues the update on the UI dispatcher so tests can await completion deterministically.
+- `RuntimeHotReloadService.ApplyHotReloadForTests` remains as a synchronous helper for legacy tests; prefer the async overload for new scenarios so you can await completion inside `Dispatcher.UIThread`.
+- Structured logging is available through `HotReloadDiagnostics`. Set `AVALONIA_HOTRELOAD_DIAGNOSTICS=1` (and optionally `AVALONIA_LOGGING_CONSOLE=1`) to see start/success/failure events with durations for each reload scope.
+
+### Status snapshot for tooling
+
+Tooling can call `RuntimeHotReloadService.GetStatusSnapshot()` to inspect the current runtime state. The returned `RuntimeHotReloadStatus` includes:
+
+- `ManifestPaths` / `WatcherPaths` — the manifests registered and the file-system watchers currently active.
+- `Registrations` — per-`x:Class` metadata and tracked instance counts.
+- `ActiveViews` — the set of live `IHotReloadableView` instances currently tracked.
+- `ReplacementStats` — a map recording how many times each view type has been replaced during the current session.
+
+These structured diagnostics make it easier for IDEs or custom tooling to surface hot reload health, active views, and recent replacements without scraping logs.
 
 ## Tooling Integration
 

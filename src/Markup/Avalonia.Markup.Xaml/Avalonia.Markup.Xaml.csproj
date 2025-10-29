@@ -71,8 +71,17 @@
     <Compile Include="HotReload\RuntimeHotReloadManifest.cs" />
     <Compile Include="HotReload\RuntimeHotReloadMetadataUpdateHandler.cs" />
     <Compile Include="HotReload\RuntimeHotReloadStatus.cs" />
+    <Compile Include="HotReload\DefaultHotReloadViewHandler.cs" />
+    <Compile Include="HotReload\HotReloadResourceDictionaryRegistry.cs" />
+    <Compile Include="HotReload\HotReloadStaticHookInvoker.cs" />
+    <Compile Include="HotReload\HotReloadViewRegistry.cs" />
+    <Compile Include="HotReload\IHotReloadableView.cs" />
+    <Compile Include="HotReload\IHotReloadViewHandler.cs" />
+    <Compile Include="HotReload\OnHotReloadAttribute.cs" />
     <Compile Include="HotReload\IXamlHotReloadable.cs" />
     <Compile Include="HotReload\IXamlHotReloadStateProvider.cs" />
+    <Compile Include="HotReload\ControlStateProviders\TreeViewHotReloadStateProvider.cs" />
+    <Compile Include="HotReload\ControlStateProviders\TabControlHotReloadStateProvider.cs" />
   </ItemGroup>
   <Import Project="..\..\..\build\DevAnalyzers.props" />
   <Import Project="..\..\..\build\TrimmingEnable.props" />

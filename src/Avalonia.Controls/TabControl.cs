@@ -19,7 +19,7 @@ namespace Avalonia.Controls
     /// </summary>
     [TemplatePart("PART_ItemsPresenter", typeof(ItemsPresenter))]
     [TemplatePart("PART_SelectedContentHost", typeof(ContentPresenter))]
-    public class TabControl : SelectingItemsControl, IContentPresenterHost
+    public partial class TabControl : SelectingItemsControl, IContentPresenterHost
     {
         private object? _selectedContent;
         private IDataTemplate? _selectedContentTemplate;
@@ -161,6 +161,7 @@ namespace Avalonia.Controls
         {
             return NeedsContainer<TabItem>(item, out recycleKey);
         }
+
 
         protected internal override void PrepareContainerForItemOverride(Control element, object? item, int index)
         {

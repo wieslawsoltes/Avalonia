@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using Avalonia.Controls;
 using Avalonia.Markup.Xaml.XamlIl.Runtime;
 
 namespace Avalonia.Markup.Xaml.HotReload;
@@ -162,8 +163,15 @@ public sealed class RuntimeHotReloadManager
 
             list.Add(new WeakReference(instance));
         }
+
+        if (instance is IHotReloadableView hotReloadable)
+            HotReloadViewRegistry.Register(hotReloadable);
+
+        if (instance is ResourceDictionary dictionary)
+            HotReloadResourceDictionaryRegistry.Register(dictionary);
     }
 
+    [RequiresUnreferencedCode("Runtime hot reload requires dynamic access to generated builder types.")]
     private void RefreshTrackedInstances(string xamlClassName)
     {
         RuntimeHotReloadDelegates delegates;
@@ -175,6 +183,10 @@ public sealed class RuntimeHotReloadManager
                 return;
 
             delegates = GetOrCreateDelegates_NoLock(xamlClassName, metadata);
+            var targetType = ResolveRuntimeType(metadata.PopulateTargetTypeName);
+            HotReloadStaticHookInvoker.Invoke(targetType);
+            if (targetType is not null)
+                HotReloadResourceDictionaryRegistry.NotifyTypeReloaded(targetType);
 
             if (!_trackedInstances.TryGetValue(xamlClassName, out var list) || list.Count == 0)
                 return;
@@ -194,10 +206,17 @@ public sealed class RuntimeHotReloadManager
         {
             if (wr.Target is { } instance)
             {
+                if (instance is IHotReloadableView view)
+                    HotReloadViewRegistry.NotifyReloading(view);
+
                 try
                 {
                     delegates.Populate(provider, instance);
                     InvokeHotReloadHook(instance);
+                    if (instance is IHotReloadableView reloaded)
+                        HotReloadViewRegistry.NotifyReloaded(reloaded);
+                    if (instance is ResourceDictionary dictionary)
+                        HotReloadResourceDictionaryRegistry.NotifyReloaded(dictionary);
                 }
                 catch (Exception ex)
                 {

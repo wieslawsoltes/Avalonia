@@ -21,7 +21,7 @@ namespace Avalonia.Controls
     /// <summary>
     /// Displays a hierarchical tree of data.
     /// </summary>
-    public class TreeView : ItemsControl, ICustomKeyboardNavigation
+    public partial class TreeView : ItemsControl, ICustomKeyboardNavigation
     {
         /// <summary>
         /// Defines the <see cref="AutoScrollToSelectedItem"/> property.
@@ -65,6 +65,7 @@ namespace Avalonia.Controls
             SelectingItemsControl.IsSelectedChangedEvent.AddClassHandler<TreeView>((x, e) =>
                 x.ContainerSelectionChanged(e));
         }
+
 
         /// <summary>
         /// Occurs when the control's selection changes.

@@ -37,6 +37,42 @@ internal static class HotReloadDiagnostics
             ? string.Format(CultureInfo.InvariantCulture, message, args)
             : message;
 
+    public static void ReportReloadStart(string scope, string description, object?[] args)
+    {
+        if (!IsEnabled)
+            return;
+
+        var logger = Logger.TryGet(LogEventLevel.Information, LogArea.HotReload);
+        if (!logger.HasValue)
+            return;
+
+        logger.Value.Log(null, "ReloadStart {scope} {description}", scope, Format(description, args));
+    }
+
+    public static void ReportReloadSuccess(string scope, TimeSpan duration, string description, object?[] args)
+    {
+        if (!IsEnabled)
+            return;
+
+        var logger = Logger.TryGet(LogEventLevel.Information, LogArea.HotReload);
+        if (!logger.HasValue)
+            return;
+
+        logger.Value.Log(null, "ReloadSuccess {scope} {duration} {description}", scope, duration.TotalMilliseconds, Format(description, args));
+    }
+
+    public static void ReportReloadFailure(string scope, TimeSpan duration, string description, Exception exception, object?[] args)
+    {
+        if (!IsEnabled)
+            return;
+
+        var logger = Logger.TryGet(LogEventLevel.Error, LogArea.HotReload);
+        if (!logger.HasValue)
+            return;
+
+        logger.Value.Log(null, "ReloadFailure {scope} {duration} {description}: {exception}", scope, duration.TotalMilliseconds, Format(description, args), exception);
+    }
+
     public static void ReportInfo(string message, params object?[] args)
     {
         if (!IsEnabled)

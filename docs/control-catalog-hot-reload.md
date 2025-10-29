@@ -39,6 +39,8 @@ Automatic snapshots already keep simple properties and read-only collections, bu
 - `TabControl` and `DockPanel` samples that expose user-reorderable layouts.
 - `DataGrid` grids with user-driven column sort/width changes.
 
+`TreeView`, `TabControl`, and the packaged `DataGrid` now implement `IXamlHotReloadStateProvider` directly, so their selections, expansions, and column sizing survive default reloads without any additional wiring.
+
 These controls can implement `IXamlHotReloadStateProvider` to capture custom metadata before a reload and replay it afterwards:
 
 ```csharp
@@ -66,6 +68,22 @@ public sealed class HotReloadAwareListBox : ListBox, IXamlHotReloadStateProvider
 ```
 
 Within the ControlCatalog, you can either wrap the existing demo control in a derived type like the sample above or add the interface directly to the code-behind for pages that need it. The key is to keep the captured payload lightweight (identifiers or indices rather than whole control trees) so consecutive reloads remain fast.
+
+### Enabling the new hot reload helper
+
+Use the built-in helper APIs so ControlCatalog (or your own samples) benefit from template refresh, diagnostics, and replacement tracking:
+
+1. **Opt in at runtime** – call `RuntimeHotReloadService.GetOrCreate()` in `App.Initialize()` if you need the service spun up before any XAML is loaded (the runtime loader already performs this lazily).
+2. **Track views explicitly** – in each page/control that should respond to reloads, register on load and unregister on unload:
+   ```csharp
+   Loaded += (_, _) => RuntimeHotReloadService.RegisterHotReloadView(this);
+   Unloaded += (_, _) => RuntimeHotReloadService.UnregisterHotReloadView(this);
+   ```
+   The helper automatically assigns the `DefaultHotReloadViewHandler`, which reapplies templates and invalidates layout.
+3. **Implement `IHotReloadableView` when state needs to move between instances** – override `TransferState`/`Reload` to copy transient data, or plug in a custom `ReloadHandler` if platform handlers must be reattached.
+4. **Write deterministic tests** – use `await RuntimeHotReloadService.ApplyHotReloadAsync(typeName, xaml)` inside unit tests to push updates without touching the file system or spinning a dispatcher pump manually.
+5. **Inspect runtime status** – tooling or diagnostics panels can call `RuntimeHotReloadService.GetStatusSnapshot()` to obtain manifests, tracked registrations, active `IHotReloadableView` instances, and replacement statistics.
+6. **Enable structured logs** – set `AVALONIA_HOTRELOAD_DIAGNOSTICS=1` (and optionally `AVALONIA_LOGGING_CONSOLE=1`) to emit start/success/failure records with timings for each reload cycle.
 
 ## Enabling Diagnostics Output
 
