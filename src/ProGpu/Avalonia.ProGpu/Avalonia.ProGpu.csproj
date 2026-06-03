@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>$(AvsCurrentTargetFramework)</TargetFrameworks>
+    <IncludeLinuxSkia>false</IncludeLinuxSkia>
+    <IncludeWasmSkia>false</IncludeWasmSkia>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\NoiseAsset_256X256_PNG.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\packages\Avalonia\Avalonia.csproj" />
+    <ProjectReference Include="..\..\..\..\ProGPU\src\ProGPU.Backend\ProGPU.Backend.csproj" />
+    <ProjectReference Include="..\..\..\..\ProGPU\src\ProGPU.Vector\ProGPU.Vector.csproj" />
+    <ProjectReference Include="..\..\..\..\ProGPU\src\ProGPU.Text\ProGPU.Text.csproj" />
+    <ProjectReference Include="..\..\..\..\ProGPU\src\ProGPU.Compute\ProGPU.Compute.csproj" />
+    <ProjectReference Include="..\..\..\..\ProGPU\src\ProGPU.Scene\ProGPU.Scene.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="SixLabors.ImageSharp" />
+  </ItemGroup>
+
+
+  <Import Project="..\..\..\build\DevAnalyzers.props" />
+  <Import Project="..\..\..\build\TrimmingEnable.props" />
+  <Import Project="..\..\..\build\NullableEnable.props" />
+
+  <ItemGroup Label="InternalsVisibleTo">
+    <InternalsVisibleTo Include="Avalonia.ProGpu.RenderTests, PublicKey=$(AvaloniaPublicKey)" />
+    <InternalsVisibleTo Include="Avalonia.ProGpu.UnitTests, PublicKey=$(AvaloniaPublicKey)" />
+    <InternalsVisibleTo Include="Avalonia.Benchmarks, PublicKey=$(AvaloniaPublicKey)" />
+  </ItemGroup>
+</Project>
