@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>$(AvsCurrentTargetFramework)</TargetFrameworks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\packages\Avalonia\Avalonia.csproj" />
+    <ProjectReference Include="..\..\..\..\ProGPU\src\ProGPU.Backend\ProGPU.Backend.csproj" />
+    <PackageReference Include="Silk.NET.Windowing" />
+    <PackageReference Include="Silk.NET.Input" />
+    <PackageReference Include="Silk.NET.WebGPU" />
+    <PackageReference Include="Silk.NET.WebGPU.Native.WGPU" />
+  </ItemGroup>
+  <Import Project="..\..\..\build\NullableEnable.props" />
+  <Import Project="..\..\..\build\DevAnalyzers.props" />
+  <Import Project="..\..\..\build\TrimmingEnable.props" />
+  <PropertyGroup Label="Warnings">
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
+  </PropertyGroup>
+</Project>
