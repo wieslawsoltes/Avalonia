@@ -32,6 +32,9 @@
     <Project Path="packages/Avalonia/Avalonia.csproj" />
     <Project Path="src/Avalonia.Desktop/Avalonia.Desktop.csproj" />
   </Folder>
+  <Folder Name="/ProGpu/">
+    <Project Path="src/ProGpu/Avalonia.ProGpu/Avalonia.ProGpu.csproj" />
+  </Folder>
   <Folder Name="/Props/">
     <File Path="build/AvaloniaPublicKey.props" />
     <File Path="build/Base.props" />
@@ -70,6 +73,7 @@
     <Project Path="samples/IntegrationTestApp/IntegrationTestApp.csproj" />
     <Project Path="samples/MiniMvvm/MiniMvvm.csproj" />
     <Project Path="samples/PlatformSanityChecks/PlatformSanityChecks.csproj" />
+    <Project Path="samples/ProGpuSandbox/ProGpuSandbox.csproj" />
     <Project Path="samples/RenderDemo/RenderDemo.csproj" />
     <Project Path="samples/SafeAreaDemo.Android/SafeAreaDemo.Android.csproj">
       <Deploy />
@@ -141,9 +145,12 @@
     <Project Path="tests/Avalonia.Headless.XUnit.PerTest.UnitTests/Avalonia.Headless.XUnit.PerTest.UnitTests.csproj" />
     <Project Path="tests/Avalonia.IntegrationTests.Appium/Avalonia.IntegrationTests.Appium.csproj" />
     <Project Path="tests/Avalonia.IntegrationTests.Win32/Avalonia.IntegrationTests.Win32.csproj" />
+    <Project Path="tests/Avalonia.IntegrationTests.SilkNet/Avalonia.IntegrationTests.SilkNet.csproj" />
     <Project Path="tests/Avalonia.LeakTests/Avalonia.LeakTests.csproj" />
     <Project Path="tests/Avalonia.Markup.UnitTests/Avalonia.Markup.UnitTests.csproj" />
     <Project Path="tests/Avalonia.Markup.Xaml.UnitTests/Avalonia.Markup.Xaml.UnitTests.csproj" />
+    <Project Path="tests/Avalonia.ProGpu.RenderTests/Avalonia.ProGpu.RenderTests.csproj" />
+    <Project Path="tests/Avalonia.ProGpu.UnitTests/Avalonia.ProGpu.UnitTests.csproj" />
     <Project Path="tests/Avalonia.RenderTests.WpfCompare/Avalonia.RenderTests.WpfCompare.csproj" />
     <Project Path="tests/Avalonia.Skia.RenderTests/Avalonia.Skia.RenderTests.csproj" />
     <Project Path="tests/Avalonia.Skia.UnitTests/Avalonia.Skia.UnitTests.csproj" />
@@ -178,6 +185,7 @@
     <Project Path="src/Windows/Avalonia.Win32.Automation/Avalonia.Win32.Automation.csproj" />
     <Project Path="src/Windows/Avalonia.Win32.Interoperability/Avalonia.Win32.Interoperability.csproj" />
     <Project Path="src/Windows/Avalonia.Win32/Avalonia.Win32.csproj" />
+    <Project Path="src/Windows/Avalonia.SilkNet/Avalonia.SilkNet.csproj" />
   </Folder>
   <Project Path="nukebuild/_build.csproj">
     <Build Project="false" />

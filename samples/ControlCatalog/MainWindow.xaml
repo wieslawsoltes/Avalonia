@@ -1,4 +1,4 @@
-﻿<Window xmlns="https://github.com/avaloniaui" MinWidth="500" MinHeight="300"
+<Window xmlns="https://github.com/avaloniaui" MinWidth="1200" MinHeight="300"
         Width="1024" Height="800"
         xmlns:pages="using:ControlCatalog.Pages"
         Title="Avalonia Control Gallery"

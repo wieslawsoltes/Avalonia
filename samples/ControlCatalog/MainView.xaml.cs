@@ -196,6 +196,14 @@ namespace ControlCatalog
             }
 
             ViewModel.SelectedPageIndex = 0;
+            Task.Run(async () =>
+            {
+                await Task.Delay(6000);
+                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                {
+                    ViewModel.SelectedPageIndex = 8; // Switch to Buttons page
+                });
+            });
         }
     }
 }

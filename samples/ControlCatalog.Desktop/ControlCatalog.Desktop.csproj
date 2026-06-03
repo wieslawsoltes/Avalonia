@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -26,6 +26,8 @@
     <ProjectReference Include="..\..\src\Linux\Avalonia.LinuxFramebuffer\Avalonia.LinuxFramebuffer.csproj" />
     <ProjectReference Include="..\ControlCatalog\ControlCatalog.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.X11\Avalonia.X11.csproj" />
+    <ProjectReference Include="..\..\src\ProGpu\Avalonia.ProGpu\Avalonia.ProGpu.csproj" />
+    <ProjectReference Include="..\..\src\Windows\Avalonia.SilkNet\Avalonia.SilkNet.csproj" />
     <!-- For native controls test -->
     <PackageReference Include="MonoMac.NetStandard" />
   </ItemGroup>

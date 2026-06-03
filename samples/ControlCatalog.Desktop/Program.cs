@@ -85,17 +85,25 @@ namespace ControlCatalog.Desktop
                         {
                             var window = ((IClassicDesktopStyleApplicationLifetime)Application.Current!.ApplicationLifetime!)
                                 .MainWindow!;
-                            var tc = window.GetLogicalDescendants().OfType<TabControl>().First();
-                            foreach (var page in tc.Items.Cast<TabItem>().ToList())
+                            var vm = window.DataContext;
+                            if (vm != null)
                             {
-                                if (page.Header?.ToString() is "DatePicker" or "TreeView")
-                                    continue;
-                                Console.WriteLine("Selecting " + page.Header);
-                                tc.SelectedItem = page;
-                                await Task.Delay(50);
+                                var pagesProp = vm.GetType().GetProperty("Pages");
+                                var indexProp = vm.GetType().GetProperty("SelectedPageIndex");
+                                if (pagesProp != null && indexProp != null)
+                                {
+                                    var pages = (System.Collections.IList)pagesProp.GetValue(vm)!;
+                                    for (int i = 0; i < pages.Count; i++)
+                                    {
+                                        var page = pages[i];
+                                        var headerProp = page?.GetType().GetProperty("Header");
+                                        var header = headerProp?.GetValue(page)?.ToString();
+                                        Console.WriteLine($"Selecting page {i}: {header}");
+                                        indexProp.SetValue(vm, i);
+                                        await Task.Delay(100);
+                                    }
+                                }
                             }
-                            Console.WriteLine("Selecting the first page");
-                            tc.SelectedItem = tc.Items.OfType<object>().First();
                             await Task.Delay(500);
                             Console.WriteLine("Clicked through all pages, triggering GC");
                             for (var c = 0; c < 3; c++)
@@ -141,7 +149,8 @@ namespace ControlCatalog.Desktop
         /// </summary>
         public static AppBuilder BuildAvaloniaApp()
             => AppBuilder.Configure<App>()
-                .UsePlatformDetect()
+                .UseSilkNet()
+                .UseHarfBuzz()
                 .With(new X11PlatformOptions
                 {
                     EnableMultiTouch = true,
@@ -160,7 +169,7 @@ namespace ControlCatalog.Desktop
                 {
                     UseRegionDirtyRectClipping = true
                 })
-                .UseSkia()
+                .UseRenderingSubsystem(() => Avalonia.ProGpu.SkiaPlatform.Initialize(), "Skia")
                 .WithInterFont()
                 .WithDeveloperTools()
                 .AfterSetup(builder =>
