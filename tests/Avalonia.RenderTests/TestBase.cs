@@ -15,7 +15,11 @@ using System.Reactive.Disposables;
 using System.Threading;
 using Avalonia.Media;
 using Avalonia.Rendering.Composition;
+#if AVALONIA_PROGPU
+using Avalonia.ProGpu;
+#else
 using Avalonia.Skia;
+#endif
 using Avalonia.Threading;
 using Avalonia.UnitTests;
 using Avalonia.Utilities;
@@ -26,7 +30,11 @@ namespace Avalonia.Skia.RenderTests
 {
     public class TestBase : IDisposable
     {
+#if AVALONIA_PROGPU
+        private static string s_fontUri = "resm:Avalonia.ProGpu.RenderTests.Assets?assembly=Avalonia.ProGpu.RenderTests#Noto Mono";
+#else
         private static string s_fontUri = "resm:Avalonia.Skia.RenderTests.Assets?assembly=Avalonia.Skia.RenderTests#Noto Mono";
+#endif
 
         public static FontFamily TestFontFamily = new FontFamily(s_fontUri);
 
@@ -37,7 +45,11 @@ namespace Avalonia.Skia.RenderTests
             outputPath = outputPath.Replace('\\', Path.DirectorySeparatorChar);
             var testPath = GetTestsDirectory();
             var testFiles = Path.Combine(testPath, "TestFiles");
+#if AVALONIA_PROGPU
+            OutputPath = Path.Combine(testFiles, "ProGpu", outputPath);
+#else
             OutputPath = Path.Combine(testFiles, "Skia", outputPath);
+#endif
 
             TestRenderHelper.BeginTest();
         }

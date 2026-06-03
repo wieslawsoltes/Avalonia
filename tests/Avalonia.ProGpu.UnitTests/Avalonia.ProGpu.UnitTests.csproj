@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+  <PropertyGroup>
+    <TargetFramework>$(AvsCurrentTargetFramework)</TargetFramework>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <Import Project="..\..\build\UnitTests.NetCore.targets" />
+  <Import Project="..\..\build\XUnit.props" />
+  <Import Project="..\..\build\SharedVersion.props" />
+  <Import Project="..\..\build\NullableEnable.props" />
+  <Import Project="..\..\build\SkiaSharp.props" />
+  <Import Project="..\..\build\HarfBuzzSharp.props" />
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Reactive.Testing" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="System.Reactive" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\Avalonia.RenderTests\Assets\**\*.ttf" LinkBase="Assets" />
+    <None Remove="Fonts\**\*.ttf" />
+    <EmbeddedResource Include="Fonts\**\*.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Avalonia.Base\Avalonia.Base.csproj" />
+    <ProjectReference Include="..\..\src\Avalonia.Controls\Avalonia.Controls.csproj" />
+    <ProjectReference Include="..\..\src\Avalonia.Fonts.Inter\Avalonia.Fonts.Inter.csproj" />
+    <ProjectReference Include="..\..\src\ProGpu\Avalonia.ProGpu\Avalonia.ProGpu.csproj" />
+    <ProjectReference Include="..\Avalonia.UnitTests\Avalonia.UnitTests.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="..\Avalonia.RenderTests\Assets\Inter-Regular.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

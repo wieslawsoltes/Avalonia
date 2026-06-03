@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>$(AvsCurrentTargetFramework)</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <DefineConstants>$(DefineConstants);AVALONIA_PROGPU;AVALONIA_SKIA</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IncludeLinuxSkia>true</IncludeLinuxSkia>
+    <IncludeWasmSkia>true</IncludeWasmSkia>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\Avalonia.RenderTests\**\*.cs" />
+    <Compile Update="..\Avalonia.RenderTests\Media\EffectTests.cs">
+      <Link>Media\EffectTests.cs</Link>
+    </Compile>
+    <Compile Update="..\Avalonia.RenderTests\Media\BitmapMemoryTests.cs">
+      <Link>Media\BitmapMemoryTests.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\Avalonia.RenderTests\*\*.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="../Avalonia.RenderTests/**/*.png" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Markup\Avalonia.Markup.Xaml\Avalonia.Markup.Xaml.csproj" />
+    <ProjectReference Include="..\..\src\Markup\Avalonia.Markup\Avalonia.Markup.csproj" />
+    <ProjectReference Include="..\..\src\Avalonia.Base\Avalonia.Base.csproj" />
+    <ProjectReference Include="..\..\src\Avalonia.Controls\Avalonia.Controls.csproj" />
+    <ProjectReference Include="..\..\src\Avalonia.Themes.Simple\Avalonia.Themes.Simple.csproj" />
+    <ProjectReference Include="..\..\src\ProGpu\Avalonia.ProGpu\Avalonia.ProGpu.csproj" />
+    <ProjectReference Include="..\Avalonia.UnitTests\Avalonia.UnitTests.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Moq" />
+    <PackageReference Include="SixLabors.ImageSharp" />
+    <PackageReference Include="System.Reactive" />
+  </ItemGroup>
+  <Import Project="..\..\build\XUnit.props" />
+  <Import Project="..\..\build\SkiaSharp.props" />
+  <Import Project="..\..\build\SharedVersion.props" />
+  <Import Project="..\..\build\NullableEnable.props" />
+</Project>

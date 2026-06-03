@@ -1,0 +1,130 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ProGpuSandbox.MainWindow"
+        Title="ProGPU Rendering Sandbox" Width="800" Height="600"
+        WindowStartupLocation="CenterScreen">
+    <Window.Styles>
+        <!-- Rotation style for animations showcase -->
+        <Style Selector="Rectangle.rotating">
+            <Setter Property="RenderTransform">
+                <RotateTransform Angle="45"/>
+            </Setter>
+        </Style>
+    </Window.Styles>
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Top bar with title and theme toggle -->
+        <Border Grid.Row="0" Background="{DynamicResource SystemListLowColor}" Padding="15,10" BorderBrush="{DynamicResource SystemControlElevationBorderBrush}" BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock Text="ProGPU Engine Sandbox" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <Border CornerRadius="4" Background="{DynamicResource SystemAccentColor}" Padding="6,2" VerticalAlignment="Center">
+                        <TextBlock Text="PROGPU BACKEND ACTIVE" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Switch Theme" Click="ToggleTheme_Click" Padding="10,6" CornerRadius="4"/>
+            </Grid>
+        </Border>
+
+        <!-- Main Workspace -->
+        <TabControl Grid.Row="1" TabStripPlacement="Left">
+            
+            <!-- Tab 1: Vector Visuals -->
+            <TabItem Header="Vector Visuals">
+                <ScrollViewer Padding="20">
+                    <StackPanel Spacing="25">
+                        <TextBlock Text="Vector Geometry Rendering" FontSize="20" FontWeight="Medium"/>
+                        
+                        <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center" ItemWidth="180" ItemHeight="180">
+                            <!-- Basic Shapes -->
+                            <Border Margin="10" Padding="10" Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}" CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource SystemControlElevationBorderBrush}">
+                                <StackPanel Spacing="10" HorizontalAlignment="Center">
+                                    <Ellipse Width="100" Height="100" Fill="LightCoral" Stroke="DarkRed" StrokeThickness="3"/>
+                                    <TextBlock Text="Ellipse" HorizontalAlignment="Center" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Margin="10" Padding="10" Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}" CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource SystemControlElevationBorderBrush}">
+                                <StackPanel Spacing="10" HorizontalAlignment="Center">
+                                    <Rectangle Width="100" Height="100" Fill="LightGreen" Stroke="DarkGreen" StrokeThickness="3" RadiusX="12" RadiusY="12"/>
+                                    <TextBlock Text="Rounded Rect" HorizontalAlignment="Center" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Margin="10" Padding="10" Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}" CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource SystemControlElevationBorderBrush}">
+                                <StackPanel Spacing="10" HorizontalAlignment="Center">
+                                    <Path Width="100" Height="100" Fill="LightBlue" Stroke="DarkBlue" StrokeThickness="3" 
+                                          Data="M 50,0 L 100,100 L 0,100 Z" Stretch="Fill"/>
+                                    <TextBlock Text="Triangle Path" HorizontalAlignment="Center" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Margin="10" Padding="10" Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}" CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource SystemControlElevationBorderBrush}">
+                                <StackPanel Spacing="10" HorizontalAlignment="Center">
+                                    <!-- Star Path -->
+                                    <Path Width="100" Height="100" Fill="Gold" Stroke="DarkGoldenrod" StrokeThickness="3" 
+                                          Data="M 50,0 L 62,38 L 100,38 L 69,62 L 81,100 L 50,76 L 19,100 L 31,62 L 0,38 L 38,38 Z" Stretch="Fill"/>
+                                    <TextBlock Text="Star Path (Winding)" HorizontalAlignment="Center" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Border>
+                        </WrapPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Tab 2: Text Typography -->
+            <TabItem Header="Text &amp; Typography">
+                <ScrollViewer Padding="20">
+                    <StackPanel Spacing="20">
+                        <TextBlock Text="Typography &amp; Subpixel Snapping" FontSize="20" FontWeight="Medium"/>
+                        
+                        <TextBlock Text="High-DPI Retina Quality Text Rendering with 4-way subpixel snapping enabled natively via ProGPU compositor." 
+                                   TextWrapping="Wrap" MaxWidth="500" HorizontalAlignment="Left" Foreground="{DynamicResource SystemControlDescriptionTextForegroundBrush}"/>
+
+                        <Border Padding="15" Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}" CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource SystemControlElevationBorderBrush}">
+                            <StackPanel Spacing="15">
+                                <TextBlock Text="System Default (Regular) - 12px" FontSize="12"/>
+                                <TextBlock Text="System Default (Medium) - 16px" FontSize="16" FontWeight="Medium"/>
+                                <TextBlock Text="System Default (SemiBold) - 24px" FontSize="24" FontWeight="SemiBold"/>
+                                <TextBlock Text="System Default (Bold) - 36px" FontSize="36" FontWeight="Bold"/>
+                                <TextBlock Text="Quick brown fox jumps over the lazy dog." FontSize="18" FontStyle="Italic"/>
+                                <TextBlock Text="abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890" FontSize="14" FontFamily="Courier New"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Tab 3: Animations -->
+            <TabItem Header="Animations">
+                <ScrollViewer Padding="20">
+                    <StackPanel Spacing="25">
+                        <TextBlock Text="High-Performance GPU-Accelerated Animations" FontSize="20" FontWeight="Medium"/>
+                        
+                        <Grid ColumnDefinitions="*,*" HorizontalAlignment="Center" Width="600" Height="300">
+                            <!-- Left: Keyframe Rotating Rectangle -->
+                            <StackPanel Grid.Column="0" Spacing="15" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Rectangle Classes="rotating" Width="100" Height="100" Fill="MediumPurple" Stroke="Indigo" StrokeThickness="2" RadiusX="8" RadiusY="8"/>
+                                <TextBlock Text="Continuous CSS-style Rotation" HorizontalAlignment="Center" FontWeight="SemiBold"/>
+                            </StackPanel>
+
+                            <!-- Right: Interactive Hover/Click Transitions -->
+                            <StackPanel Grid.Column="1" Spacing="15" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Button Content="Hover and Click Me!" Padding="20,15" CornerRadius="8" HorizontalAlignment="Center">
+                                    <Button.Transitions>
+                                        <Transitions>
+                                            <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+                                            <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2"/>
+                                        </Transitions>
+                                    </Button.Transitions>
+                                </Button>
+                                <TextBlock Text="Smooth Interactive Transitions" HorizontalAlignment="Center" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+        </TabControl>
+    </Grid>
+</Window>

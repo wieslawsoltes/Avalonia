@@ -23,7 +23,11 @@ using Avalonia.Utilities;
 using SixLabors.ImageSharp.PixelFormats;
 using Image = SixLabors.ImageSharp.Image;
 using Avalonia.Harfbuzz;
+#if AVALONIA_PROGPU
+using Avalonia.ProGpu;
+#else
 using Avalonia.Skia;
+#endif
 
 namespace Avalonia.Skia.RenderTests;
 
@@ -69,6 +73,7 @@ static class TestRenderHelper
                 target.Measure(size);
                 target.Arrange(new Rect(size));
                 bitmap.Render(target);
+                Dispatcher.UIThread.RunJobs();
                 bitmap.Save(path);
             }
         }
@@ -91,6 +96,7 @@ static class TestRenderHelper
                     renderer.Paint(new Rect(root.Bounds.Size), false);
                 }
 
+                Dispatcher.UIThread.RunJobs();
                 writableBitmap.Save(path);
             }
         }
