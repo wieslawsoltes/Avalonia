@@ -24,7 +24,6 @@ namespace Avalonia.ProGpu
 
         public SurfaceRenderTarget(CreateInfo createInfo)
         {
-            Console.WriteLine($"[SurfaceRenderTarget] size={createInfo.Width}x{createInfo.Height} format={createInfo.Format}");
             PixelSize = new PixelSize(createInfo.Width, createInfo.Height);
             Dpi = createInfo.Dpi;
 
@@ -99,7 +98,6 @@ namespace Avalonia.ProGpu
         {
             if (contextImpl is DrawingContextImpl target)
             {
-                Console.WriteLine($"[Blit] targetSize={target._size.Width}x{target._size.Height} layerSize={PixelSize.Width}x{PixelSize.Height} commands={_layerContext.DrawingContext.Commands.Count}");
                 if (Texture != null)
                 {
                     if (_layerContext.DrawingContext.Commands.Count > 0)
@@ -115,7 +113,6 @@ namespace Avalonia.ProGpu
                     if (scaleY <= 0.0001) scaleY = 1.0;
                     var logicalRect = new Avalonia.Rect(0, 0, PixelSize.Width / scaleX, PixelSize.Height / scaleY);
                     var destRect = target.ToProGpuRect(logicalRect);
-                    Console.WriteLine($"[Blit] targetTransform={target.Transform.M11},{target.Transform.M12},{target.Transform.M21},{target.Transform.M22},{target.Transform.M31},{target.Transform.M32} logical={logicalRect.Width}x{logicalRect.Height} destRect={destRect.X},{destRect.Y},{destRect.Width},{destRect.Height}");
                     target.DrawingContext.DrawTexture(Texture, destRect);
                 }
                 else

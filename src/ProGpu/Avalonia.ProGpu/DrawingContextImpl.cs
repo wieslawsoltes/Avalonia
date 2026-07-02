@@ -173,7 +173,6 @@ namespace Avalonia.ProGpu
             var pBrush = ConvertBrush(brush);
             var pPen = ConvertPen(pen);
             var proGpuRect = ToProGpuRect(rect.Rect);
-            Console.WriteLine($"[DrawRectangle] brush={brush?.GetType().Name} color={((brush as ISolidColorBrush)?.Color)} rect={rect.Rect} IsRounded={rect.IsRounded}");
             if (rect.IsRounded)
             {
                 float radius = (float)(rect.RadiiTopLeft.X * Math.Abs(_currentTransform.M11));
@@ -209,7 +208,6 @@ namespace Avalonia.ProGpu
             {
                 var pBrush = ConvertBrush(foreground);
                 if (pBrush == null) return;
-                Console.WriteLine($"[DrawGlyphRun] brush={foreground?.GetType().Name} opacity={foreground?.Opacity} count={run.GlyphIndices.Length}");
 
                 double scale = run.FontRenderingEmSize / run.Typeface.Font.UnitsPerEm;
 
@@ -239,7 +237,6 @@ namespace Avalonia.ProGpu
 
         public IDrawingContextLayerImpl CreateLayer(PixelSize size)
         {
-            Console.WriteLine($"[CreateLayer] size={size.Width}x{size.Height}");
             PixelFormat? format = _framebuffer?.Format;
             if (format == null)
             {
@@ -265,7 +262,6 @@ namespace Avalonia.ProGpu
         public void PushClip(Avalonia.Rect clip)
         {
             var r = ToProGpuRect(clip);
-            Console.WriteLine($"[PushClip] clip={clip}, transformed={r.X},{r.Y},{r.Width},{r.Height}");
             DrawingContext.PushClip(r);
         }
         public void PushClip(RoundedRect clip)
@@ -281,7 +277,6 @@ namespace Avalonia.ProGpu
         }
         public void PopClip()
         {
-            Console.WriteLine("[PopClip]");
             DrawingContext.PopClip();
         }
 
@@ -739,7 +734,6 @@ namespace Avalonia.ProGpu
             if (avaloniaBrush is ISolidColorBrush solid)
             {
                 var c = solid.Color;
-                Console.WriteLine($"[ConvertBrush] Solid color={c.R},{c.G},{c.B},{c.A} type={avaloniaBrush.GetType().Name} opacity={opacity}");
                 var vecColor = new Vector4(c.R / 255.0f, c.G / 255.0f, c.B / 255.0f, c.A / 255.0f);
                 return new ProGPU.Vector.SolidColorBrush(vecColor) { Opacity = opacity };
             }
@@ -776,7 +770,6 @@ namespace Avalonia.ProGpu
                 return new ProGPU.Vector.RadialGradientBrush(center, radius, stops) { Opacity = opacity };
             }
             
-            Console.WriteLine($"[ConvertBrush] Fallback to White for type={avaloniaBrush.GetType().FullName} opacity={opacity}");
             return new ProGPU.Vector.SolidColorBrush(Vector4.One) { Opacity = opacity };
         }
 
