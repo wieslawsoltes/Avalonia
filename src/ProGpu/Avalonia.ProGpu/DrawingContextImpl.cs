@@ -20,6 +20,7 @@ namespace Avalonia.ProGpu
         private readonly IDisposable?[]? _disposables;
         private readonly ILockedFramebuffer? _framebuffer;
         private readonly OffscreenTextureCache _offscreenCache;
+        private readonly Matrix? _postTransform;
         internal readonly PixelSize _size;
         private Matrix _currentTransform = Matrix.Identity;
         private double _currentOpacity = 1.0;
@@ -52,6 +53,12 @@ namespace Avalonia.ProGpu
             Dpi = createInfo.Dpi;
             _disposables = disposables;
             _offscreenCache = (createInfo.CacheHolder as OffscreenTextureCache) ?? GetFallbackCache();
+            if (createInfo.ScaleDrawingToDpi &&
+                TryGetDpiScale(createInfo.Dpi, out double scaleX, out double scaleY) &&
+                (!NearlyEqual(scaleX, 1.0) || !NearlyEqual(scaleY, 1.0)))
+            {
+                _postTransform = Matrix.CreateScale(scaleX, scaleY);
+            }
 
             if (disposables != null)
             {
@@ -96,6 +103,10 @@ namespace Avalonia.ProGpu
             }
             EnsureGpuContext(_framebuffer, preferredFormat);
         }
+
+        private Matrix RenderTransform => _postTransform.HasValue
+            ? _currentTransform * _postTransform.Value
+            : _currentTransform;
 
         public void Reset()
         {
@@ -157,14 +168,15 @@ namespace Avalonia.ProGpu
             {
                 var pBrush = ConvertBrush(brush);
                 var pPen = ConvertPen(pen);
-                DrawingContext.DrawPath(pBrush, pPen, geomImpl.Path, ToMatrix4x4(_currentTransform));
+                DrawingContext.DrawPath(pBrush, pPen, geomImpl.Path, ToMatrix4x4(RenderTransform));
             }
         }
 
         public void DrawRectangle(IExperimentalAcrylicMaterial? material, RoundedRect rect)
         {
             var pBrush = new ProGPU.Vector.SolidColorBrush(new Vector4(0.5f, 0.5f, 0.5f, 0.5f));
-            float radius = (float)(rect.RadiiTopLeft.X * Math.Abs(_currentTransform.M11));
+            var transform = RenderTransform;
+            float radius = (float)(rect.RadiiTopLeft.X * Math.Abs(transform.M11));
             DrawingContext.DrawRoundedRectangle(pBrush, null, ToProGpuRect(rect.Rect), radius);
         }
 
@@ -175,7 +187,8 @@ namespace Avalonia.ProGpu
             var proGpuRect = ToProGpuRect(rect.Rect);
             if (rect.IsRounded)
             {
-                float radius = (float)(rect.RadiiTopLeft.X * Math.Abs(_currentTransform.M11));
+                var transform = RenderTransform;
+                float radius = (float)(rect.RadiiTopLeft.X * Math.Abs(transform.M11));
                 DrawingContext.DrawRoundedRectangle(pBrush, pPen, proGpuRect, radius);
             }
             else
@@ -197,8 +210,9 @@ namespace Avalonia.ProGpu
             var pBrush = ConvertBrush(brush);
             var pPen = ConvertPen(pen);
             var center = TransformPoint(rect.Center);
-            float radiusX = (float)(rect.Width / 2.0 * _currentTransform.M11);
-            float radiusY = (float)(rect.Height / 2.0 * _currentTransform.M22);
+            var transform = RenderTransform;
+            float radiusX = (float)(rect.Width / 2.0 * transform.M11);
+            float radiusY = (float)(rect.Height / 2.0 * transform.M22);
             DrawingContext.DrawEllipse(pBrush, pPen, center, radiusX, radiusY);
         }
 
@@ -216,15 +230,16 @@ namespace Avalonia.ProGpu
                     ushort glyphIndex = run.GlyphIndices[i];
                     var pos = run.GlyphPositions[i];
                     var origin = run.BaselineOrigin + new Vector(pos.X, pos.Y);
-                    var screenOrigin = origin * _currentTransform;
+                    var renderTransform = RenderTransform;
+                    var screenOrigin = origin * renderTransform;
                     double snappedOriginX = Math.Round(screenOrigin.X * 4.0) / 4.0;
                     double snappedOriginY = Math.Round(screenOrigin.Y * 4.0) / 4.0;
 
                     var outline = run.Typeface.Font.GetFlippedGlyphOutline(glyphIndex);
                     if (outline != null)
                     {
-                        double scaleX = Math.Abs(_currentTransform.M11) > 0.0001 ? _currentTransform.M11 : 1.0;
-                        double scaleY = Math.Abs(_currentTransform.M22) > 0.0001 ? _currentTransform.M22 : 1.0;
+                        double scaleX = Math.Abs(renderTransform.M11) > 0.0001 ? renderTransform.M11 : 1.0;
+                        double scaleY = Math.Abs(renderTransform.M22) > 0.0001 ? renderTransform.M22 : 1.0;
 
                         var finalMatrix = System.Numerics.Matrix4x4.CreateScale((float)(scale * scaleX), (float)(scale * scaleY), 1f) *
                                           System.Numerics.Matrix4x4.CreateTranslation((float)snappedOriginX, (float)snappedOriginY, 0f);
@@ -310,7 +325,11 @@ namespace Avalonia.ProGpu
         {
             if (clip is GeometryImpl geomImpl)
             {
-                DrawingContext.PushGeometryClip(geomImpl.Path);
+                var transform = RenderTransform;
+                var path = transform == Matrix.Identity
+                    ? geomImpl.Path
+                    : geomImpl.Path.CreateTransformed(ToMatrix4x4(transform));
+                DrawingContext.PushGeometryClip(path);
             }
         }
         public void PopGeometryClip()
@@ -573,9 +592,10 @@ namespace Avalonia.ProGpu
                 var compositor = GetCompositor(context, preferredFormat);
 
                 var (texture, stagingBuffer, bytesPerRow, stagingBufferSize) = GetOffscreenResources(_offscreenCache, context, width, height, preferredFormat);
+                var hostFrame = CreateHostFrame(width, height);
 
                 var drawingVisual = new DrawingVisual();
-                drawingVisual.Size = new Vector2(width, height);
+                drawingVisual.Size = hostFrame.LogicalSize;
                 drawingVisual.Context.Append(DrawingContext);
 
                 bool loadExisting = !_offscreenCache.IsTextureFresh;
@@ -583,11 +603,9 @@ namespace Avalonia.ProGpu
 
                 compositor.RenderOffscreen(
                     drawingVisual,
-                    width,
-                    height,
+                    hostFrame,
                     texture,
                     0.0f,
-                    1.0f,
                     _clearColor,
                     loadExistingContents: loadExisting
                 );
@@ -615,11 +633,11 @@ namespace Avalonia.ProGpu
                         if (targetView != null)
                         {
                             var presentVisual = new DrawingVisual();
-                            presentVisual.Size = new Vector2(width, height);
-                            var rect = new ProGPU.Scene.Rect(0, 0, width, height);
+                            presentVisual.Size = hostFrame.LogicalSize;
+                            var rect = new ProGPU.Scene.Rect(0, 0, hostFrame.LogicalWidth, hostFrame.LogicalHeight);
                             presentVisual.Context.DrawTexture(texture, rect);
 
-                            compositor.RenderScene(presentVisual, width, height, targetView);
+                            compositor.RenderScene(presentVisual, hostFrame, targetView);
 
                             context.Wgpu.SurfacePresent((Surface*)gpuFb.SurfacePointer);
                             context.Wgpu.TextureViewRelease(targetView);
@@ -710,14 +728,15 @@ namespace Avalonia.ProGpu
 
         private Vector2 TransformPoint(Point pt)
         {
-            var p = pt * _currentTransform;
+            var p = pt * RenderTransform;
             return new Vector2((float)p.X, (float)p.Y);
         }
 
         internal ProGPU.Scene.Rect ToProGpuRect(Avalonia.Rect r)
         {
-            var topLeft = r.TopLeft * _currentTransform;
-            var bottomRight = r.BottomRight * _currentTransform;
+            var transform = RenderTransform;
+            var topLeft = r.TopLeft * transform;
+            var bottomRight = r.BottomRight * transform;
             float x = (float)Math.Min(topLeft.X, bottomRight.X);
             float y = (float)Math.Min(topLeft.Y, bottomRight.Y);
             float w = (float)Math.Abs(bottomRight.X - topLeft.X);
@@ -791,6 +810,26 @@ namespace Avalonia.ProGpu
             );
         }
 
+        private static CompositorHostFrame CreateHostFrame(uint renderTargetWidth, uint renderTargetHeight)
+        {
+            return CompositorHostFrame.FromRenderTarget(renderTargetWidth, renderTargetHeight, 1f);
+        }
+
+        private static bool TryGetDpiScale(Vector dpi, out double scaleX, out double scaleY)
+        {
+            scaleX = dpi.X / 96.0;
+            scaleY = dpi.Y / 96.0;
+            return double.IsFinite(scaleX) &&
+                   double.IsFinite(scaleY) &&
+                   scaleX > 0.0 &&
+                   scaleY > 0.0;
+        }
+
+        private static bool NearlyEqual(double left, double right)
+        {
+            return Math.Abs(left - right) < 0.0001;
+        }
+
         internal static unsafe void RenderToTexture(ProGPU.Scene.DrawingContext sourceContext, GpuTexture texture, Vector dpi, bool isTextureFresh = false)
         {
             var context = texture.Context;
@@ -800,18 +839,17 @@ namespace Avalonia.ProGpu
                 WgpuContext.Current = context;
                 s_wgpuContext = context;
                 var compositor = GetCompositor(context, texture.Format);
+                var hostFrame = CreateHostFrame(texture.Width, texture.Height);
 
                 var drawingVisual = new DrawingVisual();
-                drawingVisual.Size = new Vector2(texture.Width, texture.Height);
+                drawingVisual.Size = hostFrame.LogicalSize;
                 drawingVisual.Context.Append(sourceContext);
 
                 compositor.RenderOffscreen(
                     drawingVisual,
-                    texture.Width,
-                    texture.Height,
+                    hostFrame,
                     texture,
                     0.0f,
-                    1.0f,
                     new Vector4(0f, 0f, 0f, 0f), // Transparent clear color for layers
                     loadExistingContents: !isTextureFresh
                 );
