@@ -1,6 +1,4 @@
 using System;
-using Avalonia.Platform;
-using Silk.NET.WebGPU;
 using ProGPU.Backend;
 
 namespace Avalonia.ProGpu
@@ -8,11 +6,9 @@ namespace Avalonia.ProGpu
     internal class OffscreenTextureCache : IDisposable
     {
         public GpuTexture? CachedTexture;
-        public IntPtr CachedStagingBuffer = IntPtr.Zero;
+        public GpuTextureReadbackBuffer? CachedReadbackBuffer;
         public uint CachedWidth;
         public uint CachedHeight;
-        public uint CachedStagingBufferSize;
-        public uint CachedBytesPerRow;
         public bool IsTextureFresh = true;
 
         public OffscreenTextureCache()
@@ -28,29 +24,17 @@ namespace Avalonia.ProGpu
             }
         }
 
-        public unsafe void Invalidate(WgpuContext? context)
+        public void Invalidate(WgpuContext? context)
         {
             if (CachedTexture != null)
             {
                 CachedTexture.Dispose();
                 CachedTexture = null;
             }
-            if (CachedStagingBuffer != IntPtr.Zero && context != null)
-            {
-                lock (context.RenderLock)
-                {
-                    if (!context.IsDisposed)
-                    {
-                        context.Wgpu.BufferDestroy((Silk.NET.WebGPU.Buffer*)CachedStagingBuffer);
-                        context.Wgpu.BufferRelease((Silk.NET.WebGPU.Buffer*)CachedStagingBuffer);
-                    }
-                }
-                CachedStagingBuffer = IntPtr.Zero;
-            }
+            CachedReadbackBuffer?.Dispose();
+            CachedReadbackBuffer = null;
             CachedWidth = 0;
             CachedHeight = 0;
-            CachedStagingBufferSize = 0;
-            CachedBytesPerRow = 0;
             IsTextureFresh = true;
         }
 

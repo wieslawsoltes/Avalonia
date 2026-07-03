@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Runtime.InteropServices;
-using System.Threading;
 using Avalonia.Media;
 using Avalonia.Platform;
 using Silk.NET.WebGPU;
-using Silk.NET.Core.Native;
 using ProGPU.Backend;
 using ProGPU.Vector;
 using ProGPU.Scene;
@@ -414,19 +411,9 @@ namespace Avalonia.ProGpu
             return s_fallbackCache ??= new OffscreenTextureCache();
         }
 
-        private static readonly PfnBufferMapCallback s_bufferMapCallback;
-        [ThreadStatic]
-        private static bool s_isMappingPending;
-
-        static unsafe DrawingContextImpl()
+        static DrawingContextImpl()
         {
-            s_bufferMapCallback = PfnBufferMapCallback.From(OnBufferMapped);
             WgpuContext.Disposing += InvalidateForContext;
-        }
-
-        private static unsafe void OnBufferMapped(BufferMapAsyncStatus status, void* userData)
-        {
-            s_isMappingPending = false;
         }
 
         private static unsafe void InvalidateCachedResources()
@@ -523,16 +510,17 @@ namespace Avalonia.ProGpu
             }
         }
 
-        private static unsafe (GpuTexture texture, IntPtr stagingBuffer, uint bytesPerRow, uint stagingBufferSize) GetOffscreenResources(
+        private static (GpuTexture texture, GpuTextureReadbackBuffer readbackBuffer) GetOffscreenResources(
             OffscreenTextureCache cache, WgpuContext context, uint width, uint height, TextureFormat format)
         {
             if (cache.CachedTexture != null && 
                 cache.CachedWidth == width && 
                 cache.CachedHeight == height && 
                 cache.CachedTexture.Format == format &&
-                cache.CachedTexture.Context == context)
+                cache.CachedTexture.Context == context &&
+                cache.CachedReadbackBuffer != null)
             {
-                return (cache.CachedTexture, cache.CachedStagingBuffer, cache.CachedBytesPerRow, cache.CachedStagingBufferSize);
+                return (cache.CachedTexture, cache.CachedReadbackBuffer);
             }
 
             cache.Invalidate(context);
@@ -549,24 +537,10 @@ namespace Avalonia.ProGpu
                 "Avalonia offscreen target"
             );
 
-            uint bytesPerPixel = 4;
-            uint unalignedBytesPerRow = width * bytesPerPixel;
-            cache.CachedBytesPerRow = (unalignedBytesPerRow + 255) & ~255u;
-            cache.CachedStagingBufferSize = cache.CachedBytesPerRow * height;
+            cache.CachedReadbackBuffer = new GpuTextureReadbackBuffer(context);
 
-            var bufferDesc = new BufferDescriptor
-            {
-                Usage = BufferUsage.MapRead | BufferUsage.CopyDst,
-                Size = cache.CachedStagingBufferSize,
-                MappedAtCreation = false
-            };
-            cache.CachedStagingBuffer = (IntPtr)context.Wgpu.DeviceCreateBuffer(context.Device, &bufferDesc);
-
-            return (cache.CachedTexture, cache.CachedStagingBuffer, cache.CachedBytesPerRow, cache.CachedStagingBufferSize);
+            return (cache.CachedTexture, cache.CachedReadbackBuffer);
         }
-
-        [DllImport("wgpu_native", EntryPoint = "wgpuDevicePoll")]
-        private static extern unsafe bool wgpuDevicePoll(Silk.NET.WebGPU.Device* device, bool wait, void* wrappedSubmissionIndex);
 
         private unsafe void FlushToFramebuffer()
         {
@@ -591,7 +565,7 @@ namespace Avalonia.ProGpu
 
                 var compositor = GetCompositor(context, preferredFormat);
 
-                var (texture, stagingBuffer, bytesPerRow, stagingBufferSize) = GetOffscreenResources(_offscreenCache, context, width, height, preferredFormat);
+                var (texture, readbackBuffer) = GetOffscreenResources(_offscreenCache, context, width, height, preferredFormat);
                 var hostFrame = CreateHostFrame(width, height);
 
                 var drawingVisual = new DrawingVisual();
@@ -646,69 +620,7 @@ namespace Avalonia.ProGpu
                     return;
                 }
 
-                var encoderDesc = new CommandEncoderDescriptor();
-                var encoder = context.Wgpu.DeviceCreateCommandEncoder(context.Device, &encoderDesc);
-
-                var copySrc = new ImageCopyTexture
-                {
-                    Texture = texture.TexturePtr,
-                    MipLevel = 0,
-                    Origin = new Origin3D { X = 0, Y = 0, Z = 0 },
-                    Aspect = TextureAspect.All
-                };
-
-                var copyDst = new ImageCopyBuffer
-                {
-                    Buffer = (Silk.NET.WebGPU.Buffer*)stagingBuffer,
-                    Layout = new TextureDataLayout
-                    {
-                        Offset = 0,
-                        BytesPerRow = bytesPerRow,
-                        RowsPerImage = height
-                    }
-                };
-
-                var copySize = new Extent3D
-                {
-                    Width = width,
-                    Height = height,
-                    DepthOrArrayLayers = 1
-                };
-
-                context.Wgpu.CommandEncoderCopyTextureToBuffer(encoder, &copySrc, &copyDst, &copySize);
-
-                var cmdBufferDesc = new CommandBufferDescriptor();
-                var cmdBuffer = context.Wgpu.CommandEncoderFinish(encoder, &cmdBufferDesc);
-
-                context.Wgpu.QueueSubmit(context.Queue, 1, &cmdBuffer);
-                context.Wgpu.CommandBufferRelease(cmdBuffer);
-                context.Wgpu.CommandEncoderRelease(encoder);
-
-                s_isMappingPending = true;
-                context.Wgpu.BufferMapAsync((Silk.NET.WebGPU.Buffer*)stagingBuffer, MapMode.Read, 0, (nuint)stagingBufferSize, s_bufferMapCallback, null);
-
-                while (s_isMappingPending)
-                {
-                    wgpuDevicePoll(context.Device, false, null);
-                    Thread.Sleep(1);
-                }
-
-                void* mappedPtr = context.Wgpu.BufferGetConstMappedRange((Silk.NET.WebGPU.Buffer*)stagingBuffer, 0, (nuint)stagingBufferSize);
-                if (mappedPtr != null)
-                {
-                    byte* srcBytes = (byte*)mappedPtr;
-                    byte* dstBytes = (byte*)_framebuffer.Address;
-                    uint rowBytes = width * 4;
-
-                    for (int y = 0; y < height; y++)
-                    {
-                        byte* srcRow = srcBytes + (y * bytesPerRow);
-                        byte* dstRow = dstBytes + (y * (uint)_framebuffer.RowBytes);
-                        System.Buffer.MemoryCopy(srcRow, dstRow, rowBytes, rowBytes);
-                    }
-
-                    context.Wgpu.BufferUnmap((Silk.NET.WebGPU.Buffer*)stagingBuffer);
-                }
+                readbackBuffer.TryReadTextureRows(texture, width, height, (void*)_framebuffer.Address, (uint)_framebuffer.RowBytes);
                 context.CleanupPendingResources();
             }
         }
