@@ -46,8 +46,6 @@ namespace Avalonia.SilkNet
         {
             get
             {
-                string logPath = "/Users/wieslawsoltes/.gemini/antigravity/brain/a7990822-ca50-4be5-96d8-941456e6d9e6/test_run.log";
-                System.IO.File.AppendAllText(logPath, $"[SCREEN] Querying screens on thread {System.Threading.Thread.CurrentThread.ManagedThreadId}\n");
                 var screens = new List<Screen>();
                 try
                 {
@@ -55,7 +53,6 @@ namespace Avalonia.SilkNet
                     unsafe
                     {
                         var monitors = glfw.GetMonitors(out int count);
-                        System.IO.File.AppendAllText(logPath, $"[SCREEN] Found {count} monitors\n");
                         for (int i = 0; i < count; i++)
                         {
                             var m = monitors[i];
@@ -75,15 +72,12 @@ namespace Avalonia.SilkNet
 
                             var workingArea = new PixelRect((int)(wx * scaling), (int)(wy * scaling), (int)(wwidth * scaling), (int)(wheight * scaling));
 
-                            System.IO.File.AppendAllText(logPath, $"[SCREEN] Monitor {i}: Name={name}, Primary={isPrimary}, Scaling={scaling}, FullBounds={fullBounds}, WorkingArea={workingArea}\n");
-
                             screens.Add(new SilkNetScreen(scaling, fullBounds, workingArea, isPrimary, name));
                         }
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
-                    System.IO.File.AppendAllText(logPath, $"[SCREEN] Error: {ex.Message}\n");
                     var isPrimary = true;
                     var fullBounds = new PixelRect(0, 0, 1920, 1080);
                     screens.Add(new SilkNetScreen(1.0, fullBounds, fullBounds, isPrimary, "Display Fallback"));

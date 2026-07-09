@@ -32,10 +32,6 @@ namespace Avalonia.SilkNet
             var renderLoop = RenderLoop.FromTimer(renderTimer);
             AvaloniaLocator.CurrentMutable.Bind<IRenderLoop>().ToConstant(renderLoop);
 
-            Console.WriteLine($"[DIAG] Current: {AvaloniaLocator.Current.GetHashCode()}");
-            Console.WriteLine($"[DIAG] CurrentMutable: {AvaloniaLocator.CurrentMutable.GetHashCode()}");
-            Console.WriteLine($"[DIAG] Service check: {AvaloniaLocator.Current.GetService<IRenderLoop>() != null}");
-
             var platformGraphics = AvaloniaLocator.Current.GetService<IPlatformGraphics>();
             s_compositor = new Compositor(platformGraphics);
 

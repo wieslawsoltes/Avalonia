@@ -33,13 +33,10 @@ namespace Avalonia.SilkNet
 
         public WindowImpl()
         {
-            string logPath = "/Users/wieslawsoltes/.gemini/antigravity/brain/a7990822-ca50-4be5-96d8-941456e6d9e6/test_run.log";
-            System.IO.File.AppendAllText(logPath, "[WINDOWIMPL] Constructor started\n");
             _mouseDevice = new MouseDevice();
             
             _scaling = 1.0;
 
-            System.IO.File.AppendAllText(logPath, "[WINDOWIMPL] Setting WindowOptions\n");
             var options = WindowOptions.Default;
             options.Size = new Vector2D<int>((int)_clientSize.Width, (int)_clientSize.Height);
             options.Title = _title ?? "Avalonia Silk.NET Window";
@@ -48,9 +45,7 @@ namespace Avalonia.SilkNet
             options.Position = new Vector2D<int>((int)(_position.X / _scaling), (int)(_position.Y / _scaling));
             options.WindowBorder = WindowBorder.Resizable;
 
-            System.IO.File.AppendAllText(logPath, "[WINDOWIMPL] Creating SilkWindow via Window.Create\n");
             _silkWindow = Silk.NET.Windowing.Window.Create(options);
-            System.IO.File.AppendAllText(logPath, "[WINDOWIMPL] SilkWindow created successfully\n");
             _silkWindow.Load += OnLoad;
             _silkWindow.Render += OnRender;
             _silkWindow.Resize += OnResize;
@@ -62,9 +57,7 @@ namespace Avalonia.SilkNet
             // Set up platform handle
             Handle = new PlatformHandle(IntPtr.Zero, "SilkWindow");
 
-            System.IO.File.AppendAllText(logPath, "[WINDOWIMPL] Registering window with SilkNetPlatform\n");
             SilkNetPlatform.Instance.RegisterWindow(this);
-            System.IO.File.AppendAllText(logPath, "[WINDOWIMPL] Constructor finished\n");
         }
 
         public Silk.NET.Windowing.IWindow SilkWindow => _silkWindow;
@@ -315,8 +308,6 @@ namespace Avalonia.SilkNet
             get => _windowState;
             set
             {
-                string logPath = "/Users/wieslawsoltes/.gemini/antigravity/brain/a7990822-ca50-4be5-96d8-941456e6d9e6/test_run.log";
-                System.IO.File.AppendAllText(logPath, $"[WINDOWIMPL] WindowState setter called with value={value}, current _windowState={_windowState}\n");
                 _windowState = value;
                 if (_silkWindow != null)
                 {
@@ -334,7 +325,6 @@ namespace Avalonia.SilkNet
                         if (!_restoredBorder.HasValue && _silkWindow.WindowBorder != WindowBorder.Resizable)
                         {
                             _restoredBorder = _silkWindow.WindowBorder;
-                            System.IO.File.AppendAllText(logPath, $"[WINDOWIMPL] Stashing border {_restoredBorder.Value} and setting to Resizable\n");
                             _silkWindow.WindowBorder = WindowBorder.Resizable;
                         }
                     }
@@ -345,14 +335,11 @@ namespace Avalonia.SilkNet
                         {
                             var borderToRestore = _restoredBorder.Value;
                             _restoredBorder = null;
-                            System.IO.File.AppendAllText(logPath, $"[WINDOWIMPL] Restoring stashed border to {borderToRestore}\n");
                             _silkWindow.WindowBorder = borderToRestore;
                         }
                     }
 
-                    System.IO.File.AppendAllText(logPath, $"[WINDOWIMPL] Setting _silkWindow.WindowState = {targetState}\n");
                     _silkWindow.WindowState = targetState;
-                    System.IO.File.AppendAllText(logPath, $"[WINDOWIMPL] _silkWindow.WindowState set succeeded\n");
                 }
             }
         }
@@ -484,20 +471,16 @@ namespace Avalonia.SilkNet
 
         public void CanResize(bool value)
         {
-            string logPath = "/Users/wieslawsoltes/.gemini/antigravity/brain/a7990822-ca50-4be5-96d8-941456e6d9e6/test_run.log";
-            System.IO.File.AppendAllText(logPath, $"[WINDOWIMPL] CanResize called with value={value}\n");
             if (_silkWindow != null)
             {
                 var border = value ? WindowBorder.Resizable : WindowBorder.Fixed;
                 if (_windowState == Avalonia.Controls.WindowState.Maximized ||
                     _windowState == Avalonia.Controls.WindowState.FullScreen)
                 {
-                    System.IO.File.AppendAllText(logPath, $"[WINDOWIMPL] Stashing border change to {border} (currently maximized/fullscreen)\n");
                     _restoredBorder = border;
                 }
                 else
                 {
-                    System.IO.File.AppendAllText(logPath, $"[WINDOWIMPL] Setting _silkWindow.WindowBorder = {border}\n");
                     _silkWindow.WindowBorder = border;
                 }
             }
@@ -505,8 +488,6 @@ namespace Avalonia.SilkNet
 
         public void SetWindowDecorations(WindowDecorations value)
         {
-            string logPath = "/Users/wieslawsoltes/.gemini/antigravity/brain/a7990822-ca50-4be5-96d8-941456e6d9e6/test_run.log";
-            System.IO.File.AppendAllText(logPath, $"[WINDOWIMPL] SetWindowDecorations called with value={value}\n");
             if (_silkWindow != null)
             {
                 var border = value switch {
@@ -517,12 +498,10 @@ namespace Avalonia.SilkNet
                 if (_windowState == Avalonia.Controls.WindowState.Maximized ||
                     _windowState == Avalonia.Controls.WindowState.FullScreen)
                 {
-                    System.IO.File.AppendAllText(logPath, $"[WINDOWIMPL] Stashing border change to {border} (currently maximized/fullscreen)\n");
                     _restoredBorder = border;
                 }
                 else
                 {
-                    System.IO.File.AppendAllText(logPath, $"[WINDOWIMPL] Setting _silkWindow.WindowBorder = {border}\n");
                     _silkWindow.WindowBorder = border;
                 }
             }
@@ -558,13 +537,10 @@ namespace Avalonia.SilkNet
 
         public void Dispose()
         {
-            string logPath = "/Users/wieslawsoltes/.gemini/antigravity/brain/a7990822-ca50-4be5-96d8-941456e6d9e6/test_run.log";
             if (_disposed) return;
             _disposed = true;
-            System.IO.File.AppendAllText(logPath, $"[WINDOWIMPL] Dispose started for Window={GetHashCode()}\n");
             SilkNetPlatform.Instance.UnregisterWindow(this);
 
-            // Unsubscribe window events to prevent any callbacks during disposal/destruction
             try
             {
                 _silkWindow.Load -= OnLoad;
@@ -580,10 +556,8 @@ namespace Avalonia.SilkNet
             _inputContext = null;
 
             var tcs = _disposedTcs;
-            System.IO.File.AppendAllText(logPath, "[WINDOWIMPL] Posting async disposal work to UI thread\n");
             Dispatcher.UIThread.Post(async () =>
             {
-                System.IO.File.AppendAllText(logPath, "[WINDOWIMPL-DISPOSE] Async disposal work running on UI thread\n");
                 try
                 {
                     bool transitionNeeded = false;
@@ -592,8 +566,6 @@ namespace Avalonia.SilkNet
                         if (windowToDispose.WindowState == Silk.NET.Windowing.WindowState.Fullscreen ||
                             windowToDispose.WindowState == Silk.NET.Windowing.WindowState.Maximized)
                         {
-                            System.IO.File.AppendAllText(logPath, $"[WINDOWIMPL-DISPOSE] Window state is {windowToDispose.WindowState}, restoring to Normal before disposing\n");
-                            // Ensure the window has valid windowed bounds before exiting Fullscreen/Maximized
                             try
                             {
                                 windowToDispose.Size = new Vector2D<int>(1280, 800);
@@ -604,21 +576,16 @@ namespace Avalonia.SilkNet
                             transitionNeeded = true;
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        System.IO.File.AppendAllText(logPath, $"[WINDOWIMPL-DISPOSE] Error transitioning state: {ex.Message}\n");
-                    }
+                    catch {}
 
                     if (transitionNeeded)
                     {
-                        System.IO.File.AppendAllText(logPath, "[WINDOWIMPL-DISPOSE] Waiting for state transition to complete\n");
                         try
                         {
                             var glfw = Silk.NET.GLFW.Glfw.GetApi();
                             glfw.PollEvents();
                         }
                         catch {}
-                        // Yield once for 300ms to allow Cocoa fullscreen transition animations to complete
                         await Task.Delay(300);
                         try
                         {
@@ -628,65 +595,43 @@ namespace Avalonia.SilkNet
                         catch {}
                     }
 
-                    // Dispose WgpuContext first while the native window and its views/handles are still fully valid.
                     try
                     {
                         var context = WgpuContext.ActiveContexts.FirstOrDefault(c => c.Window == windowToDispose);
                         if (context != null)
                         {
-                            System.IO.File.AppendAllText(logPath, "[WINDOWIMPL-DISPOSE] Disposing WgpuContext\n");
                             context.Dispose();
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        System.IO.File.AppendAllText(logPath, $"[WINDOWIMPL-DISPOSE] WgpuContext dispose exception: {ex.Message}\n");
-                    }
+                    catch {}
 
                     try
                     {
                         if (inputContextToDispose != null)
                         {
-                            System.IO.File.AppendAllText(logPath, "[WINDOWIMPL-DISPOSE] Disposing input context\n");
                             inputContextToDispose.Dispose();
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        System.IO.File.AppendAllText(logPath, $"[WINDOWIMPL-DISPOSE] Input context dispose exception: {ex.Message}\n");
-                    }
+                    catch {}
                     
                     try
                     {
-                        System.IO.File.AppendAllText(logPath, "[WINDOWIMPL-DISPOSE] Disposing _silkWindow\n");
                         windowToDispose.Dispose();
-                        System.IO.File.AppendAllText(logPath, "[WINDOWIMPL-DISPOSE] _silkWindow disposed\n");
                     }
-                    catch (Exception ex)
-                    {
-                        System.IO.File.AppendAllText(logPath, $"[WINDOWIMPL-DISPOSE] _silkWindow dispose exception: {ex.Message}\n");
-                    }
+                    catch {}
                     
                     try
                     {
                         var glfw = Silk.NET.GLFW.Glfw.GetApi();
                         glfw.PollEvents();
-                        // Yield once for 50ms to flush remaining native window events
                         await Task.Delay(50);
                         glfw.PollEvents();
                     }
-                    catch (Exception ex)
-                    {
-                        System.IO.File.AppendAllText(logPath, $"[WINDOWIMPL-DISPOSE] PollEvents exception: {ex.Message}\n");
-                    }
+                    catch {}
                 }
-                catch (Exception ex)
-                {
-                    System.IO.File.AppendAllText(logPath, $"[WINDOWIMPL-DISPOSE] Global exception: {ex.Message}\n");
-                }
+                catch {}
                 finally
                 {
-                    System.IO.File.AppendAllText(logPath, "[WINDOWIMPL-DISPOSE] Setting DisposedTask result\n");
                     tcs.TrySetResult();
                 }
             });

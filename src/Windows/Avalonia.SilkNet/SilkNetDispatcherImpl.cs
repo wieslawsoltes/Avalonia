@@ -43,8 +43,6 @@ namespace Avalonia.SilkNet
 
         public void RunLoop(CancellationToken cancellationToken)
         {
-            string logPath = "/Users/wieslawsoltes/.gemini/antigravity/brain/a7990822-ca50-4be5-96d8-941456e6d9e6/test_run.log";
-            System.IO.File.AppendAllText(logPath, "[DISPATCHER] RunLoop started\n");
             while (!cancellationToken.IsCancellationRequested)
             {
                 // Process input and window events
@@ -54,7 +52,6 @@ namespace Avalonia.SilkNet
                 if (_dueTimeInMs.HasValue && Now >= _dueTimeInMs.Value)
                 {
                     _dueTimeInMs = null;
-                    System.IO.File.AppendAllText(logPath, "[DISPATCHER] Firing timer\n");
                     FireTimer();
                 }
 
@@ -65,7 +62,6 @@ namespace Avalonia.SilkNet
                     bool hasSignaledSubscribers = Signaled != null;
                     if (hasSignaledSubscribers)
                     {
-                        System.IO.File.AppendAllText(logPath, "[DISPATCHER] Invoking Signaled handler\n");
                         Signaled!.Invoke();
                     }
                 }
@@ -73,7 +69,6 @@ namespace Avalonia.SilkNet
                 // Sleep to avoid CPU pegging
                 _event.WaitOne(1);
             }
-            System.IO.File.AppendAllText(logPath, "[DISPATCHER] RunLoop exited\n");
         }
 
         public long Now => _clock.ElapsedMilliseconds;
