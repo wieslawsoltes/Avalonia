@@ -167,7 +167,7 @@ namespace ControlCatalog.Desktop
                 })
                 .With(new CompositionOptions()
                 {
-                    UseRegionDirtyRectClipping = true
+                    UseRegionDirtyRectClipping = false
                 })
                 .UseRenderingSubsystem(() => Avalonia.ProGpu.SkiaPlatform.Initialize(), "Skia")
                 .WithInterFont()
