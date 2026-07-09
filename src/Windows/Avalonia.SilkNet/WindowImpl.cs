@@ -30,6 +30,7 @@ namespace Avalonia.SilkNet
         private bool _isShown;
         private WindowBorder? _restoredBorder;
         private bool _paintQueued;
+        private char? _pendingHighSurrogate;
 
         public WindowImpl()
         {
@@ -51,6 +52,7 @@ namespace Avalonia.SilkNet
             _silkWindow.Resize += OnResize;
             _silkWindow.Move += OnMove;
             _silkWindow.Closing += OnClosing;
+            _silkWindow.FocusChanged += OnFocusChanged;
 
             _framebuffer = new SilkNetFramebufferManager(_silkWindow);
             
@@ -129,16 +131,29 @@ namespace Avalonia.SilkNet
             SilkNetPlatform.Instance.UnregisterWindow(this);
         }
 
+        private void OnFocusChanged(bool focused)
+        {
+            if (focused)
+            {
+                Activated?.Invoke();
+            }
+            else
+            {
+                Deactivated?.Invoke();
+                LostFocus?.Invoke();
+            }
+        }
+
         private void OnMouseMove(IMouse mouse, System.Numerics.Vector2 pos)
         {
             var p = new Point(pos.X, pos.Y);
             var args = new RawPointerEventArgs(
                 _mouseDevice,
-                (ulong)DateTime.Now.Ticks,
+                GetTimestamp(),
                 Owner,
                 RawPointerEventType.Move,
                 p,
-                RawInputModifiers.None
+                SilkNetInputMappings.GetPointerModifiers(_inputContext, mouse)
             );
             Input?.Invoke(args);
         }
@@ -151,15 +166,18 @@ namespace Avalonia.SilkNet
                 Silk.NET.Input.MouseButton.Left => RawPointerEventType.LeftButtonDown,
                 Silk.NET.Input.MouseButton.Right => RawPointerEventType.RightButtonDown,
                 Silk.NET.Input.MouseButton.Middle => RawPointerEventType.MiddleButtonDown,
-                _ => RawPointerEventType.LeftButtonDown
+                Silk.NET.Input.MouseButton.Button4 => RawPointerEventType.XButton1Down,
+                Silk.NET.Input.MouseButton.Button5 => RawPointerEventType.XButton2Down,
+                _ => (RawPointerEventType?)null
             };
+            if (type == null) return;
             var args = new RawPointerEventArgs(
                 _mouseDevice,
-                (ulong)DateTime.Now.Ticks,
+                GetTimestamp(),
                 Owner,
-                type,
+                type.Value,
                 p,
-                RawInputModifiers.None
+                SilkNetInputMappings.GetPointerModifiers(_inputContext, mouse, button, eventButtonIsDown: true)
             );
             Input?.Invoke(args);
         }
@@ -172,15 +190,18 @@ namespace Avalonia.SilkNet
                 Silk.NET.Input.MouseButton.Left => RawPointerEventType.LeftButtonUp,
                 Silk.NET.Input.MouseButton.Right => RawPointerEventType.RightButtonUp,
                 Silk.NET.Input.MouseButton.Middle => RawPointerEventType.MiddleButtonUp,
-                _ => RawPointerEventType.LeftButtonUp
+                Silk.NET.Input.MouseButton.Button4 => RawPointerEventType.XButton1Up,
+                Silk.NET.Input.MouseButton.Button5 => RawPointerEventType.XButton2Up,
+                _ => (RawPointerEventType?)null
             };
+            if (type == null) return;
             var args = new RawPointerEventArgs(
                 _mouseDevice,
-                (ulong)DateTime.Now.Ticks,
+                GetTimestamp(),
                 Owner,
-                type,
+                type.Value,
                 p,
-                RawInputModifiers.None
+                SilkNetInputMappings.GetPointerModifiers(_inputContext, mouse, button)
             );
             Input?.Invoke(args);
         }
@@ -191,26 +212,26 @@ namespace Avalonia.SilkNet
             var p = new Point(pos.X, pos.Y);
             var args = new RawMouseWheelEventArgs(
                 _mouseDevice,
-                (ulong)DateTime.Now.Ticks,
+                GetTimestamp(),
                 Owner,
                 p,
                 new Avalonia.Vector(scroll.X, scroll.Y),
-                RawInputModifiers.None
+                SilkNetInputMappings.GetPointerModifiers(_inputContext, mouse)
             );
             Input?.Invoke(args);
         }
 
         private void OnKeyDown(IKeyboard keyboard, Silk.NET.Input.Key key, int keyCode)
         {
-            var avKey = MapKey(key);
+            var mapping = SilkNetInputMappings.MapKey(key);
             var args = new RawKeyEventArgs(
                 SilkNetKeyboardDevice.Instance,
-                (ulong)DateTime.Now.Ticks,
+                GetTimestamp(),
                 Owner,
                 RawKeyEventType.KeyDown,
-                avKey,
-                RawInputModifiers.None,
-                PhysicalKey.None,
+                mapping.Key,
+                SilkNetInputMappings.GetKeyboardModifiers(keyboard, key, eventKeyIsDown: true),
+                mapping.PhysicalKey,
                 null
             );
             Input?.Invoke(args);
@@ -218,15 +239,15 @@ namespace Avalonia.SilkNet
 
         private void OnKeyUp(IKeyboard keyboard, Silk.NET.Input.Key key, int keyCode)
         {
-            var avKey = MapKey(key);
+            var mapping = SilkNetInputMappings.MapKey(key);
             var args = new RawKeyEventArgs(
                 SilkNetKeyboardDevice.Instance,
-                (ulong)DateTime.Now.Ticks,
+                GetTimestamp(),
                 Owner,
                 RawKeyEventType.KeyUp,
-                avKey,
-                RawInputModifiers.None,
-                PhysicalKey.None,
+                mapping.Key,
+                SilkNetInputMappings.GetKeyboardModifiers(keyboard),
+                mapping.PhysicalKey,
                 null
             );
             Input?.Invoke(args);
@@ -234,66 +255,51 @@ namespace Avalonia.SilkNet
 
         private void OnKeyChar(IKeyboard keyboard, char character)
         {
+            if (char.IsHighSurrogate(character))
+            {
+                FlushPendingHighSurrogate();
+                _pendingHighSurrogate = character;
+                return;
+            }
+
+            string text;
+            if (char.IsLowSurrogate(character) && _pendingHighSurrogate.HasValue)
+            {
+                text = string.Concat(_pendingHighSurrogate.Value, character);
+                _pendingHighSurrogate = null;
+            }
+            else
+            {
+                FlushPendingHighSurrogate();
+                text = character.ToString();
+            }
+
+            RaiseTextInput(text);
+        }
+
+        private void FlushPendingHighSurrogate()
+        {
+            if (_pendingHighSurrogate is not { } highSurrogate)
+            {
+                return;
+            }
+
+            _pendingHighSurrogate = null;
+            RaiseTextInput(highSurrogate.ToString());
+        }
+
+        private void RaiseTextInput(string text)
+        {
             var args = new RawTextInputEventArgs(
                 SilkNetKeyboardDevice.Instance,
-                (ulong)DateTime.Now.Ticks,
+                GetTimestamp(),
                 Owner,
-                character.ToString()
+                text
             );
             Input?.Invoke(args);
         }
 
-        private Avalonia.Input.Key MapKey(Silk.NET.Input.Key key)
-        {
-            return key switch {
-                Silk.NET.Input.Key.A => Avalonia.Input.Key.A,
-                Silk.NET.Input.Key.B => Avalonia.Input.Key.B,
-                Silk.NET.Input.Key.C => Avalonia.Input.Key.C,
-                Silk.NET.Input.Key.D => Avalonia.Input.Key.D,
-                Silk.NET.Input.Key.E => Avalonia.Input.Key.E,
-                Silk.NET.Input.Key.F => Avalonia.Input.Key.F,
-                Silk.NET.Input.Key.G => Avalonia.Input.Key.G,
-                Silk.NET.Input.Key.H => Avalonia.Input.Key.H,
-                Silk.NET.Input.Key.I => Avalonia.Input.Key.I,
-                Silk.NET.Input.Key.J => Avalonia.Input.Key.J,
-                Silk.NET.Input.Key.K => Avalonia.Input.Key.K,
-                Silk.NET.Input.Key.L => Avalonia.Input.Key.L,
-                Silk.NET.Input.Key.M => Avalonia.Input.Key.M,
-                Silk.NET.Input.Key.N => Avalonia.Input.Key.N,
-                Silk.NET.Input.Key.O => Avalonia.Input.Key.O,
-                Silk.NET.Input.Key.P => Avalonia.Input.Key.P,
-                Silk.NET.Input.Key.Q => Avalonia.Input.Key.Q,
-                Silk.NET.Input.Key.R => Avalonia.Input.Key.R,
-                Silk.NET.Input.Key.S => Avalonia.Input.Key.S,
-                Silk.NET.Input.Key.T => Avalonia.Input.Key.T,
-                Silk.NET.Input.Key.U => Avalonia.Input.Key.U,
-                Silk.NET.Input.Key.V => Avalonia.Input.Key.V,
-                Silk.NET.Input.Key.W => Avalonia.Input.Key.W,
-                Silk.NET.Input.Key.X => Avalonia.Input.Key.X,
-                Silk.NET.Input.Key.Y => Avalonia.Input.Key.Y,
-                Silk.NET.Input.Key.Z => Avalonia.Input.Key.Z,
-                Silk.NET.Input.Key.Number0 => Avalonia.Input.Key.D0,
-                Silk.NET.Input.Key.Number1 => Avalonia.Input.Key.D1,
-                Silk.NET.Input.Key.Number2 => Avalonia.Input.Key.D2,
-                Silk.NET.Input.Key.Number3 => Avalonia.Input.Key.D3,
-                Silk.NET.Input.Key.Number4 => Avalonia.Input.Key.D4,
-                Silk.NET.Input.Key.Number5 => Avalonia.Input.Key.D5,
-                Silk.NET.Input.Key.Number6 => Avalonia.Input.Key.D6,
-                Silk.NET.Input.Key.Number7 => Avalonia.Input.Key.D7,
-                Silk.NET.Input.Key.Number8 => Avalonia.Input.Key.D8,
-                Silk.NET.Input.Key.Number9 => Avalonia.Input.Key.D9,
-                Silk.NET.Input.Key.Enter => Avalonia.Input.Key.Enter,
-                Silk.NET.Input.Key.Escape => Avalonia.Input.Key.Escape,
-                Silk.NET.Input.Key.Backspace => Avalonia.Input.Key.Back,
-                Silk.NET.Input.Key.Tab => Avalonia.Input.Key.Tab,
-                Silk.NET.Input.Key.Space => Avalonia.Input.Key.Space,
-                Silk.NET.Input.Key.Left => Avalonia.Input.Key.Left,
-                Silk.NET.Input.Key.Up => Avalonia.Input.Key.Up,
-                Silk.NET.Input.Key.Right => Avalonia.Input.Key.Right,
-                Silk.NET.Input.Key.Down => Avalonia.Input.Key.Down,
-                _ => Avalonia.Input.Key.None
-            };
-        }
+        private static ulong GetTimestamp() => unchecked((ulong)Environment.TickCount64);
 
         public Size ClientSize => _clientSize;
         public Size? FrameSize => _clientSize;
@@ -379,7 +385,6 @@ namespace Avalonia.SilkNet
             {
                 _silkWindow.Focus();
             }
-            Activated?.Invoke();
         }
 
         public void Show(bool activate, bool isDialog)
@@ -548,6 +553,7 @@ namespace Avalonia.SilkNet
                 _silkWindow.Resize -= OnResize;
                 _silkWindow.Move -= OnMove;
                 _silkWindow.Closing -= OnClosing;
+                _silkWindow.FocusChanged -= OnFocusChanged;
             }
             catch {}
             
@@ -753,7 +759,7 @@ namespace Avalonia.SilkNet
 
     internal sealed class SilkNetKeyboardDevice : KeyboardDevice
     {
-        public static SilkNetKeyboardDevice Instance { get; } = new();
+        public new static SilkNetKeyboardDevice Instance { get; } = new();
         private SilkNetKeyboardDevice() {}
     }
 }

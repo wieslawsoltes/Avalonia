@@ -18,4 +18,7 @@
   <PropertyGroup Label="Warnings">
     <NoWarn>$(NoWarn);CA1416</NoWarn>
   </PropertyGroup>
+  <ItemGroup Label="InternalsVisibleTo">
+    <InternalsVisibleTo Include="Avalonia.IntegrationTests.SilkNet, PublicKey=$(AvaloniaPublicKey)" />
+  </ItemGroup>
 </Project>

@@ -40,7 +40,7 @@ namespace Avalonia.SilkNet
                 .Bind<IWindowingPlatform>().ToConstant(s_instance)
                 .Bind<IPlatformIconLoader>().ToConstant(s_instance)
                 .Bind<ICursorFactory>().ToConstant(new SilkNetCursorFactory())
-                .Bind<IKeyboardDevice>().ToConstant(new KeyboardDevice())
+                .Bind<IKeyboardDevice>().ToConstant(SilkNetKeyboardDevice.Instance)
                 .Bind<IPlatformSettings>().ToConstant(new SilkNetPlatformSettings())
                 .Bind<IClipboardImpl>().ToConstant(clipboardImpl)
                 .Bind<IClipboard>().ToConstant(clipboard)
