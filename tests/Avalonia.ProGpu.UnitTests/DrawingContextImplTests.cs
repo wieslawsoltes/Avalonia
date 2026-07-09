@@ -1,5 +1,11 @@
+using System;
+using System.Linq;
+using System.Runtime.InteropServices;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Avalonia.Utilities;
+using ProGPU.Backend;
 using ProGPU.Scene;
 using Xunit;
 
@@ -77,6 +83,84 @@ namespace Avalonia.ProGpu.UnitTests
                     Assert.Equal(new ProGPU.Scene.Rect(10, 20, 20, 20), command.Rect);
                 },
                 command => Assert.Equal(RenderCommandType.PopClip, command.Type));
+        }
+
+        [Fact]
+        public void DrawRectangle_Records_Local_Rect_And_Full_Transform()
+        {
+            var target = CreateTarget();
+            var transform = Matrix.CreateRotation(Math.PI / 6) * Matrix.CreateTranslation(20, 30);
+            target.Transform = transform;
+
+            target.DrawRectangle(Brushes.Red, null, new RoundedRect(new Rect(1, 2, 30, 40)));
+
+            var command = Assert.Single(target.DrawingContext.Commands);
+            Assert.Equal(RenderCommandType.DrawRect, command.Type);
+            Assert.Equal(new ProGPU.Scene.Rect(1, 2, 30, 40), command.Rect);
+            Assert.Equal((float)transform.M11, command.Transform.M11);
+            Assert.Equal((float)transform.M12, command.Transform.M12);
+            Assert.Equal((float)transform.M21, command.Transform.M21);
+            Assert.Equal((float)transform.M22, command.Transform.M22);
+            Assert.Equal((float)transform.M31, command.Transform.M41);
+            Assert.Equal((float)transform.M32, command.Transform.M42);
+        }
+
+        [Fact]
+        public void Rotated_Rectangle_Clip_Uses_All_Four_Corners()
+        {
+            var target = CreateTarget();
+            target.Transform = Matrix.CreateRotation(Math.PI / 2) * Matrix.CreateTranslation(20, 4);
+
+            target.PushClip(new Rect(0, 0, 12, 4));
+
+            var command = Assert.Single(target.DrawingContext.Commands);
+            Assert.Equal(RenderCommandType.PushClip, command.Type);
+            Assert.Equal(16, command.Rect.X, 3);
+            Assert.Equal(4, command.Rect.Y, 3);
+            Assert.Equal(4, command.Rect.Width, 3);
+            Assert.Equal(12, command.Rect.Height, 3);
+        }
+
+        [Fact]
+        public void ImageBrush_Records_Texture_Command_With_Premultiplied_Alpha()
+        {
+            var target = CreateTarget();
+            var data = Marshal.AllocHGlobal(16);
+            try
+            {
+                Marshal.Copy(new byte[]
+                {
+                    0, 0, 255, 255,
+                    0, 255, 0, 255,
+                    255, 0, 0, 255,
+                    0, 0, 0, 0
+                }, 0, data, 16);
+
+                var impl = new ImmutableBitmap(
+                    new PixelSize(2, 2),
+                    new Vector(96, 96),
+                    8,
+                    PixelFormats.Rgba8888,
+                    AlphaFormat.Premul,
+                    data);
+                using var bitmapRef = RefCountable.Create<IBitmapImpl>(impl);
+                using var bitmap = new Bitmap(bitmapRef);
+
+                target.DrawRectangle(
+                    new ImageBrush(bitmap),
+                    null,
+                    new RoundedRect(new Rect(10, 20, 40, 30)));
+
+                var command = Assert.Single(
+                    target.DrawingContext.Commands.Where(x => x.Type == RenderCommandType.DrawTexture));
+                Assert.Equal(new ProGPU.Scene.Rect(15, 20, 30, 30), command.Rect);
+                Assert.Equal(new ProGPU.Scene.Rect(0, 0, 2, 2), command.SrcRect);
+                Assert.Equal(GpuTextureAlphaMode.Premultiplied, command.Texture?.AlphaMode);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(data);
+            }
         }
 
         private static DrawingContextImpl CreateTarget()

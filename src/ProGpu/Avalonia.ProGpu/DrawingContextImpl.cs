@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using Avalonia.Media;
 using Avalonia.Platform;
+using Avalonia.Rendering.Utilities;
 using Silk.NET.WebGPU;
 using ProGPU.Backend;
 using ProGPU.Vector;
@@ -148,7 +149,21 @@ namespace Avalonia.ProGpu
                 }
                 if (drawable.Texture != null)
                 {
-                    DrawingContext.DrawTexture(drawable.Texture, ToProGpuRect(destRect));
+                    if (!NearlyEqual(opacity, 1.0))
+                    {
+                        DrawingContext.PushOpacity((float)opacity);
+                    }
+
+                    DrawingContext.DrawTexture(
+                        drawable.Texture,
+                        ToLocalProGpuRect(destRect),
+                        ToLocalProGpuRect(sourceRect),
+                        ToMatrix4x4(RenderTransform));
+
+                    if (!NearlyEqual(opacity, 1.0))
+                    {
+                        DrawingContext.PopOpacity();
+                    }
                 }
             }
         }
@@ -171,8 +186,19 @@ namespace Avalonia.ProGpu
         {
             if (geometry is GeometryImpl geomImpl)
             {
-                var pBrush = ConvertBrush(brush);
-                var pPen = ConvertPen(pen);
+                var bounds = geomImpl.Bounds;
+                var pPen = ConvertPen(pen, bounds);
+                if (TryDrawSceneBrush(brush, bounds, geomImpl.Path) ||
+                    TryDrawImageBrush(brush, bounds, geomImpl.Path))
+                {
+                    if (pPen != null)
+                    {
+                        DrawingContext.DrawPath(null, pPen, geomImpl.Path, ToMatrix4x4(RenderTransform));
+                    }
+                    return;
+                }
+
+                var pBrush = ConvertBrush(brush, bounds);
                 DrawingContext.DrawPath(pBrush, pPen, geomImpl.Path, ToMatrix4x4(RenderTransform));
             }
         }
@@ -180,25 +206,53 @@ namespace Avalonia.ProGpu
         public void DrawRectangle(IExperimentalAcrylicMaterial? material, RoundedRect rect)
         {
             var pBrush = new ProGPU.Vector.SolidColorBrush(new Vector4(0.5f, 0.5f, 0.5f, 0.5f));
-            var transform = RenderTransform;
-            float radius = (float)(rect.RadiiTopLeft.X * Math.Abs(transform.M11));
-            DrawingContext.DrawRoundedRectangle(pBrush, null, ToProGpuRect(rect.Rect), radius);
+            DrawingContext.DrawRoundedRectangle(
+                pBrush,
+                null,
+                ToLocalProGpuRect(rect.Rect),
+                (float)rect.RadiiTopLeft.X,
+                (float)rect.RadiiTopLeft.Y,
+                ToMatrix4x4(RenderTransform));
         }
 
         public void DrawRectangle(IBrush? brush, IPen? pen, RoundedRect rect, BoxShadows boxShadows = default)
         {
-            var pBrush = ConvertBrush(brush);
-            var pPen = ConvertPen(pen);
-            var proGpuRect = ToProGpuRect(rect.Rect);
+            var pPen = ConvertPen(pen, rect.Rect);
+            var localRect = ToLocalProGpuRect(rect.Rect);
+            var clipPath = rect.IsRounded
+                ? PrimitivePathGeometry.CreateRoundedRectangle(
+                    localRect.X,
+                    localRect.Y,
+                    localRect.Width,
+                    localRect.Height,
+                    (float)rect.RadiiTopLeft.X,
+                    (float)rect.RadiiTopLeft.Y)
+                : PrimitivePathGeometry.CreateRectangle(localRect.X, localRect.Y, localRect.Width, localRect.Height);
+            if (TryDrawSceneBrush(brush, rect.Rect, clipPath, useGeometryClip: false) ||
+                TryDrawImageBrush(brush, rect.Rect, clipPath))
+            {
+                if (pPen != null)
+                {
+                    DrawingContext.DrawPath(null, pPen, clipPath, ToMatrix4x4(RenderTransform));
+                }
+                return;
+            }
+
+            var pBrush = ConvertBrush(brush, rect.Rect);
+            var transform = ToMatrix4x4(RenderTransform);
             if (rect.IsRounded)
             {
-                var transform = RenderTransform;
-                float radius = (float)(rect.RadiiTopLeft.X * Math.Abs(transform.M11));
-                DrawingContext.DrawRoundedRectangle(pBrush, pPen, proGpuRect, radius);
+                DrawingContext.DrawRoundedRectangle(
+                    pBrush,
+                    pPen,
+                    localRect,
+                    (float)rect.RadiiTopLeft.X,
+                    (float)rect.RadiiTopLeft.Y,
+                    transform);
             }
             else
             {
-                DrawingContext.DrawRectangle(pBrush, pPen, proGpuRect);
+                DrawingContext.DrawRectangle(pBrush, pPen, localRect, transform);
             }
         }
 
@@ -222,45 +276,55 @@ namespace Avalonia.ProGpu
 
         public void DrawEllipse(IBrush? brush, IPen? pen, Avalonia.Rect rect)
         {
-            var pBrush = ConvertBrush(brush);
-            var pPen = ConvertPen(pen);
-            var center = TransformPoint(rect.Center);
-            var transform = RenderTransform;
-            float radiusX = (float)(rect.Width / 2.0 * transform.M11);
-            float radiusY = (float)(rect.Height / 2.0 * transform.M22);
-            DrawingContext.DrawEllipse(pBrush, pPen, center, radiusX, radiusY);
+            var center = new Vector2((float)rect.Center.X, (float)rect.Center.Y);
+            var radiusX = (float)(rect.Width / 2.0);
+            var radiusY = (float)(rect.Height / 2.0);
+            var clipPath = PrimitivePathGeometry.CreateEllipse(center, radiusX, radiusY);
+            var pPen = ConvertPen(pen, rect);
+            if (TryDrawSceneBrush(brush, rect, clipPath) ||
+                TryDrawImageBrush(brush, rect, clipPath))
+            {
+                if (pPen != null)
+                {
+                    DrawingContext.DrawPath(null, pPen, clipPath, ToMatrix4x4(RenderTransform));
+                }
+                return;
+            }
+
+            var pBrush = ConvertBrush(brush, rect);
+            DrawingContext.DrawEllipse(
+                pBrush,
+                pPen,
+                center,
+                radiusX,
+                radiusY,
+                ToMatrix4x4(RenderTransform));
         }
 
         public void DrawGlyphRun(IBrush? foreground, IGlyphRunImpl glyphRun)
         {
             if (glyphRun is GlyphRunImpl run)
             {
-                var pBrush = ConvertBrush(foreground);
+                var pBrush = ConvertBrush(foreground, run.Bounds);
                 if (pBrush == null) return;
 
-                double scale = run.FontRenderingEmSize / run.Typeface.Font.UnitsPerEm;
+                var scale = (float)(run.FontRenderingEmSize / run.Typeface.Font.UnitsPerEm);
+                var renderTransform = ToMatrix4x4(RenderTransform);
 
-                for (int i = 0; i < run.GlyphIndices.Length; i++)
+                for (var i = 0; i < run.GlyphIndices.Length; i++)
                 {
-                    ushort glyphIndex = run.GlyphIndices[i];
-                    var pos = run.GlyphPositions[i];
-                    var origin = run.BaselineOrigin + new Vector(pos.X, pos.Y);
-                    var renderTransform = RenderTransform;
-                    var screenOrigin = origin * renderTransform;
-                    double snappedOriginX = Math.Round(screenOrigin.X * 4.0) / 4.0;
-                    double snappedOriginY = Math.Round(screenOrigin.Y * 4.0) / 4.0;
-
-                    var outline = run.Typeface.Font.GetFlippedGlyphOutline(glyphIndex);
-                    if (outline != null)
+                    var outline = run.Typeface.Font.GetFlippedGlyphOutline(run.GlyphIndices[i]);
+                    if (outline == null)
                     {
-                        double scaleX = Math.Abs(renderTransform.M11) > 0.0001 ? renderTransform.M11 : 1.0;
-                        double scaleY = Math.Abs(renderTransform.M22) > 0.0001 ? renderTransform.M22 : 1.0;
-
-                        var finalMatrix = System.Numerics.Matrix4x4.CreateScale((float)(scale * scaleX), (float)(scale * scaleY), 1f) *
-                                          System.Numerics.Matrix4x4.CreateTranslation((float)snappedOriginX, (float)snappedOriginY, 0f);
-
-                        DrawingContext.DrawPath(pBrush, null, outline, finalMatrix);
+                        continue;
                     }
+
+                    var position = run.GlyphPositions[i];
+                    var origin = run.BaselineOrigin + new Vector(position.X, position.Y);
+                    var glyphTransform = Matrix4x4.CreateScale(scale, scale, 1f) *
+                                         Matrix4x4.CreateTranslation((float)origin.X, (float)origin.Y, 0f) *
+                                         renderTransform;
+                    DrawingContext.DrawPath(pBrush, null, outline, glyphTransform);
                 }
             }
         }
@@ -291,14 +355,12 @@ namespace Avalonia.ProGpu
 
         public void PushClip(Avalonia.Rect clip)
         {
-            var r = ToProGpuRect(clip);
-            DrawingContext.PushClip(r);
+            DrawingContext.PushClip(ToProGpuRect(clip));
             _clipStack.Push(ClipKind.Rectangle);
         }
         public void PushClip(RoundedRect clip)
         {
-            var r = ToProGpuRect(clip.Rect);
-            DrawingContext.PushClip(r);
+            DrawingContext.PushClip(ToProGpuRect(clip.Rect));
             _clipStack.Push(ClipKind.Rectangle);
         }
         public void PushClip(IPlatformRenderInterfaceRegion region)
@@ -326,8 +388,7 @@ namespace Avalonia.ProGpu
 
         public void PushLayer(Avalonia.Rect bounds)
         {
-            var r = ToProGpuRect(bounds);
-            DrawingContext.PushClip(r);
+            DrawingContext.PushClip(ToProGpuRect(bounds));
         }
         public void PopLayer()
         {
@@ -701,17 +762,252 @@ namespace Avalonia.ProGpu
 
         internal ProGPU.Scene.Rect ToProGpuRect(Avalonia.Rect r)
         {
-            var transform = RenderTransform;
-            var topLeft = r.TopLeft * transform;
-            var bottomRight = r.BottomRight * transform;
-            float x = (float)Math.Min(topLeft.X, bottomRight.X);
-            float y = (float)Math.Min(topLeft.Y, bottomRight.Y);
-            float w = (float)Math.Abs(bottomRight.X - topLeft.X);
-            float h = (float)Math.Abs(bottomRight.Y - topLeft.Y);
-            return new ProGPU.Scene.Rect(x, y, w, h);
+            var transformed = r.TransformToAABB(RenderTransform);
+            return ToLocalProGpuRect(transformed);
         }
 
-        private ProGPU.Vector.Brush? ConvertBrush(IBrush? avaloniaBrush)
+        private bool TryDrawSceneBrush(
+            IBrush? brush,
+            Avalonia.Rect targetRect,
+            ProGPU.Vector.PathGeometry clipPath,
+            bool useGeometryClip = true)
+        {
+            ISceneBrushContent? content = null;
+            var ownsContent = false;
+            if (brush is ISceneBrush sceneBrush)
+            {
+                content = sceneBrush.CreateContent();
+                ownsContent = true;
+            }
+            else if (brush is ISceneBrushContent sceneBrushContent)
+            {
+                content = sceneBrushContent;
+            }
+            else
+            {
+                return false;
+            }
+
+            try
+            {
+                if (content == null || content.Rect.Width <= 0 || content.Rect.Height <= 0 ||
+                    targetRect.Width <= 0 || targetRect.Height <= 0)
+                {
+                    return true;
+                }
+
+                var tileBrush = content.Brush;
+                var calculator = new TileBrushCalculator(tileBrush, content.Rect.Size, targetRect.Size);
+                var targetOffset = tileBrush.DestinationRect.Unit == RelativeUnit.Relative
+                    ? new Vector(targetRect.X, targetRect.Y)
+                    : default;
+
+                if (useGeometryClip)
+                {
+                    DrawingContext.PushGeometryClip(clipPath, ToMatrix4x4(RenderTransform));
+                }
+                else
+                {
+                    PushClip(targetRect);
+                }
+                if (!NearlyEqual(brush.Opacity, 1.0))
+                {
+                    DrawingContext.PushOpacity((float)brush.Opacity);
+                }
+
+                if (tileBrush.TileMode == TileMode.None)
+                {
+                    var viewport = calculator.IntermediateClip.Translate(targetOffset);
+                    PushClip(viewport);
+                    content.Render(
+                        this,
+                        calculator.IntermediateTransform * Matrix.CreateTranslation(targetOffset));
+                    PopClip();
+                }
+                else
+                {
+                    DrawSceneBrushTiles(content, calculator, targetRect, targetOffset);
+                }
+
+                if (!NearlyEqual(brush.Opacity, 1.0))
+                {
+                    DrawingContext.PopOpacity();
+                }
+                if (useGeometryClip)
+                {
+                    DrawingContext.PopGeometryClip();
+                }
+                else
+                {
+                    PopClip();
+                }
+                return true;
+            }
+            finally
+            {
+                if (ownsContent)
+                {
+                    content?.Dispose();
+                }
+            }
+        }
+
+        private void DrawSceneBrushTiles(
+            ISceneBrushContent content,
+            TileBrushCalculator calculator,
+            Avalonia.Rect targetRect,
+            Vector targetOffset)
+        {
+            var tileSize = calculator.DestinationRect.Size;
+            if (tileSize.Width <= 0 || tileSize.Height <= 0)
+            {
+                return;
+            }
+
+            var anchor = new Point(
+                calculator.DestinationRect.X + targetOffset.X,
+                calculator.DestinationRect.Y + targetOffset.Y);
+            var firstColumn = (int)Math.Floor((targetRect.Left - anchor.X) / tileSize.Width);
+            var lastColumn = (int)Math.Ceiling((targetRect.Right - anchor.X) / tileSize.Width);
+            var firstRow = (int)Math.Floor((targetRect.Top - anchor.Y) / tileSize.Height);
+            var lastRow = (int)Math.Ceiling((targetRect.Bottom - anchor.Y) / tileSize.Height);
+
+            for (var row = firstRow; row < lastRow; row++)
+            {
+                for (var column = firstColumn; column < lastColumn; column++)
+                {
+                    var tilePosition = new Point(
+                        anchor.X + column * tileSize.Width,
+                        anchor.Y + row * tileSize.Height);
+                    var viewport = new Avalonia.Rect(tilePosition, tileSize);
+                    var transform = calculator.IntermediateTransform *
+                                    Matrix.CreateTranslation((Vector)tilePosition);
+                    transform *= CreateTileFlipTransform(content.Brush.TileMode, row, column, viewport);
+
+                    PushClip(viewport);
+                    content.Render(this, transform);
+                    PopClip();
+                }
+            }
+        }
+
+        private static Matrix CreateTileFlipTransform(
+            TileMode tileMode,
+            int row,
+            int column,
+            Avalonia.Rect viewport)
+        {
+            var flipX = (tileMode == TileMode.FlipX || tileMode == TileMode.FlipXY) && (column & 1) != 0;
+            var flipY = (tileMode == TileMode.FlipY || tileMode == TileMode.FlipXY) && (row & 1) != 0;
+            if (!flipX && !flipY)
+            {
+                return Matrix.Identity;
+            }
+
+            var center = viewport.Center;
+            return Matrix.CreateTranslation(-(Vector)center) *
+                   Matrix.CreateScale(flipX ? -1 : 1, flipY ? -1 : 1) *
+                   Matrix.CreateTranslation((Vector)center);
+        }
+
+        private bool TryDrawImageBrush(
+            IBrush? brush,
+            Avalonia.Rect targetRect,
+            ProGPU.Vector.PathGeometry clipPath)
+        {
+            if (brush is not IImageBrush imageBrush)
+            {
+                return false;
+            }
+
+            if (imageBrush.Source?.Bitmap?.Item is not IDrawableBitmapImpl bitmap)
+            {
+                return true;
+            }
+
+            bitmap.UploadToGpu();
+            if (bitmap.Texture == null)
+            {
+                return true;
+            }
+
+            var imageSize = bitmap.PixelSize.ToSizeWithDpi(bitmap.Dpi);
+            if (imageSize.Width <= 0 || imageSize.Height <= 0 || targetRect.Width <= 0 || targetRect.Height <= 0)
+            {
+                return true;
+            }
+
+            var calculator = new TileBrushCalculator(imageBrush, imageSize, targetRect.Size);
+            var sourceRect = calculator.SourceRect;
+            if (sourceRect.Width <= 0 || sourceRect.Height <= 0)
+            {
+                return true;
+            }
+
+            var targetOffset = imageBrush.DestinationRect.Unit == RelativeUnit.Relative
+                ? targetRect.Position
+                : default;
+            var destinationRect = sourceRect.TransformToAABB(calculator.IntermediateTransform);
+            var viewport = calculator.IntermediateClip;
+            if (imageBrush.TileMode == TileMode.None)
+            {
+                destinationRect = destinationRect.Translate(targetOffset);
+                viewport = viewport.Translate(targetOffset);
+            }
+            else
+            {
+                var tileOffset = targetOffset + calculator.DestinationRect.Position;
+                destinationRect = destinationRect.Translate(tileOffset);
+                viewport = new Avalonia.Rect(tileOffset, calculator.DestinationRect.Size);
+            }
+
+            var sourceScaleX = bitmap.PixelSize.Width / imageSize.Width;
+            var sourceScaleY = bitmap.PixelSize.Height / imageSize.Height;
+            var textureSourceRect = new Avalonia.Rect(
+                sourceRect.X * sourceScaleX,
+                sourceRect.Y * sourceScaleY,
+                sourceRect.Width * sourceScaleX,
+                sourceRect.Height * sourceScaleY);
+
+            var brushTransform = Matrix.Identity;
+            if (brush.Transform != null)
+            {
+                var origin = brush.TransformOrigin.ToPixels(targetRect);
+                var offset = Matrix.CreateTranslation(origin);
+                brushTransform = (-offset) * brush.Transform.Value * offset;
+            }
+
+            var imageTransform = brushTransform * RenderTransform;
+            var viewportPath = PrimitivePathGeometry.CreateRectangle(
+                (float)viewport.X,
+                (float)viewport.Y,
+                (float)viewport.Width,
+                (float)viewport.Height);
+
+            DrawingContext.PushGeometryClip(clipPath, ToMatrix4x4(RenderTransform));
+            DrawingContext.PushGeometryClip(viewportPath, ToMatrix4x4(imageTransform));
+            if (!NearlyEqual(brush.Opacity, 1.0))
+            {
+                DrawingContext.PushOpacity((float)brush.Opacity);
+            }
+
+            DrawingContext.DrawTexture(
+                bitmap.Texture,
+                ToLocalProGpuRect(destinationRect),
+                ToLocalProGpuRect(textureSourceRect),
+                ToMatrix4x4(imageTransform),
+                ToTextureSamplingMode(RenderOptions.BitmapInterpolationMode));
+
+            if (!NearlyEqual(brush.Opacity, 1.0))
+            {
+                DrawingContext.PopOpacity();
+            }
+            DrawingContext.PopGeometryClip();
+            DrawingContext.PopGeometryClip();
+            return true;
+        }
+
+        private ProGPU.Vector.Brush? ConvertBrush(IBrush? avaloniaBrush, Avalonia.Rect? targetRect = null)
         {
             if (avaloniaBrush == null) return null;
             
@@ -725,8 +1021,9 @@ namespace Avalonia.ProGpu
             }
             else if (avaloniaBrush is ILinearGradientBrush linear)
             {
-                var start = TransformPoint(linear.StartPoint.Point);
-                var end = TransformPoint(linear.EndPoint.Point);
+                var bounds = targetRect ?? default;
+                var start = TransformPoint(linear.StartPoint.ToPixels(bounds));
+                var end = TransformPoint(linear.EndPoint.ToPixels(bounds));
                 var stops = new ProGPU.Vector.GradientStop[linear.GradientStops.Count];
                 for (int i = 0; i < stops.Length; i++)
                 {
@@ -737,12 +1034,23 @@ namespace Avalonia.ProGpu
                         (float)st.Offset
                     );
                 }
-                return new ProGPU.Vector.LinearGradientBrush(start, end, stops) { Opacity = opacity };
+                return new ProGPU.Vector.LinearGradientBrush(start, end, stops)
+                {
+                    Opacity = opacity,
+                    SpreadMethod = ToGradientSpreadMethod(linear.SpreadMethod)
+                };
             }
             else if (avaloniaBrush is IRadialGradientBrush radial)
             {
-                var center = TransformPoint(radial.Center.Point);
-                float radius = (float)radial.RadiusX.Scalar;
+                var bounds = targetRect ?? default;
+                var centerPoint = radial.Center.ToPixels(bounds);
+                var originPoint = radial.GradientOrigin.ToPixels(bounds);
+                var center = TransformPoint(centerPoint);
+                var origin = TransformPoint(originPoint);
+                var radiusXPoint = TransformPoint(centerPoint + new Vector(radial.RadiusX.ToValue(bounds.Width), 0));
+                var radiusYPoint = TransformPoint(centerPoint + new Vector(0, radial.RadiusY.ToValue(bounds.Height)));
+                var radiusX = Vector2.Distance(center, radiusXPoint);
+                var radiusY = Vector2.Distance(center, radiusYPoint);
                 var stops = new ProGPU.Vector.GradientStop[radial.GradientStops.Count];
                 for (int i = 0; i < stops.Length; i++)
                 {
@@ -753,18 +1061,46 @@ namespace Avalonia.ProGpu
                         (float)st.Offset
                     );
                 }
-                return new ProGPU.Vector.RadialGradientBrush(center, radius, stops) { Opacity = opacity };
+                return new ProGPU.Vector.RadialGradientBrush(center, origin, radiusX, radiusY, stops)
+                {
+                    Opacity = opacity,
+                    SpreadMethod = ToGradientSpreadMethod(radial.SpreadMethod)
+                };
             }
-            
-            return new ProGPU.Vector.SolidColorBrush(Vector4.One) { Opacity = opacity };
+
+            return null;
         }
 
-        private ProGPU.Vector.Pen? ConvertPen(IPen? avaloniaPen)
+        private ProGPU.Vector.Pen? ConvertPen(IPen? avaloniaPen, Avalonia.Rect? targetRect = null)
         {
             if (avaloniaPen == null) return null;
-            var brush = ConvertBrush(avaloniaPen.Brush);
+            var brush = ConvertBrush(avaloniaPen.Brush, targetRect);
             if (brush == null) return null;
             return new ProGPU.Vector.Pen(brush, (float)avaloniaPen.Thickness);
+        }
+
+        private static ProGPU.Scene.Rect ToLocalProGpuRect(Avalonia.Rect rect)
+        {
+            return new ProGPU.Scene.Rect((float)rect.X, (float)rect.Y, (float)rect.Width, (float)rect.Height);
+        }
+
+        private static ProGPU.Vector.GradientSpreadMethod ToGradientSpreadMethod(
+            Avalonia.Media.GradientSpreadMethod spreadMethod)
+        {
+            return spreadMethod switch
+            {
+                Avalonia.Media.GradientSpreadMethod.Reflect => ProGPU.Vector.GradientSpreadMethod.Reflect,
+                Avalonia.Media.GradientSpreadMethod.Repeat => ProGPU.Vector.GradientSpreadMethod.Repeat,
+                _ => ProGPU.Vector.GradientSpreadMethod.Pad
+            };
+        }
+
+        private static TextureSamplingMode ToTextureSamplingMode(
+            Avalonia.Media.Imaging.BitmapInterpolationMode interpolationMode)
+        {
+            return interpolationMode == Avalonia.Media.Imaging.BitmapInterpolationMode.None
+                ? TextureSamplingMode.Nearest
+                : TextureSamplingMode.Linear;
         }
 
         private static System.Numerics.Matrix4x4 ToMatrix4x4(Avalonia.Matrix m)
