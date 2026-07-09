@@ -195,6 +195,18 @@ namespace ControlCatalog
                 };
             }
 
+            if (App.InitialPage is { Length: > 0 } initialPage)
+            {
+                for (var i = 0; i < ViewModel.Pages.Count; i++)
+                {
+                    if (string.Equals(ViewModel.Pages[i].Header, initialPage, StringComparison.OrdinalIgnoreCase))
+                    {
+                        ViewModel.SelectedPageIndex = i;
+                        return;
+                    }
+                }
+            }
+
             ViewModel.SelectedPageIndex = 0;
             Task.Run(async () =>
             {

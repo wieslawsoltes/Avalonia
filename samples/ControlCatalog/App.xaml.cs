@@ -14,6 +14,8 @@ namespace ControlCatalog
 {
     public class App : Application
     {
+        public static string? InitialPage { get; set; }
+
         private readonly Styles _themeStylesContainer = new();
         private FluentTheme? _fluentTheme;
         private SimpleTheme? _simpleTheme;

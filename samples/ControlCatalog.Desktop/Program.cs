@@ -24,6 +24,12 @@ namespace ControlCatalog.Desktop
         [STAThread]
         static int Main(string[] args)
         {
+            var pageArgumentIndex = Array.IndexOf(args, "--page");
+            if (pageArgumentIndex >= 0 && pageArgumentIndex + 1 < args.Length)
+            {
+                App.InitialPage = args[pageArgumentIndex + 1];
+            }
+
             if (args.Contains("--wait-for-attach"))
             {
                 Console.WriteLine("Attach debugger and use 'Set next statement'");
