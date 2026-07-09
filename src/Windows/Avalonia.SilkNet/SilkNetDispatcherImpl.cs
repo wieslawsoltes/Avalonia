@@ -7,22 +7,35 @@ namespace Avalonia.SilkNet
 {
     internal class SilkNetDispatcherImpl : IControlledDispatcherImpl
     {
-        private static Thread? s_uiThread;
+        private const int EventPollIntervalMs = 10;
+        private readonly Thread _uiThread;
+        private readonly Action _eventPump;
         private readonly Stopwatch _clock = Stopwatch.StartNew();
         private readonly AutoResetEvent _event = new(false);
+        private readonly object _stateLock = new();
+        private bool _isSignaled;
+        private long? _dueTimeInMs;
 
         public SilkNetDispatcherImpl()
+            : this(SilkNetPlatform.Instance.DoEvents)
         {
-            s_uiThread = Thread.CurrentThread;
         }
 
-        public bool CurrentThreadIsLoopThread => s_uiThread == Thread.CurrentThread;
+        internal SilkNetDispatcherImpl(Action eventPump)
+        {
+            _uiThread = Thread.CurrentThread;
+            _eventPump = eventPump;
+        }
 
-        private volatile bool _isSignaled;
+        public bool CurrentThreadIsLoopThread => _uiThread == Thread.CurrentThread;
 
         public void Signal()
         {
-            _isSignaled = true;
+            lock (_stateLock)
+            {
+                _isSignaled = true;
+            }
+
             _event.Set();
         }
 
@@ -31,11 +44,14 @@ namespace Avalonia.SilkNet
 
         public void FireTimer() => Timer?.Invoke();
 
-        private long? _dueTimeInMs;
-
         public void UpdateTimer(long? dueTimeInMs)
         {
-            _dueTimeInMs = dueTimeInMs;
+            lock (_stateLock)
+            {
+                _dueTimeInMs = dueTimeInMs;
+            }
+
+            _event.Set();
         }
 
         public bool CanQueryPendingInput => false;
@@ -43,31 +59,56 @@ namespace Avalonia.SilkNet
 
         public void RunLoop(CancellationToken cancellationToken)
         {
+            using var cancellationRegistration = cancellationToken.Register(() => _event.Set());
+
             while (!cancellationToken.IsCancellationRequested)
             {
-                // Process input and window events
-                SilkNetPlatform.Instance.DoEvents();
+                _eventPump();
 
-                // Fire timer if due
-                if (_dueTimeInMs.HasValue && Now >= _dueTimeInMs.Value)
+                bool isSignaled;
+                lock (_stateLock)
                 {
-                    _dueTimeInMs = null;
-                    FireTimer();
+                    isSignaled = _isSignaled;
+                    _isSignaled = false;
                 }
 
-                // Process pending dispatcher jobs
-                if (_isSignaled)
+                if (isSignaled)
                 {
-                    _isSignaled = false;
-                    bool hasSignaledSubscribers = Signaled != null;
-                    if (hasSignaledSubscribers)
+                    Signaled?.Invoke();
+                    continue;
+                }
+
+                bool fireTimer;
+                lock (_stateLock)
+                {
+                    fireTimer = _dueTimeInMs is { } dueTime && Now >= dueTime;
+                    if (fireTimer)
                     {
-                        Signaled!.Invoke();
+                        _dueTimeInMs = null;
                     }
                 }
 
-                // Sleep to avoid CPU pegging
-                _event.WaitOne(1);
+                if (fireTimer)
+                {
+                    FireTimer();
+                    continue;
+                }
+
+                _event.WaitOne(GetWaitDuration());
+            }
+        }
+
+        private TimeSpan GetWaitDuration()
+        {
+            lock (_stateLock)
+            {
+                if (_dueTimeInMs is not { } dueTime)
+                {
+                    return TimeSpan.FromMilliseconds(EventPollIntervalMs);
+                }
+
+                var milliseconds = Math.Clamp(dueTime - Now, 0, EventPollIntervalMs);
+                return TimeSpan.FromMilliseconds(milliseconds);
             }
         }
 
