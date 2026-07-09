@@ -3,7 +3,6 @@ using System.Numerics;
 using System.Collections.Generic;
 using Avalonia.Media;
 using Avalonia.Platform;
-using ProGPU.Vector;
 using PathGeometry = ProGPU.Vector.PathGeometry;
 using PathFigure = ProGPU.Vector.PathFigure;
 using LineSegment = ProGPU.Vector.LineSegment;
@@ -90,7 +89,7 @@ namespace Avalonia.ProGpu
                 }
             }
 
-            public void SetFillRule(FillRule fillRule)
+            public void SetFillRule(Avalonia.Media.FillRule fillRule)
             {
             }
 

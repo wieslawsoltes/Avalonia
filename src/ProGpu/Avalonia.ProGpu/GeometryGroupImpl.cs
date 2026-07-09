@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using Avalonia.Media;
 using Avalonia.Platform;
-using ProGPU.Vector;
 
 namespace Avalonia.ProGpu
 {
@@ -9,7 +7,7 @@ namespace Avalonia.ProGpu
     {
         public override ProGPU.Vector.PathGeometry Path { get; }
 
-        public GeometryGroupImpl(FillRule fillRule, IReadOnlyList<IGeometryImpl> children)
+        public GeometryGroupImpl(Avalonia.Media.FillRule fillRule, IReadOnlyList<IGeometryImpl> children)
         {
             var path = new ProGPU.Vector.PathGeometry();
             foreach (var child in children)

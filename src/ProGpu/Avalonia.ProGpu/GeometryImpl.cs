@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Numerics;
 using Avalonia.Media;
 using Avalonia.Platform;
-using ProGPU.Vector;
 using PathGeometry = ProGPU.Vector.PathGeometry;
 using PathSegment = ProGPU.Vector.PathSegment;
 using LineSegment = ProGPU.Vector.LineSegment;
@@ -27,7 +26,7 @@ namespace Avalonia.ProGpu
 
         public bool FillContains(Point point)
         {
-            return PathContains(Path, point, FillRule.EvenOdd);
+            return PathContains(Path, point, Avalonia.Media.FillRule.EvenOdd);
         }
 
         public bool StrokeContains(IPen? pen, Point point)
@@ -236,7 +235,7 @@ namespace Avalonia.ProGpu
             return list;
         }
 
-        public static bool PathContains(ProGPU.Vector.PathGeometry path, Point point, FillRule fillRule)
+        public static bool PathContains(ProGPU.Vector.PathGeometry path, Point point, Avalonia.Media.FillRule fillRule)
         {
             int windingNumber = 0;
             int crossCount = 0;
@@ -286,7 +285,7 @@ namespace Avalonia.ProGpu
                 }
             }
 
-            if (fillRule == FillRule.EvenOdd)
+            if (fillRule == Avalonia.Media.FillRule.EvenOdd)
             {
                 return (crossCount % 2) != 0;
             }
