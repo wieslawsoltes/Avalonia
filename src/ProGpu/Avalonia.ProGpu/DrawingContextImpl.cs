@@ -310,20 +310,75 @@ namespace Avalonia.ProGpu
 
                 var scale = (float)(run.FontRenderingEmSize / run.Typeface.Font.UnitsPerEm);
                 var renderTransform = ToMatrix4x4(RenderTransform);
+                var colorGlyphOpacity = foreground?.Opacity ?? 1.0;
+                if (foreground is ISolidColorBrush solidColorBrush)
+                {
+                    colorGlyphOpacity *= solidColorBrush.Color.A / 255.0;
+                }
 
                 for (var i = 0; i < run.GlyphIndices.Length; i++)
                 {
-                    var outline = run.Typeface.Font.GetFlippedGlyphOutline(run.GlyphIndices[i]);
+                    var glyphIndex = run.GlyphIndices[i];
+                    var position = run.GlyphPositions[i];
+                    var origin = run.BaselineOrigin + new Vector(position.X, position.Y);
+
+                    if (BitmapGlyphCache.TryGetTexture(
+                            run.Typeface.Font,
+                            glyphIndex,
+                            run.FontRenderingEmSize,
+                            out var bitmapGlyph))
+                    {
+                        var metrics = bitmapGlyph.Value.Metrics;
+                        var bounds = metrics.GetBounds(origin, run.FontRenderingEmSize);
+                        if (!NearlyEqual(colorGlyphOpacity, 1.0))
+                        {
+                            DrawingContext.PushOpacity((float)colorGlyphOpacity);
+                        }
+
+                        DrawingContext.DrawTexture(
+                            bitmapGlyph.Value.Texture,
+                            ToLocalProGpuRect(bounds),
+                            ToLocalProGpuRect(bitmapGlyph.Value.SourceRect),
+                            renderTransform);
+
+                        if (!NearlyEqual(colorGlyphOpacity, 1.0))
+                        {
+                            DrawingContext.PopOpacity();
+                        }
+                        continue;
+                    }
+
+                    var glyphTransform = Matrix4x4.CreateScale(scale, scale, 1f) *
+                                         Matrix4x4.CreateTranslation((float)origin.X, (float)origin.Y, 0f) *
+                                         renderTransform;
+                    var colorLayers = run.Typeface.Font.GetColorLayers(glyphIndex);
+                    if (colorLayers is { Count: > 0 })
+                    {
+                        foreach (var layer in colorLayers)
+                        {
+                            var layerOutline = run.Typeface.Font.GetFlippedGlyphOutline(layer.GlyphId);
+                            if (layerOutline == null)
+                            {
+                                continue;
+                            }
+
+                            var layerColor = layer.Color;
+                            layerColor.W *= (float)colorGlyphOpacity;
+                            DrawingContext.DrawPath(
+                                new ProGPU.Vector.SolidColorBrush(layerColor),
+                                null,
+                                layerOutline,
+                                glyphTransform);
+                        }
+                        continue;
+                    }
+
+                    var outline = run.Typeface.Font.GetFlippedGlyphOutline(glyphIndex);
                     if (outline == null)
                     {
                         continue;
                     }
 
-                    var position = run.GlyphPositions[i];
-                    var origin = run.BaselineOrigin + new Vector(position.X, position.Y);
-                    var glyphTransform = Matrix4x4.CreateScale(scale, scale, 1f) *
-                                         Matrix4x4.CreateTranslation((float)origin.X, (float)origin.Y, 0f) *
-                                         renderTransform;
                     DrawingContext.DrawPath(pBrush, null, outline, glyphTransform);
                 }
             }

@@ -62,19 +62,33 @@ namespace Avalonia.ProGpu
                 var advance = glyphInfos[i].GlyphAdvance;
                 var offset = glyphInfos[i].GlyphOffset;
 
-                var outline = Typeface.Font.GetGlyphOutline(glyphIndex);
-                if (outline != null)
+                if (BitmapGlyphCache.TryGetMetrics(
+                        Typeface.Font,
+                        glyphIndex,
+                        fontRenderingEmSize,
+                        out var bitmapMetrics))
                 {
-                    var gBounds = GeometryImpl.CalculateBounds(outline);
-                    if (gBounds != new Rect())
+                    var bitmapBounds = bitmapMetrics.GetBounds(
+                        new Point(currentX + offset.X, offset.Y),
+                        fontRenderingEmSize);
+                    runBounds = runBounds.Union(bitmapBounds);
+                }
+                else
+                {
+                    var outline = Typeface.Font.GetGlyphOutline(glyphIndex);
+                    if (outline != null)
                     {
-                        var scaledBounds = new Rect(
-                            currentX + offset.X + gBounds.Left * scale,
-                            offset.Y + gBounds.Top * scale,
-                            gBounds.Width * scale,
-                            gBounds.Height * scale
-                        );
-                        runBounds = runBounds.Union(scaledBounds);
+                        var gBounds = GeometryImpl.CalculateBounds(outline);
+                        if (gBounds != new Rect())
+                        {
+                            var scaledBounds = new Rect(
+                                currentX + offset.X + gBounds.Left * scale,
+                                offset.Y + gBounds.Top * scale,
+                                gBounds.Width * scale,
+                                gBounds.Height * scale
+                            );
+                            runBounds = runBounds.Union(scaledBounds);
+                        }
                     }
                 }
                 currentX += advance;
