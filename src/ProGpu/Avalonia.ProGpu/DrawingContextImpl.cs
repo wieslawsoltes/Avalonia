@@ -23,8 +23,15 @@ namespace Avalonia.ProGpu
         private double _currentOpacity = 1.0;
         private Vector4 _clearColor = new Vector4(1f, 1f, 1f, 1f);
         private readonly Stack<double> _opacityStack = new();
+        private readonly Stack<ClipKind> _clipStack = new();
         private readonly Stack<Avalonia.Media.RenderOptions> _renderOptionsStack = new();
         private readonly Stack<Avalonia.Media.TextOptions> _textOptionsStack = new();
+
+        private enum ClipKind
+        {
+            Rectangle,
+            Geometry
+        }
 
         public Avalonia.Media.RenderOptions RenderOptions { get; private set; }
         public Avalonia.Media.TextOptions TextOptions { get; private set; }
@@ -110,6 +117,7 @@ namespace Avalonia.ProGpu
             _currentTransform = Matrix.Identity;
             _currentOpacity = 1.0;
             _opacityStack.Clear();
+            _clipStack.Clear();
             _renderOptionsStack.Clear();
             _textOptionsStack.Clear();
             DrawingContext.Clear();
@@ -196,10 +204,20 @@ namespace Avalonia.ProGpu
 
         public void DrawRegion(IBrush? brush, IPen? pen, IPlatformRenderInterfaceRegion region)
         {
+            if (region.IsEmpty)
+                return;
+
             var pBrush = ConvertBrush(brush);
             var pPen = ConvertPen(pen);
-            var bounds = region.Bounds;
-            DrawingContext.DrawRectangle(pBrush, pPen, new ProGPU.Scene.Rect(bounds.Left, bounds.Top, bounds.Right - bounds.Left, bounds.Bottom - bounds.Top));
+            var rects = region.Rects;
+            if (rects.Count == 1)
+            {
+                DrawingContext.DrawRectangle(pBrush, pPen, ToProGpuRect(rects[0]));
+            }
+            else
+            {
+                DrawingContext.DrawPath(pBrush, pPen, CreateRegionGeometry(rects), Matrix4x4.Identity);
+            }
         }
 
         public void DrawEllipse(IBrush? brush, IPen? pen, Avalonia.Rect rect)
@@ -275,21 +293,35 @@ namespace Avalonia.ProGpu
         {
             var r = ToProGpuRect(clip);
             DrawingContext.PushClip(r);
+            _clipStack.Push(ClipKind.Rectangle);
         }
         public void PushClip(RoundedRect clip)
         {
             var r = ToProGpuRect(clip.Rect);
             DrawingContext.PushClip(r);
+            _clipStack.Push(ClipKind.Rectangle);
         }
         public void PushClip(IPlatformRenderInterfaceRegion region)
         {
-            var bounds = region.Bounds;
-            var r = new ProGPU.Scene.Rect(bounds.Left, bounds.Top, bounds.Right - bounds.Left, bounds.Bottom - bounds.Top);
-            DrawingContext.PushClip(r);
+            var rects = region.Rects;
+            if (rects.Count <= 1)
+            {
+                var rect = rects.Count == 0 ? default : rects[0];
+                DrawingContext.PushClip(ToProGpuRect(rect));
+                _clipStack.Push(ClipKind.Rectangle);
+            }
+            else
+            {
+                DrawingContext.PushGeometryClip(CreateRegionGeometry(rects));
+                _clipStack.Push(ClipKind.Geometry);
+            }
         }
         public void PopClip()
         {
-            DrawingContext.PopClip();
+            if (_clipStack.Count == 0 || _clipStack.Pop() == ClipKind.Rectangle)
+                DrawingContext.PopClip();
+            else
+                DrawingContext.PopGeometryClip();
         }
 
         public void PushLayer(Avalonia.Rect bounds)
@@ -642,6 +674,29 @@ namespace Avalonia.ProGpu
         {
             var p = pt * RenderTransform;
             return new Vector2((float)p.X, (float)p.Y);
+        }
+
+        private static ProGPU.Scene.Rect ToProGpuRect(LtrbPixelRect rect)
+        {
+            return new ProGPU.Scene.Rect(rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top);
+        }
+
+        private static ProGPU.Vector.PathGeometry CreateRegionGeometry(IList<LtrbPixelRect> rects)
+        {
+            var geometry = new ProGPU.Vector.PathGeometry { FillRule = ProGPU.Vector.FillRule.Nonzero };
+            foreach (var rect in rects)
+            {
+                if (rect.IsEmpty)
+                    continue;
+
+                var figure = new ProGPU.Vector.PathFigure(new Vector2(rect.Left, rect.Top), isClosed: true);
+                figure.Segments.Add(new ProGPU.Vector.LineSegment(new Vector2(rect.Right, rect.Top)));
+                figure.Segments.Add(new ProGPU.Vector.LineSegment(new Vector2(rect.Right, rect.Bottom)));
+                figure.Segments.Add(new ProGPU.Vector.LineSegment(new Vector2(rect.Left, rect.Bottom)));
+                geometry.Figures.Add(figure);
+            }
+
+            return geometry;
         }
 
         internal ProGPU.Scene.Rect ToProGpuRect(Avalonia.Rect r)

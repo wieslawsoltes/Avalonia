@@ -1,4 +1,5 @@
 using Avalonia.Media;
+using Avalonia.Platform;
 using ProGPU.Scene;
 using Xunit;
 
@@ -33,6 +34,49 @@ namespace Avalonia.ProGpu.UnitTests
             Assert.Equal(3f, command.Position.Y);
             Assert.Equal(6f, command.Position2.X);
             Assert.Equal(6f, command.Position2.Y);
+        }
+
+        [Fact]
+        public void Multi_Rect_Region_Uses_Geometry_Clip_With_Matching_Nested_Pops()
+        {
+            var target = CreateTarget();
+            var region = new SkiaRegionImpl();
+            region.AddRect(new LtrbPixelRect(10, 20, 30, 40));
+            region.AddRect(new LtrbPixelRect(50, 60, 80, 90));
+
+            target.PushClip(region);
+            target.PushClip(new Rect(1, 2, 3, 4));
+            target.PopClip();
+            target.PopClip();
+
+            Assert.Collection(target.DrawingContext.Commands,
+                command =>
+                {
+                    Assert.Equal(RenderCommandType.PushGeometryClip, command.Type);
+                    Assert.Equal(2, command.Path?.Figures.Count);
+                },
+                command => Assert.Equal(RenderCommandType.PushClip, command.Type),
+                command => Assert.Equal(RenderCommandType.PopClip, command.Type),
+                command => Assert.Equal(RenderCommandType.PopGeometryClip, command.Type));
+        }
+
+        [Fact]
+        public void Single_Rect_Region_Uses_Rectangle_Clip()
+        {
+            var target = CreateTarget();
+            var region = new SkiaRegionImpl();
+            region.AddRect(new LtrbPixelRect(10, 20, 30, 40));
+
+            target.PushClip(region);
+            target.PopClip();
+
+            Assert.Collection(target.DrawingContext.Commands,
+                command =>
+                {
+                    Assert.Equal(RenderCommandType.PushClip, command.Type);
+                    Assert.Equal(new ProGPU.Scene.Rect(10, 20, 20, 20), command.Rect);
+                },
+                command => Assert.Equal(RenderCommandType.PopClip, command.Type));
         }
 
         private static DrawingContextImpl CreateTarget()

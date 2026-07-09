@@ -120,6 +120,77 @@ public class DirectFbCompositionTests : TestBase
 
     }
 
+    [Fact]
+    void Should_Preserve_Untouched_Content_Between_Disjoint_Dirty_Rects()
+    {
+        var timer = new ManualRenderTimer();
+        var compositor = new Compositor(RenderLoop.FromTimer(timer), null, true,
+            new DispatcherCompositorScheduler(), true, Dispatcher.UIThread, new CompositionOptions
+            {
+                UseRegionDirtyRectClipping = true
+            });
+
+        Rectangle left, right;
+        var control = new Canvas
+        {
+            Width = 200,
+            Height = 120,
+            Background = Brushes.Yellow,
+            Children =
+            {
+                (left = new Rectangle
+                {
+                    Fill = Brushes.Black,
+                    Width = 40,
+                    Height = 40,
+                    [Canvas.LeftProperty] = 20,
+                    [Canvas.TopProperty] = 40,
+                }),
+                new Rectangle
+                {
+                    Fill = Brushes.Blue,
+                    Width = 40,
+                    Height = 40,
+                    [Canvas.LeftProperty] = 80,
+                    [Canvas.TopProperty] = 40,
+                },
+                (right = new Rectangle
+                {
+                    Fill = Brushes.Black,
+                    Width = 40,
+                    Height = 40,
+                    [Canvas.LeftProperty] = 140,
+                    [Canvas.TopProperty] = 40,
+                }),
+            }
+        };
+        var root = new TestRenderRoot(1, null!);
+        using var fb = new SKBitmap(200, 120, SKColorType.Rgba8888, SKAlphaType.Premul);
+
+        ILockedFramebuffer LockFb() => new LockedFramebuffer(fb.GetAddress(0, 0), new(fb.Width, fb.Height),
+            fb.RowBytes, new Vector(96, 96), PixelFormat.Rgba8888, AlphaFormat.Premul, null);
+
+        IFramebufferRenderTarget rt = new FuncFramebufferRenderTarget(LockFb);
+        using var renderer =
+            new CompositingRenderer(root, compositor, () => new[] { new FuncFramebufferSurface(() => rt) });
+        root.Initialize(renderer, control);
+        control.Measure(new Size(control.Width, control.Height));
+        control.Arrange(new Rect(control.DesiredSize));
+        renderer.Start();
+        Dispatcher.UIThread.RunJobs(null, TestContext.Current.CancellationToken);
+        timer.TriggerTick();
+
+        left.Fill = Brushes.Red;
+        right.Fill = Brushes.Green;
+        Dispatcher.UIThread.RunJobs(null, TestContext.Current.CancellationToken);
+        timer.TriggerTick();
+
+        var untouched = fb.GetPixel(100, 60);
+        Assert.True(
+            untouched.Blue > 200 && untouched.Red < 50 && untouched.Green < 50 && untouched.Alpha == 255,
+            $"Expected the untouched middle rectangle to remain blue, found {untouched}.");
+    }
+
     void SaveFile(SKBitmap bmp, string name)
     {
         Directory.CreateDirectory(OutputPath);
