@@ -16,16 +16,27 @@ namespace Avalonia.ProGpu
 
         public static CombinedGeometryImpl ForceCreate(GeometryCombineMode combineMode, IGeometryImpl g1, IGeometryImpl g2)
         {
-            var path = new ProGPU.Vector.PathGeometry();
-            if (g1 is GeometryImpl i1)
+            if (g1 is GeometryImpl i1 && g2 is GeometryImpl i2)
             {
-                foreach (var fig in i1.Path.Figures) path.Figures.Add(fig);
+                var operation = combineMode switch
+                {
+                    GeometryCombineMode.Intersect => 1,
+                    GeometryCombineMode.Union => 2,
+                    GeometryCombineMode.Xor => 3,
+                    GeometryCombineMode.Exclude => 0,
+                    _ => 2
+                };
+
+                return new CombinedGeometryImpl(new ProGPU.Vector.PathGeometry
+                {
+                    IsCombined = true,
+                    PathA = i1.Path,
+                    PathB = i2.Path,
+                    Op = operation
+                });
             }
-            if (g2 is GeometryImpl i2)
-            {
-                foreach (var fig in i2.Path.Figures) path.Figures.Add(fig);
-            }
-            return new CombinedGeometryImpl(path);
+
+            return new CombinedGeometryImpl(new ProGPU.Vector.PathGeometry());
         }
 
         public static CombinedGeometryImpl? TryCreate(GeometryCombineMode combineMode, GeometryImpl g1, GeometryImpl g2)

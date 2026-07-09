@@ -9,7 +9,12 @@ namespace Avalonia.ProGpu
 
         public GeometryGroupImpl(Avalonia.Media.FillRule fillRule, IReadOnlyList<IGeometryImpl> children)
         {
-            var path = new ProGPU.Vector.PathGeometry();
+            var path = new ProGPU.Vector.PathGeometry
+            {
+                FillRule = fillRule == Avalonia.Media.FillRule.EvenOdd
+                    ? ProGPU.Vector.FillRule.EvenOdd
+                    : ProGPU.Vector.FillRule.Nonzero
+            };
             foreach (var child in children)
             {
                 if (child is GeometryImpl geo)
