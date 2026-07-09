@@ -11,6 +11,7 @@
     <PackageReference Include="Silk.NET.Input" />
     <PackageReference Include="Silk.NET.WebGPU" />
     <PackageReference Include="Silk.NET.WebGPU.Native.WGPU" />
+    <PackageReference Include="SixLabors.ImageSharp" />
   </ItemGroup>
   <Import Project="..\..\..\build\NullableEnable.props" />
   <Import Project="..\..\..\build\DevAnalyzers.props" />

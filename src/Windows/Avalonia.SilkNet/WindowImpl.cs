@@ -31,6 +31,7 @@ namespace Avalonia.SilkNet
         private WindowBorder? _restoredBorder;
         private bool _paintQueued;
         private char? _pendingHighSurrogate;
+        private SilkNetCursorImpl? _cursor;
 
         public WindowImpl()
         {
@@ -97,6 +98,7 @@ namespace Avalonia.SilkNet
                 mouse.MouseDown += OnMouseDown;
                 mouse.MouseUp += OnMouseUp;
                 mouse.Scroll += OnMouseScroll;
+                ApplyCursor(mouse.Cursor, _cursor);
             }
         }
 
@@ -420,6 +422,49 @@ namespace Avalonia.SilkNet
 
         public void SetCursor(ICursorImpl? cursor)
         {
+            _cursor = cursor as SilkNetCursorImpl;
+
+            if (_inputContext is null)
+            {
+                return;
+            }
+
+            foreach (var mouse in _inputContext.Mice)
+            {
+                ApplyCursor(mouse.Cursor, _cursor);
+            }
+        }
+
+        internal static void ApplyCursor(Silk.NET.Input.ICursor cursor, SilkNetCursorImpl? requestedCursor)
+        {
+            requestedCursor ??= new SilkNetCursorImpl(StandardCursorType.Arrow);
+
+            var mode = requestedCursor.CursorMode;
+            cursor.CursorMode = cursor.IsSupported(mode) ? mode : CursorMode.Normal;
+            if (mode == CursorMode.Hidden)
+            {
+                return;
+            }
+
+            if (requestedCursor.CursorType == CursorType.Custom && requestedCursor.Image is { } image)
+            {
+                cursor.HotspotX = requestedCursor.HotSpot.X;
+                cursor.HotspotY = requestedCursor.HotSpot.Y;
+                cursor.Image = image;
+                cursor.Type = CursorType.Custom;
+                return;
+            }
+
+            var standardCursor = requestedCursor.StandardCursor;
+            if (!cursor.IsSupported(standardCursor))
+            {
+                standardCursor = cursor.IsSupported(StandardCursor.Arrow)
+                    ? StandardCursor.Arrow
+                    : StandardCursor.Default;
+            }
+
+            cursor.StandardCursor = standardCursor;
+            cursor.Type = CursorType.Standard;
         }
 
         public void SetIcon(IWindowIconImpl? icon)

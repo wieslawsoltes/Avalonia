@@ -157,12 +157,6 @@ namespace Avalonia.SilkNet
         }
     }
 
-    public class SilkNetCursorFactory : ICursorFactory
-    {
-        public ICursorImpl GetCursor(StandardCursorType cursorType) => null!;
-        public ICursorImpl CreateCursor(Avalonia.Media.Imaging.Bitmap cursor, PixelPoint hotSpot) => null!;
-    }
-
     public class SilkNetPlatformSettings : IPlatformSettings
     {
         public Size GetTapSize(PointerType type) => new Size(4, 4);
