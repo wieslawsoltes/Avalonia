@@ -18,17 +18,19 @@ namespace Avalonia.ProGpu
         private int _stride;
         private bool _isDisposed;
         private readonly PixelFormat _format;
+        private readonly AlphaFormat _alphaFormat;
 
         public GpuTexture? Texture { get; private set; }
         public PixelSize PixelSize { get; }
         public Vector Dpi { get; }
         public int Version { get; private set; } = 1;
         public PixelFormat? Format => _format;
-        public AlphaFormat? AlphaFormat => Platform.AlphaFormat.Premul;
+        public AlphaFormat? AlphaFormat => _alphaFormat;
 
         public WriteableBitmapImpl(Stream stream)
         {
             _format = PixelFormats.Rgba8888;
+            _alphaFormat = Platform.AlphaFormat.Unpremul;
             using var image = Image.Load<Rgba32>(stream);
             PixelSize = new PixelSize(image.Width, image.Height);
             Dpi = new Vector(96, 96);
@@ -46,6 +48,7 @@ namespace Avalonia.ProGpu
         public WriteableBitmapImpl(Stream stream, int decodeSize, bool horizontal, BitmapInterpolationMode interpolationMode)
         {
             _format = PixelFormats.Rgba8888;
+            _alphaFormat = Platform.AlphaFormat.Unpremul;
             using var image = Image.Load<Rgba32>(stream);
             double scale = horizontal ? (double)decodeSize / image.Width : (double)decodeSize / image.Height;
             int w = horizontal ? decodeSize : (int)(image.Width * scale);
@@ -68,6 +71,7 @@ namespace Avalonia.ProGpu
         public WriteableBitmapImpl(PixelSize size, Vector dpi, PixelFormat format, AlphaFormat alphaFormat)
         {
             _format = format;
+            _alphaFormat = alphaFormat;
             PixelSize = size;
             Dpi = dpi;
             _stride = size.Width * 4;
@@ -107,7 +111,10 @@ namespace Avalonia.ProGpu
                                 (uint)PixelSize.Height,
                                 wgpuFormat,
                                 Silk.NET.WebGPU.TextureUsage.TextureBinding | Silk.NET.WebGPU.TextureUsage.CopyDst,
-                                "WriteableBitmap"
+                                "WriteableBitmap",
+                                alphaMode: _alphaFormat == Platform.AlphaFormat.Premul
+                                    ? GpuTextureAlphaMode.Premultiplied
+                                    : GpuTextureAlphaMode.Straight
                             );
                         }
                         unsafe
@@ -185,7 +192,7 @@ namespace Avalonia.ProGpu
             public int RowBytes => _parent._stride;
             public Vector Dpi => _parent.Dpi;
             public PixelFormat Format => _parent._format;
-            public AlphaFormat AlphaFormat => AlphaFormat.Premul;
+            public AlphaFormat AlphaFormat => _parent._alphaFormat;
         }
     }
 }

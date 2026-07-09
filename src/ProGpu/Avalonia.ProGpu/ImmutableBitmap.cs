@@ -13,6 +13,7 @@ namespace Avalonia.ProGpu
     {
         private readonly Action? _customImageDispose = null;
         private readonly object _uploadLock = new();
+        private readonly GpuTextureAlphaMode _alphaMode;
         public GpuTexture? Texture { get; private set; }
         public Rgba32[] Pixels { get; }
         public PixelSize PixelSize { get; }
@@ -21,6 +22,7 @@ namespace Avalonia.ProGpu
 
         public ImmutableBitmap(Stream stream)
         {
+            _alphaMode = GpuTextureAlphaMode.Straight;
             try
             {
                 using var image = Image.Load<Rgba32>(stream);
@@ -40,6 +42,7 @@ namespace Avalonia.ProGpu
 
         public ImmutableBitmap(ImmutableBitmap src, PixelSize destinationSize, BitmapInterpolationMode interpolationMode)
         {
+            _alphaMode = src._alphaMode;
             using var image = Image.LoadPixelData<Rgba32>(src.Pixels, src.PixelSize.Width, src.PixelSize.Height);
             image.Mutate(x => x.Resize(destinationSize.Width, destinationSize.Height));
             PixelSize = destinationSize;
@@ -51,6 +54,7 @@ namespace Avalonia.ProGpu
 
         public ImmutableBitmap(Stream stream, int decodeSize, bool horizontal, BitmapInterpolationMode interpolationMode)
         {
+            _alphaMode = GpuTextureAlphaMode.Straight;
             try
             {
                 using var image = Image.Load<Rgba32>(stream);
@@ -74,6 +78,9 @@ namespace Avalonia.ProGpu
 
         public ImmutableBitmap(PixelSize size, Vector dpi, int stride, PixelFormat format, AlphaFormat alphaFormat, IntPtr data)
         {
+            _alphaMode = alphaFormat == AlphaFormat.Premul
+                ? GpuTextureAlphaMode.Premultiplied
+                : GpuTextureAlphaMode.Straight;
             PixelSize = size;
             Dpi = dpi;
             Pixels = new Rgba32[size.Width * size.Height];
@@ -125,7 +132,8 @@ namespace Avalonia.ProGpu
                             (uint)PixelSize.Height,
                             Silk.NET.WebGPU.TextureFormat.Rgba8Unorm,
                             Silk.NET.WebGPU.TextureUsage.TextureBinding | Silk.NET.WebGPU.TextureUsage.CopyDst,
-                            "ImmutableBitmap"
+                            "ImmutableBitmap",
+                            alphaMode: _alphaMode
                         );
                         Texture.WritePixels(new ReadOnlySpan<Rgba32>(Pixels));
                     }
