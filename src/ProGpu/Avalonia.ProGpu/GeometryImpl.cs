@@ -128,62 +128,9 @@ namespace Avalonia.ProGpu
 
         public static Avalonia.Rect CalculateBounds(ProGPU.Vector.PathGeometry path)
         {
-            if (path.Figures.Count == 0) return new Avalonia.Rect();
-
-            float minX = float.MaxValue;
-            float minY = float.MaxValue;
-            float maxX = float.MinValue;
-            float maxY = float.MinValue;
-            bool hasPoints = false;
-
-            foreach (var figure in path.Figures)
-            {
-                minX = Math.Min(minX, figure.StartPoint.X);
-                minY = Math.Min(minY, figure.StartPoint.Y);
-                maxX = Math.Max(maxX, figure.StartPoint.X);
-                maxY = Math.Max(maxY, figure.StartPoint.Y);
-                hasPoints = true;
-
-                foreach (var segment in figure.Segments)
-                {
-                    if (segment is LineSegment line)
-                    {
-                        minX = Math.Min(minX, line.Point.X);
-                        minY = Math.Min(minY, line.Point.Y);
-                        maxX = Math.Max(maxX, line.Point.X);
-                        maxY = Math.Max(maxY, line.Point.Y);
-                    }
-                    else if (segment is QuadraticBezierSegment quad)
-                    {
-                        minX = Math.Min(minX, quad.ControlPoint.X);
-                        minY = Math.Min(minY, quad.ControlPoint.Y);
-                        maxX = Math.Max(maxX, quad.ControlPoint.X);
-                        maxY = Math.Max(maxY, quad.ControlPoint.Y);
-                        minX = Math.Min(minX, quad.Point.X);
-                        minY = Math.Min(minY, quad.Point.Y);
-                        maxX = Math.Max(maxX, quad.Point.X);
-                        maxY = Math.Max(maxY, quad.Point.Y);
-                    }
-                    else if (segment is CubicBezierSegment cubic)
-                    {
-                        minX = Math.Min(minX, cubic.ControlPoint1.X);
-                        minY = Math.Min(minY, cubic.ControlPoint1.Y);
-                        maxX = Math.Max(maxX, cubic.ControlPoint1.X);
-                        maxY = Math.Max(maxY, cubic.ControlPoint1.Y);
-                        minX = Math.Min(minX, cubic.ControlPoint2.X);
-                        minY = Math.Min(minY, cubic.ControlPoint2.Y);
-                        maxX = Math.Max(maxX, cubic.ControlPoint2.X);
-                        maxY = Math.Max(maxY, cubic.ControlPoint2.Y);
-                        minX = Math.Min(minX, cubic.Point.X);
-                        minY = Math.Min(minY, cubic.Point.Y);
-                        maxX = Math.Max(maxX, cubic.Point.X);
-                        maxY = Math.Max(maxY, cubic.Point.Y);
-                    }
-                }
-            }
-
-            if (!hasPoints) return new Avalonia.Rect();
-            return new Avalonia.Rect(minX, minY, maxX - minX, maxY - minY);
+            return path.TryGetBounds(out var min, out var max)
+                ? new Avalonia.Rect(min.X, min.Y, max.X - min.X, max.Y - min.Y)
+                : default;
         }
 
         public static double CalculateLength(ProGPU.Vector.PathGeometry path)

@@ -1,7 +1,5 @@
-using System;
 using System.Numerics;
 using Avalonia.Platform;
-using ProGPU.Vector;
 
 namespace Avalonia.ProGpu
 {
@@ -17,46 +15,16 @@ namespace Avalonia.ProGpu
         {
             SourceGeometry = source;
             Transform = transform;
-
-            var transformedPath = new PathGeometry();
-            foreach (var figure in source.Path.Figures)
-            {
-                var transFigure = new PathFigure(TransformPoint(figure.StartPoint, transform), figure.IsClosed)
-                {
-                    IsFilled = figure.IsFilled
-                };
-                foreach (var segment in figure.Segments)
-                {
-                    if (segment is LineSegment line)
-                    {
-                        transFigure.Segments.Add(new LineSegment(TransformPoint(line.Point, transform)));
-                    }
-                    else if (segment is QuadraticBezierSegment quad)
-                    {
-                        transFigure.Segments.Add(new QuadraticBezierSegment(
-                            TransformPoint(quad.ControlPoint, transform),
-                            TransformPoint(quad.Point, transform)
-                        ));
-                    }
-                    else if (segment is CubicBezierSegment cubic)
-                    {
-                        transFigure.Segments.Add(new CubicBezierSegment(
-                            TransformPoint(cubic.ControlPoint1, transform),
-                            TransformPoint(cubic.ControlPoint2, transform),
-                            TransformPoint(cubic.Point, transform)
-                        ));
-                    }
-                }
-                transformedPath.Figures.Add(transFigure);
-            }
-
-            Path = transformedPath;
+            Path = source.Path.CreateTransformed(ToMatrix4x4(transform));
         }
 
-        private static Vector2 TransformPoint(Vector2 pt, Matrix m)
+        private static Matrix4x4 ToMatrix4x4(Matrix matrix)
         {
-            var p = new Point(pt.X, pt.Y) * m;
-            return new Vector2((float)p.X, (float)p.Y);
+            return new Matrix4x4(
+                (float)matrix.M11, (float)matrix.M12, 0f, 0f,
+                (float)matrix.M21, (float)matrix.M22, 0f, 0f,
+                0f, 0f, 1f, 0f,
+                (float)matrix.M31, (float)matrix.M32, 0f, 1f);
         }
     }
 }

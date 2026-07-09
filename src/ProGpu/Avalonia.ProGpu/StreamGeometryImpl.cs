@@ -8,6 +8,7 @@ using PathFigure = ProGPU.Vector.PathFigure;
 using LineSegment = ProGPU.Vector.LineSegment;
 using QuadraticBezierSegment = ProGPU.Vector.QuadraticBezierSegment;
 using CubicBezierSegment = ProGPU.Vector.CubicBezierSegment;
+using ArcSegment = ProGPU.Vector.ArcSegment;
 
 namespace Avalonia.ProGpu
 {
@@ -29,7 +30,10 @@ namespace Avalonia.ProGpu
 
         public IStreamGeometryImpl Clone()
         {
-            var clonedPath = new ProGPU.Vector.PathGeometry();
+            var clonedPath = new ProGPU.Vector.PathGeometry
+            {
+                FillRule = Path.FillRule
+            };
             foreach (var figure in Path.Figures)
             {
                 var clonedFigure = new ProGPU.Vector.PathFigure(figure.StartPoint, figure.IsClosed)
@@ -40,15 +44,35 @@ namespace Avalonia.ProGpu
                 {
                     if (segment is LineSegment line)
                     {
-                        clonedFigure.Segments.Add(new LineSegment(line.Point));
+                        clonedFigure.Segments.Add(new LineSegment(line.Point, line.IsSmoothJoin, line.IsStroked));
                     }
                     else if (segment is QuadraticBezierSegment quad)
                     {
-                        clonedFigure.Segments.Add(new QuadraticBezierSegment(quad.ControlPoint, quad.Point));
+                        clonedFigure.Segments.Add(new QuadraticBezierSegment(
+                            quad.ControlPoint,
+                            quad.Point,
+                            quad.IsSmoothJoin,
+                            quad.IsStroked));
                     }
                     else if (segment is CubicBezierSegment cubic)
                     {
-                        clonedFigure.Segments.Add(new CubicBezierSegment(cubic.ControlPoint1, cubic.ControlPoint2, cubic.Point));
+                        clonedFigure.Segments.Add(new CubicBezierSegment(
+                            cubic.ControlPoint1,
+                            cubic.ControlPoint2,
+                            cubic.Point,
+                            cubic.IsSmoothJoin,
+                            cubic.IsStroked));
+                    }
+                    else if (segment is ArcSegment arc)
+                    {
+                        clonedFigure.Segments.Add(new ArcSegment(
+                            arc.Point,
+                            arc.Size,
+                            arc.RotationAngle,
+                            arc.IsLargeArc,
+                            arc.SweepDirection,
+                            arc.IsSmoothJoin,
+                            arc.IsStroked));
                     }
                 }
                 clonedPath.Figures.Add(clonedFigure);
@@ -91,12 +115,17 @@ namespace Avalonia.ProGpu
 
             public void SetFillRule(Avalonia.Media.FillRule fillRule)
             {
+                _geometryImpl.Path.FillRule = fillRule == Avalonia.Media.FillRule.EvenOdd
+                    ? ProGPU.Vector.FillRule.EvenOdd
+                    : ProGPU.Vector.FillRule.Nonzero;
             }
 
             public void LineTo(Point point, bool isStroked = true)
             {
                 if (_currentFigure == null) return;
-                _currentFigure.Segments.Add(new LineSegment(new Vector2((float)point.X, (float)point.Y)));
+                _currentFigure.Segments.Add(new LineSegment(
+                    new Vector2((float)point.X, (float)point.Y),
+                    isStroked: isStroked));
             }
 
             private Point CurrentPoint
@@ -112,6 +141,7 @@ namespace Avalonia.ProGpu
                     if (lastSegment is LineSegment line) return new Point(line.Point.X, line.Point.Y);
                     if (lastSegment is QuadraticBezierSegment quad) return new Point(quad.Point.X, quad.Point.Y);
                     if (lastSegment is CubicBezierSegment cubic) return new Point(cubic.Point.X, cubic.Point.Y);
+                    if (lastSegment is ArcSegment arc) return new Point(arc.Point.X, arc.Point.Y);
                     return default;
                 }
             }
@@ -125,7 +155,13 @@ namespace Avalonia.ProGpu
                     ? ProGPU.Vector.SweepDirection.Clockwise 
                     : ProGPU.Vector.SweepDirection.Counterclockwise;
                 
-                _currentFigure.Segments.Add(new ProGPU.Vector.ArcSegment(endPoint, radii, (float)rotationAngle, isLargeArc, direction));
+                _currentFigure.Segments.Add(new ArcSegment(
+                    endPoint,
+                    radii,
+                    (float)rotationAngle,
+                    isLargeArc,
+                    direction,
+                    isStroked: isStroked));
             }
 
             public void CubicBezierTo(Point point1, Point point2, Point point3, bool isStroked = true)
@@ -134,7 +170,8 @@ namespace Avalonia.ProGpu
                 _currentFigure.Segments.Add(new CubicBezierSegment(
                     new Vector2((float)point1.X, (float)point1.Y),
                     new Vector2((float)point2.X, (float)point2.Y),
-                    new Vector2((float)point3.X, (float)point3.Y)
+                    new Vector2((float)point3.X, (float)point3.Y),
+                    isStroked: isStroked
                 ));
             }
 
@@ -143,7 +180,8 @@ namespace Avalonia.ProGpu
                 if (_currentFigure == null) return;
                 _currentFigure.Segments.Add(new QuadraticBezierSegment(
                     new Vector2((float)point1.X, (float)point1.Y),
-                    new Vector2((float)point2.X, (float)point2.Y)
+                    new Vector2((float)point2.X, (float)point2.Y),
+                    isStroked: isStroked
                 ));
             }
 
