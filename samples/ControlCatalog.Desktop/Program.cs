@@ -35,7 +35,9 @@ namespace ControlCatalog.Desktop
                 }
             }
 
-            var builder = BuildAvaloniaApp();
+            var builder = args.Contains("--skia")
+                ? BuildSkiaApp()
+                : BuildAvaloniaApp();
 
             double GetScaling()
             {
@@ -148,8 +150,19 @@ namespace ControlCatalog.Desktop
         /// This method is needed for IDE previewer infrastructure
         /// </summary>
         public static AppBuilder BuildAvaloniaApp()
-            => AppBuilder.Configure<App>()
+            => ConfigureAppBuilder(AppBuilder.Configure<App>()
                 .UseSilkNet()
+                .UseRenderingSubsystem(() => Avalonia.ProGpu.SkiaPlatform.Initialize(), "ProGPU"));
+
+        private static AppBuilder BuildSkiaApp()
+            => ConfigureAppBuilder(AppBuilder.Configure<App>()
+                .UsePlatformDetect()
+                .UseRenderingSubsystem(
+                    Avalonia.Skia.SkiaPlatform.Initialize,
+                    "Skia"));
+
+        private static AppBuilder ConfigureAppBuilder(AppBuilder builder)
+            => builder
                 .UseHarfBuzz()
                 .With(new X11PlatformOptions
                 {
@@ -169,7 +182,6 @@ namespace ControlCatalog.Desktop
                 {
                     UseRegionDirtyRectClipping = false
                 })
-                .UseRenderingSubsystem(() => Avalonia.ProGpu.SkiaPlatform.Initialize(), "Skia")
                 .WithInterFont()
                 .WithDeveloperTools()
                 .AfterSetup(builder =>
