@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2034 # This file is sourced by the pack and publish scripts.
 progpu_avalonia_package_ids=(
   "ProGPU.Avalonia.Rendering"
   "ProGPU.Avalonia.SilkNet"
