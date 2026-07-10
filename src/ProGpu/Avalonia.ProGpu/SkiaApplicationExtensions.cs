@@ -10,15 +10,22 @@ namespace Avalonia
     public static class SkiaApplicationExtensions
     {
         /// <summary>
-        /// Enable Skia renderer.
+        /// Enables the ProGPU renderer.
         /// </summary>
         /// <param name="builder">Builder.</param>
         /// <returns>Configure builder.</returns>
-        public static AppBuilder UseSkia(this AppBuilder builder)
+        public static AppBuilder UseProGpu(this AppBuilder builder)
         {
             return builder.UseRenderingSubsystem(() => SkiaPlatform.Initialize(
                 AvaloniaLocator.Current.GetService<SkiaOptions>() ?? new SkiaOptions()),
-                "Skia");
+                "ProGPU");
         }
+
+        /// <summary>
+        /// Enables the ProGPU renderer.
+        /// </summary>
+        /// <param name="builder">Builder.</param>
+        /// <returns>Configure builder.</returns>
+        public static AppBuilder UseSkia(this AppBuilder builder) => builder.UseProGpu();
     }
 }
