@@ -18,7 +18,10 @@ namespace Avalonia.ProGpu
 
         public StreamGeometryImpl()
         {
-            Path = new ProGPU.Vector.PathGeometry();
+            Path = new ProGPU.Vector.PathGeometry
+            {
+                FillRule = ProGPU.Vector.FillRule.EvenOdd
+            };
         }
 
         public StreamGeometryImpl(ProGPU.Vector.PathGeometry path)

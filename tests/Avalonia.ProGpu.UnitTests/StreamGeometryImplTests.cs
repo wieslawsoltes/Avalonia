@@ -10,6 +10,14 @@ namespace Avalonia.ProGpu.UnitTests
     public class StreamGeometryImplTests
     {
         [Fact]
+        public void Defaults_To_EvenOdd_FillRule()
+        {
+            var geometry = new StreamGeometryImpl();
+
+            Assert.Equal(VectorFillRule.EvenOdd, geometry.Path.FillRule);
+        }
+
+        [Fact]
         public void Clone_Preserves_Arc_And_Figure_Metadata()
         {
             var geometry = CreateArcGeometry();
