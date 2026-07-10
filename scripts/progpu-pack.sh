@@ -11,7 +11,7 @@ fi
 
 configuration="${PROGPU_CONFIGURATION:-Release}"
 avalonia_version="${PROGPU_AVALONIA_VERSION:-12.0.5}"
-runtime_version="${PROGPU_RUNTIME_VERSION:-0.1.0-preview.5}"
+runtime_version="${PROGPU_RUNTIME_VERSION:-0.1.0-preview.6}"
 integration_version="${PROGPU_INTEGRATION_VERSION:-12.0.5-preview.5}"
 package_output="${PROGPU_PACKAGE_OUTPUT:-${repo_root}/artifacts/packages/${configuration}}"
 restore_root="$(mktemp -d "${TMPDIR:-/tmp}/progpu-avalonia-pack.XXXXXX")"

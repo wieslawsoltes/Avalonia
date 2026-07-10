@@ -7,7 +7,7 @@ These packages run Avalonia 12 on the ProGPU/WebGPU renderer with Silk.NET windo
 | `ProGPU.Avalonia.Rendering` | Avalonia renderer backed by ProGPU and WebGPU |
 | `ProGPU.Avalonia.SilkNet` | Cross-platform Silk.NET desktop windowing backend |
 
-Version `12.0.5-preview.5` is built against exactly Avalonia `12.0.5` and ProGPU `0.1.0-preview.5` on .NET 10.
+Version `12.0.5-preview.5` is built against exactly Avalonia `12.0.5` and ProGPU `0.1.0-preview.6` on .NET 10.
 
 ## Install
 

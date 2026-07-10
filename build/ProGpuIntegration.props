@@ -2,7 +2,7 @@
   <PropertyGroup>
     <ProGpuDependencyMode Condition="'$(ProGpuDependencyMode)' == ''">Source</ProGpuDependencyMode>
     <ProGpuAvaloniaVersion Condition="'$(ProGpuAvaloniaVersion)' == ''">12.0.5</ProGpuAvaloniaVersion>
-    <ProGpuRuntimeVersion Condition="'$(ProGpuRuntimeVersion)' == ''">0.1.0-preview.5</ProGpuRuntimeVersion>
+    <ProGpuRuntimeVersion Condition="'$(ProGpuRuntimeVersion)' == ''">0.1.0-preview.6</ProGpuRuntimeVersion>
     <ProGpuIntegrationVersion Condition="'$(ProGpuIntegrationVersion)' == ''">12.0.5-preview.5</ProGpuIntegrationVersion>
     <ProGpuSourceRoot Condition="'$(ProGpuSourceRoot)' == ''">$(MSBuildThisFileDirectory)../../ProGPU</ProGpuSourceRoot>
     <ProGpuAvaloniaSourceProject Condition="'$(ProGpuAvaloniaSourceProject)' == ''">$(MSBuildThisFileDirectory)../packages/Avalonia/Avalonia.csproj</ProGpuAvaloniaSourceProject>
@@ -25,7 +25,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>ProGpuAvaloniaIcon.png</PackageIcon>
-    <PackageReleaseNotes>Updates to ProGPU 0.1.0-preview.5, streams and defers system font discovery, allocates Silk.NET CPU framebuffers only on demand, and retains the GPU-only WebGPU presentation fixes.</PackageReleaseNotes>
+    <PackageReleaseNotes>Updates to ProGPU 0.1.0-preview.6, streams and defers system font discovery, allocates Silk.NET CPU framebuffers only on demand, defers resized MSAA resources until GPU work is idle, and retains GPU-only WebGPU presentation.</PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
