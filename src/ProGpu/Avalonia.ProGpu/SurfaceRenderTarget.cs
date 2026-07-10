@@ -32,7 +32,8 @@ namespace Avalonia.ProGpu
                 Size = PixelSize,
                 Dpi = Dpi,
                 ScaleDrawingToDpi = createInfo.UseScaledDrawing,
-                DisableSubpixelTextRendering = createInfo.DisableTextLcdRendering
+                DisableSubpixelTextRendering = createInfo.DisableTextLcdRendering,
+                PreserveRecordedCommandsOnDispose = true
             };
 
             _layerContext = new DrawingContextImpl(drawingCreateInfo);
@@ -68,6 +69,7 @@ namespace Avalonia.ProGpu
         public void Dispose()
         {
             _layerContext.Dispose();
+            _layerContext.DrawingContext.Clear();
             Texture?.Dispose();
         }
 

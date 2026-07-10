@@ -165,11 +165,17 @@ namespace Avalonia.ProGpu.UnitTests
         }
 
         [Fact]
-        public void DrawingBrush_OpacityMask_Is_Recorded_As_Retained_Picture()
+        public void DrawingBrush_OpacityMask_Survives_Recording_Context_Dispose()
         {
             using var app = UnitTestApplication.Start(
                 TestServices.MockPlatformRenderInterface.With(renderInterface: new PlatformRenderInterface()));
-            var target = CreateTarget();
+            var renderTarget = new SurfaceRenderTarget(new SurfaceRenderTarget.CreateInfo
+            {
+                Width = 100,
+                Height = 20,
+                Dpi = new Vector(96, 96)
+            });
+            var target = Assert.IsType<DrawingContextImpl>(renderTarget.CreateDrawingContext());
             var mask = new DrawingBrush
             {
                 Drawing = new GeometryDrawing
@@ -201,6 +207,12 @@ namespace Avalonia.ProGpu.UnitTests
 
             target.Dispose();
 
+            Assert.Equal(2, target.DrawingContext.Commands.Count);
+            Assert.Equal(1, target.DrawingContext.RetainedResourceCount);
+
+            renderTarget.Dispose();
+
+            Assert.Empty(target.DrawingContext.Commands);
             Assert.Equal(0, target.DrawingContext.RetainedResourceCount);
         }
 

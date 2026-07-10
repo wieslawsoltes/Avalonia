@@ -17,6 +17,7 @@ namespace Avalonia.ProGpu
     {
         private readonly IDisposable?[]? _disposables;
         private readonly ILockedFramebuffer? _framebuffer;
+        private readonly bool _preserveRecordedCommandsOnDispose;
         private readonly OffscreenTextureCache _offscreenCache;
         private readonly Matrix? _postTransform;
         internal readonly PixelSize _size;
@@ -47,6 +48,7 @@ namespace Avalonia.ProGpu
             public Vector Dpi;
             public bool ScaleDrawingToDpi;
             public bool DisableSubpixelTextRendering;
+            public bool PreserveRecordedCommandsOnDispose;
             public object? GrContext;
             public object? Surface;
             public object? Gpu;
@@ -58,6 +60,7 @@ namespace Avalonia.ProGpu
         {
             Dpi = createInfo.Dpi;
             _disposables = disposables;
+            _preserveRecordedCommandsOnDispose = createInfo.PreserveRecordedCommandsOnDispose;
             _offscreenCache = (createInfo.CacheHolder as OffscreenTextureCache) ?? GetFallbackCache();
             if (createInfo.ScaleDrawingToDpi &&
                 TryGetDpiScale(createInfo.Dpi, out double scaleX, out double scaleY) &&
@@ -827,7 +830,10 @@ namespace Avalonia.ProGpu
             }
             finally
             {
-                DrawingContext.Clear();
+                if (!_preserveRecordedCommandsOnDispose)
+                {
+                    DrawingContext.Clear();
+                }
 
                 if (_disposables != null)
                 {
