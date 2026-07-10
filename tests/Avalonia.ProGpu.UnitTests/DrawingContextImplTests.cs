@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Avalonia.UnitTests;
 using Avalonia.Utilities;
 using ProGPU.Backend;
 using ProGPU.Scene;
@@ -161,6 +162,46 @@ namespace Avalonia.ProGpu.UnitTests
             {
                 Marshal.FreeHGlobal(data);
             }
+        }
+
+        [Fact]
+        public void DrawingBrush_OpacityMask_Is_Recorded_As_Retained_Picture()
+        {
+            using var app = UnitTestApplication.Start(
+                TestServices.MockPlatformRenderInterface.With(renderInterface: new PlatformRenderInterface()));
+            var target = CreateTarget();
+            var mask = new DrawingBrush
+            {
+                Drawing = new GeometryDrawing
+                {
+                    Brush = Brushes.Black,
+                    Geometry = new GeometryGroup
+                    {
+                        Children =
+                        {
+                            new RectangleGeometry(new Rect(0, 0, 30, 20)),
+                            new RectangleGeometry(new Rect(70, 0, 30, 20))
+                        }
+                    }
+                }
+            };
+
+            target.PushOpacityMask(mask, new Rect(0, 0, 100, 20));
+            target.PopOpacityMask();
+
+            Assert.Collection(target.DrawingContext.Commands,
+                command =>
+                {
+                    Assert.Equal(RenderCommandType.PushOpacityMask, command.Type);
+                    Assert.NotNull(command.Picture);
+                    Assert.Contains(command.Picture.Commands, nested => nested.Type == RenderCommandType.DrawPath);
+                },
+                command => Assert.Equal(RenderCommandType.PopOpacityMask, command.Type));
+            Assert.Equal(1, target.DrawingContext.RetainedResourceCount);
+
+            target.Dispose();
+
+            Assert.Equal(0, target.DrawingContext.RetainedResourceCount);
         }
 
         private static DrawingContextImpl CreateTarget()
