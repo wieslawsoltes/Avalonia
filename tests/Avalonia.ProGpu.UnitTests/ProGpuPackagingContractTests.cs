@@ -15,8 +15,8 @@ namespace Avalonia.ProGpu.UnitTests
 
             Assert.Contains(">Source</ProGpuDependencyMode>", properties, StringComparison.Ordinal);
             Assert.Contains(">12.0.5</ProGpuAvaloniaVersion>", properties, StringComparison.Ordinal);
-            Assert.Contains(">0.1.0-preview.2</ProGpuRuntimeVersion>", properties, StringComparison.Ordinal);
-            Assert.Contains(">12.0.5-preview.2</ProGpuIntegrationVersion>", properties, StringComparison.Ordinal);
+            Assert.Contains(">0.1.0-preview.3</ProGpuRuntimeVersion>", properties, StringComparison.Ordinal);
+            Assert.Contains(">12.0.5-preview.3</ProGpuIntegrationVersion>", properties, StringComparison.Ordinal);
             Assert.Contains("<PackageIcon>ProGpuAvaloniaIcon.png</PackageIcon>", properties, StringComparison.Ordinal);
             Assert.Contains("docs/progpu-package-readme.md", properties, StringComparison.Ordinal);
             Assert.Contains("<None Remove=\"$(MSBuildThisFileDirectory)Assets/Icon.png\"", properties, StringComparison.Ordinal);
@@ -28,6 +28,18 @@ namespace Avalonia.ProGpu.UnitTests
             Assert.DoesNotContain("<PackageId>Avalonia.", windowing, StringComparison.Ordinal);
             Assert.Contains("VersionOverride=\"[$(ProGpuAvaloniaVersion)]\"", renderer, StringComparison.Ordinal);
             Assert.Contains("VersionOverride=\"[$(ProGpuAvaloniaVersion)]\"", windowing, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void ControlCatalogDefaultsToProGpuOnSilkNet()
+        {
+            var program = ReadRepoFile("samples", "ControlCatalog.Desktop", "Program.cs");
+
+            Assert.Contains("args.Contains(\"--skia\")", program, StringComparison.Ordinal);
+            Assert.Contains(": BuildAvaloniaApp();", program, StringComparison.Ordinal);
+            Assert.Contains(".UseSilkNet()", program, StringComparison.Ordinal);
+            Assert.Contains(".UseProGpu()", program, StringComparison.Ordinal);
+            Assert.Contains("UseRegionDirtyRectClipping = false", program, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -47,6 +59,7 @@ namespace Avalonia.ProGpu.UnitTests
 
             Assert.Contains("ProGpuDependencyMode=Package", pack, StringComparison.Ordinal);
             Assert.Contains("PROGPU_PACKAGE_SOURCE", pack, StringComparison.Ordinal);
+            Assert.Contains("--artifacts-path", pack, StringComparison.Ordinal);
             Assert.Contains("NUGET_API_KEY", publish, StringComparison.Ordinal);
             Assert.Contains("--skip-duplicate", publish, StringComparison.Ordinal);
             Assert.DoesNotContain(".snupkg", publish, StringComparison.Ordinal);
@@ -65,6 +78,10 @@ namespace Avalonia.ProGpu.UnitTests
             var program = ReadRepoFile("integration", "ProGpuPackageApp", "Program.cs");
             var leaseView = ReadRepoFile("integration", "ProGpuPackageApp", "ProGpuLeaseView.cs");
             var runScript = ReadRepoFile("integration", "ProGpuPackageApp", "run.sh");
+            var drawingContext = ReadRepoFile(
+                "src", "ProGpu", "Avalonia.ProGpu", "DrawingContextImpl.cs");
+            var lockedFramebuffer = ReadRepoFile(
+                "src", "Windows", "Avalonia.SilkNet", "SilkNetLockedFramebuffer.cs");
 
             Assert.Contains("ProGPU.Avalonia.Rendering", project, StringComparison.Ordinal);
             Assert.Contains("ProGPU.Avalonia.SilkNet", project, StringComparison.Ordinal);
@@ -80,9 +97,14 @@ namespace Avalonia.ProGpu.UnitTests
             Assert.Contains("lease.CurrentTransform", leaseView, StringComparison.Ordinal);
             Assert.Contains("ShaderToyParams", leaseView, StringComparison.Ordinal);
             Assert.Contains("fn mainImage", leaseView, StringComparison.Ordinal);
+            Assert.Contains("IPlatformHandle", lockedFramebuffer, StringComparison.Ordinal);
+            Assert.Contains("WGPU_SURFACE", lockedFramebuffer, StringComparison.Ordinal);
+            Assert.Contains("WGPU_SURFACE", drawingContext, StringComparison.Ordinal);
+            Assert.DoesNotContain("IProGpuSurfaceFramebuffer", drawingContext, StringComparison.Ordinal);
             Assert.Contains("local)", runScript, StringComparison.Ordinal);
             Assert.Contains("nuget)", runScript, StringComparison.Ordinal);
             Assert.Contains("--configfile", runScript, StringComparison.Ordinal);
+            Assert.Contains("--artifacts-path", runScript, StringComparison.Ordinal);
         }
 
         private static string ReadRepoFile(params string[] path)

@@ -5,8 +5,9 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 project="${repo_root}/integration/ProGpuPackageApp/ProGpuPackageApp.csproj"
 mode="${1:-nuget}"
 configuration="${PROGPU_CONFIGURATION:-Release}"
-integration_version="${PROGPU_INTEGRATION_PACKAGE_VERSION:-12.0.5-preview.2}"
+integration_version="${PROGPU_INTEGRATION_PACKAGE_VERSION:-12.0.5-preview.3}"
 working_directory="$(mktemp -d "${TMPDIR:-/tmp}/progpu-package-app.XXXXXX")"
+consumer_artifacts="${working_directory}/artifacts"
 
 if [[ "$#" -gt 0 ]]; then
   shift
@@ -54,6 +55,7 @@ packages_path="${working_directory}/packages"
 
 "${dotnet}" restore "${project}" \
   --packages "${packages_path}" \
+  --artifacts-path "${consumer_artifacts}" \
   --configfile "${working_directory}/nuget.config" \
   --force \
   --no-cache \
@@ -63,6 +65,7 @@ packages_path="${working_directory}/packages"
 if [[ "${PROGPU_INTEGRATION_BUILD_ONLY:-0}" == 1 ]]; then
   "${dotnet}" build "${project}" \
     --configuration "${configuration}" \
+    --artifacts-path "${consumer_artifacts}" \
     --no-restore \
     --verbosity minimal \
     "-p:RestorePackagesPath=${packages_path}" \
@@ -71,6 +74,7 @@ else
   "${dotnet}" run \
     --project "${project}" \
     --configuration "${configuration}" \
+    --artifacts-path "${consumer_artifacts}" \
     --no-restore \
     "-p:RestorePackagesPath=${packages_path}" \
     "-p:ProGpuIntegrationPackageVersion=${integration_version}" \

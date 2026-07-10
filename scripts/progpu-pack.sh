@@ -11,21 +11,20 @@ fi
 
 configuration="${PROGPU_CONFIGURATION:-Release}"
 avalonia_version="${PROGPU_AVALONIA_VERSION:-12.0.5}"
-runtime_version="${PROGPU_RUNTIME_VERSION:-0.1.0-preview.2}"
-integration_version="${PROGPU_INTEGRATION_VERSION:-12.0.5-preview.2}"
+runtime_version="${PROGPU_RUNTIME_VERSION:-0.1.0-preview.3}"
+integration_version="${PROGPU_INTEGRATION_VERSION:-12.0.5-preview.3}"
 package_output="${PROGPU_PACKAGE_OUTPUT:-${repo_root}/artifacts/packages/${configuration}}"
-restore_root=""
+restore_root="$(mktemp -d "${TMPDIR:-/tmp}/progpu-avalonia-pack.XXXXXX")"
+restore_artifacts="${restore_root}/artifacts"
 
 cleanup() {
   local exit_code=$?
-  if [[ -n "${restore_root}" ]]; then
-    rm -rf "${restore_root}"
-  fi
+  rm -rf "${restore_root}"
   return "${exit_code}"
 }
 trap cleanup EXIT
 
-restore_args=()
+restore_args=(--artifacts-path "${restore_artifacts}")
 msbuild_args=(
   "-p:ProGpuDependencyMode=Package"
   "-p:ProGpuAvaloniaVersion=${avalonia_version}"
@@ -34,7 +33,6 @@ msbuild_args=(
 )
 
 if [[ -n "${PROGPU_PACKAGE_SOURCE:-}" ]]; then
-  restore_root="$(mktemp -d "${TMPDIR:-/tmp}/progpu-avalonia-pack.XXXXXX")"
   "${dotnet}" new nugetconfig --output "${restore_root}" --force >/dev/null
   "${dotnet}" nuget add source "${PROGPU_PACKAGE_SOURCE}" \
     --name progpu-local \
@@ -68,6 +66,7 @@ for index in "${!progpu_avalonia_package_ids[@]}"; do
   "${dotnet}" pack "${project}" \
     --configuration "${configuration}" \
     --output "${package_output}" \
+    --artifacts-path "${restore_artifacts}" \
     --no-restore \
     --verbosity minimal \
     "${msbuild_args[@]}" \
