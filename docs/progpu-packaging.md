@@ -64,7 +64,7 @@ export NUGET_API_KEY
 unset NUGET_API_KEY
 ```
 
-`progpu-publish.sh` repacks, validates all expected artifacts, and pushes packages and symbols with `--skip-duplicate`. Override `NUGET_SOURCE` only when publishing to another NuGet-compatible server.
+`progpu-publish.sh` repacks, validates all expected artifacts, and pushes each package with `--skip-duplicate`; `dotnet nuget push` discovers and uploads the matching symbol package automatically. Override `NUGET_SOURCE` only when publishing to another NuGet-compatible server.
 
 Release order:
 

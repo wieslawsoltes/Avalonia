@@ -44,6 +44,7 @@ namespace Avalonia.ProGpu.UnitTests
             Assert.Contains("PROGPU_PACKAGE_SOURCE", pack, StringComparison.Ordinal);
             Assert.Contains("NUGET_API_KEY", publish, StringComparison.Ordinal);
             Assert.Contains("--skip-duplicate", publish, StringComparison.Ordinal);
+            Assert.DoesNotContain(".snupkg", publish, StringComparison.Ordinal);
         }
 
         private static string ReadRepoFile(params string[] path)

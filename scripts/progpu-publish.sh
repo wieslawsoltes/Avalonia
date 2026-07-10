@@ -29,13 +29,11 @@ PROGPU_PACKAGE_OUTPUT="${package_output}" \
   "${repo_root}/scripts/progpu-pack.sh"
 
 for package_id in "${progpu_avalonia_package_ids[@]}"; do
-  for extension in nupkg snupkg; do
-    artifact="${package_output}/${package_id}.${integration_version}.${extension}"
-    "${dotnet}" nuget push "${artifact}" \
-      --api-key "${NUGET_API_KEY}" \
-      --source "${nuget_source}" \
-      --skip-duplicate
-  done
+  package="${package_output}/${package_id}.${integration_version}.nupkg"
+  "${dotnet}" nuget push "${package}" \
+    --api-key "${NUGET_API_KEY}" \
+    --source "${nuget_source}" \
+    --skip-duplicate
 done
 
 echo "Published ProGPU Avalonia ${integration_version} packages to ${nuget_source}."
