@@ -113,7 +113,7 @@ namespace Avalonia.ProGpu
         private Lazy<SystemFontCatalog> _systemFonts;
 
         public FontManagerImpl()
-            : this(FontApi.GetSystemFonts, GetPlatformPreferredFonts(), preloadSystemFonts: true)
+            : this(FontApi.GetSystemFonts, GetPlatformPreferredFonts())
         {
         }
 

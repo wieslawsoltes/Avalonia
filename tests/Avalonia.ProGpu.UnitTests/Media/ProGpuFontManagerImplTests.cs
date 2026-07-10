@@ -100,6 +100,21 @@ namespace Avalonia.ProGpu.UnitTests.Media
             Assert.Empty(manager.GetInstalledFontFamilyNames());
         }
 
+        [Fact]
+        public void SystemFontCatalogIsLazyByDefault()
+        {
+            var providerCalls = 0;
+            var manager = new FontManagerImpl(() =>
+            {
+                providerCalls++;
+                return Array.Empty<FontInfo>();
+            });
+
+            Assert.Equal(0, providerCalls);
+            Assert.Empty(manager.GetInstalledFontFamilyNames());
+            Assert.Equal(1, providerCalls);
+        }
+
         private static FontInfo CreateFontInfo(TtfFont font, string filePath)
         {
             return new FontInfo
