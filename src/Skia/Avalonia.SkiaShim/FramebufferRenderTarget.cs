@@ -20,6 +20,7 @@ namespace Avalonia.Skia
         private IDisposable? _preFramebufferCopyHandler;
         private IFramebufferRenderTarget? _renderTarget;
         private bool _hadConversionShim;
+        private WebGpuFramebufferTarget? _webGpuTarget;
 
         /// <summary>
         /// Create new framebuffer render target using a target surface.
@@ -37,13 +38,16 @@ namespace Avalonia.Skia
         {
             _renderTarget?.Dispose();
             _renderTarget = null;
+            _webGpuTarget?.Dispose();
+            _webGpuTarget = null;
             FreeSurface();
         }
 
         public RenderTargetProperties Properties => new()
         {
-            RetainsPreviousFrameContents = !_hadConversionShim
-                                           && _renderTarget?.RetainsFrameContents == true,
+            RetainsPreviousFrameContents = _webGpuTarget?.HasRetainedFrame == true
+                                           || (!_hadConversionShim
+                                               && _renderTarget?.RetainsFrameContents == true),
             IsSuitableForDirectRendering = true
         };
 
@@ -58,33 +62,53 @@ namespace Avalonia.Skia
                 throw new ObjectDisposedException(nameof(FramebufferRenderTarget));
 
             var framebuffer = _renderTarget.Lock(sceneInfo, out var lockProperties);
-
-            var framebufferImageInfo = new SKImageInfo(framebuffer.Size.Width, framebuffer.Size.Height,
-                framebuffer.Format.ToSkColorType(),
-                framebuffer.AlphaFormat.ToSkAlphaType());
-
-            CreateSurface(framebufferImageInfo, framebuffer);
-            _hadConversionShim |= _conversionShim != null;
-
-            var canvas = _framebufferSurface.Canvas;
-
-            canvas.RestoreToCount(-1);
-            canvas.Save();
-            canvas.ResetMatrix();
-
-            var createInfo = new DrawingContextImpl.CreateInfo
+            try
             {
-                Surface = _framebufferSurface,
-                Dpi = framebuffer.Dpi,
-                ScaleDrawingToDpi = _useScaledDrawing
-            };
+                if (WebGpuFramebufferTarget.TryResolveContext(framebuffer, out var webGpuContext))
+                {
+                    _webGpuTarget ??= new WebGpuFramebufferTarget();
+                    var webGpuDrawingContext = _webGpuTarget.CreateDrawingContext(
+                        framebuffer,
+                        webGpuContext,
+                        _useScaledDrawing,
+                        out properties);
+                    framebuffer = null!;
+                    return webGpuDrawingContext;
+                }
 
-            properties = new()
+                var framebufferImageInfo = new SKImageInfo(framebuffer.Size.Width, framebuffer.Size.Height,
+                    framebuffer.Format.ToSkColorType(),
+                    framebuffer.AlphaFormat.ToSkAlphaType());
+
+                CreateSurface(framebufferImageInfo, framebuffer);
+                _hadConversionShim |= _conversionShim != null;
+
+                var canvas = _framebufferSurface.Canvas;
+
+                canvas.RestoreToCount(-1);
+                canvas.Save();
+                canvas.ResetMatrix();
+
+                var createInfo = new DrawingContextImpl.CreateInfo
+                {
+                    Surface = _framebufferSurface,
+                    Dpi = framebuffer.Dpi,
+                    ScaleDrawingToDpi = _useScaledDrawing
+                };
+
+                properties = new()
+                {
+                    PreviousFrameIsRetained = !_hadConversionShim && lockProperties.PreviousFrameIsRetained
+                };
+
+                var drawingContext = new DrawingContextImpl(createInfo, _preFramebufferCopyHandler, canvas, framebuffer);
+                framebuffer = null!;
+                return drawingContext;
+            }
+            finally
             {
-                PreviousFrameIsRetained = !_hadConversionShim && lockProperties.PreviousFrameIsRetained
-            };
-
-            return new DrawingContextImpl(createInfo, _preFramebufferCopyHandler, canvas, framebuffer);
+                framebuffer?.Dispose();
+            }
         }
 
 

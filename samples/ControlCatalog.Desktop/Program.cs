@@ -182,11 +182,10 @@ namespace ControlCatalog.Desktop
 
         private static AppBuilder BuildSkiaShimApp()
             => ConfigureAppBuilder(AppBuilder.Configure<App>()
-                    .UsePlatformDetect()
+                    .UseSilkNet()
                     .UseRenderingSubsystem(
                         Avalonia.Skia.SkiaPlatform.Initialize,
-                        "SkiaSharp shim"),
-                forceSoftwareRendering: true);
+                        "SkiaSharp shim"));
 
         private static AppBuilder ConfigureAppBuilder(AppBuilder builder, bool forceSoftwareRendering = false)
             => builder

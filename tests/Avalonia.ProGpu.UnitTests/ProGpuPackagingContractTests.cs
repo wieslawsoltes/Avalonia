@@ -43,6 +43,24 @@ namespace Avalonia.ProGpu.UnitTests
         }
 
         [Fact]
+        public void WebGpuPresentationAvoidsReadbackAndReleasesAcquiredTextures()
+        {
+            var directDrawingContext = ReadRepoFile(
+                "src", "ProGpu", "Avalonia.ProGpu", "DrawingContextImpl.cs");
+            var shimTarget = ReadRepoFile(
+                "src", "Skia", "Avalonia.SkiaShim", "WebGpuFramebufferTarget.cs");
+            var program = ReadRepoFile("samples", "ControlCatalog.Desktop", "Program.cs");
+
+            Assert.Contains("GpuTextureBlitter.Blit", shimTarget, StringComparison.Ordinal);
+            Assert.Contains("GpuTextureBlitter.Blit", directDrawingContext, StringComparison.Ordinal);
+            Assert.DoesNotContain("ReadPixels", shimTarget, StringComparison.Ordinal);
+            Assert.Contains("TextureRelease(surfaceTexture.Texture)", shimTarget, StringComparison.Ordinal);
+            Assert.Contains("TextureRelease(surfaceTexture.Texture)", directDrawingContext, StringComparison.Ordinal);
+            Assert.Contains("private static AppBuilder BuildSkiaShimApp()", program, StringComparison.Ordinal);
+            Assert.Contains(".UseSilkNet()", program, StringComparison.Ordinal);
+        }
+
+        [Fact]
         public void PackagingScriptsAndDocumentationCoverBothArtifacts()
         {
             var packageList = ReadRepoFile("scripts", "progpu-package-list.sh");
