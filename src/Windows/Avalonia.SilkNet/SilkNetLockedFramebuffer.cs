@@ -54,7 +54,22 @@ namespace Avalonia.SilkNet
             }
         }
 
-        public IntPtr WindowPointer => IntPtr.Zero;
+        public IntPtr WindowPointer
+        {
+            get
+            {
+                var native = _window.Native;
+                if (native?.Win32 is { } win32)
+                    return win32.Hwnd;
+                if (native?.Cocoa is { } cocoa)
+                    return cocoa;
+                if (native?.X11 is { } x11)
+                    return (IntPtr)x11.Window;
+                if (native?.Wayland is { } wayland)
+                    return wayland.Surface;
+                return native?.Glfw ?? IntPtr.Zero;
+            }
+        }
 
         public void Dispose()
         {

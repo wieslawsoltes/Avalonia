@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Controls.Platform;
 using Avalonia.Threading;
 using Avalonia.Input;
 using Avalonia.Input.Raw;
@@ -11,7 +13,10 @@ using Avalonia.Platform.Surfaces;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
+using Silk.NET.Core;
 using ProGPU.Backend;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Avalonia.SilkNet
 {
@@ -26,15 +31,29 @@ namespace Avalonia.SilkNet
         private string? _title = "Avalonia Silk.NET Window";
         private PixelPoint _position = new PixelPoint(100, 100);
         private Avalonia.Controls.WindowState _windowState = Avalonia.Controls.WindowState.Normal;
+        private Silk.NET.Windowing.WindowState? _lastNativeWindowState;
+        private Avalonia.Controls.WindowState? _pendingInitialWindowState;
         private SilkNetFramebufferManager _framebuffer;
         private bool _isShown;
         private bool _isLoaded;
-        private WindowBorder? _restoredBorder;
+        private bool _isEnabled = true;
         private bool _paintQueued;
         private bool _isRenderingLiveResize;
         private ulong _paintGeneration;
         private char? _pendingHighSurrogate;
         private SilkNetCursorImpl? _cursor;
+        private IWindowIconImpl? _icon;
+        private readonly SilkWindowController _windowController;
+        private bool _canResize = true;
+        private bool _canMinimize = true;
+        private bool _canMaximize = true;
+        private WindowDecorations _windowDecorations = WindowDecorations.Full;
+        private Size _minimumSize;
+        private Size _maximumSize = new(double.PositiveInfinity, double.PositiveInfinity);
+        private WindowTransparencyLevel _transparencyLevel = WindowTransparencyLevel.None;
+        private IReadOnlyList<WindowTransparencyLevel> _transparencyLevels = new[] { WindowTransparencyLevel.None };
+        private double _titleBarHeight = -1d;
+        private PlatformThemeVariant _themeVariant = PlatformThemeVariant.Light;
 
         public WindowImpl()
         {
@@ -49,8 +68,10 @@ namespace Avalonia.SilkNet
             options.VSync = false;
             options.Position = new Vector2D<int>((int)(_position.X / _scaling), (int)(_position.Y / _scaling));
             options.WindowBorder = WindowBorder.Resizable;
+            options.TransparentFramebuffer = true;
 
             _silkWindow = Silk.NET.Windowing.Window.Create(options);
+            _windowController = new SilkWindowController(_silkWindow);
             _silkWindow.Load += OnLoad;
             _silkWindow.Render += OnRender;
             _silkWindow.Resize += OnResize;
@@ -58,10 +79,10 @@ namespace Avalonia.SilkNet
             _silkWindow.Move += OnMove;
             _silkWindow.Closing += OnClosing;
             _silkWindow.FocusChanged += OnFocusChanged;
+            _silkWindow.StateChanged += OnStateChanged;
 
             _framebuffer = new SilkNetFramebufferManager(_silkWindow);
             
-            // Set up platform handle
             Handle = new PlatformHandle(IntPtr.Zero, "SilkWindow");
 
             SilkNetPlatform.Instance.RegisterWindow(this);
@@ -77,6 +98,21 @@ namespace Avalonia.SilkNet
 
         private void OnLoad()
         {
+            _windowController.Attach();
+            ApplyWindowCustomizationState();
+            if (_pendingInitialWindowState is { } initialWindowState)
+            {
+                ApplyNativeWindowState(initialWindowState);
+            }
+            ApplyTransparencyLevelHints();
+            ExtendClientAreaToDecorationsChanged?.Invoke(_isClientAreaExtended);
+            var nativeHandle = _windowController.Handle;
+            if (nativeHandle.IsValid)
+            {
+                Handle = new PlatformHandle(nativeHandle.Handle, nativeHandle.Descriptor);
+            }
+            ApplyIcon();
+
             var oldScaling = _scaling;
             _scaling = GetWindowScaling();
             if (oldScaling != _scaling)
@@ -177,8 +213,41 @@ namespace Avalonia.SilkNet
 
         private void OnClosing()
         {
+            if (Closing?.Invoke(WindowCloseReason.WindowClosing) == true)
+            {
+                _silkWindow.IsClosing = false;
+                return;
+            }
+
             Closed?.Invoke();
             SilkNetPlatform.Instance.UnregisterWindow(this);
+        }
+
+        private void OnStateChanged(Silk.NET.Windowing.WindowState state)
+        {
+            var mapped = state switch
+            {
+                Silk.NET.Windowing.WindowState.Maximized => Avalonia.Controls.WindowState.Maximized,
+                Silk.NET.Windowing.WindowState.Minimized => Avalonia.Controls.WindowState.Minimized,
+                Silk.NET.Windowing.WindowState.Fullscreen => Avalonia.Controls.WindowState.FullScreen,
+                _ => Avalonia.Controls.WindowState.Normal
+            };
+            if (_pendingInitialWindowState is { } pendingInitialState)
+            {
+                if (mapped != pendingInitialState)
+                {
+                    return;
+                }
+                _pendingInitialWindowState = null;
+            }
+            if (_lastNativeWindowState == state)
+            {
+                return;
+            }
+            _lastNativeWindowState = state;
+            _windowState = mapped;
+            WindowStateChanged?.Invoke(mapped);
+            _windowController.Reapply();
         }
 
         private void OnFocusChanged(bool focused)
@@ -196,6 +265,11 @@ namespace Avalonia.SilkNet
 
         private void OnMouseMove(IMouse mouse, System.Numerics.Vector2 pos)
         {
+            if (!_isEnabled)
+            {
+                return;
+            }
+            _windowController.UpdateDrag(ToNativeScreenPoint(pos));
             var p = new Point(pos.X, pos.Y);
             var args = new RawPointerEventArgs(
                 _mouseDevice,
@@ -210,6 +284,11 @@ namespace Avalonia.SilkNet
 
         private void OnMouseDown(IMouse mouse, Silk.NET.Input.MouseButton button)
         {
+            if (!_isEnabled)
+            {
+                GotInputWhenDisabled?.Invoke();
+                return;
+            }
             var pos = mouse.Position;
             var p = new Point(pos.X, pos.Y);
             var type = button switch {
@@ -234,7 +313,16 @@ namespace Avalonia.SilkNet
 
         private void OnMouseUp(IMouse mouse, Silk.NET.Input.MouseButton button)
         {
+            if (!_isEnabled)
+            {
+                return;
+            }
             var pos = mouse.Position;
+            if (button == Silk.NET.Input.MouseButton.Left)
+            {
+                _windowController.UpdateDrag(ToNativeScreenPoint(pos));
+                _windowController.EndDrag();
+            }
             var p = new Point(pos.X, pos.Y);
             var type = button switch {
                 Silk.NET.Input.MouseButton.Left => RawPointerEventType.LeftButtonUp,
@@ -256,8 +344,26 @@ namespace Avalonia.SilkNet
             Input?.Invoke(args);
         }
 
+        private NativeWindowPoint ToNativeScreenPoint(System.Numerics.Vector2 clientPoint)
+        {
+            return new NativeWindowPoint(
+                _silkWindow.Position.X + (int)MathF.Round(clientPoint.X),
+                _silkWindow.Position.Y + (int)MathF.Round(clientPoint.Y));
+        }
+
+        private NativeWindowPoint GetCurrentNativePointerPoint()
+        {
+            var position = _inputContext?.Mice.FirstOrDefault()?.Position ?? default;
+            return ToNativeScreenPoint(position);
+        }
+
         private void OnMouseScroll(IMouse mouse, ScrollWheel scroll)
         {
+            if (!_isEnabled)
+            {
+                GotInputWhenDisabled?.Invoke();
+                return;
+            }
             var pos = mouse.Position;
             var p = new Point(pos.X, pos.Y);
             var args = new RawMouseWheelEventArgs(
@@ -273,6 +379,11 @@ namespace Avalonia.SilkNet
 
         private void OnKeyDown(IKeyboard keyboard, Silk.NET.Input.Key key, int keyCode)
         {
+            if (!_isEnabled)
+            {
+                GotInputWhenDisabled?.Invoke();
+                return;
+            }
             var mapping = SilkNetInputMappings.MapKey(key);
             var args = new RawKeyEventArgs(
                 SilkNetKeyboardDevice.Instance,
@@ -289,6 +400,10 @@ namespace Avalonia.SilkNet
 
         private void OnKeyUp(IKeyboard keyboard, Silk.NET.Input.Key key, int keyCode)
         {
+            if (!_isEnabled)
+            {
+                return;
+            }
             var mapping = SilkNetInputMappings.MapKey(key);
             var args = new RawKeyEventArgs(
                 SilkNetKeyboardDevice.Instance,
@@ -305,6 +420,10 @@ namespace Avalonia.SilkNet
 
         private void OnKeyChar(IKeyboard keyboard, char character)
         {
+            if (!_isEnabled)
+            {
+                return;
+            }
             if (char.IsHighSurrogate(character))
             {
                 FlushPendingHighSurrogate();
@@ -352,10 +471,19 @@ namespace Avalonia.SilkNet
         private static ulong GetTimestamp() => unchecked((ulong)Environment.TickCount64);
 
         public Size ClientSize => _clientSize;
-        public Size? FrameSize => _clientSize;
+        public Size? FrameSize
+        {
+            get
+            {
+                var insets = _windowController.FrameInsets;
+                return new Size(
+                    _clientSize.Width + insets.Left + insets.Right,
+                    _clientSize.Height + insets.Top + insets.Bottom);
+            }
+        }
         public double RenderScaling => _scaling;
         public double DesktopScaling => _scaling;
-        public IPlatformHandle Handle { get; }
+        public IPlatformHandle Handle { get; private set; }
         public Size MaxAutoSizeHint => new Size(1920, 1080);
         public IMouseDevice MouseDevice => _mouseDevice;
 
@@ -365,42 +493,38 @@ namespace Avalonia.SilkNet
             set
             {
                 _windowState = value;
-                if (_silkWindow != null)
+                if (!_silkWindow.IsInitialized)
                 {
-                    var targetState = value switch {
-                        Avalonia.Controls.WindowState.Maximized => Silk.NET.Windowing.WindowState.Maximized,
-                        Avalonia.Controls.WindowState.Minimized => Silk.NET.Windowing.WindowState.Minimized,
-                        Avalonia.Controls.WindowState.FullScreen => Silk.NET.Windowing.WindowState.Fullscreen,
-                        _ => Silk.NET.Windowing.WindowState.Normal
-                    };
-
-                    if (value == Avalonia.Controls.WindowState.Maximized ||
-                        value == Avalonia.Controls.WindowState.FullScreen)
-                    {
-                        // Stash and set to Resizable before maximizing or fullscreening
-                        if (!_restoredBorder.HasValue && _silkWindow.WindowBorder != WindowBorder.Resizable)
-                        {
-                            _restoredBorder = _silkWindow.WindowBorder;
-                            _silkWindow.WindowBorder = WindowBorder.Resizable;
-                        }
-                    }
-                    else
-                    {
-                        // Restore original border style if exiting maximized/fullscreen state
-                        if (_restoredBorder.HasValue)
-                        {
-                            var borderToRestore = _restoredBorder.Value;
-                            _restoredBorder = null;
-                            _silkWindow.WindowBorder = borderToRestore;
-                        }
-                    }
-
-                    _silkWindow.WindowState = targetState;
+                    _pendingInitialWindowState = value == Avalonia.Controls.WindowState.Normal
+                        ? null
+                        : value;
+                    return;
                 }
+
+                ApplyNativeWindowState(value);
             }
         }
 
-        public WindowTransparencyLevel TransparencyLevel => WindowTransparencyLevel.None;
+        private void ApplyNativeWindowState(Avalonia.Controls.WindowState value)
+        {
+            var targetState = value switch
+            {
+                Avalonia.Controls.WindowState.Maximized => Silk.NET.Windowing.WindowState.Maximized,
+                Avalonia.Controls.WindowState.Minimized => Silk.NET.Windowing.WindowState.Minimized,
+                Avalonia.Controls.WindowState.FullScreen => Silk.NET.Windowing.WindowState.Fullscreen,
+                _ => Silk.NET.Windowing.WindowState.Normal
+            };
+
+            if (value is Avalonia.Controls.WindowState.Maximized or
+                Avalonia.Controls.WindowState.FullScreen)
+            {
+                _windowController.PrepareForStateTransition();
+            }
+
+            _silkWindow.WindowState = targetState;
+        }
+
+        public WindowTransparencyLevel TransparencyLevel => _transparencyLevel;
 
         public IPlatformRenderSurface[] Surfaces => new IPlatformRenderSurface[] { _framebuffer };
 
@@ -444,6 +568,10 @@ namespace Avalonia.SilkNet
                 _isShown = true;
                 _silkWindow.Initialize();
             }
+            else
+            {
+                _silkWindow.IsVisible = true;
+            }
             if (activate)
             {
                 Activate();
@@ -452,6 +580,10 @@ namespace Avalonia.SilkNet
 
         public void Hide()
         {
+            if (_silkWindow.IsInitialized)
+            {
+                _silkWindow.IsVisible = false;
+            }
         }
 
         public void Close()
@@ -517,6 +649,42 @@ namespace Avalonia.SilkNet
 
         public void SetIcon(IWindowIconImpl? icon)
         {
+            _icon = icon;
+            ApplyIcon();
+        }
+
+        private void ApplyIcon()
+        {
+            if (!_silkWindow.IsInitialized)
+            {
+                return;
+            }
+
+            if (_icon == null)
+            {
+                _silkWindow.SetWindowIcon(ReadOnlySpan<RawImage>.Empty);
+                return;
+            }
+
+            if (_icon is SilkNetIconData iconData)
+            {
+                var images = new RawImage[iconData.Frames.Count];
+                for (var index = 0; index < images.Length; index++)
+                {
+                    var frame = iconData.Frames[index];
+                    images[index] = new RawImage(frame.Width, frame.Height, frame.Pixels);
+                }
+                _silkWindow.SetWindowIcon(images);
+                return;
+            }
+
+            using var stream = new MemoryStream();
+            _icon.Save(stream);
+            stream.Position = 0;
+            using var image = SixLabors.ImageSharp.Image.Load<Rgba32>(stream);
+            var pixels = new byte[checked(image.Width * image.Height * 4)];
+            image.CopyPixelDataTo(pixels);
+            _silkWindow.SetWindowIcon(new[] { new RawImage(image.Width, image.Height, pixels) });
         }
 
         public void Invalidate(Rect rect)
@@ -555,74 +723,145 @@ namespace Avalonia.SilkNet
 
         public void SetEnabled(bool enable)
         {
+            _isEnabled = enable;
+            _windowController.SetEnabled(enable);
         }
 
         public void SetTopmost(bool value)
         {
+            _windowController.SetTopMost(value);
         }
 
         public void SetMinMaxSize(Size minSize, Size maxSize)
         {
+            _minimumSize = minSize;
+            _maximumSize = maxSize;
+            _windowController.SetSizeConstraints(
+                ToNativeMinimumSize(minSize),
+                ToNativeMaximumSize(maxSize));
         }
 
         public void SetCanMinimize(bool value)
         {
+            _canMinimize = value;
+            _windowController.SetCanMinimize(value);
+            RaiseAllowedWindowActionsChanged();
         }
 
         public void SetCanMaximize(bool value)
         {
+            _canMaximize = value;
+            _windowController.SetCanMaximize(value);
+            RaiseAllowedWindowActionsChanged();
         }
 
         public void CanResize(bool value)
         {
-            if (_silkWindow != null)
-            {
-                var border = value ? WindowBorder.Resizable : WindowBorder.Fixed;
-                if (_windowState == Avalonia.Controls.WindowState.Maximized ||
-                    _windowState == Avalonia.Controls.WindowState.FullScreen)
-                {
-                    _restoredBorder = border;
-                }
-                else
-                {
-                    _silkWindow.WindowBorder = border;
-                }
-            }
+            _canResize = value;
+            _windowController.SetCanResize(value);
+            RaiseAllowedWindowActionsChanged();
         }
 
         public void SetWindowDecorations(WindowDecorations value)
         {
-            if (_silkWindow != null)
+            _windowDecorations = value;
+            _windowController.SetDecorations(value switch
             {
-                var border = value switch {
-                    WindowDecorations.None => WindowBorder.Hidden,
-                    WindowDecorations.BorderOnly => WindowBorder.Fixed,
-                    _ => WindowBorder.Resizable
-                };
-                if (_windowState == Avalonia.Controls.WindowState.Maximized ||
-                    _windowState == Avalonia.Controls.WindowState.FullScreen)
-                {
-                    _restoredBorder = border;
-                }
-                else
-                {
-                    _silkWindow.WindowBorder = border;
-                }
-            }
+                WindowDecorations.None => NativeWindowDecorations.None,
+                WindowDecorations.BorderOnly => NativeWindowDecorations.BorderOnly,
+                _ => NativeWindowDecorations.Full
+            });
+            ExtendClientAreaToDecorationsChanged?.Invoke(_isClientAreaExtended);
         }
 
         public void BeginMoveDrag(PointerPressedEventArgs e)
         {
+            _windowController.BeginMove(GetCurrentNativePointerPoint());
         }
 
         public void BeginResizeDrag(WindowEdge edge, PointerPressedEventArgs e)
         {
+            _windowController.BeginResize(edge switch
+            {
+                WindowEdge.West => NativeResizeEdge.Left,
+                WindowEdge.North => NativeResizeEdge.Top,
+                WindowEdge.East => NativeResizeEdge.Right,
+                WindowEdge.South => NativeResizeEdge.Bottom,
+                WindowEdge.NorthWest => NativeResizeEdge.TopLeft,
+                WindowEdge.NorthEast => NativeResizeEdge.TopRight,
+                WindowEdge.SouthWest => NativeResizeEdge.BottomLeft,
+                _ => NativeResizeEdge.BottomRight
+            }, GetCurrentNativePointerPoint());
         }
 
         public IPopupImpl? CreatePopup() => null;
 
         public void SetTransparencyLevelHint(IReadOnlyList<WindowTransparencyLevel> transparencyLevels)
         {
+            _transparencyLevels = transparencyLevels.ToArray();
+            ApplyTransparencyLevelHints();
+        }
+
+        private void ApplyTransparencyLevelHints()
+        {
+            var selected = WindowTransparencyLevel.None;
+            var selectedBackdrop = false;
+            var capabilities = GetEffectiveCapabilities();
+            for (var index = 0; index < _transparencyLevels.Count; index++)
+            {
+                var candidate = _transparencyLevels[index];
+                var backdrop = candidate == WindowTransparencyLevel.Mica
+                    ? NativeWindowBackdrop.Mica
+                    : candidate == WindowTransparencyLevel.AcrylicBlur
+                        ? NativeWindowBackdrop.Acrylic
+                        : candidate == WindowTransparencyLevel.Blur
+                            ? NativeWindowBackdrop.Blur
+                            : candidate == WindowTransparencyLevel.Transparent
+                                ? NativeWindowBackdrop.Transparent
+                                : NativeWindowBackdrop.None;
+                var requiredFeature = backdrop switch
+                {
+                    NativeWindowBackdrop.Mica => NativeWindowFeatures.Mica,
+                    NativeWindowBackdrop.Acrylic => NativeWindowFeatures.Acrylic,
+                    NativeWindowBackdrop.Blur => NativeWindowFeatures.Blur,
+                    NativeWindowBackdrop.Transparent => NativeWindowFeatures.Transparent,
+                    _ => NativeWindowFeatures.None
+                };
+                if (requiredFeature != NativeWindowFeatures.None && !capabilities.Supports(requiredFeature))
+                {
+                    continue;
+                }
+
+                var applied = _windowController.SetBackdrop(backdrop);
+                if (applied || !_windowController.IsAttached)
+                {
+                    selected = candidate;
+                    selectedBackdrop = true;
+                    break;
+                }
+            }
+
+            if (!selectedBackdrop)
+            {
+                _windowController.SetBackdrop(NativeWindowBackdrop.None);
+            }
+
+            if (_transparencyLevel != selected)
+            {
+                _transparencyLevel = selected;
+                TransparencyLevelChanged?.Invoke(selected);
+            }
+        }
+
+        private NativeWindowCapabilities GetEffectiveCapabilities()
+        {
+            if (_windowController.IsAttached)
+            {
+                return _windowController.Capabilities;
+            }
+
+            return NativeWindowCapabilities.ForKind(
+                NativeWindowCapabilities.DetectCurrentKind());
         }
 
         public object? TryGetFeature(Type featureType)
@@ -655,8 +894,12 @@ namespace Avalonia.SilkNet
                 _silkWindow.Move -= OnMove;
                 _silkWindow.Closing -= OnClosing;
                 _silkWindow.FocusChanged -= OnFocusChanged;
+                _silkWindow.StateChanged -= OnStateChanged;
             }
             catch {}
+
+            _windowController.Dispose();
+            _framebuffer.Dispose();
             
             var windowToDispose = _silkWindow;
             var inputContextToDispose = _inputContext;
@@ -745,8 +988,22 @@ namespace Avalonia.SilkNet
         }
 
         // Missing interface members of IWindowImpl and ITopLevelImpl
-        public void SetParent(IWindowImpl? parent) {}
-        public void ShowTaskbarIcon(bool value) {}
+        public void SetParent(IWindowImpl? parent)
+        {
+            if (parent is WindowImpl silkParent)
+            {
+                _windowController.SetParent(silkParent._windowController.Handle);
+            }
+            else if (parent is null)
+            {
+                _windowController.SetParent(NativeWindowHandle.Empty);
+            }
+        }
+
+        public void ShowTaskbarIcon(bool value)
+        {
+            _windowController.SetShowInTaskbar(value);
+        }
         public void Resize(Size value, WindowResizeReason reason)
         {
             _clientSize = value;
@@ -761,21 +1018,115 @@ namespace Avalonia.SilkNet
         public void SetExtendClientAreaToDecorationsHint(bool extend)
         {
             _isClientAreaExtended = extend;
+            _windowController.SetClientAreaExtension(extend, _titleBarHeight);
             ExtendClientAreaToDecorationsChanged?.Invoke(extend);
         }
-        public void SetExtendClientAreaTitleBarHeightHint(double slope) {}
-        public void SetFrameThemeVariant(PlatformThemeVariant themeVariant) {}
+
+        public void SetExtendClientAreaTitleBarHeightHint(double titleBarHeight)
+        {
+            _titleBarHeight = double.IsFinite(titleBarHeight) && titleBarHeight >= 0d
+                ? titleBarHeight
+                : -1d;
+            _windowController.SetTitleBarHeight(_titleBarHeight);
+            ExtendClientAreaToDecorationsChanged?.Invoke(_isClientAreaExtended);
+        }
+
+        public void SetFrameThemeVariant(PlatformThemeVariant themeVariant)
+        {
+            _themeVariant = themeVariant;
+            _windowController.SetTheme(
+                themeVariant == PlatformThemeVariant.Dark
+                    ? NativeWindowTheme.Dark
+                    : NativeWindowTheme.Light);
+        }
         public bool WindowStateGetterIsUsable => true;
         public Action<Avalonia.Controls.WindowState>? WindowStateChanged { get; set; }
         public Action? GotInputWhenDisabled { get; set; }
         public bool IsClientAreaExtendedToDecorations => _isClientAreaExtended;
         public Action<bool>? ExtendClientAreaToDecorationsChanged { get; set; }
-        public bool NeedsManagedDecorations => _isClientAreaExtended;
-        public Thickness ExtendedMargins => new Thickness();
+        public bool NeedsManagedDecorations => _windowController.RequiresManagedDecorations;
+        public Thickness ExtendedMargins =>
+            _isClientAreaExtended &&
+            !NeedsManagedDecorations &&
+            _windowDecorations == WindowDecorations.Full &&
+            _windowState != Avalonia.Controls.WindowState.FullScreen
+                ? new Thickness(0, _windowController.ExtendedTitleBarHeight, 0, 0)
+                : default;
         public Thickness OffScreenMargin => new Thickness();
-        public Avalonia.Controls.Platform.PlatformRequestedDrawnDecoration RequestedDrawnDecorations => Avalonia.Controls.Platform.PlatformRequestedDrawnDecoration.None;
+        public Avalonia.Controls.Platform.PlatformRequestedDrawnDecoration RequestedDrawnDecorations
+        {
+            get
+            {
+                var requested = _windowController.RequestedDrawnDecorations;
+                var result = Avalonia.Controls.Platform.PlatformRequestedDrawnDecoration.None;
+                if (requested.HasFlag(NativeDrawnDecorationParts.TitleBar))
+                    result |= Avalonia.Controls.Platform.PlatformRequestedDrawnDecoration.TitleBar;
+                if (requested.HasFlag(NativeDrawnDecorationParts.Border))
+                    result |= Avalonia.Controls.Platform.PlatformRequestedDrawnDecoration.Border;
+                if (requested.HasFlag(NativeDrawnDecorationParts.ResizeGrips))
+                    result |= Avalonia.Controls.Platform.PlatformRequestedDrawnDecoration.ResizeGrips;
+                if (requested.HasFlag(NativeDrawnDecorationParts.Shadow))
+                    result |= Avalonia.Controls.Platform.PlatformRequestedDrawnDecoration.Shadow;
+                return result;
+            }
+        }
         public Avalonia.Rendering.Composition.Compositor Compositor => SilkNetPlatform.Compositor;
-        public AcrylicPlatformCompensationLevels AcrylicCompensationLevels => new AcrylicPlatformCompensationLevels(1.0, 1.0, 1.0);
+        public AcrylicPlatformCompensationLevels AcrylicCompensationLevels => new(1.0, 0.8, 0.0);
+
+        public PlatformAllowedWindowActions AllowedWindowActions
+        {
+            get
+            {
+                var actions = PlatformAllowedWindowActions.Fullscreen;
+                if (_canMinimize)
+                    actions |= PlatformAllowedWindowActions.Minimize;
+                if (_canMaximize && _canResize)
+                    actions |= PlatformAllowedWindowActions.Maximize;
+                return actions;
+            }
+        }
+
+        public Action<PlatformAllowedWindowActions>? AllowedWindowActionsChanged { get; set; }
+
+        private void RaiseAllowedWindowActionsChanged()
+        {
+            AllowedWindowActionsChanged?.Invoke(AllowedWindowActions);
+        }
+
+        private void ApplyWindowCustomizationState()
+        {
+            _windowController.SetDecorations(_windowDecorations switch
+            {
+                WindowDecorations.None => NativeWindowDecorations.None,
+                WindowDecorations.BorderOnly => NativeWindowDecorations.BorderOnly,
+                _ => NativeWindowDecorations.Full
+            });
+            _windowController.SetCanResize(_canResize);
+            _windowController.SetCanMinimize(_canMinimize);
+            _windowController.SetCanMaximize(_canMaximize);
+            _windowController.SetSizeConstraints(
+                ToNativeMinimumSize(_minimumSize),
+                ToNativeMaximumSize(_maximumSize));
+            _windowController.SetClientAreaExtension(_isClientAreaExtended, _titleBarHeight);
+            _windowController.SetTheme(
+                _themeVariant == PlatformThemeVariant.Dark
+                    ? NativeWindowTheme.Dark
+                    : NativeWindowTheme.Light);
+        }
+
+        private static NativeWindowSize ToNativeMinimumSize(Size size)
+        {
+            return new NativeWindowSize(
+                double.IsFinite(size.Width) ? Math.Max(0, (int)Math.Ceiling(size.Width)) : 0,
+                double.IsFinite(size.Height) ? Math.Max(0, (int)Math.Ceiling(size.Height)) : 0);
+        }
+
+        private static NativeWindowSize ToNativeMaximumSize(Size size)
+        {
+            return new NativeWindowSize(
+                double.IsFinite(size.Width) ? Math.Max(1, (int)Math.Ceiling(size.Width)) : int.MaxValue,
+                double.IsFinite(size.Height) ? Math.Max(1, (int)Math.Ceiling(size.Height)) : int.MaxValue);
+        }
 
         private double GetPrimaryMonitorScale()
         {
