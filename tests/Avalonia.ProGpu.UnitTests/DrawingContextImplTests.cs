@@ -29,6 +29,65 @@ namespace Avalonia.ProGpu.UnitTests
         }
 
         [Fact]
+        public void Digger_Acrylic_Records_Shader_Material_With_Source_Replacement()
+        {
+            var target = CreateTarget();
+            var material = new ExperimentalAcrylicMaterial
+            {
+                BackgroundSource = AcrylicBackgroundSource.Digger,
+                TintColor = Colors.Red,
+                TintOpacity = 0.9,
+                MaterialOpacity = 0.8,
+                FallbackColor = Colors.Blue
+            };
+
+            target.DrawRectangle(
+                material,
+                new RoundedRect(new Rect(10, 20, 100, 80), new CornerRadius(2, 4, 6, 8)));
+
+            Assert.Collection(target.DrawingContext.Commands,
+                command =>
+                {
+                    Assert.Equal(RenderCommandType.PushBlendMode, command.Type);
+                    Assert.Equal((int)GpuBlendMode.Src, command.IntParam);
+                },
+                command =>
+                {
+                    Assert.Equal(RenderCommandType.DrawExtension, command.Type);
+                    Assert.Equal(CompositorBuiltInExtensions.BackdropMaterial, command.ExtensionId);
+                    var parameters = Assert.IsType<BackdropMaterialParams>(command.DataParam);
+                    Assert.Equal(new ProGPU.Scene.Rect(10, 20, 100, 80), parameters.Rect);
+                    Assert.Equal(ProGPU.Vector.BackdropMaterialKind.Acrylic, parameters.Kind);
+                    Assert.Equal(ProGPU.Vector.BackdropMaterialSource.HostBackdrop, parameters.Source);
+                    Assert.Equal(1f, parameters.TintColor.X);
+                    Assert.Equal(0f, parameters.TintColor.Y);
+                    Assert.Equal(0f, parameters.TintColor.Z);
+                    Assert.Equal(new System.Numerics.Vector4(2, 4, 6, 8), parameters.CornerRadiiX);
+                    Assert.Equal(new System.Numerics.Vector4(2, 4, 6, 8), parameters.CornerRadiiY);
+                    Assert.Equal(0.0225f, parameters.NoiseOpacity);
+                },
+                command => Assert.Equal(RenderCommandType.PopBlendMode, command.Type));
+        }
+
+        [Fact]
+        public void Non_Digger_Acrylic_Uses_Normal_Composition()
+        {
+            var target = CreateTarget();
+            var material = new ExperimentalAcrylicMaterial
+            {
+                BackgroundSource = AcrylicBackgroundSource.None,
+                TintColor = Colors.Green
+            };
+
+            target.DrawRectangle(material, new RoundedRect(new Rect(0, 0, 20, 10)));
+
+            var command = Assert.Single(target.DrawingContext.Commands);
+            var parameters = Assert.IsType<BackdropMaterialParams>(command.DataParam);
+            Assert.Equal(RenderCommandType.DrawExtension, command.Type);
+            Assert.Equal(ProGPU.Vector.BackdropMaterialSource.None, parameters.Source);
+        }
+
+        [Fact]
         public void ScaleDrawingToDpi_Applies_Dpi_PostTransform_To_DrawCommands()
         {
             var target = CreateTarget(new Vector(192, 144), scaleDrawingToDpi: true);

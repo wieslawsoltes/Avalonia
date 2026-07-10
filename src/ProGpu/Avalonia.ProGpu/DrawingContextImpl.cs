@@ -210,14 +210,66 @@ namespace Avalonia.ProGpu
 
         public void DrawRectangle(IExperimentalAcrylicMaterial? material, RoundedRect rect)
         {
-            var pBrush = new ProGPU.Vector.SolidColorBrush(new Vector4(0.5f, 0.5f, 0.5f, 0.5f));
-            DrawingContext.DrawRoundedRectangle(
-                pBrush,
-                null,
-                ToLocalProGpuRect(rect.Rect),
-                (float)rect.RadiiTopLeft.X,
-                (float)rect.RadiiTopLeft.Y,
-                ToMatrix4x4(RenderTransform));
+            if (material == null || rect.Rect.Width <= 0 || rect.Rect.Height <= 0)
+            {
+                return;
+            }
+
+            var tintColor = material.TintColor;
+            var luminosityColor = material.MaterialColor;
+            var fallbackColor = material.FallbackColor;
+            var parameters = new BackdropMaterialParams
+            {
+                Rect = ToLocalProGpuRect(rect.Rect),
+                CornerRadiiX = new Vector4(
+                    (float)rect.RadiiTopLeft.X,
+                    (float)rect.RadiiTopRight.X,
+                    (float)rect.RadiiBottomRight.X,
+                    (float)rect.RadiiBottomLeft.X),
+                CornerRadiiY = new Vector4(
+                    (float)rect.RadiiTopLeft.Y,
+                    (float)rect.RadiiTopRight.Y,
+                    (float)rect.RadiiBottomRight.Y,
+                    (float)rect.RadiiBottomLeft.Y),
+                Kind = BackdropMaterialKind.Acrylic,
+                Source = material.BackgroundSource == AcrylicBackgroundSource.Digger
+                    ? BackdropMaterialSource.HostBackdrop
+                    : BackdropMaterialSource.None,
+                TintColor = new Vector4(
+                    tintColor.R / 255f,
+                    tintColor.G / 255f,
+                    tintColor.B / 255f,
+                    tintColor.A / 255f),
+                LuminosityColor = new Vector4(
+                    luminosityColor.R / 255f,
+                    luminosityColor.G / 255f,
+                    luminosityColor.B / 255f,
+                    luminosityColor.A / 255f),
+                FallbackColor = new Vector4(
+                    fallbackColor.R / 255f,
+                    fallbackColor.G / 255f,
+                    fallbackColor.B / 255f,
+                    fallbackColor.A / 255f),
+                TintOpacity = 1f,
+                LuminosityOpacity = 1f,
+                MaterialOpacity = 1f,
+                NoiseOpacity = 0.0225f,
+                BlurRadius = 30f,
+                Saturation = 1.25f
+            };
+
+            var replaceBackdrop = material.BackgroundSource == AcrylicBackgroundSource.Digger;
+            if (replaceBackdrop)
+            {
+                DrawingContext.PushBlendMode(GpuBlendMode.Src);
+            }
+
+            DrawingContext.DrawBackdropMaterial(parameters, ToMatrix4x4(RenderTransform));
+
+            if (replaceBackdrop)
+            {
+                DrawingContext.PopBlendMode();
+            }
         }
 
         public void DrawRectangle(IBrush? brush, IPen? pen, RoundedRect rect, BoxShadows boxShadows = default)
