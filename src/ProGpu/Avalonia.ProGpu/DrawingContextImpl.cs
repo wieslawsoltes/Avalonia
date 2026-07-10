@@ -999,32 +999,39 @@ namespace Avalonia.ProGpu
                     context.ReconfigureIfNeeded(width, height);
                     var surfaceTexture = new SurfaceTexture();
                     context.Wgpu.SurfaceGetCurrentTexture((Surface*)surfacePointer, &surfaceTexture);
-
-                    if (surfaceTexture.Status == SurfaceGetCurrentTextureStatus.Success)
+                    TextureView* targetView = null;
+                    try
                     {
-                        var viewDesc = new TextureViewDescriptor
+                        if (surfaceTexture.Status == SurfaceGetCurrentTextureStatus.Success)
                         {
-                            Format = context.SwapChainFormat,
-                            Dimension = TextureViewDimension.Dimension2D,
-                            BaseMipLevel = 0,
-                            MipLevelCount = 1,
-                            BaseArrayLayer = 0,
-                            ArrayLayerCount = 1,
-                            Aspect = TextureAspect.All
-                        };
-                        var targetView = context.Wgpu.TextureCreateView(surfaceTexture.Texture, &viewDesc);
+                            var viewDesc = new TextureViewDescriptor
+                            {
+                                Format = context.SwapChainFormat,
+                                Dimension = TextureViewDimension.Dimension2D,
+                                BaseMipLevel = 0,
+                                MipLevelCount = 1,
+                                BaseArrayLayer = 0,
+                                ArrayLayerCount = 1,
+                                Aspect = TextureAspect.All
+                            };
+                            targetView = context.Wgpu.TextureCreateView(surfaceTexture.Texture, &viewDesc);
 
+                            if (targetView != null)
+                            {
+                                GpuTextureBlitter.Blit(texture, targetView, context.SwapChainFormat);
+                                context.Wgpu.SurfacePresent((Surface*)surfacePointer);
+                            }
+                        }
+                    }
+                    finally
+                    {
                         if (targetView != null)
                         {
-                            var presentVisual = new DrawingVisual();
-                            presentVisual.Size = hostFrame.LogicalSize;
-                            var rect = new ProGPU.Scene.Rect(0, 0, hostFrame.LogicalWidth, hostFrame.LogicalHeight);
-                            presentVisual.Context.DrawTexture(texture, rect);
-
-                            compositor.RenderScene(presentVisual, hostFrame, targetView);
-
-                            context.Wgpu.SurfacePresent((Surface*)surfacePointer);
                             context.Wgpu.TextureViewRelease(targetView);
+                        }
+                        if (surfaceTexture.Texture != null)
+                        {
+                            context.Wgpu.TextureRelease(surfaceTexture.Texture);
                         }
                     }
                     return;
