@@ -6,8 +6,16 @@ using ProGPU.Backend;
 
 namespace Avalonia.SilkNet
 {
+    internal interface ISilkNetFramebufferAddressProvider
+    {
+        IntPtr GetAddress(int requiredBufferSize);
+    }
+
     public class SilkNetLockedFramebuffer : ILockedFramebuffer, IPlatformHandle, IDisposable
     {
+        private readonly IntPtr _address;
+        private readonly ISilkNetFramebufferAddressProvider? _addressProvider;
+        private readonly int _requiredBufferSize;
         private readonly Action _onDispose;
         private readonly Silk.NET.Windowing.IWindow _window;
 
@@ -21,7 +29,7 @@ namespace Avalonia.SilkNet
             Action onDispose,
             Silk.NET.Windowing.IWindow window)
         {
-            Address = address;
+            _address = address;
             Size = size;
             RowBytes = rowBytes;
             Dpi = dpi;
@@ -31,7 +39,31 @@ namespace Avalonia.SilkNet
             _window = window;
         }
 
-        public IntPtr Address { get; }
+        internal SilkNetLockedFramebuffer(
+            ISilkNetFramebufferAddressProvider addressProvider,
+            int requiredBufferSize,
+            PixelSize size,
+            int rowBytes,
+            Vector dpi,
+            PixelFormat format,
+            AlphaFormat alphaFormat,
+            Action onDispose,
+            Silk.NET.Windowing.IWindow window)
+            : this(
+                IntPtr.Zero,
+                size,
+                rowBytes,
+                dpi,
+                format,
+                alphaFormat,
+                onDispose,
+                window)
+        {
+            _addressProvider = addressProvider ?? throw new ArgumentNullException(nameof(addressProvider));
+            _requiredBufferSize = requiredBufferSize;
+        }
+
+        public IntPtr Address => _addressProvider?.GetAddress(_requiredBufferSize) ?? _address;
         public PixelSize Size { get; }
         public int RowBytes { get; }
         public Vector Dpi { get; }

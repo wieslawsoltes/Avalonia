@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.InteropServices;
 using Avalonia.Platform;
 using Avalonia.Platform.Surfaces;
 
@@ -8,8 +7,7 @@ namespace Avalonia.SilkNet
     public class SilkNetFramebufferManager : IFramebufferPlatformSurface, IDisposable
     {
         private readonly Silk.NET.Windowing.IWindow _window;
-        private byte[]? _buffer;
-        private GCHandle _bufferHandle;
+        private readonly SilkNetFramebufferAddressProvider _addressProvider = new();
         
         public SilkNetFramebufferManager(Silk.NET.Windowing.IWindow window)
         {
@@ -21,23 +19,14 @@ namespace Avalonia.SilkNet
             var size = new PixelSize((int)_window.FramebufferSize.X, (int)_window.FramebufferSize.Y);
             int width = Math.Max(1, size.Width);
             int height = Math.Max(1, size.Height);
-            int stride = width * 4;
-            int totalBytes = stride * height;
+            int stride = checked(width * 4);
+            int totalBytes = checked(stride * height);
 
-            if (_buffer == null || _buffer.Length != totalBytes)
-            {
-                if (_bufferHandle.IsAllocated)
-                    _bufferHandle.Free();
-
-                _buffer = new byte[totalBytes];
-                _bufferHandle = GCHandle.Alloc(_buffer, GCHandleType.Pinned);
-            }
-
-            var address = _bufferHandle.AddrOfPinnedObject();
             var dpi = new Vector(96, 96);
 
             return new SilkNetLockedFramebuffer(
-                address,
+                _addressProvider,
+                totalBytes,
                 size,
                 stride,
                 dpi,
@@ -51,11 +40,6 @@ namespace Avalonia.SilkNet
 
         public IFramebufferRenderTarget CreateFramebufferRenderTarget() => new FuncFramebufferRenderTarget(Lock);
 
-        public void Dispose()
-        {
-            if (_bufferHandle.IsAllocated)
-                _bufferHandle.Free();
-            _buffer = null;
-        }
+        public void Dispose() => _addressProvider.Dispose();
     }
 }
