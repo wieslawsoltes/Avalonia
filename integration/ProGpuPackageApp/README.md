@@ -8,6 +8,8 @@ Use freshly packed packages from this checkout:
 ./integration/ProGpuPackageApp/run.sh local
 ```
 
+Local mode also consumes ProGPU runtime packages from the sibling `../ProGPU/artifacts/packages/Release` directory. Set `PROGPU_PACKAGE_SOURCE` when the ProGPU checkout or package output is elsewhere.
+
 Use only packages indexed on NuGet.org:
 
 ```bash

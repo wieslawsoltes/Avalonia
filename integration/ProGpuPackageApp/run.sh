@@ -5,7 +5,7 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 project="${repo_root}/integration/ProGpuPackageApp/ProGpuPackageApp.csproj"
 mode="${1:-nuget}"
 configuration="${PROGPU_CONFIGURATION:-Release}"
-integration_version="${PROGPU_INTEGRATION_PACKAGE_VERSION:-12.0.5-preview.3}"
+integration_version="${PROGPU_INTEGRATION_PACKAGE_VERSION:-12.0.5-preview.4}"
 working_directory="$(mktemp -d "${TMPDIR:-/tmp}/progpu-package-app.XXXXXX")"
 consumer_artifacts="${working_directory}/artifacts"
 
@@ -29,14 +29,25 @@ fi
 
 case "${mode}" in
   local)
+    runtime_package_source="${PROGPU_PACKAGE_SOURCE:-${repo_root}/../ProGPU/artifacts/packages/${configuration}}"
+    if [[ ! -d "${runtime_package_source}" ]]; then
+      echo "Local ProGPU package source was not found: ${runtime_package_source}" >&2
+      echo "Pack ProGPU first or set PROGPU_PACKAGE_SOURCE to its package output directory." >&2
+      exit 1
+    fi
+
     NUGET_HTTP_CACHE_PATH="${working_directory}/pack-http-cache" \
     PROGPU_RESTORE_PACKAGES_PATH="${working_directory}/pack-packages" \
+    PROGPU_PACKAGE_SOURCE="${runtime_package_source}" \
     PROGPU_INTEGRATION_VERSION="${integration_version}" \
       "${repo_root}/scripts/progpu-pack.sh"
     "${dotnet}" nuget remove source nuget \
       --configfile "${working_directory}/nuget.config" >/dev/null
     "${dotnet}" nuget add source "${repo_root}/artifacts/packages/${configuration}" \
       --name progpu-avalonia-local \
+      --configfile "${working_directory}/nuget.config" >/dev/null
+    "${dotnet}" nuget add source "${runtime_package_source}" \
+      --name progpu-runtime-local \
       --configfile "${working_directory}/nuget.config" >/dev/null
     "${dotnet}" nuget add source https://api.nuget.org/v3/index.json \
       --name nuget \
