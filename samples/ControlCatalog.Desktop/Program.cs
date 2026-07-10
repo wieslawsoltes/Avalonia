@@ -12,6 +12,7 @@ using Avalonia.LinuxFramebuffer;
 using Avalonia.LinuxFramebuffer.Output;
 using Avalonia.LogicalTree;
 using Avalonia.Platform;
+using Avalonia.ProGpu;
 using Avalonia.Rendering.Composition;
 using Avalonia.Threading;
 using Avalonia.Vulkan;
@@ -41,9 +42,21 @@ namespace ControlCatalog.Desktop
                 }
             }
 
-            var builder = args.Contains("--skia")
-                ? BuildSkiaApp()
-                : BuildAvaloniaApp();
+            var useSkiaShim = args.Contains("--skiashim");
+#if !AVALONIA_SKIA_SHIM
+            if (useSkiaShim)
+            {
+                Console.Error.WriteLine(
+                    "The --skiashim option requires -p:UseSkiaSharpShim=true when building ControlCatalog.Desktop.");
+                return 2;
+            }
+#endif
+
+            var builder = useSkiaShim
+                ? BuildSkiaShimApp()
+                : args.Contains("--skia")
+                    ? BuildSkiaApp()
+                    : BuildAvaloniaApp();
 
             double GetScaling()
             {
@@ -158,7 +171,7 @@ namespace ControlCatalog.Desktop
         public static AppBuilder BuildAvaloniaApp()
             => ConfigureAppBuilder(AppBuilder.Configure<App>()
                 .UseSilkNet()
-                .UseRenderingSubsystem(() => Avalonia.ProGpu.SkiaPlatform.Initialize(), "ProGPU"));
+                .UseProGpu());
 
         private static AppBuilder BuildSkiaApp()
             => ConfigureAppBuilder(AppBuilder.Configure<App>()
@@ -167,14 +180,38 @@ namespace ControlCatalog.Desktop
                     Avalonia.Skia.SkiaPlatform.Initialize,
                     "Skia"));
 
-        private static AppBuilder ConfigureAppBuilder(AppBuilder builder)
+        private static AppBuilder BuildSkiaShimApp()
+            => ConfigureAppBuilder(AppBuilder.Configure<App>()
+                    .UsePlatformDetect()
+                    .UseRenderingSubsystem(
+                        Avalonia.Skia.SkiaPlatform.Initialize,
+                        "SkiaSharp shim"),
+                forceSoftwareRendering: true);
+
+        private static AppBuilder ConfigureAppBuilder(AppBuilder builder, bool forceSoftwareRendering = false)
             => builder
                 .UseHarfBuzz()
                 .With(new X11PlatformOptions
                 {
+                    RenderingMode = forceSoftwareRendering
+                        ? [X11RenderingMode.Software]
+                        : [X11RenderingMode.Glx, X11RenderingMode.Software],
                     EnableMultiTouch = true,
                     UseDBusMenu = true,
                     EnableIme = true,
+                })
+                .With(new AvaloniaNativePlatformOptions
+                {
+                    RenderingMode = forceSoftwareRendering
+                        ? [AvaloniaNativeRenderingMode.Software]
+                        : [AvaloniaNativeRenderingMode.Metal, AvaloniaNativeRenderingMode.OpenGl,
+                            AvaloniaNativeRenderingMode.Software]
+                })
+                .With(new Win32PlatformOptions
+                {
+                    RenderingMode = forceSoftwareRendering
+                        ? [Win32RenderingMode.Software]
+                        : [Win32RenderingMode.AngleEgl, Win32RenderingMode.Software]
                 })
 
                 .With(new VulkanOptions

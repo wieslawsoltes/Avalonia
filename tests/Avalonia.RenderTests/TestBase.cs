@@ -32,6 +32,8 @@ namespace Avalonia.Skia.RenderTests
     {
 #if AVALONIA_PROGPU
         private static string s_fontUri = "resm:Avalonia.ProGpu.RenderTests.Assets?assembly=Avalonia.ProGpu.RenderTests#Noto Mono";
+#elif AVALONIA_SKIASHIM
+        private static string s_fontUri = "resm:Avalonia.SkiaShim.RenderTests.Assets?assembly=Avalonia.SkiaShim.RenderTests#Noto Mono";
 #else
         private static string s_fontUri = "resm:Avalonia.Skia.RenderTests.Assets?assembly=Avalonia.Skia.RenderTests#Noto Mono";
 #endif
@@ -47,9 +49,15 @@ namespace Avalonia.Skia.RenderTests
             var testFiles = Path.Combine(testPath, "TestFiles");
 #if AVALONIA_PROGPU
             OutputPath = Path.Combine(testFiles, "ProGpu", outputPath);
+#elif AVALONIA_SKIASHIM
+            OutputPath = Path.Combine(testFiles, "SkiaShim", outputPath);
+            ExpectedPath = Path.Combine(testFiles, "Skia", outputPath);
 #else
             OutputPath = Path.Combine(testFiles, "Skia", outputPath);
 #endif
+
+            ExpectedPath ??= OutputPath;
+            AssetsPath = ExpectedPath;
 
             TestRenderHelper.BeginTest();
         }
@@ -58,6 +66,10 @@ namespace Avalonia.Skia.RenderTests
         {
             get;
         }
+
+        public string ExpectedPath { get; }
+
+        protected string AssetsPath { get; }
 
         protected async Task RenderToFile(Control target, [CallerMemberName] string testName = "", double dpi = 96)
         {
@@ -75,7 +87,7 @@ namespace Avalonia.Skia.RenderTests
         protected void CompareImages([CallerMemberName] string testName = "",
             bool skipImmediate = false,  bool skipCompositor = false)
         {
-            var expectedPath = Path.Combine(OutputPath, testName + ".expected.png");
+            var expectedPath = Path.Combine(ExpectedPath, testName + ".expected.png");
             var immediatePath = Path.Combine(OutputPath, testName + ".immediate.out.png");
             var compositedPath = Path.Combine(OutputPath, testName + ".composited.out.png");
 
@@ -105,7 +117,7 @@ namespace Avalonia.Skia.RenderTests
 
         protected void CompareImagesNoRenderer([CallerMemberName] string testName = "", string? expectedName = null)
         {
-            var expectedPath = Path.Combine(OutputPath, (expectedName ?? testName) + ".expected.png");
+            var expectedPath = Path.Combine(ExpectedPath, (expectedName ?? testName) + ".expected.png");
             var actualPath = Path.Combine(OutputPath, testName + ".out.png");
             TestRenderHelper.AssertCompareImages(actualPath, expectedPath);
         }

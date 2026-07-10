@@ -19,7 +19,7 @@ namespace Avalonia.Skia.RenderTests
         {
             get
             {
-                return System.IO.Path.Combine(OutputPath, "github_icon.png");
+                return System.IO.Path.Combine(AssetsPath, "github_icon.png");
             }
         }
 

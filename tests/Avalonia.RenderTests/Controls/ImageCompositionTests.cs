@@ -16,8 +16,8 @@ namespace Avalonia.Skia.RenderTests
         public ImageCompositionTests()
             : base(@"Controls\Image\composition")
         {
-            _bitmapA = new Bitmap(Path.Combine(OutputPath, "A.png"));
-            _bitmapB = new Bitmap(Path.Combine(OutputPath, "B.png"));
+            _bitmapA = new Bitmap(Path.Combine(AssetsPath, "A.png"));
+            _bitmapB = new Bitmap(Path.Combine(AssetsPath, "B.png"));
         }
         [Fact]
         public async Task Image_Blend_SourceOver() => await TestCompositeMode(BitmapBlendingMode.SourceOver);

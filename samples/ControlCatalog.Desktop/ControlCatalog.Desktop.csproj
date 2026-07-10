@@ -6,6 +6,7 @@
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <UseMicroCom>true</UseMicroCom>
+    <DefineConstants Condition="'$(UseSkiaSharpShim)' == 'true'">$(DefineConstants);AVALONIA_SKIA_SHIM</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

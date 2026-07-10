@@ -108,6 +108,7 @@
   </Folder>
   <Folder Name="/Skia/">
     <Project Path="src/Skia/Avalonia.Skia/Avalonia.Skia.csproj" />
+    <Project Path="src/Skia/Avalonia.SkiaShim/Avalonia.SkiaShim.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
@@ -153,6 +154,7 @@
     <Project Path="tests/Avalonia.ProGpu.UnitTests/Avalonia.ProGpu.UnitTests.csproj" />
     <Project Path="tests/Avalonia.RenderTests.WpfCompare/Avalonia.RenderTests.WpfCompare.csproj" />
     <Project Path="tests/Avalonia.Skia.RenderTests/Avalonia.Skia.RenderTests.csproj" />
+    <Project Path="tests/Avalonia.SkiaShim.RenderTests/Avalonia.SkiaShim.RenderTests.csproj" />
     <Project Path="tests/Avalonia.Skia.UnitTests/Avalonia.Skia.UnitTests.csproj" />
     <Project Path="tests/Avalonia.UnitTests/Avalonia.UnitTests.csproj" />
   </Folder>

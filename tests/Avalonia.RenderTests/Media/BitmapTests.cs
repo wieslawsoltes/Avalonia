@@ -147,7 +147,7 @@ namespace Avalonia.Skia.RenderTests
         internal unsafe void BitmapsShouldSupportTranscoders_Lenna(PixelFormatEnum format, AlphaFormat alphaFormat = AlphaFormat.Unpremul)
         {
             var relativeFilesDir = "../../../PixelFormats/Lenna";
-            var filesDir = Path.Combine(OutputPath, relativeFilesDir);
+            var filesDir = Path.Combine(AssetsPath, relativeFilesDir);
             
             var formatName = format.ToString();
             if (alphaFormat == AlphaFormat.Premul)
@@ -161,7 +161,7 @@ namespace Avalonia.Skia.RenderTests
             var stride = header.Stride;
             
             string expectedName = Path.Combine(relativeFilesDir, formatName);
-            if (!File.Exists(Path.Combine(OutputPath, expectedName + ".expected.png")))
+            if (!File.Exists(Path.Combine(ExpectedPath, expectedName + ".expected.png")))
                 expectedName = Path.Combine(relativeFilesDir, "Default");
 
             var names = new[]

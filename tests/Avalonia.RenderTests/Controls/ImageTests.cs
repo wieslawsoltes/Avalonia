@@ -15,8 +15,8 @@ namespace Avalonia.Skia.RenderTests
         public ImageTests()
             : base(@"Controls\Image")
         {
-            _bitmap = new Bitmap(Path.Combine(OutputPath, "test.png"));
-            _bitmap2 = new Bitmap(Path.Combine(OutputPath, "test2.png"));
+            _bitmap = new Bitmap(Path.Combine(AssetsPath, "test.png"));
+            _bitmap2 = new Bitmap(Path.Combine(AssetsPath, "test2.png"));
         }
 
         [Fact]

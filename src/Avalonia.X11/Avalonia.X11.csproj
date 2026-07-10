@@ -1,13 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>$(AvsCurrentTargetFramework);$(AvsLegacyTargetFrameworks)</TargetFrameworks>
+    <TargetFrameworks Condition="'$(UseSkiaSharpShim)' != 'true'">$(AvsCurrentTargetFramework);$(AvsLegacyTargetFrameworks)</TargetFrameworks>
+    <TargetFrameworks Condition="'$(UseSkiaSharpShim)' == 'true'">$(AvsCurrentTargetFramework)</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <EnableRuntimeMarshalling>true</EnableRuntimeMarshalling>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\packages\Avalonia\Avalonia.csproj" />
-    <ProjectReference Include="..\Skia\Avalonia.Skia\Avalonia.Skia.csproj" />
+    <ProjectReference Include="..\Skia\Avalonia.Skia\Avalonia.Skia.csproj"
+                      Condition="'$(UseSkiaSharpShim)' != 'true'" />
+    <ProjectReference Include="..\Skia\Avalonia.SkiaShim\Avalonia.SkiaShim.csproj"
+                      Condition="'$(UseSkiaSharpShim)' == 'true'" />
     <ProjectReference Include="..\Avalonia.FreeDesktop\Avalonia.FreeDesktop.csproj" />
     <ProjectReference Include="..\Avalonia.FreeDesktop.AtSpi\Avalonia.FreeDesktop.AtSpi.csproj" />
     <Compile Include="..\Shared\RawEventGrouping.cs" />

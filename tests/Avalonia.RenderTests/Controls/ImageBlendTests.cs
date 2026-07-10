@@ -16,8 +16,8 @@ namespace Avalonia.Skia.RenderTests
         public ImageBlendTests()
             : base(@"Controls\Image\blend")
         {
-            _bitmapBase = new Bitmap(Path.Combine(OutputPath, "Cat.jpg"));
-            _bitmapOver = new Bitmap(Path.Combine(OutputPath, "ColourShading - by Stib.png"));
+            _bitmapBase = new Bitmap(Path.Combine(AssetsPath, "Cat.jpg"));
+            _bitmapOver = new Bitmap(Path.Combine(AssetsPath, "ColourShading - by Stib.png"));
         }
 
         [Fact]
