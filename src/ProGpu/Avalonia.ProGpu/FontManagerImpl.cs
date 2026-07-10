@@ -113,17 +113,35 @@ namespace Avalonia.ProGpu
         private Lazy<SystemFontCatalog> _systemFonts;
 
         public FontManagerImpl()
-            : this(FontApi.GetSystemFonts, GetPlatformPreferredFonts())
+            : this(FontApi.GetSystemFonts, GetPlatformPreferredFonts(), preloadSystemFonts: true)
         {
         }
 
         internal FontManagerImpl(
             Func<IReadOnlyList<FontInfo>> systemFontProvider,
-            IReadOnlyList<FontInfo>? preferredFonts = null)
+            IReadOnlyList<FontInfo>? preferredFonts = null,
+            bool preloadSystemFonts = false)
         {
             _systemFontProvider = systemFontProvider ?? throw new ArgumentNullException(nameof(systemFontProvider));
             _preferredFonts = preferredFonts ?? Array.Empty<FontInfo>();
             _systemFonts = CreateSystemFontCatalog();
+
+            if (preloadSystemFonts)
+            {
+                ThreadPool.QueueUserWorkItem(static state => ((FontManagerImpl)state!).PreloadSystemFonts(), this);
+            }
+        }
+
+        private void PreloadSystemFonts()
+        {
+            try
+            {
+                _ = GetSystemFonts();
+            }
+            catch
+            {
+                // Speculative preload failures are surfaced by the normal synchronous lookup path.
+            }
         }
 
         public string GetDefaultFontFamilyName()

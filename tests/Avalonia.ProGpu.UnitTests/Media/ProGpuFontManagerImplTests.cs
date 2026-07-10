@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 using Avalonia.Media;
 using Avalonia.Media.Fonts;
 using ProGPU.Text;
@@ -81,6 +82,22 @@ namespace Avalonia.ProGpu.UnitTests.Media
                 File.Delete(digitsPath);
                 File.Delete(fallbackPath);
             }
+        }
+
+        [Fact]
+        public void SystemFontCatalogCanBePreloadedOnTheThreadPool()
+        {
+            using var providerCalled = new ManualResetEventSlim();
+            var manager = new FontManagerImpl(
+                () =>
+                {
+                    providerCalled.Set();
+                    return Array.Empty<FontInfo>();
+                },
+                preloadSystemFonts: true);
+
+            Assert.True(providerCalled.Wait(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken));
+            Assert.Empty(manager.GetInstalledFontFamilyNames());
         }
 
         private static FontInfo CreateFontInfo(TtfFont font, string filePath)
