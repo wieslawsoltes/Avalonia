@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title description">
+  <title id="title">ProGPU Avalonia platform icon</title>
+  <desc id="description">A geometric P mark with three GPU pixels on a charcoal tile.</desc>
+  <rect x="8" y="8" width="240" height="240" rx="48" fill="#17191D"/>
+  <rect x="10" y="10" width="236" height="236" rx="46" fill="none" stroke="#F7F7F2" stroke-opacity="0.16" stroke-width="4"/>
+  <rect x="62" y="56" width="28" height="144" rx="14" fill="#38D4C8"/>
+  <path fill="#F7F7F2" fill-rule="evenodd" d="M80 56h59c33 0 57 22 57 52s-24 52-57 52H80V56Zm26 24v56h32c19 0 32-11 32-28s-13-28-32-28h-32Z"/>
+  <rect x="132" y="180" width="18" height="18" rx="4" fill="#FF6B5E"/>
+  <rect x="160" y="180" width="18" height="18" rx="4" fill="#F4C95D"/>
+  <rect x="188" y="180" width="18" height="18" rx="4" fill="#38D4C8"/>
+</svg>

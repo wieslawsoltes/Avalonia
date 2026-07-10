@@ -4,10 +4,12 @@ The ProGPU integration has two development modes and ships as two preview packag
 
 | Package | Assembly | Purpose |
 | --- | --- | --- |
-| `ProGPU.Avalonia.Rendering` `12.0.5-preview.0` | `Avalonia.ProGpu` | ProGPU/WebGPU rendering backend |
-| `ProGPU.Avalonia.SilkNet` `12.0.5-preview.0` | `Avalonia.SilkNet` | Cross-platform Silk.NET windowing backend |
+| `ProGPU.Avalonia.Rendering` `12.0.5-preview.1` | `Avalonia.ProGpu` | ProGPU/WebGPU rendering backend |
+| `ProGPU.Avalonia.SilkNet` `12.0.5-preview.1` | `Avalonia.SilkNet` | Cross-platform Silk.NET windowing backend |
 
 Both packages are built against exactly Avalonia `12.0.5` and ProGPU `0.1.0-preview.2`. They intentionally use `ProGPU.*` package IDs; no `Avalonia.*` package ID is produced by this release lane.
+
+The original package artwork is maintained as `build/Assets/ProGpuAvaloniaIcon.svg` and rendered to `build/Assets/ProGpuAvaloniaIcon.png`. NuGet uses the PNG, and both files are included in each integration package.
 
 ## Development modes
 
@@ -71,15 +73,15 @@ Release order:
 1. Tag and publish ProGPU `0.1.0-preview.2`.
 2. Confirm the required ProGPU packages are available from NuGet.org.
 3. Pack and test the Avalonia integrations in package mode.
-4. Publish `ProGPU.Avalonia.Rendering` and `ProGPU.Avalonia.SilkNet` `12.0.5-preview.0`.
+4. Publish `ProGPU.Avalonia.Rendering` and `ProGPU.Avalonia.SilkNet` `12.0.5-preview.1`.
 
 ## Consume the packages
 
 ```xml
 <ItemGroup>
   <PackageReference Include="Avalonia" Version="12.0.5" />
-  <PackageReference Include="ProGPU.Avalonia.Rendering" Version="12.0.5-preview.0" />
-  <PackageReference Include="ProGPU.Avalonia.SilkNet" Version="12.0.5-preview.0" />
+  <PackageReference Include="ProGPU.Avalonia.Rendering" Version="12.0.5-preview.1" />
+  <PackageReference Include="ProGPU.Avalonia.SilkNet" Version="12.0.5-preview.1" />
 </ItemGroup>
 ```
 

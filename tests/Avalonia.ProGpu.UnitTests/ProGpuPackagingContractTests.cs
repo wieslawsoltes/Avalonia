@@ -16,7 +16,10 @@ namespace Avalonia.ProGpu.UnitTests
             Assert.Contains(">Source</ProGpuDependencyMode>", properties, StringComparison.Ordinal);
             Assert.Contains(">12.0.5</ProGpuAvaloniaVersion>", properties, StringComparison.Ordinal);
             Assert.Contains(">0.1.0-preview.2</ProGpuRuntimeVersion>", properties, StringComparison.Ordinal);
-            Assert.Contains(">12.0.5-preview.0</ProGpuIntegrationVersion>", properties, StringComparison.Ordinal);
+            Assert.Contains(">12.0.5-preview.1</ProGpuIntegrationVersion>", properties, StringComparison.Ordinal);
+            Assert.Contains("<PackageIcon>ProGpuAvaloniaIcon.png</PackageIcon>", properties, StringComparison.Ordinal);
+            Assert.Contains("<None Remove=\"$(MSBuildThisFileDirectory)Assets/Icon.png\"", properties, StringComparison.Ordinal);
+            Assert.Contains("Assets/ProGpuAvaloniaIcon.svg", properties, StringComparison.Ordinal);
 
             Assert.Contains("<PackageId>ProGPU.Avalonia.Rendering</PackageId>", renderer, StringComparison.Ordinal);
             Assert.Contains("<PackageId>ProGPU.Avalonia.SilkNet</PackageId>", windowing, StringComparison.Ordinal);
