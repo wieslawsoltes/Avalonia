@@ -17,9 +17,11 @@ package_output="${PROGPU_PACKAGE_OUTPUT:-${repo_root}/artifacts/packages/${confi
 restore_root=""
 
 cleanup() {
+  local exit_code=$?
   if [[ -n "${restore_root}" ]]; then
     rm -rf "${restore_root}"
   fi
+  return "${exit_code}"
 }
 trap cleanup EXIT
 
@@ -56,10 +58,12 @@ for index in "${!progpu_avalonia_package_ids[@]}"; do
   package_id="${progpu_avalonia_package_ids[$index]}"
   project="${repo_root}/${progpu_avalonia_package_projects[$index]}"
 
-  "${dotnet}" restore "${project}" \
-    "${restore_args[@]}" \
-    "${msbuild_args[@]}" \
-    --verbosity minimal
+  restore_command=("${dotnet}" restore "${project}")
+  if [[ "${#restore_args[@]}" -gt 0 ]]; then
+    restore_command+=("${restore_args[@]}")
+  fi
+  restore_command+=("${msbuild_args[@]}" --verbosity minimal)
+  "${restore_command[@]}"
 
   "${dotnet}" pack "${project}" \
     --configuration "${configuration}" \
