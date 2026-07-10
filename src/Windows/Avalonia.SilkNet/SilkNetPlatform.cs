@@ -29,7 +29,7 @@ namespace Avalonia.SilkNet
             Avalonia.Threading.Dispatcher.InitializeUIThreadDispatcher(s_instance._dispatcher);
 
             var clipboardImpl = new SilkNetClipboardImpl();
-            var clipboard = new Clipboard(clipboardImpl);
+            var clipboard = new SilkNetClipboard(clipboardImpl);
 
             var renderTimer = new UiThreadRenderTimer(60);
             var renderLoop = RenderLoop.FromTimer(renderTimer);
@@ -320,7 +320,11 @@ namespace Avalonia.SilkNet
             };
         }
 
-        public event EventHandler<PlatformColorValues>? ColorValuesChanged;
+        public event EventHandler<PlatformColorValues>? ColorValuesChanged
+        {
+            add { }
+            remove { }
+        }
     }
 }
 

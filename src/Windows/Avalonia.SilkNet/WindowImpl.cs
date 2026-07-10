@@ -1211,7 +1211,9 @@ namespace Avalonia.SilkNet
 
     internal sealed class SilkNetKeyboardDevice : KeyboardDevice
     {
-        public new static SilkNetKeyboardDevice Instance { get; } = new();
+#pragma warning disable CS0108 // KeyboardDevice.Instance is internal in the Avalonia 12.0.5 package.
+        public static SilkNetKeyboardDevice Instance { get; } = new();
+#pragma warning restore CS0108
         private SilkNetKeyboardDevice() {}
     }
 }

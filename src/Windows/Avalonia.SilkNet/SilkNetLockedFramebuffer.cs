@@ -6,7 +6,7 @@ using ProGPU.Backend;
 
 namespace Avalonia.SilkNet
 {
-    public class SilkNetLockedFramebuffer : IGpuLockedFramebuffer, IDisposable
+    public class SilkNetLockedFramebuffer : ILockedFramebuffer, IProGpuSurfaceFramebuffer, IDisposable
     {
         private readonly Action _onDispose;
         private readonly Silk.NET.Windowing.IWindow _window;

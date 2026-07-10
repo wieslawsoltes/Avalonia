@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
@@ -19,7 +17,10 @@ namespace Avalonia.SilkNet
             {
                 return Task.FromResult<IAsyncDataTransfer?>(null);
             }
-            return Task.FromResult<IAsyncDataTransfer?>(new SilkNetClipboardDataTransfer(text));
+
+            var dataTransfer = new DataTransfer();
+            dataTransfer.Add(DataTransferItem.CreateText(text));
+            return Task.FromResult<IAsyncDataTransfer?>(dataTransfer);
         }
 
         public async Task SetDataAsync(IAsyncDataTransfer dataTransfer)
@@ -50,19 +51,25 @@ namespace Avalonia.SilkNet
         }
     }
 
-    internal class SilkNetClipboardDataTransfer : IAsyncDataTransfer
+    internal sealed class SilkNetClipboard : IClipboard
     {
-        public SilkNetClipboardDataTransfer(string text)
+        private readonly IClipboardImpl _clipboardImpl;
+
+        public SilkNetClipboard(IClipboardImpl clipboardImpl)
         {
-            Items = new[] { PlatformDataTransferItem.Create(DataFormat.Text, text) };
-            Formats = new[] { DataFormat.Text };
+            _clipboardImpl = clipboardImpl;
         }
 
-        public IReadOnlyList<DataFormat> Formats { get; }
-        public IReadOnlyList<IAsyncDataTransferItem> Items { get; }
+        public Task ClearAsync() => _clipboardImpl.ClearAsync();
 
-        public void Dispose()
-        {
-        }
+        public Task SetDataAsync(IAsyncDataTransfer? dataTransfer) =>
+            dataTransfer is null ? ClearAsync() : _clipboardImpl.SetDataAsync(dataTransfer);
+
+        public Task FlushAsync() => Task.CompletedTask;
+
+        public Task<IAsyncDataTransfer?> TryGetDataAsync() => _clipboardImpl.TryGetDataAsync();
+
+        public Task<IAsyncDataTransfer?> TryGetInProcessDataAsync() =>
+            Task.FromResult<IAsyncDataTransfer?>(null);
     }
 }
