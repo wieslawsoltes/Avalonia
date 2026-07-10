@@ -15,6 +15,7 @@ namespace Avalonia.ProGpu
         IDrawingContextWithAcrylicLikeSupport,
         IDrawingContextImplWithEffects
     {
+        private const string ProGpuSurfaceHandleDescriptor = "WGPU_SURFACE";
         private readonly IDisposable?[]? _disposables;
         private readonly ILockedFramebuffer? _framebuffer;
         private readonly bool _preserveRecordedCommandsOnDispose;
@@ -843,24 +844,38 @@ namespace Avalonia.ProGpu
 
         private static unsafe WgpuContext? ResolveContext(ILockedFramebuffer? framebuffer)
         {
-            if (framebuffer is IProGpuSurfaceFramebuffer gpuFb)
+            if (TryGetSurfacePointer(framebuffer, out var surfacePtr))
             {
-                var surfacePtr = gpuFb.SurfacePointer;
-                if (surfacePtr != IntPtr.Zero)
+                lock (s_initLock)
                 {
-                    lock (s_initLock)
+                    foreach (var context in WgpuContext.ActiveContexts)
                     {
-                        foreach (var context in WgpuContext.ActiveContexts)
+                        if ((IntPtr)context.Surface == surfacePtr)
                         {
-                            if ((IntPtr)context.Surface == surfacePtr)
-                            {
-                                return context;
-                            }
+                            return context;
                         }
                     }
                 }
             }
             return null;
+        }
+
+        private static bool TryGetSurfacePointer(
+            ILockedFramebuffer? framebuffer,
+            out IntPtr surfacePointer)
+        {
+            if (framebuffer is IPlatformHandle
+                {
+                    HandleDescriptor: ProGpuSurfaceHandleDescriptor,
+                    Handle: var handle
+                } && handle != IntPtr.Zero)
+            {
+                surfacePointer = handle;
+                return true;
+            }
+
+            surfacePointer = IntPtr.Zero;
+            return false;
         }
 
         private static unsafe void EnsureGpuContext(ILockedFramebuffer? framebuffer, TextureFormat? preferredFormat = null)
@@ -979,11 +994,11 @@ namespace Avalonia.ProGpu
                     drawingVisual.Context.Clear();
                 }
 
-                if (_framebuffer is IProGpuSurfaceFramebuffer gpuFb)
+                if (TryGetSurfacePointer(_framebuffer, out var surfacePointer))
                 {
                     context.ReconfigureIfNeeded(width, height);
                     var surfaceTexture = new SurfaceTexture();
-                    context.Wgpu.SurfaceGetCurrentTexture((Surface*)gpuFb.SurfacePointer, &surfaceTexture);
+                    context.Wgpu.SurfaceGetCurrentTexture((Surface*)surfacePointer, &surfaceTexture);
 
                     if (surfaceTexture.Status == SurfaceGetCurrentTextureStatus.Success)
                     {
@@ -1008,7 +1023,7 @@ namespace Avalonia.ProGpu
 
                             compositor.RenderScene(presentVisual, hostFrame, targetView);
 
-                            context.Wgpu.SurfacePresent((Surface*)gpuFb.SurfacePointer);
+                            context.Wgpu.SurfacePresent((Surface*)surfacePointer);
                             context.Wgpu.TextureViewRelease(targetView);
                         }
                     }

@@ -6,7 +6,7 @@ using ProGPU.Backend;
 
 namespace Avalonia.SilkNet
 {
-    public class SilkNetLockedFramebuffer : ILockedFramebuffer, IProGpuSurfaceFramebuffer, IDisposable
+    public class SilkNetLockedFramebuffer : ILockedFramebuffer, IPlatformHandle, IDisposable
     {
         private readonly Action _onDispose;
         private readonly Silk.NET.Windowing.IWindow _window;
@@ -37,6 +37,8 @@ namespace Avalonia.SilkNet
         public Vector Dpi { get; }
         public PixelFormat Format { get; }
         public AlphaFormat AlphaFormat { get; }
+        public IntPtr Handle => SurfacePointer;
+        public string HandleDescriptor => "WGPU_SURFACE";
 
         public IntPtr SurfacePointer
         {
