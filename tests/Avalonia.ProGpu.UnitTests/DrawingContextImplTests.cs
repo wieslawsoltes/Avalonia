@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -273,6 +274,85 @@ namespace Avalonia.ProGpu.UnitTests
 
             Assert.Empty(target.DrawingContext.Commands);
             Assert.Equal(0, target.DrawingContext.RetainedResourceCount);
+        }
+
+        [Fact]
+        public void ProGpu_Api_Lease_Exposes_Current_Drawing_State()
+        {
+            using var target = CreateTarget(new Vector(144, 120), scaleDrawingToDpi: true);
+            var transform = Matrix.CreateScale(2, 3) * Matrix.CreateTranslation(10, 20);
+            target.Transform = transform;
+            target.PushOpacity(0.5, null);
+            var feature = Assert.IsAssignableFrom<IProGpuApiLeaseFeature>(
+                target.GetFeature(typeof(IProGpuApiLeaseFeature)));
+
+            using (var lease = feature.Lease())
+            {
+                Assert.Same(target.DrawingContext, lease.DrawingContext);
+                Assert.Same(WgpuContext.Current, lease.WgpuContext);
+                Assert.Equal(new Vector(144, 120), lease.Dpi);
+                Assert.Equal(0.5, lease.CurrentOpacity);
+                Assert.Equal(3f, lease.CurrentTransform.M11);
+                Assert.Equal(3.75f, lease.CurrentTransform.M22);
+                Assert.Equal(15f, lease.CurrentTransform.M41);
+                Assert.Equal(25f, lease.CurrentTransform.M42);
+
+                lease.DrawingContext.DrawRectangle(
+                    new ProGPU.Vector.SolidColorBrush(new System.Numerics.Vector4(0.1f, 0.4f, 0.9f, 1f)),
+                    null,
+                    new ProGPU.Scene.Rect(2, 4, 20, 10),
+                    lease.CurrentTransform);
+            }
+
+            target.PopOpacity();
+            Assert.Contains(target.DrawingContext.Commands, command => command.Type == RenderCommandType.DrawRect);
+        }
+
+        [Fact]
+        public void ProGpu_Api_Lease_Is_Exclusive()
+        {
+            using var target = CreateTarget();
+            var feature = Assert.IsAssignableFrom<IProGpuApiLeaseFeature>(
+                target.GetFeature(typeof(IProGpuApiLeaseFeature)));
+
+            using var lease = feature.Lease();
+
+            Assert.Throws<InvalidOperationException>(() => feature.Lease());
+            Assert.Throws<InvalidOperationException>(() => target.Clear(Colors.Transparent));
+            Assert.Throws<InvalidOperationException>(() => target.Dispose());
+        }
+
+        [Fact]
+        public void Disposing_ProGpu_Api_Lease_Releases_Context()
+        {
+            using var target = CreateTarget();
+            var feature = Assert.IsAssignableFrom<IProGpuApiLeaseFeature>(
+                target.GetFeature(typeof(IProGpuApiLeaseFeature)));
+            var lease = feature.Lease();
+
+            lease.Dispose();
+            lease.Dispose();
+
+            Assert.Throws<ObjectDisposedException>(() => _ = lease.DrawingContext);
+            target.DrawLine(new Pen(Brushes.Black, 1), new Point(0, 0), new Point(5, 5));
+        }
+
+        [Fact]
+        public void ProGpu_Api_Lease_Must_Be_Disposed_On_Acquiring_Thread()
+        {
+            using var target = CreateTarget();
+            var feature = Assert.IsAssignableFrom<IProGpuApiLeaseFeature>(
+                target.GetFeature(typeof(IProGpuApiLeaseFeature)));
+            var lease = feature.Lease();
+            Exception? disposeError = null;
+            var thread = new Thread(() => disposeError = Record.Exception(lease.Dispose));
+
+            thread.Start();
+            thread.Join();
+
+            Assert.IsType<InvalidOperationException>(disposeError);
+            lease.Dispose();
+            target.Clear(Colors.Transparent);
         }
 
         private static DrawingContextImpl CreateTarget()

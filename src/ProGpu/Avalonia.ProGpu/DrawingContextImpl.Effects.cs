@@ -22,6 +22,7 @@ partial class DrawingContextImpl
 
     public void PushEffect(Avalonia.Rect? effectClipRect, IEffect effect)
     {
+        CheckLease();
         bool isBlend = false;
         if (effect is BlendEffect blendEffect)
         {
@@ -38,6 +39,7 @@ partial class DrawingContextImpl
 
     public void PopEffect()
     {
+        CheckLease();
         if (_pushedBlendModeStack.Count > 0 && _pushedBlendModeStack.Pop())
         {
             DrawingContext.PopBlendMode();

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Threading;
 using Avalonia.Media;
 using Avalonia.Platform;
 using Silk.NET.WebGPU;
@@ -18,6 +19,7 @@ namespace Avalonia.ProGpu
         private readonly ILockedFramebuffer? _framebuffer;
         private readonly bool _preserveRecordedCommandsOnDispose;
         private readonly OffscreenTextureCache _offscreenCache;
+        private readonly WgpuContext _gpuContext;
         private readonly Matrix? _postTransform;
         internal readonly PixelSize _size;
         private Matrix _currentTransform = Matrix.Identity;
@@ -25,6 +27,8 @@ namespace Avalonia.ProGpu
         private Vector4 _clearColor = new Vector4(1f, 1f, 1f, 1f);
         private readonly Stack<double> _opacityStack = new();
         private int _opacityMaskDepth;
+        private bool _leased;
+        private bool _disposed;
         private readonly Stack<ClipKind> _clipStack = new();
         private readonly Stack<Avalonia.Media.RenderOptions> _renderOptionsStack = new();
         private readonly Stack<Avalonia.Media.TextOptions> _textOptionsStack = new();
@@ -53,6 +57,103 @@ namespace Avalonia.ProGpu
             public object? Gpu;
             public object? CurrentSession;
             public object? CacheHolder;
+        }
+
+        private sealed class ProGpuLeaseFeature : IProGpuApiLeaseFeature
+        {
+            private readonly DrawingContextImpl _context;
+
+            public ProGpuLeaseFeature(DrawingContextImpl context)
+            {
+                _context = context;
+            }
+
+            public IProGpuApiLease Lease()
+            {
+                _context.CheckLease();
+                return new ApiLease(_context);
+            }
+
+            private sealed class ApiLease : IProGpuApiLease
+            {
+                private DrawingContextImpl? _context;
+                private readonly WgpuContext _gpuContext;
+                private readonly int _threadId;
+                private WgpuContext.CurrentContextScope _currentContextScope;
+                private bool _lockTaken;
+
+                public ApiLease(DrawingContextImpl context)
+                {
+                    _gpuContext = context._gpuContext;
+                    _threadId = Environment.CurrentManagedThreadId;
+                    if (_gpuContext.IsDisposed)
+                        throw new ObjectDisposedException(nameof(WgpuContext));
+
+                    var lockTaken = false;
+                    try
+                    {
+                        Monitor.Enter(_gpuContext.RenderLock, ref lockTaken);
+                        if (_gpuContext.IsDisposed)
+                            throw new ObjectDisposedException(nameof(WgpuContext));
+
+                        _currentContextScope = WgpuContext.PushCurrent(_gpuContext);
+                        _lockTaken = lockTaken;
+                        _context = context;
+                        context._leased = true;
+                    }
+                    catch
+                    {
+                        if (lockTaken)
+                            Monitor.Exit(_gpuContext.RenderLock);
+                        throw;
+                    }
+                }
+
+                private DrawingContextImpl Context =>
+                    _context ?? throw new ObjectDisposedException(nameof(IProGpuApiLease));
+
+                public ProGPU.Scene.DrawingContext DrawingContext => Context.DrawingContext;
+                public WgpuContext WgpuContext
+                {
+                    get
+                    {
+                        _ = Context;
+                        return _gpuContext;
+                    }
+                }
+
+                public Matrix4x4 CurrentTransform => ToMatrix4x4(Context.RenderTransform);
+                public double CurrentOpacity => Context._currentOpacity;
+                public PixelSize PixelSize => Context._size;
+                public Vector Dpi => Context.Dpi;
+
+                public void Dispose()
+                {
+                    var context = _context;
+                    if (context == null)
+                        return;
+                    if (Environment.CurrentManagedThreadId != _threadId)
+                    {
+                        throw new InvalidOperationException(
+                            "The ProGPU API lease must be disposed on the thread that acquired it.");
+                    }
+
+                    _context = null;
+                    try
+                    {
+                        _currentContextScope.Dispose();
+                    }
+                    finally
+                    {
+                        context._leased = false;
+                        if (_lockTaken)
+                        {
+                            _lockTaken = false;
+                            Monitor.Exit(_gpuContext.RenderLock);
+                        }
+                    }
+                }
+            }
         }
 
         public DrawingContextImpl(CreateInfo createInfo, params IDisposable?[]? disposables)
@@ -110,6 +211,15 @@ namespace Avalonia.ProGpu
                 }
             }
             EnsureGpuContext(_framebuffer, preferredFormat);
+            _gpuContext = s_wgpuContext ??
+                throw new InvalidOperationException("ProGPU did not initialize a WebGPU context.");
+        }
+
+        private void CheckLease()
+        {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+            if (_leased)
+                throw new InvalidOperationException("The underlying ProGPU API is currently leased.");
         }
 
         private Matrix RenderTransform => _postTransform.HasValue
@@ -118,6 +228,7 @@ namespace Avalonia.ProGpu
 
         public void Reset()
         {
+            CheckLease();
             _currentTransform = Matrix.Identity;
             _currentOpacity = 1.0;
             _opacityStack.Clear();
@@ -130,6 +241,7 @@ namespace Avalonia.ProGpu
 
         public void Clear(Avalonia.Media.Color color)
         {
+            CheckLease();
             _clearColor = new Vector4(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f, color.A / 255.0f);
             var pBrush = new ProGPU.Vector.SolidColorBrush(_clearColor);
             DrawingContext.PushBlendMode(GpuBlendMode.Src);
@@ -139,6 +251,7 @@ namespace Avalonia.ProGpu
 
         public void DrawBitmap(IBitmapImpl source, double opacity, Avalonia.Rect sourceRect, Avalonia.Rect destRect)
         {
+            CheckLease();
             if (source is IDrawingContextLayerImpl layer && layer.CanBlit)
             {
                 layer.Blit(this);
@@ -174,11 +287,13 @@ namespace Avalonia.ProGpu
 
         public void DrawBitmap(IBitmapImpl source, IBrush opacityMask, Avalonia.Rect opacityMaskRect, Avalonia.Rect destRect)
         {
+            CheckLease();
             DrawBitmap(source, 1.0, new Avalonia.Rect(0, 0, source.PixelSize.Width, source.PixelSize.Height), destRect);
         }
 
         public void DrawLine(IPen? pen, Avalonia.Point p1, Avalonia.Point p2)
         {
+            CheckLease();
             var pPen = ConvertPen(pen);
             if (pPen != null)
             {
@@ -188,6 +303,7 @@ namespace Avalonia.ProGpu
 
         public void DrawGeometry(IBrush? brush, IPen? pen, IGeometryImpl geometry)
         {
+            CheckLease();
             if (geometry is GeometryImpl geomImpl)
             {
                 var bounds = geomImpl.Bounds;
@@ -209,6 +325,7 @@ namespace Avalonia.ProGpu
 
         public void DrawRectangle(IExperimentalAcrylicMaterial? material, RoundedRect rect)
         {
+            CheckLease();
             if (material == null || rect.Rect.Width <= 0 || rect.Rect.Height <= 0)
             {
                 return;
@@ -273,6 +390,7 @@ namespace Avalonia.ProGpu
 
         public void DrawRectangle(IBrush? brush, IPen? pen, RoundedRect rect, BoxShadows boxShadows = default)
         {
+            CheckLease();
             var pPen = ConvertPen(pen, rect.Rect);
             var localRect = ToLocalProGpuRect(rect.Rect);
             var clipPath = rect.IsRounded
@@ -314,6 +432,7 @@ namespace Avalonia.ProGpu
 
         public void DrawRegion(IBrush? brush, IPen? pen, IPlatformRenderInterfaceRegion region)
         {
+            CheckLease();
             if (region.IsEmpty)
                 return;
 
@@ -332,6 +451,7 @@ namespace Avalonia.ProGpu
 
         public void DrawEllipse(IBrush? brush, IPen? pen, Avalonia.Rect rect)
         {
+            CheckLease();
             var center = new Vector2((float)rect.Center.X, (float)rect.Center.Y);
             var radiusX = (float)(rect.Width / 2.0);
             var radiusY = (float)(rect.Height / 2.0);
@@ -359,6 +479,7 @@ namespace Avalonia.ProGpu
 
         public void DrawGlyphRun(IBrush? foreground, IGlyphRunImpl glyphRun)
         {
+            CheckLease();
             if (glyphRun is GlyphRunImpl run)
             {
                 var pBrush = ConvertBrush(foreground, run.Bounds);
@@ -442,6 +563,7 @@ namespace Avalonia.ProGpu
 
         public IDrawingContextLayerImpl CreateLayer(PixelSize size)
         {
+            CheckLease();
             PixelFormat? format = _framebuffer?.Format;
             if (format == null)
             {
@@ -466,16 +588,19 @@ namespace Avalonia.ProGpu
 
         public void PushClip(Avalonia.Rect clip)
         {
+            CheckLease();
             DrawingContext.PushClip(ToProGpuRect(clip));
             _clipStack.Push(ClipKind.Rectangle);
         }
         public void PushClip(RoundedRect clip)
         {
+            CheckLease();
             DrawingContext.PushClip(ToProGpuRect(clip.Rect));
             _clipStack.Push(ClipKind.Rectangle);
         }
         public void PushClip(IPlatformRenderInterfaceRegion region)
         {
+            CheckLease();
             var rects = region.Rects;
             if (rects.Count <= 1)
             {
@@ -491,6 +616,7 @@ namespace Avalonia.ProGpu
         }
         public void PopClip()
         {
+            CheckLease();
             if (_clipStack.Count == 0 || _clipStack.Pop() == ClipKind.Rectangle)
                 DrawingContext.PopClip();
             else
@@ -499,15 +625,18 @@ namespace Avalonia.ProGpu
 
         public void PushLayer(Avalonia.Rect bounds)
         {
+            CheckLease();
             DrawingContext.PushClip(ToProGpuRect(bounds));
         }
         public void PopLayer()
         {
+            CheckLease();
             DrawingContext.PopClip();
         }
 
         public void PushOpacity(double opacity, Avalonia.Rect? bounds)
         {
+            CheckLease();
             _opacityStack.Push(_currentOpacity);
             _currentOpacity *= opacity;
             DrawingContext.PushOpacity((float)opacity);
@@ -515,6 +644,7 @@ namespace Avalonia.ProGpu
 
         public void PopOpacity()
         {
+            CheckLease();
             if (_opacityStack.Count > 0)
             {
                 _currentOpacity = _opacityStack.Pop();
@@ -524,6 +654,7 @@ namespace Avalonia.ProGpu
 
         public void PushGeometryClip(IGeometryImpl clip)
         {
+            CheckLease();
             if (clip is GeometryImpl geomImpl)
             {
                 var transform = RenderTransform;
@@ -535,11 +666,13 @@ namespace Avalonia.ProGpu
         }
         public void PopGeometryClip()
         {
+            CheckLease();
             DrawingContext.PopGeometryClip();
         }
 
         public void PushOpacityMask(IBrush mask, Avalonia.Rect bounds)
         {
+            CheckLease();
             var pBrush = ConvertBrush(mask, bounds);
             if (pBrush != null)
             {
@@ -558,6 +691,7 @@ namespace Avalonia.ProGpu
 
         public void PopOpacityMask()
         {
+            CheckLease();
             if (_opacityMaskDepth > 0)
             {
                 _opacityMaskDepth--;
@@ -591,33 +725,46 @@ namespace Avalonia.ProGpu
 
         public void PushRenderOptions(Avalonia.Media.RenderOptions renderOptions)
         {
+            CheckLease();
             _renderOptionsStack.Push(RenderOptions);
             RenderOptions = RenderOptions.MergeWith(renderOptions);
         }
 
         public void PopRenderOptions()
         {
+            CheckLease();
             RenderOptions = _renderOptionsStack.Pop();
         }
 
         public void PushTextOptions(Avalonia.Media.TextOptions textOptions)
         {
+            CheckLease();
             _textOptionsStack.Push(TextOptions);
             TextOptions = TextOptions.MergeWith(textOptions);
         }
 
         public void PopTextOptions()
         {
+            CheckLease();
             TextOptions = _textOptionsStack.Pop();
         }
 
         public Matrix Transform
         {
             get => _currentTransform;
-            set => _currentTransform = value;
+            set
+            {
+                CheckLease();
+                _currentTransform = value;
+            }
         }
 
-        public object? GetFeature(Type featureType) => null;
+        public object? GetFeature(Type featureType)
+        {
+            if (featureType == typeof(IProGpuApiLeaseFeature))
+                return new ProGpuLeaseFeature(this);
+            return null;
+        }
 
         [ThreadStatic]
         private static WgpuContext? s_wgpuContext;
@@ -875,23 +1022,33 @@ namespace Avalonia.ProGpu
 
         public void Dispose()
         {
+            if (_disposed)
+                return;
+            CheckLease();
             try
             {
                 FlushToFramebuffer();
             }
             finally
             {
-                if (!_preserveRecordedCommandsOnDispose)
+                try
                 {
-                    DrawingContext.Clear();
-                }
-
-                if (_disposables != null)
-                {
-                    foreach (var disposable in _disposables)
+                    if (!_preserveRecordedCommandsOnDispose)
                     {
-                        disposable?.Dispose();
+                        DrawingContext.Clear();
                     }
+
+                    if (_disposables != null)
+                    {
+                        foreach (var disposable in _disposables)
+                        {
+                            disposable?.Dispose();
+                        }
+                    }
+                }
+                finally
+                {
+                    _disposed = true;
                 }
             }
         }
