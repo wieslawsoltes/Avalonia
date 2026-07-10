@@ -34,8 +34,8 @@ public class UiThreadRenderTimer : DefaultRenderTimer
             _parent = parent;
             _tick = tick;
             _timer.Tick += OnTick;
-            _timer.Interval = Interval;
             Interval = TimeSpan.FromSeconds(1.0 / _parent.FramesPerSecond);
+            _timer.Interval = Interval;
             _timer.Start();
         }
 

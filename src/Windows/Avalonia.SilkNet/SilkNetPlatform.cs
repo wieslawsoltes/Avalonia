@@ -65,13 +65,6 @@ namespace Avalonia.SilkNet
 
         public void DoEvents()
         {
-            try
-            {
-                var glfw = Silk.NET.GLFW.Glfw.GetApi();
-                glfw.PollEvents();
-            }
-            catch {}
-
             WindowImpl[] windowsToProcess;
             lock (_windows)
             {

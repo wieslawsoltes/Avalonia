@@ -75,7 +75,6 @@ namespace Avalonia.SilkNet
                 if (isSignaled)
                 {
                     Signaled?.Invoke();
-                    continue;
                 }
 
                 bool fireTimer;
@@ -91,6 +90,11 @@ namespace Avalonia.SilkNet
                 if (fireTimer)
                 {
                     FireTimer();
+                    continue;
+                }
+
+                if (isSignaled)
+                {
                     continue;
                 }
 

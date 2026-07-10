@@ -72,4 +72,28 @@ public class DispatcherTests
         Assert.True(firedAt >= dueTime);
         Assert.True(firedAt - dueTime < 250);
     }
+
+    [Fact]
+    public void TimerIsNotStarvedByContinuousSignals()
+    {
+        SilkNetDispatcherImpl? dispatcher = null;
+        dispatcher = new SilkNetDispatcherImpl(() => dispatcher!.Signal());
+        using var cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        long? firedAt = null;
+        dispatcher.Signaled += () => { };
+        dispatcher.Timer += () =>
+        {
+            firedAt = dispatcher.Now;
+            cancellation.Cancel();
+        };
+
+        var dueTime = dispatcher.Now + 25;
+        dispatcher.UpdateTimer(dueTime);
+        dispatcher.Signal();
+        dispatcher.RunLoop(cancellation.Token);
+
+        Assert.NotNull(firedAt);
+        Assert.True(firedAt >= dueTime);
+        Assert.True(firedAt - dueTime < 250);
+    }
 }
