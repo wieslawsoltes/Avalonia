@@ -47,12 +47,13 @@ internal sealed class App : Application
                 CreateStatusRow("Integration", "12.0.5-preview.2", Color.Parse("#F4C95D")),
                 new TextBlock
                 {
-                    Text = "This window was built without Avalonia or ProGPU project references.",
+                    Text = "Direct ProGPU + WGSL through IProGpuApiLeaseFeature",
                     Foreground = new SolidColorBrush(SecondaryText),
                     FontSize = 13,
                     Margin = new Thickness(0, 18, 0, 0),
                     TextWrapping = TextWrapping.Wrap
-                }
+                },
+                new ProGpuLeaseView { Height = 92 }
             }
         };
 
@@ -60,9 +61,9 @@ internal sealed class App : Application
         {
             Title = "ProGPU Package Integration",
             Width = 680,
-            Height = 420,
+            Height = 540,
             MinWidth = 520,
-            MinHeight = 360,
+            MinHeight = 480,
             WindowStartupLocation = WindowStartupLocation.CenterScreen,
             Background = new SolidColorBrush(Color.Parse("#17191D")),
             Content = new Border

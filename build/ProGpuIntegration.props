@@ -25,7 +25,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>ProGpuAvaloniaIcon.png</PackageIcon>
-    <PackageReleaseNotes>Preview integration for Avalonia 12.0.5 and ProGPU 0.1.0-preview.2 with an original modern gradient ProGPU platform package icon.</PackageReleaseNotes>
+    <PackageReleaseNotes>Adds a scoped ProGPU drawing API lease, complete package usage guidance, and an original modern gradient package icon for Avalonia 12.0.5 and ProGPU 0.1.0-preview.2.</PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -42,7 +42,7 @@
           Pack="true"
           PackagePath=""
           Visible="false" />
-    <None Include="$(MSBuildThisFileDirectory)../docs/progpu-packaging.md"
+    <None Include="$(MSBuildThisFileDirectory)../docs/progpu-package-readme.md"
           Pack="true"
           PackagePath="README.md"
           Visible="false" />

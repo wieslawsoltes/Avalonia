@@ -9,6 +9,8 @@ The ProGPU integration has two development modes and ships as two preview packag
 
 Both packages are built against exactly Avalonia `12.0.5` and ProGPU `0.1.0-preview.2`. They intentionally use `ProGPU.*` package IDs; no `Avalonia.*` package ID is produced by this release lane.
 
+The NuGet package page uses `docs/progpu-package-readme.md`. Keep its install, startup, API lease, and troubleshooting instructions current when package contracts change.
+
 The original package artwork is maintained as `build/Assets/ProGpuAvaloniaIcon.svg` and rendered to `build/Assets/ProGpuAvaloniaIcon.png`. NuGet uses the PNG, and both files are included in each integration package.
 
 ## Development modes
@@ -80,6 +82,8 @@ Release order:
 ```xml
 <ItemGroup>
   <PackageReference Include="Avalonia" Version="12.0.5" />
+  <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.5" />
+  <PackageReference Include="Avalonia.HarfBuzz" Version="12.0.5" />
   <PackageReference Include="ProGPU.Avalonia.Rendering" Version="12.0.5-preview.2" />
   <PackageReference Include="ProGPU.Avalonia.SilkNet" Version="12.0.5-preview.2" />
 </ItemGroup>
@@ -88,10 +92,20 @@ Release order:
 Configure both backends before starting the desktop lifetime:
 
 ```csharp
+using Avalonia.Rendering.Composition;
+
 public static AppBuilder BuildAvaloniaApp() =>
     AppBuilder.Configure<App>()
         .UseSilkNet()
-        .UseProGpu();
+        .UseProGpu()
+        .With(new CompositionOptions
+        {
+            UseRegionDirtyRectClipping = false
+        })
+        .UseHarfBuzz()
+        .WithInterFont();
 ```
 
 `UseSkia()` remains available as a compatibility alias for the ProGPU renderer, but `UseProGpu()` avoids ambiguity with Avalonia's Skia package.
+
+Use `IProGpuApiLeaseFeature` from `ICustomDrawOperation.Render` for scoped access to the ProGPU scene command recorder and active `WgpuContext`. The complete vector drawing and WGSL ShaderToy examples, plus the lease lifetime rules, are in `docs/progpu-package-readme.md` and `integration/ProGpuPackageApp/ProGpuLeaseView.cs`.

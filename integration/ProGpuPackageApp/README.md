@@ -1,6 +1,6 @@
 # ProGPU package integration app
 
-This code-only desktop app verifies the published integration surface without any Avalonia or ProGPU `ProjectReference`. It starts with Silk.NET windowing and the ProGPU renderer.
+This code-only desktop app verifies the published integration surface without any Avalonia or ProGPU `ProjectReference`. It starts with Silk.NET windowing and the ProGPU renderer, then uses `IProGpuApiLeaseFeature` from a custom draw operation to submit ProGPU vector commands and an animated WGSL shader through the WebGPU ShaderToy extension.
 
 Use freshly packed packages from this checkout:
 

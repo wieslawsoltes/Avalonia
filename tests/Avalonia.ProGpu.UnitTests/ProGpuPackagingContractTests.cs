@@ -18,6 +18,7 @@ namespace Avalonia.ProGpu.UnitTests
             Assert.Contains(">0.1.0-preview.2</ProGpuRuntimeVersion>", properties, StringComparison.Ordinal);
             Assert.Contains(">12.0.5-preview.2</ProGpuIntegrationVersion>", properties, StringComparison.Ordinal);
             Assert.Contains("<PackageIcon>ProGpuAvaloniaIcon.png</PackageIcon>", properties, StringComparison.Ordinal);
+            Assert.Contains("docs/progpu-package-readme.md", properties, StringComparison.Ordinal);
             Assert.Contains("<None Remove=\"$(MSBuildThisFileDirectory)Assets/Icon.png\"", properties, StringComparison.Ordinal);
             Assert.Contains("Assets/ProGpuAvaloniaIcon.svg", properties, StringComparison.Ordinal);
 
@@ -36,6 +37,7 @@ namespace Avalonia.ProGpu.UnitTests
             var pack = ReadRepoFile("scripts", "progpu-pack.sh");
             var publish = ReadRepoFile("scripts", "progpu-publish.sh");
             var documentation = ReadRepoFile("docs", "progpu-packaging.md");
+            var packageReadme = ReadRepoFile("docs", "progpu-package-readme.md");
 
             foreach (var packageId in new[] { "ProGPU.Avalonia.Rendering", "ProGPU.Avalonia.SilkNet" })
             {
@@ -48,6 +50,12 @@ namespace Avalonia.ProGpu.UnitTests
             Assert.Contains("NUGET_API_KEY", publish, StringComparison.Ordinal);
             Assert.Contains("--skip-duplicate", publish, StringComparison.Ordinal);
             Assert.DoesNotContain(".snupkg", publish, StringComparison.Ordinal);
+            Assert.Contains(".UseHarfBuzz()", documentation, StringComparison.Ordinal);
+            Assert.Contains(".WithInterFont()", documentation, StringComparison.Ordinal);
+            Assert.Contains("IProGpuApiLeaseFeature", packageReadme, StringComparison.Ordinal);
+            Assert.Contains("lease.CurrentTransform", packageReadme, StringComparison.Ordinal);
+            Assert.Contains("ShaderToyParams", packageReadme, StringComparison.Ordinal);
+            Assert.Contains("fn mainImage", packageReadme, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -55,6 +63,7 @@ namespace Avalonia.ProGpu.UnitTests
         {
             var project = ReadRepoFile("integration", "ProGpuPackageApp", "ProGpuPackageApp.csproj");
             var program = ReadRepoFile("integration", "ProGpuPackageApp", "Program.cs");
+            var leaseView = ReadRepoFile("integration", "ProGpuPackageApp", "ProGpuLeaseView.cs");
             var runScript = ReadRepoFile("integration", "ProGpuPackageApp", "run.sh");
 
             Assert.Contains("ProGPU.Avalonia.Rendering", project, StringComparison.Ordinal);
@@ -64,8 +73,13 @@ namespace Avalonia.ProGpu.UnitTests
             Assert.DoesNotContain("ProjectReference", project, StringComparison.Ordinal);
             Assert.Contains(".UseSilkNet()", program, StringComparison.Ordinal);
             Assert.Contains(".UseProGpu()", program, StringComparison.Ordinal);
+            Assert.Contains("UseRegionDirtyRectClipping = false", program, StringComparison.Ordinal);
             Assert.Contains(".UseHarfBuzz()", program, StringComparison.Ordinal);
             Assert.Contains(".WithInterFont()", program, StringComparison.Ordinal);
+            Assert.Contains("IProGpuApiLeaseFeature", leaseView, StringComparison.Ordinal);
+            Assert.Contains("lease.CurrentTransform", leaseView, StringComparison.Ordinal);
+            Assert.Contains("ShaderToyParams", leaseView, StringComparison.Ordinal);
+            Assert.Contains("fn mainImage", leaseView, StringComparison.Ordinal);
             Assert.Contains("local)", runScript, StringComparison.Ordinal);
             Assert.Contains("nuget)", runScript, StringComparison.Ordinal);
             Assert.Contains("--configfile", runScript, StringComparison.Ordinal);

@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Rendering.Composition;
 
 namespace ProGpuPackageApp;
 
@@ -12,6 +13,10 @@ internal static class Program
         AppBuilder.Configure<App>()
             .UseSilkNet()
             .UseProGpu()
+            .With(new CompositionOptions
+            {
+                UseRegionDirtyRectClipping = false
+            })
             .UseHarfBuzz()
             .WithInterFont();
 }
