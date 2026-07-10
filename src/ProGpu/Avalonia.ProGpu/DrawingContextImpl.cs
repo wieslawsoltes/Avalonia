@@ -976,7 +976,6 @@ namespace Avalonia.ProGpu
                 drawingVisual.Context.Append(DrawingContext);
 
                 bool loadExisting = !_offscreenCache.IsTextureFresh;
-                _offscreenCache.IsTextureFresh = false;
 
                 try
                 {
@@ -988,6 +987,7 @@ namespace Avalonia.ProGpu
                         _clearColor,
                         loadExistingContents: loadExisting
                     );
+                    _offscreenCache.IsTextureFresh = false;
                 }
                 finally
                 {

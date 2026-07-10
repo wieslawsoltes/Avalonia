@@ -5,6 +5,7 @@ using System.Threading;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Avalonia.Platform.Surfaces;
 using Avalonia.UnitTests;
 using Avalonia.Utilities;
 using ProGPU.Backend;
@@ -15,6 +16,39 @@ namespace Avalonia.ProGpu.UnitTests
 {
     public class DrawingContextImplTests
     {
+        [Fact]
+        public void Framebuffer_Render_Target_Advertises_Retained_Gpu_Contents()
+        {
+            using var target = new FramebufferRenderTarget(new TestFramebufferPlatformSurface());
+
+            Assert.True(target.Properties.RetainsPreviousFrameContents);
+            Assert.True(target.Properties.IsSuitableForDirectRendering);
+        }
+
+        [Fact]
+        public void Offscreen_Texture_Cache_Only_Retains_Matching_Rendered_Texture()
+        {
+            using var drawingTarget = CreateTarget();
+            using var cache = new OffscreenTextureCache();
+            cache.CachedTexture = new GpuTexture(
+                WgpuContext.Current!,
+                4,
+                3,
+                Silk.NET.WebGPU.TextureFormat.Bgra8Unorm,
+                Silk.NET.WebGPU.TextureUsage.RenderAttachment,
+                "Retained frame contract test");
+            cache.CachedWidth = 4;
+            cache.CachedHeight = 3;
+
+            Assert.False(cache.HasRetainedFrame(4, 3, Silk.NET.WebGPU.TextureFormat.Bgra8Unorm));
+
+            cache.IsTextureFresh = false;
+
+            Assert.True(cache.HasRetainedFrame(4, 3, Silk.NET.WebGPU.TextureFormat.Bgra8Unorm));
+            Assert.False(cache.HasRetainedFrame(5, 3, Silk.NET.WebGPU.TextureFormat.Bgra8Unorm));
+            Assert.False(cache.HasRetainedFrame(4, 3, Silk.NET.WebGPU.TextureFormat.Rgba8Unorm));
+        }
+
         [Fact]
         public void DrawLine_With_Zero_Thickness_Pen_Does_Not_Throw()
         {
@@ -368,6 +402,15 @@ namespace Avalonia.ProGpu.UnitTests
                 ScaleDrawingToDpi = scaleDrawingToDpi
             };
             return new DrawingContextImpl(createInfo);
+        }
+
+        private sealed class TestFramebufferPlatformSurface : IFramebufferPlatformSurface
+        {
+            public IFramebufferRenderTarget CreateFramebufferRenderTarget()
+            {
+                return new FuncFramebufferRenderTarget(
+                    () => throw new InvalidOperationException("The retention capability test does not lock the surface."));
+            }
         }
     }
 }

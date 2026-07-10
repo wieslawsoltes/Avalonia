@@ -1,6 +1,7 @@
 using System;
 using Avalonia.Platform;
 using Avalonia.Platform.Surfaces;
+using Silk.NET.WebGPU;
 
 namespace Avalonia.ProGpu
 {
@@ -28,7 +29,7 @@ namespace Avalonia.ProGpu
 
         public RenderTargetProperties Properties => new()
         {
-            RetainsPreviousFrameContents = false,
+            RetainsPreviousFrameContents = true,
             IsSuitableForDirectRendering = true
         };
 
@@ -41,7 +42,10 @@ namespace Avalonia.ProGpu
             if (_renderTarget == null)
                 throw new ObjectDisposedException(nameof(FramebufferRenderTarget));
             
-            var framebuffer = _renderTarget.Lock(sceneInfo, out var lockProperties);
+            var framebuffer = _renderTarget.Lock(sceneInfo, out _);
+            var renderFormat = framebuffer.Format == PixelFormats.Rgba8888
+                ? TextureFormat.Rgba8Unorm
+                : TextureFormat.Bgra8Unorm;
 
             var createInfo = new DrawingContextImpl.CreateInfo
             {
@@ -52,7 +56,12 @@ namespace Avalonia.ProGpu
 
             properties = new()
             {
-                PreviousFrameIsRetained = lockProperties.PreviousFrameIsRetained
+                PreviousFrameIsRetained = framebuffer.Size.Width > 0
+                                          && framebuffer.Size.Height > 0
+                                          && _textureCache.HasRetainedFrame(
+                                              (uint)framebuffer.Size.Width,
+                                              (uint)framebuffer.Size.Height,
+                                              renderFormat)
             };
             
             return new DrawingContextImpl(createInfo, framebuffer);
