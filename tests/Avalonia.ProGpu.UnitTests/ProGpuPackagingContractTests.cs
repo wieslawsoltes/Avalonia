@@ -77,6 +77,7 @@ namespace Avalonia.ProGpu.UnitTests
 
             Assert.Contains("ProGpuDependencyMode=Package", pack, StringComparison.Ordinal);
             Assert.Contains("PROGPU_PACKAGE_SOURCE", pack, StringComparison.Ordinal);
+            Assert.Contains("NUGET_HTTP_CACHE_PATH", pack, StringComparison.Ordinal);
             Assert.Contains("--artifacts-path", pack, StringComparison.Ordinal);
             Assert.Contains("NUGET_API_KEY", publish, StringComparison.Ordinal);
             Assert.Contains("--skip-duplicate", publish, StringComparison.Ordinal);

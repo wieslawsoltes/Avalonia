@@ -16,6 +16,7 @@ integration_version="${PROGPU_INTEGRATION_VERSION:-12.0.5-preview.5}"
 package_output="${PROGPU_PACKAGE_OUTPUT:-${repo_root}/artifacts/packages/${configuration}}"
 restore_root="$(mktemp -d "${TMPDIR:-/tmp}/progpu-avalonia-pack.XXXXXX")"
 restore_artifacts="${restore_root}/artifacts"
+export NUGET_HTTP_CACHE_PATH="${NUGET_HTTP_CACHE_PATH:-${restore_root}/http-cache}"
 
 cleanup() {
   local exit_code=$?
