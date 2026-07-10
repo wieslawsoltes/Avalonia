@@ -50,6 +50,27 @@ namespace Avalonia.ProGpu.UnitTests
             Assert.DoesNotContain(".snupkg", publish, StringComparison.Ordinal);
         }
 
+        [Fact]
+        public void IntegrationAppConsumesOnlyLocalOrNuGetPackages()
+        {
+            var project = ReadRepoFile("integration", "ProGpuPackageApp", "ProGpuPackageApp.csproj");
+            var program = ReadRepoFile("integration", "ProGpuPackageApp", "Program.cs");
+            var runScript = ReadRepoFile("integration", "ProGpuPackageApp", "run.sh");
+
+            Assert.Contains("ProGPU.Avalonia.Rendering", project, StringComparison.Ordinal);
+            Assert.Contains("ProGPU.Avalonia.SilkNet", project, StringComparison.Ordinal);
+            Assert.Contains("Avalonia.HarfBuzz", project, StringComparison.Ordinal);
+            Assert.Contains("Avalonia.Fonts.Inter", project, StringComparison.Ordinal);
+            Assert.DoesNotContain("ProjectReference", project, StringComparison.Ordinal);
+            Assert.Contains(".UseSilkNet()", program, StringComparison.Ordinal);
+            Assert.Contains(".UseProGpu()", program, StringComparison.Ordinal);
+            Assert.Contains(".UseHarfBuzz()", program, StringComparison.Ordinal);
+            Assert.Contains(".WithInterFont()", program, StringComparison.Ordinal);
+            Assert.Contains("local)", runScript, StringComparison.Ordinal);
+            Assert.Contains("nuget)", runScript, StringComparison.Ordinal);
+            Assert.Contains("--configfile", runScript, StringComparison.Ordinal);
+        }
+
         private static string ReadRepoFile(params string[] path)
         {
             var directory = new DirectoryInfo(AppContext.BaseDirectory);

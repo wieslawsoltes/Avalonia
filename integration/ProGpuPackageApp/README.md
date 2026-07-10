@@ -1,0 +1,26 @@
+# ProGPU package integration app
+
+This code-only desktop app verifies the published integration surface without any Avalonia or ProGPU `ProjectReference`. It starts with Silk.NET windowing and the ProGPU renderer.
+
+Use freshly packed packages from this checkout:
+
+```bash
+./integration/ProGpuPackageApp/run.sh local
+```
+
+Use only packages indexed on NuGet.org:
+
+```bash
+./integration/ProGpuPackageApp/run.sh nuget
+```
+
+Both modes use a temporary NuGet configuration, HTTP cache, and global-packages folder. Local mode packs the integration packages first and puts the local package source before NuGet.org.
+
+For a non-interactive compile check, set `PROGPU_INTEGRATION_BUILD_ONLY=1`:
+
+```bash
+PROGPU_INTEGRATION_BUILD_ONLY=1 ./integration/ProGpuPackageApp/run.sh local
+PROGPU_INTEGRATION_BUILD_ONLY=1 ./integration/ProGpuPackageApp/run.sh nuget
+```
+
+Override `PROGPU_INTEGRATION_PACKAGE_VERSION` to validate another integration preview.
