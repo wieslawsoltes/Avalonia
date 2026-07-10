@@ -28,8 +28,11 @@ namespace Avalonia.SilkNet
         private Avalonia.Controls.WindowState _windowState = Avalonia.Controls.WindowState.Normal;
         private SilkNetFramebufferManager _framebuffer;
         private bool _isShown;
+        private bool _isLoaded;
         private WindowBorder? _restoredBorder;
         private bool _paintQueued;
+        private bool _isRenderingLiveResize;
+        private ulong _paintGeneration;
         private char? _pendingHighSurrogate;
         private SilkNetCursorImpl? _cursor;
 
@@ -51,6 +54,7 @@ namespace Avalonia.SilkNet
             _silkWindow.Load += OnLoad;
             _silkWindow.Render += OnRender;
             _silkWindow.Resize += OnResize;
+            _silkWindow.FramebufferResize += OnFramebufferResize;
             _silkWindow.Move += OnMove;
             _silkWindow.Closing += OnClosing;
             _silkWindow.FocusChanged += OnFocusChanged;
@@ -100,17 +104,61 @@ namespace Avalonia.SilkNet
                 mouse.Scroll += OnMouseScroll;
                 ApplyCursor(mouse.Cursor, _cursor);
             }
+
+            _isLoaded = true;
         }
 
         private void OnRender(double delta)
         {
-            Paint?.Invoke(new Rect(0, 0, ClientSize.Width, ClientSize.Height));
+            PaintNow();
         }
 
         private void OnResize(Vector2D<int> size)
         {
-            _clientSize = new Size(size.X, size.Y);
+            UpdateClientSize(size);
+        }
+
+        private void OnFramebufferResize(Vector2D<int> size)
+        {
+            if (size.X <= 0 || size.Y <= 0 || !_isLoaded || _disposed || _isRenderingLiveResize)
+            {
+                return;
+            }
+
+            UpdateClientSize(_silkWindow.Size);
+            _isRenderingLiveResize = true;
+            try
+            {
+                var paintGeneration = _paintGeneration;
+                Dispatcher.UIThread.RunJobs(DispatcherPriority.UiThreadRender);
+                if (paintGeneration == _paintGeneration)
+                {
+                    PaintNow();
+                }
+            }
+            finally
+            {
+                _isRenderingLiveResize = false;
+            }
+        }
+
+        private void UpdateClientSize(Vector2D<int> size)
+        {
+            var clientSize = new Size(size.X, size.Y);
+            if (_clientSize == clientSize)
+            {
+                return;
+            }
+
+            _clientSize = clientSize;
             Resized?.Invoke(_clientSize, WindowResizeReason.Layout);
+        }
+
+        private void PaintNow()
+        {
+            _paintQueued = false;
+            _paintGeneration++;
+            Paint?.Invoke(new Rect(0, 0, ClientSize.Width, ClientSize.Height));
         }
 
         private void OnMove(Vector2D<int> position)
@@ -477,8 +525,14 @@ namespace Avalonia.SilkNet
             _paintQueued = true;
             Dispatcher.UIThread.Post(() =>
             {
-                _paintQueued = false;
-                Paint?.Invoke(new Rect(0, 0, ClientSize.Width, ClientSize.Height));
+                if (!_disposed)
+                {
+                    PaintNow();
+                }
+                else
+                {
+                    _paintQueued = false;
+                }
             }, DispatcherPriority.Render);
         }
 
@@ -589,6 +643,7 @@ namespace Avalonia.SilkNet
         {
             if (_disposed) return;
             _disposed = true;
+            _isLoaded = false;
             SilkNetPlatform.Instance.UnregisterWindow(this);
 
             try
@@ -596,6 +651,7 @@ namespace Avalonia.SilkNet
                 _silkWindow.Load -= OnLoad;
                 _silkWindow.Render -= OnRender;
                 _silkWindow.Resize -= OnResize;
+                _silkWindow.FramebufferResize -= OnFramebufferResize;
                 _silkWindow.Move -= OnMove;
                 _silkWindow.Closing -= OnClosing;
                 _silkWindow.FocusChanged -= OnFocusChanged;
