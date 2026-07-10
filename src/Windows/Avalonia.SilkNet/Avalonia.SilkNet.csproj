@@ -3,10 +3,21 @@
     <TargetFrameworks>$(AvsCurrentTargetFramework)</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Nullable>enable</Nullable>
+    <PackageId>ProGPU.Avalonia.SilkNet</PackageId>
+    <Title>Silk.NET windowing platform for Avalonia and ProGPU</Title>
+    <Description>Cross-platform Silk.NET windowing platform for Avalonia applications using ProGPU or another Avalonia renderer.</Description>
+    <PackageTags>progpu;avalonia;windowing;silk.net;webgpu;desktop</PackageTags>
   </PropertyGroup>
+  <Import Project="..\..\..\build\ProGpuIntegration.props" />
+  <ItemGroup Condition="'$(ProGpuDependencyMode)' == 'Source'">
+    <ProjectReference Include="$(ProGpuAvaloniaSourceProject)" />
+    <ProjectReference Include="$(ProGpuSourceRoot)\src\ProGPU.Backend\ProGPU.Backend.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(ProGpuDependencyMode)' == 'Package'">
+    <PackageReference Include="Avalonia" VersionOverride="[$(ProGpuAvaloniaVersion)]" />
+    <PackageReference Include="ProGPU.Backend" VersionOverride="[$(ProGpuRuntimeVersion)]" />
+  </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\packages\Avalonia\Avalonia.csproj" />
-    <ProjectReference Include="..\..\..\..\ProGPU\src\ProGPU.Backend\ProGPU.Backend.csproj" />
     <PackageReference Include="Silk.NET.Windowing" />
     <PackageReference Include="Silk.NET.Input" />
     <PackageReference Include="Silk.NET.WebGPU" />

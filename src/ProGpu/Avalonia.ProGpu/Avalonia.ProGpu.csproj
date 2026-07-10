@@ -4,17 +4,30 @@
     <IncludeLinuxSkia>false</IncludeLinuxSkia>
     <IncludeWasmSkia>false</IncludeWasmSkia>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PackageId>ProGPU.Avalonia.Rendering</PackageId>
+    <Title>ProGPU rendering platform for Avalonia</Title>
+    <Description>GPU-accelerated Avalonia rendering platform backed by ProGPU, Silk.NET, and WebGPU.</Description>
+    <PackageTags>progpu;avalonia;rendering;webgpu;silk.net;gpu</PackageTags>
   </PropertyGroup>
+  <Import Project="..\..\..\build\ProGpuIntegration.props" />
   <ItemGroup>
     <EmbeddedResource Include="Assets\NoiseAsset_256X256_PNG.png" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\packages\Avalonia\Avalonia.csproj" />
-    <ProjectReference Include="..\..\..\..\ProGPU\src\ProGPU.Backend\ProGPU.Backend.csproj" />
-    <ProjectReference Include="..\..\..\..\ProGPU\src\ProGPU.Vector\ProGPU.Vector.csproj" />
-    <ProjectReference Include="..\..\..\..\ProGPU\src\ProGPU.Text\ProGPU.Text.csproj" />
-    <ProjectReference Include="..\..\..\..\ProGPU\src\ProGPU.Compute\ProGPU.Compute.csproj" />
-    <ProjectReference Include="..\..\..\..\ProGPU\src\ProGPU.Scene\ProGPU.Scene.csproj" />
+  <ItemGroup Condition="'$(ProGpuDependencyMode)' == 'Source'">
+    <ProjectReference Include="$(ProGpuAvaloniaSourceProject)" />
+    <ProjectReference Include="$(ProGpuSourceRoot)\src\ProGPU.Backend\ProGPU.Backend.csproj" />
+    <ProjectReference Include="$(ProGpuSourceRoot)\src\ProGPU.Vector\ProGPU.Vector.csproj" />
+    <ProjectReference Include="$(ProGpuSourceRoot)\src\ProGPU.Text\ProGPU.Text.csproj" />
+    <ProjectReference Include="$(ProGpuSourceRoot)\src\ProGPU.Compute\ProGPU.Compute.csproj" />
+    <ProjectReference Include="$(ProGpuSourceRoot)\src\ProGPU.Scene\ProGPU.Scene.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(ProGpuDependencyMode)' == 'Package'">
+    <PackageReference Include="Avalonia" VersionOverride="[$(ProGpuAvaloniaVersion)]" />
+    <PackageReference Include="ProGPU.Backend" VersionOverride="[$(ProGpuRuntimeVersion)]" />
+    <PackageReference Include="ProGPU.Vector" VersionOverride="[$(ProGpuRuntimeVersion)]" />
+    <PackageReference Include="ProGPU.Text" VersionOverride="[$(ProGpuRuntimeVersion)]" />
+    <PackageReference Include="ProGPU.Compute" VersionOverride="[$(ProGpuRuntimeVersion)]" />
+    <PackageReference Include="ProGPU.Scene" VersionOverride="[$(ProGpuRuntimeVersion)]" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="SixLabors.ImageSharp" />
