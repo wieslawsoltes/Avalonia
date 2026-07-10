@@ -16,9 +16,11 @@ namespace Avalonia.ProGpu
 
         public void AddRect(LtrbPixelRect rect)
         {
-            if (rect.IsEmpty) return;
+            if (ProGpuRectUtilities.IsEmpty(rect)) return;
             _rects.Add(rect);
-            _bounds = _bounds.IsEmpty ? rect : _bounds.Union(rect);
+            _bounds = ProGpuRectUtilities.IsEmpty(_bounds)
+                ? rect
+                : ProGpuRectUtilities.Union(_bounds, rect);
         }
 
         public void Reset()
@@ -34,13 +36,13 @@ namespace Avalonia.ProGpu
         public bool Intersects(LtrbRect rect)
         {
             if (IsEmpty) return false;
-            var boundsRect = new LtrbRect(_bounds.Left, _bounds.Top, _bounds.Right, _bounds.Bottom);
-            if (!boundsRect.Intersects(rect)) return false;
+            var boundsRect = ProGpuRectUtilities.ToRect(_bounds);
+            if (!ProGpuRectUtilities.Intersects(boundsRect, rect)) return false;
 
             foreach (var r in _rects)
             {
-                var ltrb = new LtrbRect(r.Left, r.Top, r.Right, r.Bottom);
-                if (ltrb.Intersects(rect)) return true;
+                var ltrb = ProGpuRectUtilities.ToRect(r);
+                if (ProGpuRectUtilities.Intersects(ltrb, rect)) return true;
             }
             return false;
         }

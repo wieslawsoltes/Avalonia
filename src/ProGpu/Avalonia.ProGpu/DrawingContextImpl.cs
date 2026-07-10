@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Numerics;
 using Avalonia.Media;
 using Avalonia.Platform;
-using Avalonia.Rendering.Utilities;
 using Silk.NET.WebGPU;
 using ProGPU.Backend;
 using ProGPU.Vector;
@@ -697,7 +696,7 @@ namespace Avalonia.ProGpu
 
         private static unsafe WgpuContext? ResolveContext(ILockedFramebuffer? framebuffer)
         {
-            if (framebuffer is IGpuLockedFramebuffer gpuFb)
+            if (framebuffer is IProGpuSurfaceFramebuffer gpuFb)
             {
                 var surfacePtr = gpuFb.SurfacePointer;
                 if (surfacePtr != IntPtr.Zero)
@@ -833,7 +832,7 @@ namespace Avalonia.ProGpu
                     drawingVisual.Context.Clear();
                 }
 
-                if (_framebuffer is Avalonia.Platform.IGpuLockedFramebuffer gpuFb)
+                if (_framebuffer is IProGpuSurfaceFramebuffer gpuFb)
                 {
                     context.ReconfigureIfNeeded(width, height);
                     var surfaceTexture = new SurfaceTexture();
@@ -913,7 +912,7 @@ namespace Avalonia.ProGpu
             var geometry = new ProGPU.Vector.PathGeometry { FillRule = ProGPU.Vector.FillRule.Nonzero };
             foreach (var rect in rects)
             {
-                if (rect.IsEmpty)
+                if (ProGpuRectUtilities.IsEmpty(rect))
                     continue;
 
                 var figure = new ProGPU.Vector.PathFigure(new Vector2(rect.Left, rect.Top), isClosed: true);
@@ -963,7 +962,7 @@ namespace Avalonia.ProGpu
                 }
 
                 var tileBrush = content.Brush;
-                var calculator = new TileBrushCalculator(tileBrush, content.Rect.Size, targetRect.Size);
+                var calculator = new ProGpuTileBrushCalculator(tileBrush, content.Rect.Size, targetRect.Size);
                 var targetOffset = tileBrush.DestinationRect.Unit == RelativeUnit.Relative
                     ? new Vector(targetRect.X, targetRect.Y)
                     : default;
@@ -1020,7 +1019,7 @@ namespace Avalonia.ProGpu
 
         private void DrawSceneBrushTiles(
             ISceneBrushContent content,
-            TileBrushCalculator calculator,
+            ProGpuTileBrushCalculator calculator,
             Avalonia.Rect targetRect,
             Vector targetOffset)
         {
@@ -1086,7 +1085,7 @@ namespace Avalonia.ProGpu
                 return false;
             }
 
-            if (imageBrush.Source?.Bitmap?.Item is not IDrawableBitmapImpl bitmap)
+            if (ProGpuImageBrushSource.GetBitmap(imageBrush.Source) is not IDrawableBitmapImpl bitmap)
             {
                 return true;
             }
@@ -1103,7 +1102,7 @@ namespace Avalonia.ProGpu
                 return true;
             }
 
-            var calculator = new TileBrushCalculator(imageBrush, imageSize, targetRect.Size);
+            var calculator = new ProGpuTileBrushCalculator(imageBrush, imageSize, targetRect.Size);
             var sourceRect = calculator.SourceRect;
             if (sourceRect.Width <= 0 || sourceRect.Height <= 0)
             {
