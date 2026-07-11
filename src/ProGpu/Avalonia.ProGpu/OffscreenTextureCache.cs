@@ -1,6 +1,5 @@
 using System;
 using ProGPU.Backend;
-using Silk.NET.WebGPU;
 
 namespace Avalonia.ProGpu
 {
@@ -11,15 +10,6 @@ namespace Avalonia.ProGpu
         public uint CachedWidth;
         public uint CachedHeight;
         public bool IsTextureFresh = true;
-
-        public bool HasRetainedFrame(uint width, uint height, TextureFormat format)
-        {
-            return !IsTextureFresh
-                   && CachedTexture is { IsDisposed: false }
-                   && CachedWidth == width
-                   && CachedHeight == height
-                   && CachedTexture.Format == format;
-        }
 
         public OffscreenTextureCache()
         {

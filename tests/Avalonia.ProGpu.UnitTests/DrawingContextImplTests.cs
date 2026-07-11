@@ -17,7 +17,7 @@ namespace Avalonia.ProGpu.UnitTests
     public class DrawingContextImplTests
     {
         [Fact]
-        public void Framebuffer_Render_Target_Advertises_Retained_Gpu_Contents()
+        public void Framebuffer_Render_Target_Supports_Direct_Rendering()
         {
             using var target = new FramebufferRenderTarget(new TestFramebufferPlatformSurface());
 
@@ -26,27 +26,15 @@ namespace Avalonia.ProGpu.UnitTests
         }
 
         [Fact]
-        public void Offscreen_Texture_Cache_Only_Retains_Matching_Rendered_Texture()
+        public void Framebuffer_Render_Target_Forces_Full_Redraw_For_Every_Frame()
         {
-            using var drawingTarget = CreateTarget();
-            using var cache = new OffscreenTextureCache();
-            cache.CachedTexture = new GpuTexture(
-                WgpuContext.Current!,
-                4,
-                3,
-                Silk.NET.WebGPU.TextureFormat.Bgra8Unorm,
-                Silk.NET.WebGPU.TextureUsage.RenderAttachment,
-                "Retained frame contract test");
-            cache.CachedWidth = 4;
-            cache.CachedHeight = 3;
+            using var target = new FramebufferRenderTarget(
+                new TestFramebufferPlatformSurface(createFramebuffer: true));
+            using var context = target.CreateDrawingContext(
+                new IRenderTarget.RenderTargetSceneInfo(new PixelSize(4, 3), 1),
+                out var properties);
 
-            Assert.False(cache.HasRetainedFrame(4, 3, Silk.NET.WebGPU.TextureFormat.Bgra8Unorm));
-
-            cache.IsTextureFresh = false;
-
-            Assert.True(cache.HasRetainedFrame(4, 3, Silk.NET.WebGPU.TextureFormat.Bgra8Unorm));
-            Assert.False(cache.HasRetainedFrame(5, 3, Silk.NET.WebGPU.TextureFormat.Bgra8Unorm));
-            Assert.False(cache.HasRetainedFrame(4, 3, Silk.NET.WebGPU.TextureFormat.Rgba8Unorm));
+            Assert.False(properties.PreviousFrameIsRetained);
         }
 
         [Fact]
@@ -406,8 +394,33 @@ namespace Avalonia.ProGpu.UnitTests
 
         private sealed class TestFramebufferPlatformSurface : IFramebufferPlatformSurface
         {
+            private readonly bool _createFramebuffer;
+
+            public TestFramebufferPlatformSurface(bool createFramebuffer = false)
+            {
+                _createFramebuffer = createFramebuffer;
+            }
+
             public IFramebufferRenderTarget CreateFramebufferRenderTarget()
             {
+                if (_createFramebuffer)
+                {
+                    return new FuncFramebufferRenderTarget(
+                        (IRenderTarget.RenderTargetSceneInfo _, out FramebufferLockProperties properties) =>
+                        {
+                            properties = new FramebufferLockProperties(PreviousFrameIsRetained: true);
+                            return new LockedFramebuffer(
+                                IntPtr.Zero,
+                                new PixelSize(4, 3),
+                                16,
+                                new Vector(96, 96),
+                                PixelFormats.Bgra8888,
+                                AlphaFormat.Premul,
+                                null);
+                        },
+                        retainsFrameContents: true);
+                }
+
                 return new FuncFramebufferRenderTarget(
                     () => throw new InvalidOperationException("The retention capability test does not lock the surface."));
             }

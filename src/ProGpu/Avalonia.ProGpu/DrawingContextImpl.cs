@@ -975,8 +975,6 @@ namespace Avalonia.ProGpu
                 drawingVisual.Size = hostFrame.LogicalSize;
                 drawingVisual.Context.Append(DrawingContext);
 
-                bool loadExisting = !_offscreenCache.IsTextureFresh;
-
                 try
                 {
                     compositor.RenderOffscreen(
@@ -985,7 +983,7 @@ namespace Avalonia.ProGpu
                         texture,
                         0.0f,
                         _clearColor,
-                        loadExistingContents: loadExisting
+                        loadExistingContents: false
                     );
                     _offscreenCache.IsTextureFresh = false;
                 }
