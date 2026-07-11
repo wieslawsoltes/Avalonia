@@ -20,6 +20,8 @@
     <ProjectReference Include="$(ProGpuSourceRoot)\src\ProGPU.Text\ProGPU.Text.csproj" />
     <ProjectReference Include="$(ProGpuSourceRoot)\src\ProGPU.Compute\ProGPU.Compute.csproj" />
     <ProjectReference Include="$(ProGpuSourceRoot)\src\ProGPU.Scene\ProGPU.Scene.csproj" />
+    <PackageReference Include="OpenFontSharp" />
+    <PackageReference Include="StbImageSharp" />
   </ItemGroup>
   <ItemGroup Condition="'$(ProGpuDependencyMode)' == 'Package'">
     <PackageReference Include="Avalonia" VersionOverride="[$(ProGpuAvaloniaVersion)]" />

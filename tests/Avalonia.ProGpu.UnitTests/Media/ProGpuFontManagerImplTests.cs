@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using Avalonia.Fonts.Inter;
 using Avalonia.Media;
 using Avalonia.Media.Fonts;
+using Avalonia.UnitTests;
 using ProGPU.Text;
 using Xunit;
 
@@ -28,6 +30,39 @@ namespace Avalonia.ProGpu.UnitTests.Media
             Assert.Equal(expected.IsItalic ? FontStyle.Italic : FontStyle.Normal, typeface.Style);
             Assert.True(typeface.TryGetTable(OpenTypeTag.Parse("head"), out var head));
             Assert.NotEmpty(head.ToArray());
+        }
+
+        [Fact]
+        public void StreamTypefaceCreatesGlyphTypefaceForInter()
+        {
+            byte[] data = File.ReadAllBytes(FindRepositoryFile(
+                "src",
+                "Avalonia.Fonts.Inter",
+                "Assets",
+                "Inter-Regular.ttf"));
+            var manager = new FontManagerImpl(() => Array.Empty<FontInfo>());
+
+            using var stream = new MemoryStream(data);
+            Assert.True(manager.TryCreateGlyphTypeface(stream, FontSimulations.None, out var platformTypeface));
+
+            var glyphTypeface = GlyphTypeface.TryCreate(platformTypeface);
+            Assert.NotNull(glyphTypeface);
+            Assert.Equal("Inter", glyphTypeface.FamilyName);
+        }
+
+        [Fact]
+        public void InterFontCollectionResolvesWithProGpuFontManager()
+        {
+            var manager = new FontManagerImpl(() => Array.Empty<FontInfo>());
+            using var application = UnitTestApplication.Start(
+                TestServices.MockPlatformRenderInterface.With(fontManagerImpl: manager));
+            using var scope = AvaloniaLocator.EnterScope();
+            FontManager.Current.AddFontCollection(new InterFontCollection());
+
+            Assert.True(FontManager.Current.TryGetGlyphTypeface(
+                new Typeface("fonts:Inter#Inter"),
+                out var glyphTypeface));
+            Assert.Equal("Inter", glyphTypeface.FamilyName);
         }
 
         [Fact]
@@ -141,6 +176,26 @@ namespace Avalonia.ProGpu.UnitTests.Media
             string path = Path.Combine(Path.GetTempPath(), $"avalonia-progpu-font-{Guid.NewGuid():N}{extension}");
             File.WriteAllBytes(path, data);
             return path;
+        }
+
+        private static string FindRepositoryFile(params string[] relativeParts)
+        {
+            var directory = new DirectoryInfo(AppContext.BaseDirectory);
+            while (directory != null)
+            {
+                var parts = new string[relativeParts.Length + 1];
+                parts[0] = directory.FullName;
+                Array.Copy(relativeParts, 0, parts, 1, relativeParts.Length);
+                var candidate = Path.Combine(parts);
+                if (File.Exists(candidate))
+                {
+                    return candidate;
+                }
+
+                directory = directory.Parent;
+            }
+
+            throw new FileNotFoundException($"Could not locate repository file '{Path.Combine(relativeParts)}'.");
         }
     }
 }
