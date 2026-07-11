@@ -5,7 +5,7 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 project="${repo_root}/integration/ProGpuPackageApp/ProGpuPackageApp.csproj"
 mode="${1:-nuget}"
 configuration="${PROGPU_CONFIGURATION:-Release}"
-integration_version="${PROGPU_INTEGRATION_PACKAGE_VERSION:-12.0.5-preview.6}"
+integration_version="${PROGPU_INTEGRATION_PACKAGE_VERSION:-12.0.5-preview.7}"
 working_directory="$(mktemp -d "${TMPDIR:-/tmp}/progpu-package-app.XXXXXX")"
 consumer_artifacts="${working_directory}/artifacts"
 

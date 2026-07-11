@@ -12,11 +12,12 @@ namespace Avalonia.ProGpu.UnitTests
             var properties = ReadRepoFile("build", "ProGpuIntegration.props");
             var renderer = ReadRepoFile("src", "ProGpu", "Avalonia.ProGpu", "Avalonia.ProGpu.csproj");
             var windowing = ReadRepoFile("src", "Windows", "Avalonia.SilkNet", "Avalonia.SilkNet.csproj");
+            var packageVersions = ReadRepoFile("Directory.Packages.props");
 
             Assert.Contains(">Source</ProGpuDependencyMode>", properties, StringComparison.Ordinal);
             Assert.Contains(">12.0.5</ProGpuAvaloniaVersion>", properties, StringComparison.Ordinal);
-            Assert.Contains(">0.1.0-preview.6</ProGpuRuntimeVersion>", properties, StringComparison.Ordinal);
-            Assert.Contains(">12.0.5-preview.6</ProGpuIntegrationVersion>", properties, StringComparison.Ordinal);
+            Assert.Contains(">0.1.0-preview.8</ProGpuRuntimeVersion>", properties, StringComparison.Ordinal);
+            Assert.Contains(">12.0.5-preview.7</ProGpuIntegrationVersion>", properties, StringComparison.Ordinal);
             Assert.Contains("<PackageIcon>ProGpuAvaloniaIcon.png</PackageIcon>", properties, StringComparison.Ordinal);
             Assert.Contains("docs/progpu-package-readme.md", properties, StringComparison.Ordinal);
             Assert.Contains("<None Remove=\"$(MSBuildThisFileDirectory)Assets/Icon.png\"", properties, StringComparison.Ordinal);
@@ -28,6 +29,10 @@ namespace Avalonia.ProGpu.UnitTests
             Assert.DoesNotContain("<PackageId>Avalonia.", windowing, StringComparison.Ordinal);
             Assert.Contains("VersionOverride=\"[$(ProGpuAvaloniaVersion)]\"", renderer, StringComparison.Ordinal);
             Assert.Contains("VersionOverride=\"[$(ProGpuAvaloniaVersion)]\"", windowing, StringComparison.Ordinal);
+            Assert.Contains("<PackageReference Include=\"OpenFontSharp\" />", renderer, StringComparison.Ordinal);
+            Assert.Contains("<PackageReference Include=\"StbImageSharp\" />", renderer, StringComparison.Ordinal);
+            Assert.Contains("<PackageVersion Include=\"OpenFontSharp\" Version=\"1.0.0\" />", packageVersions, StringComparison.Ordinal);
+            Assert.Contains("<PackageVersion Include=\"StbImageSharp\" Version=\"2.30.15\" />", packageVersions, StringComparison.Ordinal);
         }
 
         [Fact]
