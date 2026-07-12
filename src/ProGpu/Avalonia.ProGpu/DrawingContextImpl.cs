@@ -19,6 +19,7 @@ namespace Avalonia.ProGpu
         private readonly IDisposable?[]? _disposables;
         private readonly ILockedFramebuffer? _framebuffer;
         private readonly bool _preserveRecordedCommandsOnDispose;
+        private readonly bool _disableSubpixelTextRendering;
         private readonly OffscreenTextureCache _offscreenCache;
         private readonly WgpuContext _gpuContext;
         private readonly Matrix? _postTransform;
@@ -162,6 +163,7 @@ namespace Avalonia.ProGpu
             Dpi = createInfo.Dpi;
             _disposables = disposables;
             _preserveRecordedCommandsOnDispose = createInfo.PreserveRecordedCommandsOnDispose;
+            _disableSubpixelTextRendering = createInfo.DisableSubpixelTextRendering;
             _offscreenCache = (createInfo.CacheHolder as OffscreenTextureCache) ?? GetFallbackCache();
             if (createInfo.ScaleDrawingToDpi &&
                 TryGetDpiScale(createInfo.Dpi, out double scaleX, out double scaleY) &&
@@ -485,6 +487,28 @@ namespace Avalonia.ProGpu
             {
                 var pBrush = ConvertBrush(foreground, run.Bounds);
                 if (pBrush == null) return;
+
+                if (foreground is ISolidColorBrush &&
+                    pBrush is ProGPU.Vector.SolidColorBrush &&
+                    !run.Typeface.Font.HasColorGlyphs &&
+                    !run.Typeface.Font.HasBitmapGlyphs)
+                {
+                    var simulations = run.Typeface.FontSimulations;
+                    var effectiveTextOptions = GetEffectiveTextOptions();
+                    DrawingContext.DrawGlyphRun(
+                        run.GlyphIndices,
+                        run.ProGpuGlyphPositions,
+                        run.Typeface.Font,
+                        (float)run.FontRenderingEmSize,
+                        pBrush,
+                        new Vector2((float)run.BaselineOrigin.X, (float)run.BaselineOrigin.Y),
+                        ToMatrix4x4(RenderTransform),
+                        isBold: (simulations & FontSimulations.Bold) != 0,
+                        isItalic: (simulations & FontSimulations.Oblique) != 0,
+                        textRenderingMode: ToProGpuTextRenderingMode(effectiveTextOptions.TextRenderingMode),
+                        textHintingMode: ToProGpuTextHintingMode(effectiveTextOptions.TextHintingMode));
+                    return;
+                }
 
                 var scale = (float)(run.FontRenderingEmSize / run.Typeface.Font.UnitsPerEm);
                 var renderTransform = ToMatrix4x4(RenderTransform);
@@ -1443,6 +1467,49 @@ namespace Avalonia.ProGpu
             return interpolationMode == Avalonia.Media.Imaging.BitmapInterpolationMode.None
                 ? TextureSamplingMode.Nearest
                 : TextureSamplingMode.Linear;
+        }
+
+        private Avalonia.Media.TextOptions GetEffectiveTextOptions()
+        {
+            var effective = TextOptions;
+
+#pragma warning disable CS0618
+            if (effective.TextRenderingMode == Avalonia.Media.TextRenderingMode.Unspecified &&
+                RenderOptions.TextRenderingMode != Avalonia.Media.TextRenderingMode.Unspecified)
+            {
+                effective = effective with { TextRenderingMode = RenderOptions.TextRenderingMode };
+            }
+#pragma warning restore CS0618
+
+            if (_disableSubpixelTextRendering &&
+                effective.TextRenderingMode == Avalonia.Media.TextRenderingMode.SubpixelAntialias)
+            {
+                effective = effective with { TextRenderingMode = Avalonia.Media.TextRenderingMode.Antialias };
+            }
+
+            return effective;
+        }
+
+        private static ProGPU.Scene.TextRenderingMode ToProGpuTextRenderingMode(
+            Avalonia.Media.TextRenderingMode mode)
+        {
+            return mode switch
+            {
+                Avalonia.Media.TextRenderingMode.SubpixelAntialias => ProGPU.Scene.TextRenderingMode.ClearType,
+                Avalonia.Media.TextRenderingMode.Alias => ProGPU.Scene.TextRenderingMode.Aliased,
+                _ => ProGPU.Scene.TextRenderingMode.Grayscale
+            };
+        }
+
+        private static ProGPU.Scene.TextHintingMode ToProGpuTextHintingMode(
+            Avalonia.Media.TextHintingMode mode)
+        {
+            return mode switch
+            {
+                Avalonia.Media.TextHintingMode.None => ProGPU.Scene.TextHintingMode.Animated,
+                Avalonia.Media.TextHintingMode.Strong => ProGPU.Scene.TextHintingMode.Fixed,
+                _ => ProGPU.Scene.TextHintingMode.Auto
+            };
         }
 
         private static System.Numerics.Matrix4x4 ToMatrix4x4(Avalonia.Matrix m)

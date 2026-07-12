@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Avalonia.Media;
 using Avalonia.Media.TextFormatting;
 using Avalonia.Platform;
@@ -15,9 +16,11 @@ namespace Avalonia.ProGpu
 
         private readonly ushort[] _glyphIndices;
         private readonly Point[] _glyphPositions;
+        private readonly Vector2[] _proGpuGlyphPositions;
 
         public ushort[] GlyphIndices => _glyphIndices;
         public Point[] GlyphPositions => _glyphPositions;
+        public Vector2[] ProGpuGlyphPositions => _proGpuGlyphPositions;
 
         public GlyphRunImpl(GlyphTypeface glyphTypeface, double fontRenderingEmSize,
             IReadOnlyList<GlyphInfo> glyphInfos, Point baselineOrigin)
@@ -38,6 +41,7 @@ namespace Avalonia.ProGpu
             var count = glyphInfos.Count;
             _glyphIndices = new ushort[count];
             _glyphPositions = new Point[count];
+            _proGpuGlyphPositions = new Vector2[count];
 
             var currentX = 0.0;
 
@@ -48,6 +52,9 @@ namespace Avalonia.ProGpu
 
                 _glyphIndices[i] = glyphInfo.GlyphIndex;
                 _glyphPositions[i] = new Point(currentX + offset.X, offset.Y);
+                _proGpuGlyphPositions[i] = new Vector2(
+                    (float)(currentX + offset.X),
+                    (float)offset.Y);
 
                 currentX += glyphInfo.GlyphAdvance;
             }

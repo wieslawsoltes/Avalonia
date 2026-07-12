@@ -1,13 +1,16 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Media.TextFormatting;
 using Avalonia.Platform;
 using Avalonia.Platform.Surfaces;
 using Avalonia.UnitTests;
 using Avalonia.Utilities;
+using Avalonia.ProGpu.UnitTests.Media;
 using ProGPU.Backend;
 using ProGPU.Scene;
 using Xunit;
@@ -49,6 +52,56 @@ namespace Avalonia.ProGpu.UnitTests
         {
             var target = CreateTarget();
             target.DrawRectangle(Brushes.Black, new Pen(Brushes.Black, 0), new RoundedRect(new Rect(0, 0, 100, 100), new CornerRadius(4)));
+        }
+
+        [Fact]
+        public void Solid_Glyph_Run_Uses_Retained_ProGpu_Text_Command_Across_Redraws()
+        {
+            using var app = UnitTestApplication.Start(
+                TestServices.MockPlatformRenderInterface.With(
+                    renderInterface: new PlatformRenderInterface(),
+                    fontManagerImpl: new CustomFontManagerImpl()));
+            var shaped = TextShaper.Current.ShapeText(
+                "ControlCatalog",
+                new TextShaperOptions(
+                    Typeface.Default.GlyphTypeface,
+                    16,
+                    0,
+                    CultureInfo.InvariantCulture));
+            using var glyphRun = new GlyphRun(
+                shaped.GlyphTypeface,
+                shaped.FontRenderingEmSize,
+                shaped.Text,
+                shaped,
+                baselineOrigin: new Point(7, 19),
+                biDiLevel: shaped.BidiLevel);
+            using var firstTarget = CreateTarget();
+            firstTarget.PushTextOptions(new TextOptions
+            {
+                TextRenderingMode = Avalonia.Media.TextRenderingMode.Alias,
+                TextHintingMode = Avalonia.Media.TextHintingMode.None
+            });
+
+            firstTarget.DrawGlyphRun(Brushes.Black, glyphRun.PlatformImpl.Item);
+
+            var firstCommand = Assert.Single(firstTarget.DrawingContext.Commands);
+            Assert.Equal(RenderCommandType.DrawGlyphRun, firstCommand.Type);
+            Assert.Equal(shaped.Length, firstCommand.GlyphIndices?.Length);
+            Assert.Equal(shaped.Length, firstCommand.GlyphPositions?.Length);
+            Assert.Equal(new System.Numerics.Vector2(7, 19), firstCommand.Position);
+            Assert.Equal(ProGPU.Scene.TextRenderingMode.Aliased, firstCommand.TextRenderingMode);
+            Assert.Equal(ProGPU.Scene.TextHintingMode.Animated, firstCommand.TextHintingMode);
+
+            using var secondTarget = CreateTarget();
+            secondTarget.DrawGlyphRun(Brushes.Black, glyphRun.PlatformImpl.Item);
+
+            var secondCommand = Assert.Single(secondTarget.DrawingContext.Commands);
+            Assert.Equal(RenderCommandType.DrawGlyphRun, secondCommand.Type);
+            Assert.Same(firstCommand.GlyphIndices, secondCommand.GlyphIndices);
+            Assert.Same(firstCommand.GlyphPositions, secondCommand.GlyphPositions);
+            Assert.DoesNotContain(
+                secondTarget.DrawingContext.Commands,
+                command => command.Type == RenderCommandType.DrawPath);
         }
 
         [Fact]
