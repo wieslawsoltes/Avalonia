@@ -18,6 +18,13 @@ Use only packages indexed on NuGet.org:
 
 Both modes use a temporary NuGet configuration, HTTP cache, and global-packages folder. Local mode packs the integration packages first and puts the local package source before NuGet.org.
 
+Run a deterministic native smoke that opens maximized, renders the API-lease and WGSL example, and closes after two seconds:
+
+```bash
+PROGPU_INTEGRATION_SMOKE=1 ./integration/ProGpuPackageApp/run.sh local
+PROGPU_INTEGRATION_SMOKE=1 ./integration/ProGpuPackageApp/run.sh nuget
+```
+
 For a non-interactive compile check, set `PROGPU_INTEGRATION_BUILD_ONLY=1`:
 
 ```bash

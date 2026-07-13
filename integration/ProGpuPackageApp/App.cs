@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Threading;
 
 namespace ProGpuPackageApp;
 
@@ -16,7 +17,16 @@ internal sealed class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            desktop.MainWindow = CreateWindow();
+        {
+            var window = CreateWindow();
+            desktop.MainWindow = window;
+
+            if (Environment.GetEnvironmentVariable("PROGPU_INTEGRATION_SMOKE") == "1")
+            {
+                window.WindowState = WindowState.Maximized;
+                DispatcherTimer.RunOnce(() => desktop.Shutdown(), TimeSpan.FromSeconds(2));
+            }
+        }
 
         base.OnFrameworkInitializationCompleted();
     }
