@@ -906,45 +906,10 @@ namespace Avalonia.SilkNet
             _inputContext = null;
 
             var tcs = _disposedTcs;
-            Dispatcher.UIThread.Post(async () =>
+            Dispatcher.UIThread.Post(() =>
             {
                 try
                 {
-                    bool transitionNeeded = false;
-                    try
-                    {
-                        if (windowToDispose.WindowState == Silk.NET.Windowing.WindowState.Fullscreen ||
-                            windowToDispose.WindowState == Silk.NET.Windowing.WindowState.Maximized)
-                        {
-                            try
-                            {
-                                windowToDispose.Size = new Vector2D<int>(1280, 800);
-                                windowToDispose.Position = new Vector2D<int>(100, 100);
-                            }
-                            catch {}
-                            windowToDispose.WindowState = Silk.NET.Windowing.WindowState.Normal;
-                            transitionNeeded = true;
-                        }
-                    }
-                    catch {}
-
-                    if (transitionNeeded)
-                    {
-                        try
-                        {
-                            var glfw = Silk.NET.GLFW.Glfw.GetApi();
-                            glfw.PollEvents();
-                        }
-                        catch {}
-                        await Task.Delay(300);
-                        try
-                        {
-                            var glfw = Silk.NET.GLFW.Glfw.GetApi();
-                            glfw.PollEvents();
-                        }
-                        catch {}
-                    }
-
                     try
                     {
                         var context = WgpuContext.ActiveContexts.FirstOrDefault(c => c.Window == windowToDispose);
@@ -967,15 +932,6 @@ namespace Avalonia.SilkNet
                     try
                     {
                         windowToDispose.Dispose();
-                    }
-                    catch {}
-                    
-                    try
-                    {
-                        var glfw = Silk.NET.GLFW.Glfw.GetApi();
-                        glfw.PollEvents();
-                        await Task.Delay(50);
-                        glfw.PollEvents();
                     }
                     catch {}
                 }

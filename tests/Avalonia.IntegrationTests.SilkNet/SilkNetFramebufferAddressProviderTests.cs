@@ -48,4 +48,24 @@ public class SilkNetFramebufferAddressProviderTests
         Assert.Equal(secondAddress, provider.GetAddress(150));
         Assert.Equal(200, provider.Capacity);
     }
+
+    [Fact]
+    public void LockedFramebufferReleasesOnlyOnce()
+    {
+        var releaseCount = 0;
+        var framebuffer = new SilkNetLockedFramebuffer(
+            IntPtr.Zero,
+            new PixelSize(1, 1),
+            4,
+            new Vector(96, 96),
+            PixelFormat.Bgra8888,
+            AlphaFormat.Premul,
+            () => releaseCount++,
+            null!);
+
+        framebuffer.Dispose();
+        framebuffer.Dispose();
+
+        Assert.Equal(1, releaseCount);
+    }
 }

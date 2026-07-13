@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading;
 using Avalonia.Platform;
 using Avalonia.Platform.Surfaces;
 using ProGPU.Backend;
@@ -18,6 +19,7 @@ namespace Avalonia.SilkNet
         private readonly int _requiredBufferSize;
         private readonly Action _onDispose;
         private readonly Silk.NET.Windowing.IWindow _window;
+        private int _disposed;
 
         public SilkNetLockedFramebuffer(
             IntPtr address,
@@ -107,7 +109,8 @@ namespace Avalonia.SilkNet
 
         public void Dispose()
         {
-            _onDispose();
+            if (Interlocked.Exchange(ref _disposed, 1) == 0)
+                _onDispose();
         }
     }
 }
