@@ -16,8 +16,8 @@ namespace Avalonia.ProGpu.UnitTests
 
             Assert.Contains(">Source</ProGpuDependencyMode>", properties, StringComparison.Ordinal);
             Assert.Contains(">12.0.5</ProGpuAvaloniaVersion>", properties, StringComparison.Ordinal);
-            Assert.Contains(">0.1.0-preview.10</ProGpuRuntimeVersion>", properties, StringComparison.Ordinal);
-            Assert.Contains(">12.0.5-preview.9</ProGpuIntegrationVersion>", properties, StringComparison.Ordinal);
+            Assert.Contains(">0.1.0-preview.11</ProGpuRuntimeVersion>", properties, StringComparison.Ordinal);
+            Assert.Contains(">12.0.5-preview.10</ProGpuIntegrationVersion>", properties, StringComparison.Ordinal);
             Assert.Contains("<PackageIcon>ProGpuAvaloniaIcon.png</PackageIcon>", properties, StringComparison.Ordinal);
             Assert.Contains("docs/progpu-package-readme.md", properties, StringComparison.Ordinal);
             Assert.Contains("<None Remove=\"$(MSBuildThisFileDirectory)Assets/Icon.png\"", properties, StringComparison.Ordinal);
@@ -92,7 +92,8 @@ namespace Avalonia.ProGpu.UnitTests
             Assert.Contains("IProGpuApiLeaseFeature", packageReadme, StringComparison.Ordinal);
             Assert.Contains("lease.CurrentTransform", packageReadme, StringComparison.Ordinal);
             Assert.Contains("ShaderToyParams", packageReadme, StringComparison.Ordinal);
-            Assert.Contains("fn mainImage", packageReadme, StringComparison.Ordinal);
+            Assert.Contains("ShaderResource.Load", packageReadme, StringComparison.Ordinal);
+            Assert.Contains("ApiLeaseWave.wgsl", packageReadme, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -101,6 +102,8 @@ namespace Avalonia.ProGpu.UnitTests
             var project = ReadRepoFile("integration", "ProGpuPackageApp", "ProGpuPackageApp.csproj");
             var program = ReadRepoFile("integration", "ProGpuPackageApp", "Program.cs");
             var leaseView = ReadRepoFile("integration", "ProGpuPackageApp", "ProGpuLeaseView.cs");
+            var shader = ReadRepoFile(
+                "integration", "ProGpuPackageApp", "Shaders", "ApiLeaseWave.wgsl");
             var runScript = ReadRepoFile("integration", "ProGpuPackageApp", "run.sh");
             var drawingContext = ReadRepoFile(
                 "src", "ProGpu", "Avalonia.ProGpu", "DrawingContextImpl.cs");
@@ -111,6 +114,8 @@ namespace Avalonia.ProGpu.UnitTests
             Assert.Contains("ProGPU.Avalonia.SilkNet", project, StringComparison.Ordinal);
             Assert.Contains("Avalonia.HarfBuzz", project, StringComparison.Ordinal);
             Assert.Contains("Avalonia.Fonts.Inter", project, StringComparison.Ordinal);
+            Assert.Contains("EmbeddedResource Include=\"Shaders/*.wgsl\"", project, StringComparison.Ordinal);
+            Assert.Contains("$(AssemblyName).Shaders.%(Filename)%(Extension)", project, StringComparison.Ordinal);
             Assert.DoesNotContain("ProjectReference", project, StringComparison.Ordinal);
             Assert.Contains(".UseSilkNet()", program, StringComparison.Ordinal);
             Assert.Contains(".UseProGpu()", program, StringComparison.Ordinal);
@@ -120,7 +125,12 @@ namespace Avalonia.ProGpu.UnitTests
             Assert.Contains("IProGpuApiLeaseFeature", leaseView, StringComparison.Ordinal);
             Assert.Contains("lease.CurrentTransform", leaseView, StringComparison.Ordinal);
             Assert.Contains("ShaderToyParams", leaseView, StringComparison.Ordinal);
-            Assert.Contains("fn mainImage", leaseView, StringComparison.Ordinal);
+            Assert.Contains("ShaderResource.Load<ProGpuDrawOperation>(\"ApiLeaseWave.wgsl\")", leaseView, StringComparison.Ordinal);
+            Assert.DoesNotContain("fn mainImage", leaseView, StringComparison.Ordinal);
+            Assert.Contains("// Algorithm:", shader, StringComparison.Ordinal);
+            Assert.Contains("// Time complexity:", shader, StringComparison.Ordinal);
+            Assert.Contains("// Space complexity:", shader, StringComparison.Ordinal);
+            Assert.Contains("fn mainImage", shader, StringComparison.Ordinal);
             Assert.Contains("IPlatformHandle", lockedFramebuffer, StringComparison.Ordinal);
             Assert.Contains("WGPU_SURFACE", lockedFramebuffer, StringComparison.Ordinal);
             Assert.Contains("WGPU_SURFACE", drawingContext, StringComparison.Ordinal);
