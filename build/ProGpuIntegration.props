@@ -3,7 +3,7 @@
     <ProGpuDependencyMode Condition="'$(ProGpuDependencyMode)' == ''">Source</ProGpuDependencyMode>
     <ProGpuAvaloniaVersion Condition="'$(ProGpuAvaloniaVersion)' == ''">12.0.5</ProGpuAvaloniaVersion>
     <ProGpuRuntimeVersion Condition="'$(ProGpuRuntimeVersion)' == ''">0.1.0-preview.12</ProGpuRuntimeVersion>
-    <ProGpuIntegrationVersion Condition="'$(ProGpuIntegrationVersion)' == ''">12.0.5-preview.11</ProGpuIntegrationVersion>
+    <ProGpuIntegrationVersion Condition="'$(ProGpuIntegrationVersion)' == ''">12.0.5-preview.12</ProGpuIntegrationVersion>
     <ProGpuSourceRoot Condition="'$(ProGpuSourceRoot)' == ''">$(MSBuildThisFileDirectory)../../ProGPU</ProGpuSourceRoot>
     <ProGpuAvaloniaSourceProject Condition="'$(ProGpuAvaloniaSourceProject)' == ''">$(MSBuildThisFileDirectory)../packages/Avalonia/Avalonia.csproj</ProGpuAvaloniaSourceProject>
 
@@ -12,7 +12,7 @@
       Condition="'$(ProGpuDependencyMode)' == 'Package'">true</Avalonia_I_Want_To_Use_Private_Apis_In_Nuget_Package_And_Promise_To_Pin_The_Exact_Avalonia_Version_In_Package_Dependency>
 
     <VersionPrefix>12.0.5</VersionPrefix>
-    <VersionSuffix>preview.11</VersionSuffix>
+    <VersionSuffix>preview.12</VersionSuffix>
     <Version>$(ProGpuIntegrationVersion)</Version>
     <PackageVersion>$(ProGpuIntegrationVersion)</PackageVersion>
     <Product>ProGPU Avalonia Integration</Product>
@@ -25,7 +25,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>ProGpuAvaloniaIcon.png</PackageIcon>
-    <PackageReleaseNotes>Uses ProGPU 0.1.0-preview.12 with bounded vector-text cache phases, demand-driven same-frame PathAtlas recovery, stable RichText cleanup, strict Svg.Skia parity, and high-throughput retained rendering.</PackageReleaseNotes>
+    <PackageReleaseNotes>Uses ProGPU 0.1.0-preview.12 with high-throughput retained rendering and synchronized Silk.NET framebuffer teardown that prevents compositor frames from accessing reset native windows.</PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
