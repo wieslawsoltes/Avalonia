@@ -59,8 +59,9 @@ internal static class SKPathHelper
         if (DrawingContextHelper.TryCreateDashEffect(pen, out var dashEffect))
             paint.PathEffect = dashEffect;
 
-        var result = new SKPath();
-        paint.GetFillPath(path, result);
+        using var pathBuilder = new SKPathBuilder();
+        paint.GetFillPath(path, pathBuilder);
+        var result = pathBuilder.Detach();
         paint.PathEffect?.Dispose();
         SKPaintCache.Shared.ReturnReset(paint);
         return result;
