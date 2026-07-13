@@ -137,25 +137,26 @@ Lease rules:
 
 ## Run a WGSL shader through the lease
 
-ProGPU's built-in ShaderToy extension compiles WGSL and encodes it into the compositor's active WebGPU render pass. Record the extension command through the leased drawing context so Avalonia transform, clipping, opacity, and frame ordering remain intact:
+ProGPU's built-in ShaderToy extension compiles WGSL and encodes it into the compositor's active WebGPU render pass. Record the extension command through the leased drawing context so Avalonia transform, clipping, opacity, and frame ordering remain intact.
+
+Keep each fixed shader in its own `.wgsl` file and embed it with a stable logical name:
+
+```xml
+<ItemGroup>
+  <EmbeddedResource Include="Shaders/*.wgsl"
+                    LogicalName="$(AssemblyName).Shaders.%(Filename)%(Extension)" />
+</ItemGroup>
+```
+
+Load the source once through ProGPU's cached resource loader. `ApiLeaseWave.wgsl` should define `mainImage` and document its algorithm, time complexity, and space or bandwidth complexity at the top of the file.
 
 ```csharp
 using System.Numerics;
+using ProGPU.Backend;
 using ProGPU.Scene.Extensions;
 
-const string wgsl = """
-    fn mainImage(fragCoord: vec2<f32>) -> vec4<f32> {
-        let resolution = max(
-            inputs.iResolution.xy,
-            vec2<f32>(1.0, 1.0));
-        let uv = fragCoord / resolution;
-        let wave = 0.5 + 0.5 * sin(
-            uv.x * 8.0 + uv.y * 5.0 + inputs.iTime * 1.8);
-        let cyan = vec3<f32>(0.05, 0.78, 0.95);
-        let violet = vec3<f32>(0.58, 0.24, 0.94);
-        return vec4<f32>(mix(cyan, violet, wave), 1.0);
-    }
-    """;
+private static readonly string s_wgsl =
+    ShaderResource.Load<ProGpuControl>("ApiLeaseWave.wgsl");
 
 var width = (float)Bounds.Width;
 var height = (float)Bounds.Height;
@@ -169,7 +170,7 @@ var shader = new ShaderToyParams
     Frame = 0,
     FrameRate = 60,
     ShaderKey = "MyAvaloniaWgslShaderV1",
-    ShaderSource = wgsl
+    ShaderSource = s_wgsl
 };
 
 lease.DrawingContext.DrawExtension(
@@ -178,7 +179,7 @@ lease.DrawingContext.DrawExtension(
     transform: lease.CurrentTransform);
 ```
 
-Keep `ShaderKey` stable for a stable shader source so ProGPU can reuse the compiled WebGPU pipeline. The package-only sample runs a complete animated version in `integration/ProGpuPackageApp/ProGpuLeaseView.cs`.
+Keep `ShaderKey` stable for a stable shader source so ProGPU can reuse the compiled WebGPU pipeline. Resource loading and UTF-8 decoding occur once, outside the frame hot path. The package-only sample runs a complete animated version from `integration/ProGpuPackageApp/Shaders/ApiLeaseWave.wgsl`.
 
 ## Validate local and published packages
 

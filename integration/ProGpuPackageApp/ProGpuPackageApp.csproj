@@ -16,4 +16,9 @@
     <PackageReference Include="ProGPU.Avalonia.Rendering" Version="$(ProGpuIntegrationPackageVersion)" />
     <PackageReference Include="ProGPU.Avalonia.SilkNet" Version="$(ProGpuIntegrationPackageVersion)" />
   </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Shaders/*.wgsl"
+                      LogicalName="$(AssemblyName).Shaders.%(Filename)%(Extension)" />
+  </ItemGroup>
 </Project>
