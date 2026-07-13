@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.IntegrationTests.SilkNet.Infrastructure;
 
@@ -11,9 +10,6 @@ namespace Avalonia.IntegrationTests.SilkNet
         [STAThread]
         public static int Main(string[] args)
         {
-            string logPath = "/Users/wieslawsoltes/.gemini/antigravity/brain/a7990822-ca50-4be5-96d8-941456e6d9e6/test_run.log";
-            System.IO.File.AppendAllText(logPath, $"[PROGRAM] Main started on thread {Thread.CurrentThread.ManagedThreadId}\n");
-
             int exitCode = 0;
             var testTask = Task.Run(async () =>
             {
@@ -22,7 +18,6 @@ namespace Avalonia.IntegrationTests.SilkNet
 
                 try
                 {
-                    System.IO.File.AppendAllText(logPath, "[PROGRAM] Running test platform on background thread\n");
                     if (args.Any(arg => arg == "-automated" || arg == "@@"))
                     {
                         exitCode = Xunit.Runner.InProc.SystemConsole.ConsoleRunner.Run(args).GetAwaiter().GetResult();
@@ -31,11 +26,10 @@ namespace Avalonia.IntegrationTests.SilkNet
                     {
                         exitCode = Xunit.MicrosoftTestingPlatform.TestPlatformTestFramework.RunAsync(args, SelfRegisteredExtensions.AddSelfRegisteredExtensions).GetAwaiter().GetResult();
                     }
-                    System.IO.File.AppendAllText(logPath, $"[PROGRAM] Test platform finished with exitCode={exitCode}\n");
                 }
                 catch (Exception ex)
                 {
-                    System.IO.File.AppendAllText(logPath, $"[PROGRAM] Test platform exception: {ex}\n");
+                    Console.Error.WriteLine(ex);
                     exitCode = -1;
                 }
                 finally
@@ -50,7 +44,6 @@ namespace Avalonia.IntegrationTests.SilkNet
             // Wait for tests to finish
             testTask.GetAwaiter().GetResult();
 
-            System.IO.File.AppendAllText(logPath, $"[PROGRAM] Main exiting with exitCode={exitCode}\n");
             return exitCode;
         }
     }

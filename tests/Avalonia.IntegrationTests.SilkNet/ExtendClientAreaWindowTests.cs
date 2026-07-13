@@ -155,26 +155,14 @@ public abstract class ExtendClientAreaWindowTests : IDisposable
 
     protected (double TitleBarHeight, double ButtonsHeight) GetTitleBarInfo()
     {
-        string logPath = "/Users/wieslawsoltes/.gemini/antigravity/brain/a7990822-ca50-4be5-96d8-941456e6d9e6/test_run.log";
         var host = Window.GetVisualParent();
         if (host == null)
-        {
-            System.IO.File.AppendAllText(logPath, $"[TEST-DIAG] GetTitleBarInfo: host is null. Window={Window.GetType().FullName}\n");
             host = Window;
-        }
-        else
-        {
-            System.IO.File.AppendAllText(logPath, $"[TEST-DIAG] GetTitleBarInfo: host={host.GetType().FullName}, visual parent={host.GetVisualParent()?.GetType().FullName}\n");
-        }
 
         host.GetLayoutManager()!.ExecuteLayoutPass();
 
         var titlebar = host.GetVisualDescendants().FirstOrDefault(c => AutomationProperties.GetAutomationId(c) == "AvaloniaTitleBar");
         var closeButton = host.GetVisualDescendants().FirstOrDefault(c => AutomationProperties.GetAutomationId(c) == "Close");
-        
-        System.IO.File.AppendAllText(logPath, $"[TEST-DIAG] TitleBar found={titlebar != null}, visible={titlebar?.IsEffectivelyVisible}, height={titlebar?.Bounds.Height}\n");
-        System.IO.File.AppendAllText(logPath, $"[TEST-DIAG] CloseButton found={closeButton != null}, visible={closeButton?.IsEffectivelyVisible}, height={closeButton?.Bounds.Height}\n");
-
         return (
             titlebar?.IsEffectivelyVisible == true ? titlebar.Bounds.Height : 0,
             closeButton?.IsEffectivelyVisible == true ? closeButton.Bounds.Height : 0);
@@ -189,24 +177,18 @@ public abstract class ExtendClientAreaWindowTests : IDisposable
 
     public void Dispose()
     {
-        string logPath = "/Users/wieslawsoltes/.gemini/antigravity/brain/a7990822-ca50-4be5-96d8-941456e6d9e6/test_run.log";
-        System.IO.File.AppendAllText(logPath, "[TEST-EXTEND] Dispose started\n");
         var window = _window;
         if (window != null)
         {
             var impl = window.PlatformImpl as Avalonia.SilkNet.WindowImpl;
-            System.IO.File.AppendAllText(logPath, "[TEST-EXTEND] Dispose: calling window.Close() on UI thread\n");
             Dispatcher.UIThread.Post(() => window.Close());
             if (impl != null)
             {
-                System.IO.File.AppendAllText(logPath, "[TEST-EXTEND] Dispose: waiting for DisposedTask\n");
-                bool completed = impl.DisposedTask.Wait(3000);
-                System.IO.File.AppendAllText(logPath, $"[TEST-EXTEND] Dispose: DisposedTask wait completed (success={completed})\n");
+                Assert.True(impl.DisposedTask.Wait(3000), "Timed out waiting for the native window to dispose.");
             }
             _window = null;
         }
         System.Threading.Thread.Sleep(200);
-        System.IO.File.AppendAllText(logPath, "[TEST-EXTEND] Dispose finished\n");
     }
 
     public sealed class DecorationsFull : ExtendClientAreaWindowTests

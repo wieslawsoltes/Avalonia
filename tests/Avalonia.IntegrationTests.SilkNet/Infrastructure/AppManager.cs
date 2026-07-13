@@ -144,8 +144,6 @@ internal static class AppManager
         appBuilder.Instance!.Styles.Add(new FluentTheme());
 
         var dispatcher = Dispatcher.UIThread;
-        string logPath = "/Users/wieslawsoltes/.gemini/antigravity/brain/a7990822-ca50-4be5-96d8-941456e6d9e6/test_run.log";
-        System.IO.File.AppendAllText(logPath, $"[DISPATCHER] UI Thread initialized on main thread, Dispatcher={dispatcher.GetHashCode()}, Thread={Thread.CurrentThread.ManagedThreadId}\n");
         dispatcher.VerifyAccess();
         s_dispatcherTcs.TrySetResult(dispatcher);
         AvaloniaSynchronizationContext.InstallIfNeeded();

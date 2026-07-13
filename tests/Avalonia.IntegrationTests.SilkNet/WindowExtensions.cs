@@ -11,19 +11,15 @@ internal static class WindowExtensions
 {
     public static Task WhenLoadedAsync(this Window window)
     {
-        string logPath = "/Users/wieslawsoltes/.gemini/antigravity/brain/a7990822-ca50-4be5-96d8-941456e6d9e6/test_run.log";
-        System.IO.File.AppendAllText(logPath, $"[TEST] WhenLoadedAsync called, IsLoaded={window.IsLoaded}\n");
         if (window.IsLoaded)
             return Task.CompletedTask;
 
         var tcs = new TaskCompletionSource();
         window.Loaded += OnLoaded;
-        System.IO.File.AppendAllText(logPath, "[TEST] Subscribed to window.Loaded\n");
         return tcs.Task;
 
         void OnLoaded(object? sender, RoutedEventArgs e)
         {
-            System.IO.File.AppendAllText(logPath, "[TEST] OnLoaded callback executed!\n");
             window.Loaded -= OnLoaded;
             tcs.TrySetResult();
         }
