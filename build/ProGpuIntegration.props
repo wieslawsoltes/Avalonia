@@ -2,8 +2,8 @@
   <PropertyGroup>
     <ProGpuDependencyMode Condition="'$(ProGpuDependencyMode)' == ''">Source</ProGpuDependencyMode>
     <ProGpuAvaloniaVersion Condition="'$(ProGpuAvaloniaVersion)' == ''">12.0.5</ProGpuAvaloniaVersion>
-    <ProGpuRuntimeVersion Condition="'$(ProGpuRuntimeVersion)' == ''">0.1.0-preview.11</ProGpuRuntimeVersion>
-    <ProGpuIntegrationVersion Condition="'$(ProGpuIntegrationVersion)' == ''">12.0.5-preview.10</ProGpuIntegrationVersion>
+    <ProGpuRuntimeVersion Condition="'$(ProGpuRuntimeVersion)' == ''">0.1.0-preview.12</ProGpuRuntimeVersion>
+    <ProGpuIntegrationVersion Condition="'$(ProGpuIntegrationVersion)' == ''">12.0.5-preview.11</ProGpuIntegrationVersion>
     <ProGpuSourceRoot Condition="'$(ProGpuSourceRoot)' == ''">$(MSBuildThisFileDirectory)../../ProGPU</ProGpuSourceRoot>
     <ProGpuAvaloniaSourceProject Condition="'$(ProGpuAvaloniaSourceProject)' == ''">$(MSBuildThisFileDirectory)../packages/Avalonia/Avalonia.csproj</ProGpuAvaloniaSourceProject>
 
@@ -12,7 +12,7 @@
       Condition="'$(ProGpuDependencyMode)' == 'Package'">true</Avalonia_I_Want_To_Use_Private_Apis_In_Nuget_Package_And_Promise_To_Pin_The_Exact_Avalonia_Version_In_Package_Dependency>
 
     <VersionPrefix>12.0.5</VersionPrefix>
-    <VersionSuffix>preview.10</VersionSuffix>
+    <VersionSuffix>preview.11</VersionSuffix>
     <Version>$(ProGpuIntegrationVersion)</Version>
     <PackageVersion>$(ProGpuIntegrationVersion)</PackageVersion>
     <Product>ProGPU Avalonia Integration</Product>
@@ -25,7 +25,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>ProGpuAvaloniaIcon.png</PackageIcon>
-    <PackageReleaseNotes>Uses ProGPU 0.1.0-preview.11 with restored high-throughput retained rendering, expanded SkiaSharp image and shader compatibility, broader portable System.Drawing behavior, embedded reusable WGSL resources, and strict Svg.Skia parity while retaining full-frame ProGPU presentation.</PackageReleaseNotes>
+    <PackageReleaseNotes>Uses ProGPU 0.1.0-preview.12 with bounded vector-text cache phases, demand-driven same-frame PathAtlas recovery, stable RichText cleanup, strict Svg.Skia parity, and high-throughput retained rendering.</PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
