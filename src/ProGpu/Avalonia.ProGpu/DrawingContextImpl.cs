@@ -1442,7 +1442,40 @@ namespace Avalonia.ProGpu
             if (avaloniaPen == null) return null;
             var brush = ConvertBrush(avaloniaPen.Brush, targetRect);
             if (brush == null) return null;
-            return new ProGPU.Vector.Pen(brush, (float)avaloniaPen.Thickness);
+
+            double[]? dashArray = null;
+            if (avaloniaPen.DashStyle?.Dashes is { Count: > 0 } dashes)
+            {
+                dashArray = new double[dashes.Count];
+                for (int index = 0; index < dashArray.Length; index++)
+                {
+                    dashArray[index] = dashes[index];
+                }
+            }
+
+            var lineJoin = avaloniaPen.LineJoin switch
+            {
+                Avalonia.Media.PenLineJoin.Bevel => ProGPU.Vector.PenLineJoin.Bevel,
+                Avalonia.Media.PenLineJoin.Round => ProGPU.Vector.PenLineJoin.Round,
+                _ => ProGPU.Vector.PenLineJoin.Miter
+            };
+            var lineCap = avaloniaPen.LineCap switch
+            {
+                Avalonia.Media.PenLineCap.Round => ProGPU.Vector.PenLineCap.Round,
+                Avalonia.Media.PenLineCap.Square => ProGPU.Vector.PenLineCap.Square,
+                _ => ProGPU.Vector.PenLineCap.Flat
+            };
+
+            return new ProGPU.Vector.Pen(
+                brush,
+                (float)avaloniaPen.Thickness,
+                lineJoin,
+                (float)avaloniaPen.MiterLimit,
+                lineCap,
+                lineCap,
+                lineCap,
+                dashArray,
+                avaloniaPen.DashStyle?.Offset ?? 0.0);
         }
 
         private static ProGPU.Scene.Rect ToLocalProGpuRect(Avalonia.Rect rect)

@@ -9,6 +9,8 @@ using LineSegment = ProGPU.Vector.LineSegment;
 using QuadraticBezierSegment = ProGPU.Vector.QuadraticBezierSegment;
 using CubicBezierSegment = ProGPU.Vector.CubicBezierSegment;
 using PathFigure = ProGPU.Vector.PathFigure;
+using ProGpuPenLineCap = ProGPU.Vector.PenLineCap;
+using ProGpuPenLineJoin = ProGPU.Vector.PenLineJoin;
 
 namespace Avalonia.ProGpu
 {
@@ -43,11 +45,137 @@ namespace Avalonia.ProGpu
         public Rect GetRenderBounds(IPen? pen)
         {
             var bounds = Bounds;
-            if (pen != null)
+            if (pen == null || pen.Thickness <= 0 || !double.IsFinite(pen.Thickness))
             {
-                bounds = bounds.Inflate(pen.Thickness / 2.0);
+                return bounds;
             }
-            return bounds;
+
+            return TryCalculateOpenPolylineStrokeBounds(Path, pen, out var strokeBounds)
+                ? strokeBounds
+                : bounds.Inflate(pen.Thickness / 2.0);
+        }
+
+        private static bool TryCalculateOpenPolylineStrokeBounds(
+            PathGeometry path,
+            IPen pen,
+            out Rect bounds)
+        {
+            bounds = default;
+            if (path.IsCombined || pen.DashStyle?.Dashes is { Count: > 0 })
+            {
+                return false;
+            }
+
+            float thickness = (float)pen.Thickness;
+            float radius = thickness * 0.5f;
+            var lineJoin = pen.LineJoin switch
+            {
+                PenLineJoin.Bevel => ProGpuPenLineJoin.Bevel,
+                PenLineJoin.Round => ProGpuPenLineJoin.Round,
+                _ => ProGpuPenLineJoin.Miter
+            };
+            var lineCap = pen.LineCap switch
+            {
+                PenLineCap.Round => ProGpuPenLineCap.Round,
+                PenLineCap.Square => ProGpuPenLineCap.Square,
+                _ => ProGpuPenLineCap.Flat
+            };
+
+            var min = new Vector2(float.PositiveInfinity, float.PositiveInfinity);
+            var max = new Vector2(float.NegativeInfinity, float.NegativeInfinity);
+            bool hasBounds = false;
+
+            void Include(Vector2 point)
+            {
+                if (!float.IsFinite(point.X) || !float.IsFinite(point.Y))
+                {
+                    return;
+                }
+
+                min = Vector2.Min(min, point);
+                max = Vector2.Max(max, point);
+                hasBounds = true;
+            }
+
+            void IncludeTriangles(ProGPU.Vector.StrokeJoinTriangle[] triangles)
+            {
+                for (int triangleIndex = 0; triangleIndex < triangles.Length; triangleIndex++)
+                {
+                    var triangle = triangles[triangleIndex];
+                    Include(triangle.P0);
+                    Include(triangle.P1);
+                    Include(triangle.P2);
+                }
+            }
+
+            for (int figureIndex = 0; figureIndex < path.Figures.Count; figureIndex++)
+            {
+                var figure = path.Figures[figureIndex];
+                if (figure.IsClosed || figure.Segments.Count == 0)
+                {
+                    return false;
+                }
+
+                var points = new Vector2[figure.Segments.Count + 1];
+                var lines = new LineSegment[figure.Segments.Count];
+                points[0] = figure.StartPoint;
+
+                for (int segmentIndex = 0; segmentIndex < figure.Segments.Count; segmentIndex++)
+                {
+                    if (figure.Segments[segmentIndex] is not LineSegment { IsStroked: true } line)
+                    {
+                        return false;
+                    }
+
+                    var direction = line.Point - points[segmentIndex];
+                    float length = direction.Length();
+                    if (!float.IsFinite(length) || length <= 0.0001f)
+                    {
+                        return false;
+                    }
+
+                    lines[segmentIndex] = line;
+                    points[segmentIndex + 1] = line.Point;
+                    var normal = new Vector2(-direction.Y, direction.X) * (radius / length);
+                    Include(points[segmentIndex] - normal);
+                    Include(points[segmentIndex] + normal);
+                    Include(line.Point - normal);
+                    Include(line.Point + normal);
+                }
+
+                for (int pointIndex = 1; pointIndex < points.Length - 1; pointIndex++)
+                {
+                    IncludeTriangles(ProGPU.Vector.StrokeJoinGeometry.CreateLineJoin(
+                        lineJoin,
+                        thickness,
+                        (float)pen.MiterLimit,
+                        points[pointIndex - 1],
+                        points[pointIndex],
+                        points[pointIndex + 1],
+                        lines[pointIndex].IsSmoothJoin));
+                }
+
+                IncludeTriangles(ProGPU.Vector.StrokeCapGeometry.CreateLineCap(
+                    lineCap,
+                    thickness,
+                    points[0],
+                    points[1],
+                    isStart: true));
+                IncludeTriangles(ProGPU.Vector.StrokeCapGeometry.CreateLineCap(
+                    lineCap,
+                    thickness,
+                    points[^2],
+                    points[^1],
+                    isStart: false));
+            }
+
+            if (!hasBounds)
+            {
+                return false;
+            }
+
+            bounds = new Rect(min.X, min.Y, max.X - min.X, max.Y - min.Y);
+            return true;
         }
 
         public IGeometryImpl GetWidenedGeometry(IPen pen)

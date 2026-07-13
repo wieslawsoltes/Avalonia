@@ -48,6 +48,32 @@ namespace Avalonia.ProGpu.UnitTests
         }
 
         [Fact]
+        public void DrawLine_Preserves_Pen_Stroke_Style()
+        {
+            using var target = CreateTarget();
+            var pen = new Pen(
+                Brushes.Black,
+                3,
+                new DashStyle(new[] { 2.0, 4.0 }, 1.5),
+                PenLineCap.Round,
+                PenLineJoin.Bevel,
+                7);
+
+            target.DrawLine(pen, new Point(0, 0), new Point(10, 10));
+
+            var command = Assert.Single(target.DrawingContext.Commands);
+            var nativePen = Assert.IsType<ProGPU.Vector.Pen>(command.Pen);
+            Assert.Equal(3, nativePen.Thickness);
+            Assert.Equal(ProGPU.Vector.PenLineCap.Round, nativePen.StartLineCap);
+            Assert.Equal(ProGPU.Vector.PenLineCap.Round, nativePen.EndLineCap);
+            Assert.Equal(ProGPU.Vector.PenLineCap.Round, nativePen.DashCap);
+            Assert.Equal(ProGPU.Vector.PenLineJoin.Bevel, nativePen.LineJoin);
+            Assert.Equal(7, nativePen.MiterLimit);
+            Assert.Equal(new[] { 2.0, 4.0 }, nativePen.DashArray);
+            Assert.Equal(1.5, nativePen.DashOffset);
+        }
+
+        [Fact]
         public void DrawRectangle_With_Zero_Thickness_Pen_Does_Not_Throw()
         {
             var target = CreateTarget();
