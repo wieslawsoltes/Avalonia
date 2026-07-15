@@ -54,7 +54,7 @@ internal sealed class App : Application
                 },
                 CreateStatusRow("Renderer", "ProGPU / WebGPU", Color.Parse("#38D4C8")),
                 CreateStatusRow("Windowing", "Silk.NET", Color.Parse("#FF6B5E")),
-                CreateStatusRow("Integration", "12.0.5-preview.14", Color.Parse("#F4C95D")),
+                CreateStatusRow("Integration", "12.0.5-preview.15", Color.Parse("#F4C95D")),
                 new TextBlock
                 {
                     Text = "Direct ProGPU + WGSL through IProGpuApiLeaseFeature",
