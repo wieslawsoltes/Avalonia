@@ -41,8 +41,13 @@ case "${mode}" in
     PROGPU_PACKAGE_SOURCE="${runtime_package_source}" \
     PROGPU_INTEGRATION_VERSION="${integration_version}" \
       "${repo_root}/scripts/progpu-pack.sh"
+    # SDK templates have used both `nuget` and `nuget.org` for the default
+    # source name. Remove either spelling so the explicitly ordered clean
+    # consumer sources below remain deterministic.
     "${dotnet}" nuget remove source nuget \
-      --configfile "${working_directory}/nuget.config" >/dev/null
+      --configfile "${working_directory}/nuget.config" >/dev/null 2>&1 || true
+    "${dotnet}" nuget remove source nuget.org \
+      --configfile "${working_directory}/nuget.config" >/dev/null 2>&1 || true
     "${dotnet}" nuget add source "${repo_root}/artifacts/packages/${configuration}" \
       --name progpu-avalonia-local \
       --configfile "${working_directory}/nuget.config" >/dev/null
