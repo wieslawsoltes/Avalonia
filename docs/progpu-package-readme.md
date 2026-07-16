@@ -7,7 +7,7 @@ These packages run Avalonia 12 on the ProGPU/WebGPU renderer with Silk.NET windo
 | `ProGPU.Avalonia.Rendering` | Avalonia renderer backed by ProGPU and WebGPU |
 | `ProGPU.Avalonia.SilkNet` | Cross-platform Silk.NET desktop windowing backend |
 
-Version `12.0.5-preview.16` is built against exactly Avalonia `12.0.5` and ProGPU `0.1.0-preview.18` on .NET 10.
+Version `12.0.5-preview.17` is built against exactly Avalonia `12.0.5` and ProGPU `0.1.0-preview.19` on .NET 10.
 
 ## Install
 
@@ -18,8 +18,8 @@ Reference the renderer, windowing backend, text shaper, and font package:
   <PackageReference Include="Avalonia" Version="12.0.5" />
   <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.5" />
   <PackageReference Include="Avalonia.HarfBuzz" Version="12.0.5" />
-  <PackageReference Include="ProGPU.Avalonia.Rendering" Version="12.0.5-preview.16" />
-  <PackageReference Include="ProGPU.Avalonia.SilkNet" Version="12.0.5-preview.16" />
+  <PackageReference Include="ProGPU.Avalonia.Rendering" Version="12.0.5-preview.17" />
+  <PackageReference Include="ProGPU.Avalonia.SilkNet" Version="12.0.5-preview.17" />
 </ItemGroup>
 ```
 

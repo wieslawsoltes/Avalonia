@@ -4,10 +4,10 @@ The ProGPU integration has two development modes and ships as two preview packag
 
 | Package | Assembly | Purpose |
 | --- | --- | --- |
-| `ProGPU.Avalonia.Rendering` `12.0.5-preview.16` | `Avalonia.ProGpu` | ProGPU/WebGPU rendering backend |
-| `ProGPU.Avalonia.SilkNet` `12.0.5-preview.16` | `Avalonia.SilkNet` | Cross-platform Silk.NET windowing backend |
+| `ProGPU.Avalonia.Rendering` `12.0.5-preview.17` | `Avalonia.ProGpu` | ProGPU/WebGPU rendering backend |
+| `ProGPU.Avalonia.SilkNet` `12.0.5-preview.17` | `Avalonia.SilkNet` | Cross-platform Silk.NET windowing backend |
 
-Both packages are built against exactly Avalonia `12.0.5` and ProGPU `0.1.0-preview.18`. They intentionally use `ProGPU.*` package IDs; no `Avalonia.*` package ID is produced by this release lane.
+Both packages are built against exactly Avalonia `12.0.5` and ProGPU `0.1.0-preview.19`. They intentionally use `ProGPU.*` package IDs; no `Avalonia.*` package ID is produced by this release lane.
 
 The NuGet package page uses `docs/progpu-package-readme.md`. Keep its install, startup, API lease, and troubleshooting instructions current when package contracts change.
 
@@ -52,7 +52,7 @@ Pass `--skia` to opt into Avalonia's regular Skia renderer.
 
 ## Pack locally
 
-Publish ProGPU `0.1.0-preview.18` first, then pack the integrations:
+Publish ProGPU `0.1.0-preview.19` first, then pack the integrations:
 
 ```bash
 ./scripts/progpu-pack.sh
@@ -82,10 +82,10 @@ unset NUGET_API_KEY
 
 Release order:
 
-1. Tag and publish ProGPU `0.1.0-preview.18`.
+1. Tag and publish ProGPU `0.1.0-preview.19`.
 2. Confirm the required ProGPU packages are available from NuGet.org.
 3. Pack and test the Avalonia integrations in package mode.
-4. Publish `ProGPU.Avalonia.Rendering` and `ProGPU.Avalonia.SilkNet` `12.0.5-preview.16`.
+4. Publish `ProGPU.Avalonia.Rendering` and `ProGPU.Avalonia.SilkNet` `12.0.5-preview.17`.
 
 ## Consume the packages
 
@@ -94,8 +94,8 @@ Release order:
   <PackageReference Include="Avalonia" Version="12.0.5" />
   <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.5" />
   <PackageReference Include="Avalonia.HarfBuzz" Version="12.0.5" />
-  <PackageReference Include="ProGPU.Avalonia.Rendering" Version="12.0.5-preview.16" />
-  <PackageReference Include="ProGPU.Avalonia.SilkNet" Version="12.0.5-preview.16" />
+  <PackageReference Include="ProGPU.Avalonia.Rendering" Version="12.0.5-preview.17" />
+  <PackageReference Include="ProGPU.Avalonia.SilkNet" Version="12.0.5-preview.17" />
 </ItemGroup>
 ```
 
