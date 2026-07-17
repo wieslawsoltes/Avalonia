@@ -16,8 +16,8 @@ fi
 
 configuration="${PROGPU_CONFIGURATION:-Release}"
 avalonia_version="${PROGPU_AVALONIA_VERSION:-12.0.5}"
-runtime_version="${PROGPU_RUNTIME_VERSION:-0.1.0-preview.20}"
-integration_version="${PROGPU_INTEGRATION_VERSION:-12.0.5-preview.18}"
+runtime_version="${PROGPU_RUNTIME_VERSION:-0.1.0-preview.21}"
+integration_version="${PROGPU_INTEGRATION_VERSION:-12.0.5-preview.19}"
 package_output="${PROGPU_PACKAGE_OUTPUT:-${repo_root}/artifacts/packages/${configuration}}"
 nuget_source="${NUGET_SOURCE:-https://api.nuget.org/v3/index.json}"
 
