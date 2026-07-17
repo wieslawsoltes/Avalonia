@@ -2,8 +2,8 @@
   <PropertyGroup>
     <ProGpuDependencyMode Condition="'$(ProGpuDependencyMode)' == ''">Source</ProGpuDependencyMode>
     <ProGpuAvaloniaVersion Condition="'$(ProGpuAvaloniaVersion)' == ''">12.0.5</ProGpuAvaloniaVersion>
-    <ProGpuRuntimeVersion Condition="'$(ProGpuRuntimeVersion)' == ''">0.1.0-preview.19</ProGpuRuntimeVersion>
-    <ProGpuIntegrationVersion Condition="'$(ProGpuIntegrationVersion)' == ''">12.0.5-preview.17</ProGpuIntegrationVersion>
+    <ProGpuRuntimeVersion Condition="'$(ProGpuRuntimeVersion)' == ''">0.1.0-preview.20</ProGpuRuntimeVersion>
+    <ProGpuIntegrationVersion Condition="'$(ProGpuIntegrationVersion)' == ''">12.0.5-preview.18</ProGpuIntegrationVersion>
     <ProGpuSourceRoot Condition="'$(ProGpuSourceRoot)' == ''">$(MSBuildThisFileDirectory)../../ProGPU</ProGpuSourceRoot>
     <ProGpuAvaloniaSourceProject Condition="'$(ProGpuAvaloniaSourceProject)' == ''">$(MSBuildThisFileDirectory)../packages/Avalonia/Avalonia.csproj</ProGpuAvaloniaSourceProject>
 
@@ -25,7 +25,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>ProGpuAvaloniaIcon.png</PackageIcon>
-    <PackageReleaseNotes>Uses ProGPU 0.1.0-preview.19 with the merged browser WebGPU/AOT backend, bounded atlas and scene caches, deferred GPU lifetime fixes, shader/image/drawing parity, and synchronized Silk.NET framebuffer teardown.</PackageReleaseNotes>
+    <PackageReleaseNotes>Uses ProGPU 0.1.0-preview.20 with the merged browser WebGPU/AOT backend, bounded atlas and scene caches, deferred GPU lifetime fixes, shader/image/drawing parity, and synchronized Silk.NET framebuffer teardown.</PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
