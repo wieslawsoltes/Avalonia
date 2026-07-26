@@ -43,7 +43,17 @@ internal class ServerCompositionDrawListVisual : ServerCompositionContainerVisua
 
     protected override void RenderCore(ServerVisualRenderContext context, LtrbRect currentTransformedClip)
     {
-        _renderCommands?.Render(context.Canvas);
+        if (_renderCommands is not { } renderCommands)
+            return;
+
+        if (context.Canvas.GetFeature(typeof(ICompositionRenderDataDrawingContextFeature)) is
+                ICompositionRenderDataDrawingContextFeature retained &&
+            retained.TryRender(renderCommands))
+        {
+            return;
+        }
+
+        renderCommands.Render(context.Canvas);
     }
 
     public void DependencyQueuedInvalidate(IServerRenderResource sender) => InvalidateContent();

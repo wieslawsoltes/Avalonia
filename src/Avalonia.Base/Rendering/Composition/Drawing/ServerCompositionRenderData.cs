@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using Avalonia.Platform;
 using Avalonia.Rendering.Composition.Drawing.Nodes;
 using Avalonia.Rendering.Composition.Server;
@@ -12,11 +13,15 @@ namespace Avalonia.Rendering.Composition.Drawing;
 
 class ServerCompositionRenderData : SimpleServerRenderResource
 {
+    private static long s_nextId;
     private PooledInlineList<IRenderDataItem> _items;
     private PooledInlineList<IServerRenderResource> _referencedResources;
     private LtrbRect? _bounds;
     private bool _boundsValid;
     private static readonly ThreadSafeObjectPool<Collector> s_resourceHashSetPool = new();
+
+    public long RetainedId { get; } = Interlocked.Increment(ref s_nextId);
+    public ulong Revision { get; private set; }
 
     public ServerCompositionRenderData(ServerCompositor compositor) : base(compositor)
     {
@@ -35,6 +40,7 @@ class ServerCompositionRenderData : SimpleServerRenderResource
     protected override void DeserializeChangesCore(BatchStreamReader reader, TimeSpan committedAt)
     {
         Reset();
+        Revision++;
         
         var count = reader.Read<int>();
         _items.EnsureCapacity(count);
@@ -113,6 +119,7 @@ class ServerCompositionRenderData : SimpleServerRenderResource
     public override void DependencyQueuedInvalidate(IServerRenderResource sender)
     {
         _boundsValid = false;
+        Revision++;
         base.DependencyQueuedInvalidate(sender);
     }
     
