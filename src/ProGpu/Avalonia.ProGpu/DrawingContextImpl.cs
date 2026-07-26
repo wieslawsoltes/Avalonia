@@ -4,6 +4,7 @@ using System.Numerics;
 using System.Threading;
 using Avalonia.Media;
 using Avalonia.Platform;
+using Avalonia.Rendering.Composition.Drawing;
 using Silk.NET.WebGPU;
 using ProGPU.Backend;
 using ProGPU.Vector;
@@ -13,7 +14,8 @@ namespace Avalonia.ProGpu
 {
     internal partial class DrawingContextImpl : IDrawingContextImpl,
         IDrawingContextWithAcrylicLikeSupport,
-        IDrawingContextImplWithEffects
+        IDrawingContextImplWithEffects,
+        ICompositionRenderDataDrawingContextFeature
     {
         private const string ProGpuSurfaceHandleDescriptor = "WGPU_SURFACE";
         private readonly IDisposable?[]? _disposables;
@@ -44,7 +46,7 @@ namespace Avalonia.ProGpu
         public Avalonia.Media.RenderOptions RenderOptions { get; private set; }
         public Avalonia.Media.TextOptions TextOptions { get; private set; }
 
-        public ProGPU.Scene.DrawingContext DrawingContext { get; private set; } = new();
+        public ProGPU.Scene.DrawingContext DrawingContext { get; private set; }
         public Vector Dpi { get; }
 
         public struct CreateInfo
@@ -164,7 +166,16 @@ namespace Avalonia.ProGpu
             _disposables = disposables;
             _preserveRecordedCommandsOnDispose = createInfo.PreserveRecordedCommandsOnDispose;
             _disableSubpixelTextRendering = createInfo.DisableSubpixelTextRendering;
-            _offscreenCache = (createInfo.CacheHolder as OffscreenTextureCache) ?? GetFallbackCache();
+            if (createInfo.CacheHolder is OffscreenTextureCache targetCache)
+            {
+                _offscreenCache = targetCache;
+                DrawingContext = targetCache.FrameDrawingContext;
+            }
+            else
+            {
+                _offscreenCache = GetFallbackCache();
+                DrawingContext = new ProGPU.Scene.DrawingContext();
+            }
             if (createInfo.ScaleDrawingToDpi &&
                 TryGetDpiScale(createInfo.Dpi, out double scaleX, out double scaleY) &&
                 (!NearlyEqual(scaleX, 1.0) || !NearlyEqual(scaleY, 1.0)))
@@ -788,7 +799,63 @@ namespace Avalonia.ProGpu
         {
             if (featureType == typeof(IProGpuApiLeaseFeature))
                 return new ProGpuLeaseFeature(this);
+            if (featureType == typeof(ICompositionRenderDataDrawingContextFeature))
+                return this;
             return null;
+        }
+
+        bool ICompositionRenderDataDrawingContextFeature.TryRender(
+            ServerCompositionRenderData renderData)
+        {
+            CheckLease();
+
+            // Render/text options influence command materialization. Until they
+            // are part of the retained-picture key, preserve the ordinary path.
+            if (RenderOptions != default || TextOptions != default)
+                return false;
+
+            if (!_offscreenCache.TryGetCompositionPicture(
+                    renderData.RetainedId,
+                    renderData.Revision,
+                    out GpuPicture? picture))
+            {
+                var recorder = new GpuPictureRecorder();
+                var recordingContext = recorder.BeginRecording(
+                    renderData.Bounds?.ToRect() is { } bounds
+                        ? ToLocalProGpuRect(bounds)
+                        : default);
+                ProGPU.Scene.DrawingContext ownerContext = DrawingContext;
+                Matrix ownerTransform = _currentTransform;
+                double ownerOpacity = _currentOpacity;
+                GpuPicture? recorded = null;
+
+                DrawingContext = recordingContext;
+                _currentTransform = _postTransform?.Invert() ?? Matrix.Identity;
+                _currentOpacity = 1;
+                try
+                {
+                    renderData.Render(this);
+                    recorded = recorder.EndRecording();
+                    _offscreenCache.StoreCompositionPicture(
+                        renderData.RetainedId,
+                        renderData.Revision,
+                        recorded);
+                    picture = recorded;
+                }
+                finally
+                {
+                    _currentTransform = ownerTransform;
+                    _currentOpacity = ownerOpacity;
+                    DrawingContext = ownerContext;
+                    if (recorded == null)
+                        recordingContext.Clear();
+                }
+            }
+
+            DrawingContext.DrawPictureTransformed(
+                picture!,
+                ToMatrix4x4(RenderTransform));
+            return true;
         }
 
         [ThreadStatic]
@@ -995,26 +1062,27 @@ namespace Avalonia.ProGpu
                 var (texture, readbackBuffer) = GetOffscreenResources(_offscreenCache, context, width, height, preferredFormat);
                 var hostFrame = CreateHostFrame(width, height);
 
-                var drawingVisual = new DrawingVisual();
+                var drawingVisual = new RecordedDrawingVisual(DrawingContext);
                 drawingVisual.Size = hostFrame.LogicalSize;
-                drawingVisual.Context.Append(DrawingContext);
 
-                try
-                {
-                    compositor.RenderOffscreen(
-                        drawingVisual,
-                        hostFrame,
-                        texture,
-                        0.0f,
-                        _clearColor,
-                        loadExistingContents: false
-                    );
-                    _offscreenCache.IsTextureFresh = false;
-                }
-                finally
-                {
-                    drawingVisual.Context.Clear();
-                }
+                compositor.RenderOffscreen(
+                    drawingVisual,
+                    hostFrame,
+                    texture,
+                    0.0f,
+                    _clearColor,
+                    loadExistingContents: false
+                );
+                var metrics = compositor.Metrics;
+                metrics.RecordedCommandCount = DrawingContext.Commands.Count;
+                metrics.RecordedCommandCapacity = DrawingContext.Commands.Capacity;
+                metrics.RetainedCompositionPictureCount = _offscreenCache.CompositionPictureCount;
+                metrics.RetainedCompositionPictureHits = _offscreenCache.CompositionPictureHits;
+                metrics.RetainedCompositionPictureMisses = _offscreenCache.CompositionPictureMisses;
+                metrics.RetainedCompositionPictureCompilations =
+                    _offscreenCache.CompositionPictureCompilations;
+                ProGpuRenderingDiagnostics.ReportFrame(metrics);
+                _offscreenCache.IsTextureFresh = false;
 
                 if (TryGetSurfacePointer(_framebuffer, out var surfacePointer))
                 {
@@ -1586,26 +1654,30 @@ namespace Avalonia.ProGpu
                 var compositor = GetCompositor(context, texture.Format);
                 var hostFrame = CreateHostFrame(texture.Width, texture.Height);
 
-                var drawingVisual = new DrawingVisual();
+                var drawingVisual = new RecordedDrawingVisual(sourceContext);
                 drawingVisual.Size = hostFrame.LogicalSize;
-                drawingVisual.Context.Append(sourceContext);
 
-                try
-                {
-                    compositor.RenderOffscreen(
-                        drawingVisual,
-                        hostFrame,
-                        texture,
-                        0.0f,
-                        new Vector4(0f, 0f, 0f, 0f), // Transparent clear color for layers
-                        loadExistingContents: !isTextureFresh
-                    );
-                }
-                finally
-                {
-                    drawingVisual.Context.Clear();
-                }
+                compositor.RenderOffscreen(
+                    drawingVisual,
+                    hostFrame,
+                    texture,
+                    0.0f,
+                    new Vector4(0f, 0f, 0f, 0f), // Transparent clear color for layers
+                    loadExistingContents: !isTextureFresh
+                );
             }
+        }
+
+        private sealed class RecordedDrawingVisual : ProGPU.Scene.Visual, IOwnedRenderCommandCache
+        {
+            private readonly ProGPU.Scene.DrawingContext _context;
+
+            public RecordedDrawingVisual(ProGPU.Scene.DrawingContext context)
+            {
+                _context = context;
+            }
+
+            public ProGPU.Scene.DrawingContext GetOrUpdateRenderCommandCache() => _context;
         }
     }
 }

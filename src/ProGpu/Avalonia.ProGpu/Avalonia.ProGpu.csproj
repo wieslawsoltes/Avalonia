@@ -12,6 +12,12 @@
   <Import Project="..\..\..\build\ProGpuIntegration.props" />
   <ItemGroup>
     <EmbeddedResource Include="Assets\NoiseAsset_256X256_PNG.png" />
+    <Compile Include="$(ProGpuSourceRoot)\src\ProGPU.Avalonia.Rendering\ProGpuTextShaper.cs"
+             Link="Text\ProGpuTextShaper.cs" />
+    <Compile Include="$(ProGpuSourceRoot)\src\ProGPU.Avalonia.Rendering\ProGpuTextShapingApplicationExtensions.cs"
+             Link="Text\ProGpuTextShapingApplicationExtensions.cs" />
+    <Compile Include="$(ProGpuSourceRoot)\src\ProGPU.Avalonia.Rendering\ProGpuRenderingDiagnostics.cs"
+             Link="Diagnostics\ProGpuRenderingDiagnostics.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(ProGpuDependencyMode)' == 'Source'">
     <ProjectReference Include="$(ProGpuAvaloniaSourceProject)" />

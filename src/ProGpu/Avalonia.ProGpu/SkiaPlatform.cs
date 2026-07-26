@@ -1,4 +1,5 @@
 using Avalonia.Platform;
+using Avalonia.Media.TextFormatting;
 
 namespace Avalonia.ProGpu
 {
@@ -21,7 +22,8 @@ namespace Avalonia.ProGpu
 
             AvaloniaLocator.CurrentMutable
                 .Bind<IPlatformRenderInterface>().ToConstant(renderInterface)
-                .Bind<IFontManagerImpl>().ToConstant(new FontManagerImpl());
+                .Bind<IFontManagerImpl>().ToConstant(new FontManagerImpl())
+                .Bind<ITextShaperImpl>().ToConstant(new ProGpuTextShaper());
         }
 
         /// <summary>

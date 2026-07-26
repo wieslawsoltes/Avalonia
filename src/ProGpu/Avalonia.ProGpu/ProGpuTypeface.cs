@@ -11,6 +11,7 @@ namespace Avalonia.ProGpu
     {
         public TtfFont Font { get; }
         private readonly byte[] _fontData;
+        internal TtfShapingFontFace ShapingFace { get; }
         public FontSimulations FontSimulations { get; }
         public string FamilyName { get; }
         public FontWeight Weight { get; }
@@ -20,6 +21,7 @@ namespace Avalonia.ProGpu
         public ProGpuTypeface(TtfFont font, byte[] fontData, string familyName, FontWeight weight, FontStyle style, FontStretch stretch, FontSimulations fontSimulations = FontSimulations.None)
         {
             Font = font ?? throw new ArgumentNullException(nameof(font));
+            ShapingFace = new TtfShapingFontFace(Font);
             _fontData = fontData ?? throw new ArgumentNullException(nameof(fontData));
             FamilyName = familyName;
             Weight = weight;
