@@ -586,7 +586,8 @@ namespace Avalonia.ProGpu.UnitTests.Media.TextFormatting
         {
             return UnitTestApplication.Start(TestServices.MockPlatformRenderInterface
                 .With(renderInterface: new PlatformRenderInterface(null),
-                    fontManagerImpl: new CustomFontManagerImpl()));
+                    fontManagerImpl: new CustomFontManagerImpl(),
+                    textShaperImpl: new ProGpuTextShaper()));
         }
     }
 }

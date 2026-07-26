@@ -466,7 +466,8 @@ namespace Avalonia.ProGpu.UnitTests.Media
         {
             var disposable = UnitTestApplication.Start(TestServices.MockPlatformRenderInterface
                 .With(renderInterface: new PlatformRenderInterface(),
-                    fontManagerImpl: new CustomFontManagerImpl()));
+                    fontManagerImpl: new CustomFontManagerImpl(),
+                    textShaperImpl: new ProGpuTextShaper()));
 
             return disposable;
         }

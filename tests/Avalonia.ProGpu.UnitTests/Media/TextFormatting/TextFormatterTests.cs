@@ -1351,7 +1351,8 @@ namespace Avalonia.ProGpu.UnitTests.Media.TextFormatting
         public static IDisposable Start()
         {
             var disposable = UnitTestApplication.Start(TestServices.MockPlatformRenderInterface
-                .With(renderInterface: new PlatformRenderInterface()));
+                .With(renderInterface: new PlatformRenderInterface(),
+                    textShaperImpl: new ProGpuTextShaper()));
 
             var customFontManagerImpl = new CustomFontManagerImpl();
 

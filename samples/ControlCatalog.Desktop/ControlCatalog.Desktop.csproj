@@ -6,10 +6,13 @@
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <UseMicroCom>true</UseMicroCom>
+    <DefineConstants>$(DefineConstants);PROGPU_AVALONIA_BACKEND</DefineConstants>
     <DefineConstants Condition="'$(UseSkiaSharpShim)' == 'true'">$(DefineConstants);AVALONIA_SKIA_SHIM</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="$(ProGpuSourceRoot)\samples\ControlCatalog.Desktop\ControlCatalogBenchmark.cs"
+             Link="ControlCatalogBenchmark.cs" />
     <Compile Include="..\..\src\Avalonia.X11\NativeDialogs\Gtk.cs" Link="NativeControls\Gtk\Gtk.cs" />
     <Compile Include="..\..\src\Avalonia.X11\Interop\Glib.cs" Link="NativeControls\Gtk\Glib.cs" />
     <Compile Include="..\..\src\Avalonia.Base\Platform\Interop\Utf8Buffer.cs" Link="NativeControls\Utf8Buffer.cs" />
@@ -29,6 +32,7 @@
     <ProjectReference Include="..\..\src\Avalonia.X11\Avalonia.X11.csproj" />
     <ProjectReference Include="..\..\src\ProGpu\Avalonia.ProGpu\Avalonia.ProGpu.csproj" />
     <ProjectReference Include="..\..\src\Windows\Avalonia.SilkNet\Avalonia.SilkNet.csproj" />
+    <ProjectReference Include="..\..\src\HarfBuzz\Avalonia.HarfBuzz\Avalonia.HarfBuzz.csproj" />
     <!-- For native controls test -->
     <PackageReference Include="MonoMac.NetStandard" />
   </ItemGroup>

@@ -10,6 +10,7 @@ using Avalonia.Platform;
 using SkiaSharp;
 using ProGPU.Text;
 using Avalonia.ProGpu;
+using AvaloniaFontManager = Avalonia.Media.FontManager;
 
 namespace Avalonia.ProGpu.UnitTests.Media
 {
@@ -21,7 +22,7 @@ namespace Avalonia.ProGpu.UnitTests.Media
 
         public CustomFontManagerImpl()
         {
-            _defaultFamilyName = FontManager.SystemFontsKey + "#Noto Mono";
+            _defaultFamilyName = AvaloniaFontManager.SystemFontsKey + "#Noto Mono";
         }
 
         public IFontCollection SystemFonts
@@ -32,7 +33,7 @@ namespace Avalonia.ProGpu.UnitTests.Media
                 {
                     var source = new Uri("resm:Avalonia.ProGpu.UnitTests.Assets?assembly=Avalonia.ProGpu.UnitTests");
 
-                    _systemFonts = new EmbeddedFontCollection(FontManager.SystemFontsKey, source);
+                    _systemFonts = new EmbeddedFontCollection(AvaloniaFontManager.SystemFontsKey, source);
                 }
 
                 return _systemFonts;

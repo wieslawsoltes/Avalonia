@@ -9,6 +9,7 @@ using Avalonia.Media.Fonts;
 using Avalonia.UnitTests;
 using ProGPU.Text;
 using Xunit;
+using AvaloniaFontManager = Avalonia.Media.FontManager;
 
 namespace Avalonia.ProGpu.UnitTests.Media
 {
@@ -57,9 +58,9 @@ namespace Avalonia.ProGpu.UnitTests.Media
             using var application = UnitTestApplication.Start(
                 TestServices.MockPlatformRenderInterface.With(fontManagerImpl: manager));
             using var scope = AvaloniaLocator.EnterScope();
-            FontManager.Current.AddFontCollection(new InterFontCollection());
+            AvaloniaFontManager.Current.AddFontCollection(new InterFontCollection());
 
-            Assert.True(FontManager.Current.TryGetGlyphTypeface(
+            Assert.True(AvaloniaFontManager.Current.TryGetGlyphTypeface(
                 new Typeface("fonts:Inter#Inter"),
                 out var glyphTypeface));
             Assert.Equal("Inter", glyphTypeface.FamilyName);
