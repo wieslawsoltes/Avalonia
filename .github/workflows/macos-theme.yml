@@ -6,7 +6,9 @@ on:
   pull_request:
     paths:
       - 'src/Avalonia.Themes.MacOS/**'
+      - 'src/Avalonia.Controls.ColorPicker/Themes/MacOS/**'
       - 'samples/ControlCatalog/**'
+      - 'samples/ControlCatalog.MacOS/**'
       - 'tests/Avalonia.Themes.MacOS.UnitTests/**'
       - 'docs/themes/macos26/**'
       - '.github/workflows/macos-theme.yml'
@@ -20,29 +22,89 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  validate:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-26]
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 25
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
           persist-credentials: false
-      - name: Archive source for implementation inspection
-        run: |
-          tar -czf "$RUNNER_TEMP/macos-theme-source.tar.gz" \
-            --exclude='*/bin' --exclude='*/obj' \
-            src/Avalonia.Themes.Fluent src/Avalonia.Themes.MacOS \
-            src/Avalonia.Base/Properties src/Avalonia.Controls/Properties \
-            src/Avalonia.Dialogs samples/ControlCatalog samples/ControlCatalog.Desktop \
-            tests build Directory.* global.json .github/workflows
-      - uses: actions/upload-artifact@v4
-        with:
-          name: macos-theme-source-${{ github.sha }}
-          path: ${{ runner.temp }}/macos-theme-source.tar.gz
-          retention-days: 7
       - uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
-      - name: Build theme
-        run: dotnet build src/Avalonia.Themes.MacOS/Avalonia.Themes.MacOS.csproj --configuration Release
+      - name: Prepare evidence directory
+        run: |
+          mkdir -p artifacts/macos-theme/logs
+          echo "MACOS_THEME_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+      - name: Build native macOS backend
+        if: runner.os == 'macOS'
+        run: |
+          xcodebuild -project native/Avalonia.Native/src/OSX/Avalonia.Native.OSX.xcodeproj \
+            -configuration Release -arch arm64 \
+            SYMROOT="$GITHUB_WORKSPACE/Build/Products" CODE_SIGNING_ALLOWED=NO \
+            > artifacts/macos-theme/logs/native-build.log 2>&1 \
+            || { tail -100 artifacts/macos-theme/logs/native-build.log; exit 1; }
+      - name: Build both supported theme target frameworks
+        id: theme
+        run: |
+          dotnet build src/Avalonia.Themes.MacOS/Avalonia.Themes.MacOS.csproj -c Release \
+            > artifacts/macos-theme/logs/theme-build.log 2>&1 \
+            || { tail -100 artifacts/macos-theme/logs/theme-build.log; exit 1; }
+          tail -8 artifacts/macos-theme/logs/theme-build.log
+      - name: Build ControlCatalog capture app
+        id: catalog
+        run: |
+          dotnet build samples/ControlCatalog.MacOS/ControlCatalog.MacOS.csproj -c Release \
+            -p:AvsSkipBuildingLegacyTargetFrameworks=True \
+            > artifacts/macos-theme/logs/catalog-build.log 2>&1 \
+            || { tail -100 artifacts/macos-theme/logs/catalog-build.log; exit 1; }
+          tail -8 artifacts/macos-theme/logs/catalog-build.log
+      - name: Run theme contract and rendering tests
+        if: success() && hashFiles('tests/Avalonia.Themes.MacOS.UnitTests/*.csproj') != ''
+        run: |
+          dotnet run --project tests/Avalonia.Themes.MacOS.UnitTests/Avalonia.Themes.MacOS.UnitTests.csproj \
+            -c Release -p:AvsSkipBuildingLegacyTargetFrameworks=True \
+            > artifacts/macos-theme/logs/tests.log 2>&1 \
+            || { tail -120 artifacts/macos-theme/logs/tests.log; exit 1; }
+          tail -12 artifacts/macos-theme/logs/tests.log
+      - name: Capture real ControlCatalog frames
+        if: ${{ !cancelled() && steps.catalog.outcome == 'success' }}
+        run: |
+          args=()
+          if [ "$RUNNER_OS" != macOS ]; then args+=(--headless); fi
+          dotnet run --no-build -c Release \
+            --project samples/ControlCatalog.MacOS/ControlCatalog.MacOS.csproj -- \
+            --output artifacts/macos-theme/screenshots "${args[@]}" \
+            > artifacts/macos-theme/logs/capture.log 2>&1 \
+            || { tail -120 artifacts/macos-theme/logs/capture.log; exit 1; }
+          cat artifacts/macos-theme/logs/capture.log
+      - name: Pack standalone theme
+        if: ${{ !cancelled() && steps.theme.outcome == 'success' }}
+        run: |
+          dotnet pack src/Avalonia.Themes.MacOS/Avalonia.Themes.MacOS.csproj -c Release --no-build \
+            -o artifacts/macos-theme/packages \
+            > artifacts/macos-theme/logs/pack.log 2>&1 \
+            || { tail -100 artifacts/macos-theme/logs/pack.log; exit 1; }
+          cat artifacts/macos-theme/logs/pack.log
+      - name: Archive exact source for evidence review
+        if: always()
+        run: |
+          tar -czf artifacts/macos-theme/source.tar.gz --exclude='*/bin' --exclude='*/obj' \
+            src/Avalonia.Themes.MacOS src/Avalonia.Controls.ColorPicker/Themes/MacOS \
+            samples/ControlCatalog.MacOS samples/ControlCatalog/Pages/MacOSThemePage* \
+            eng/macos26 .github/workflows/macos-theme.yml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macos-theme-evidence-${{ matrix.os }}-${{ github.run_id }}
+          path: artifacts/macos-theme
+          retention-days: 30
+          if-no-files-found: error
