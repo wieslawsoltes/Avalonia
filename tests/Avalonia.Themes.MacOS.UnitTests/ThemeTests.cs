@@ -58,7 +58,7 @@ public sealed class ThemeTests
         foreach (var item in document.RootElement.GetProperty("controls").EnumerateArray())
         {
             var name = item.GetProperty("type").GetString()!.Split(':')[^1];
-            var type = Assert.Single(types.Where(t => t.Name == name));
+            var type = Assert.Single(types, t => t.Name == name);
             Assert.True(((IResourceNode)Theme).TryGetResource(type, dark ? ThemeVariant.Dark : ThemeVariant.Light, out var resource), name);
             Assert.Equal(type, Assert.IsType<ControlTheme>(resource).TargetType);
         }

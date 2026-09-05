@@ -28,6 +28,13 @@ def main():
             if key.startswith('MacOS.'):
                 declared.add(key)
         references.update(re.findall(r'\{(?:DynamicResource|StaticResource) (MacOS\.[^{}]+)\}', text))
+    for path in THEME.rglob('*.xaml'):
+        for dictionary in ET.parse(path).iter():
+            if dictionary.tag.rsplit('}', 1)[-1] != 'ResourceDictionary':
+                continue
+            keys = [node.get(X + 'Key') for node in dictionary if node.get(X + 'Key')]
+            if len(keys) != len(set(keys)):
+                errors.append('Duplicate keys in resource dictionary: ' + str(path.relative_to(ROOT)))
     for key in references - tokens:
         errors.append('Referenced visual token missing from public inventory: ' + key)
     runtime = {'MacOS.SystemAccentColor' + suffix for suffix in ('', 'Dark1', 'Dark2', 'Dark3', 'Light1', 'Light2', 'Light3')}

@@ -173,7 +173,7 @@ def main():
                 return node
             color = 'MacOS.' + role[1:] if role.startswith('@') else 'MacOS.Color.' + role
             return '<SolidColorBrush x:Key="MacOS.' + key_match[1] + '" Color="{DynamicResource ' + color + '}" />'
-        text = re.sub(r'<(?:SolidColorBrush|StaticResource)\b[^>]*(?:/>|>.*?</SolidColorBrush>)', brush, text, flags=re.S)
+        text = re.sub(r'<(?:SolidColorBrush|StaticResource)\b[^>]*?/>|<SolidColorBrush\b[^>]*>[^<]*</SolidColorBrush>', brush, text)
         path.write_text(text)
 
     lines = [f'<ResourceDictionary {NS}>', '  <ResourceDictionary.ThemeDictionaries>']
