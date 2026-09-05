@@ -16,6 +16,9 @@
   <PropertyGroup>
     <Description>macOS 26-inspired Avalonia control theme with light/dark semantic palettes, typed live design tokens and accessibility policies.</Description>
     <PackageDescription>$(Description)</PackageDescription>
+    <RepositoryUrl>https://github.com/wieslawsoltes/Avalonia</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/wieslawsoltes/Avalonia</PackageProjectUrl>
+    <PackageReleaseNotes>Development theme from the fork; see docs/themes/macos26/PROGRESS.md for release validation.</PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>avalonia;macos;theme;design-tokens;accessibility;xaml</PackageTags>
   </PropertyGroup>
