@@ -82,13 +82,19 @@ jobs:
             > artifacts/macos-theme/logs/pack.log 2>&1 \
             || { tail -100 artifacts/macos-theme/logs/pack.log; exit 1; }
           tail -12 artifacts/macos-theme/logs/pack.log
+      - name: Validate a clean package-only consumer
+        if: ${{ !cancelled() && steps.theme.outcome == 'success' && runner.os == 'Linux' }}
+        run: |
+          python3 eng/macos26/package-smoke.py > artifacts/macos-theme/logs/package-consumer.log 2>&1 \
+            || { tail -120 artifacts/macos-theme/logs/package-consumer.log; exit 1; }
+          tail -12 artifacts/macos-theme/logs/package-consumer.log
       - name: Audit source contracts
         if: ${{ !cancelled() && hashFiles('eng/macos26/audit.py') != '' }}
         run: python3 eng/macos26/audit.py
       - name: Archive source for evidence review
         if: always()
         run: |
-          tar -czf artifacts/macos-theme/source.tar.gz --exclude='*/bin' --exclude='*/obj' \
+          tar -czf artifacts/macos-theme/source.tar.gz --exclude='*/bin' --exclude='*/obj' --exclude='*/__pycache__' \
             src/Avalonia.Themes.MacOS src/Avalonia.Controls.ColorPicker/Themes/MacOS \
             samples/ControlCatalog.MacOS samples/ControlCatalog/Pages/MacOSThemePage* \
             tests/Avalonia.Themes.MacOS.UnitTests eng/macos26 .github/workflows/macos-theme.yml
