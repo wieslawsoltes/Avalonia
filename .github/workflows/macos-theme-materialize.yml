@@ -1,0 +1,50 @@
+name: Materialize macOS theme source
+
+on:
+  push:
+    branches: [feature/macos26-theme]
+    paths:
+      - 'eng/macos26/initialize.py'
+      - 'eng/macos26/generate_*.py'
+      - '.github/workflows/macos-theme-materialize.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: materialize-macos-theme
+  cancel-in-progress: false
+
+jobs:
+  materialize:
+    if: github.repository == 'wieslawsoltes/Avalonia' && github.ref == 'refs/heads/feature/macos26-theme'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/macos26-theme
+          fetch-depth: 0
+          submodules: recursive
+      - name: Apply explicit source migrations and preserve incremental commits
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          python3 eng/macos26/initialize.py
+          for generator in eng/macos26/generate_*.py; do
+            test ! -f "$generator" || python3 "$generator"
+          done
+          git push origin HEAD:feature/macos26-theme
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Build materialized theme
+        run: dotnet build src/Avalonia.Themes.MacOS/Avalonia.Themes.MacOS.csproj --configuration Release
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: materialized-macos-theme-${{ github.run_id }}
+          path: src/Avalonia.Themes.MacOS
+          retention-days: 7
