@@ -5,6 +5,10 @@ namespace Avalonia.Themes.MacOS;
 /// <summary>Semantic palette tokens shared by all macOS control families.</summary>
 public static class MacOSSemanticTokens
 {
+    /// <summary>Gets the contrast-safe accent color used for filled controls.</summary>
+    public static readonly MacOSToken<Color> Accent = new("MacOS.Color.Accent");
+    /// <summary>Gets the contrast-safe accent brush.</summary>
+    public static readonly MacOSToken<IBrush> AccentBrush = new("MacOS.Brush.Accent");
     /// <summary>Gets the Window color token.</summary>
     public static readonly MacOSToken<Color> Window = new("MacOS.Color.Window");
     /// <summary>Gets the Window brush token.</summary>

@@ -110,4 +110,8 @@
   <x:Double x:Key="MacOS.RadioButton.GlyphSize">6</x:Double>
   <Thickness x:Key="MacOS.Selection.Margin">0,1</Thickness>
   <Thickness x:Key="MacOS.Slider.ThumbStroke">1</Thickness>
+  <!-- A legacy compact-only key is public, so it also needs a normal fallback. -->
+  <x:Double x:Key="MacOS.NavigationViewItemOnLeftMinHeight">36</x:Double>
+  <Color x:Key="MacOS.Color.Accent">#006ADC</Color>
+  <SolidColorBrush x:Key="MacOS.Brush.Accent" Color="{DynamicResource MacOS.Color.Accent}" />
 </ResourceDictionary>

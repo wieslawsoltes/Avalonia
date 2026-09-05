@@ -5,8 +5,8 @@
   <ResourceDictionary.ThemeDictionaries>
     <ResourceDictionary x:Key="Default">
       <!-- Resources for Button.xaml -->
-      <SolidColorBrush x:Key="MacOS.AccentButtonBackground" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.AccentButtonBackgroundPointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.AccentButtonBackground" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.AccentButtonBackgroundPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.AccentButtonBackgroundPressed" Color="{DynamicResource MacOS.SystemAccentColorDark1}" />
       <SolidColorBrush x:Key="MacOS.AccentButtonBackgroundDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
       <SolidColorBrush x:Key="MacOS.AccentButtonForeground" Color="{DynamicResource MacOS.Color.OnAccent}" />
@@ -51,12 +51,12 @@
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundPointerOver" Color="{DynamicResource MacOS.Color.ControlHover}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundPressed" Color="{DynamicResource MacOS.Color.ControlPressed}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
-      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundChecked" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundCheckedPointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundChecked" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundCheckedPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundCheckedPressed" Color="{DynamicResource MacOS.SystemAccentColorDark1}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundCheckedDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
-      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundIndeterminate" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundIndeterminatePointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundIndeterminate" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundIndeterminatePointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundIndeterminatePressed" Color="{DynamicResource MacOS.SystemAccentColorDark1}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundIndeterminateDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonForeground" Color="{DynamicResource MacOS.Color.Label}" />
@@ -96,8 +96,8 @@
       <!-- Resources for HyperlinkButton.xaml -->
       <Color x:Key="MacOS.HyperlinkVisitedColor">#FF681DA8</Color>
       <SolidColorBrush x:Key="MacOS.HyperlinkVisitedBrush" Color="{DynamicResource MacOS.HyperlinkVisitedColor}" />
-      <SolidColorBrush x:Key="MacOS.HyperlinkButtonForeground" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.HyperlinkButtonForegroundPointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.HyperlinkButtonForeground" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.HyperlinkButtonForegroundPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.HyperlinkButtonForegroundPressed" Color="{DynamicResource MacOS.SystemAccentColorDark1}" />
       <StaticResource x:Key="MacOS.HyperlinkButtonForegroundDisabled" ResourceKey="MacOS.SystemControlDisabledBaseMediumLowBrush" />
       <SolidColorBrush x:Key="MacOS.HyperlinkButtonForegroundVisited" Color="{DynamicResource MacOS.HyperlinkVisitedColor}" />
@@ -130,9 +130,9 @@
       <SolidColorBrush x:Key="MacOS.ComboBoxItemBackgroundPressed" Color="{DynamicResource MacOS.Color.Hover}" />
       <SolidColorBrush x:Key="MacOS.ComboBoxItemBackgroundPointerOver" Color="{DynamicResource MacOS.Color.Hover}" />
       <SolidColorBrush x:Key="MacOS.ComboBoxItemBackgroundDisabled" Color="{DynamicResource MacOS.Color.Transparent}" />
-      <SolidColorBrush x:Key="MacOS.ComboBoxItemBackgroundSelected" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.ComboBoxItemBackgroundSelectedPressed" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.ComboBoxItemBackgroundSelectedPointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.ComboBoxItemBackgroundSelected" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.ComboBoxItemBackgroundSelectedPressed" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.ComboBoxItemBackgroundSelectedPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.ComboBoxItemBackgroundSelectedDisabled" Color="{DynamicResource MacOS.Color.SelectionInactive}" />
       <SolidColorBrush x:Key="MacOS.ComboBoxItemBorderBrushPressed" Color="{DynamicResource MacOS.Color.Transparent}" />
       <SolidColorBrush x:Key="MacOS.ComboBoxItemBorderBrushPointerOver" Color="{DynamicResource MacOS.Color.Transparent}" />
@@ -186,8 +186,8 @@
       <Thickness x:Key="MacOS.MenuFlyoutItemChevronMargin">12,0,0,0</Thickness>
       <Thickness x:Key="MacOS.MenuFlyoutSeparatorThemePadding">8,5</Thickness>
       <SolidColorBrush x:Key="MacOS.MenuFlyoutItemBackground" Color="{DynamicResource MacOS.Color.Transparent}" />
-      <SolidColorBrush x:Key="MacOS.MenuFlyoutItemBackgroundPointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.MenuFlyoutItemBackgroundPressed" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.MenuFlyoutItemBackgroundPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.MenuFlyoutItemBackgroundPressed" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.MenuFlyoutItemBackgroundDisabled" Color="{DynamicResource MacOS.Color.Transparent}" />
       <SolidColorBrush x:Key="MacOS.MenuFlyoutItemForeground" Color="{DynamicResource MacOS.Color.Label}" />
       <SolidColorBrush x:Key="MacOS.MenuFlyoutItemForegroundPointerOver" Color="{DynamicResource MacOS.Color.OnAccent}" />
@@ -219,13 +219,13 @@
       <SolidColorBrush x:Key="MacOS.TextControlBackground" Color="{DynamicResource MacOS.Color.Surface}" />
       <SolidColorBrush x:Key="MacOS.TextControlBackgroundPointerOver" Color="{DynamicResource MacOS.Color.Surface}" />
       <SolidColorBrush x:Key="MacOS.TextControlBackgroundDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
-      <SolidColorBrush x:Key="MacOS.TextControlBorderBrushFocused" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.TextControlBorderBrushFocused" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.TextControlBorderBrushDisabled" Color="{DynamicResource MacOS.Color.ControlStroke}" />
       <x:Double x:Key="MacOS.TextControlPlaceholderOpacity">1</x:Double>
       <SolidColorBrush x:Key="MacOS.TextControlPlaceholderForeground" Color="{DynamicResource MacOS.Color.SecondaryLabel}" />
       <SolidColorBrush x:Key="MacOS.TextControlPlaceholderForegroundPointerOver" Color="{DynamicResource MacOS.Color.SecondaryLabel}" />
       <SolidColorBrush x:Key="MacOS.TextControlPlaceholderForegroundDisabled" Color="{DynamicResource MacOS.Color.DisabledLabel}" />
-      <SolidColorBrush x:Key="MacOS.TextControlSelectionHighlightColor" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.TextControlSelectionHighlightColor" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.TextControlButtonBackground" Color="{DynamicResource MacOS.Color.Transparent}" />
       <SolidColorBrush x:Key="MacOS.TextControlButtonBackgroundPointerOver" Color="{DynamicResource MacOS.Color.Hover}" />
       <SolidColorBrush x:Key="MacOS.TextControlButtonBackgroundPressed" Color="{DynamicResource MacOS.Color.Hover}" />
@@ -299,13 +299,13 @@
       <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillUncheckedPointerOver" Color="{DynamicResource MacOS.Color.ControlHover}" />
       <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillUncheckedPressed" Color="{DynamicResource MacOS.Color.ControlPressed}" />
       <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillUncheckedDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
-      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillChecked" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillCheckedPointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillCheckedPressed" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillChecked" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillCheckedPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillCheckedPressed" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillCheckedDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
-      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillIndeterminate" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillIndeterminatePointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillIndeterminatePressed" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillIndeterminate" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillIndeterminatePointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillIndeterminatePressed" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillIndeterminateDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
       <SolidColorBrush x:Key="MacOS.CheckBoxCheckGlyphForegroundUnchecked" Color="{DynamicResource MacOS.Color.OnAccent}" />
       <SolidColorBrush x:Key="MacOS.CheckBoxCheckGlyphForegroundUncheckedPointerOver" Color="{DynamicResource MacOS.Color.OnAccent}" />
@@ -418,13 +418,13 @@
       <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseFillPointerOver" Color="{DynamicResource MacOS.Color.ControlHover}" />
       <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseFillPressed" Color="{DynamicResource MacOS.Color.ControlPressed}" />
       <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseFillDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
-      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedStroke" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedStrokePointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedStrokePressed" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedStroke" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedStrokePointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedStrokePressed" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedStrokeDisabled" Color="{DynamicResource MacOS.Color.Track}" />
-      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedFill" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedFillPointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedFillPressed" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedFill" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedFillPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedFillPressed" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedFillDisabled" Color="{DynamicResource MacOS.Color.Track}" />
       <SolidColorBrush x:Key="MacOS.RadioButtonCheckGlyphFill" Color="{DynamicResource MacOS.Color.OnAccent}" />
       <SolidColorBrush x:Key="MacOS.RadioButtonCheckGlyphFillPointerOver" Color="{DynamicResource MacOS.Color.OnAccent}" />
@@ -474,9 +474,9 @@
       <SolidColorBrush x:Key="MacOS.ToggleSwitchStrokeOffPointerOver" Color="{DynamicResource MacOS.Color.Transparent}" />
       <SolidColorBrush x:Key="MacOS.ToggleSwitchStrokeOffPressed" Color="{DynamicResource MacOS.Color.Transparent}" />
       <SolidColorBrush x:Key="MacOS.ToggleSwitchStrokeOffDisabled" Color="{DynamicResource MacOS.Color.Transparent}" />
-      <SolidColorBrush x:Key="MacOS.ToggleSwitchFillOn" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.ToggleSwitchFillOnPointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.ToggleSwitchFillOnPressed" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.ToggleSwitchFillOn" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.ToggleSwitchFillOnPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.ToggleSwitchFillOnPressed" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.ToggleSwitchFillOnDisabled" Color="{DynamicResource MacOS.Color.Track}" />
       <SolidColorBrush x:Key="MacOS.ToggleSwitchStrokeOn" Color="{DynamicResource MacOS.Color.Transparent}" />
       <SolidColorBrush x:Key="MacOS.ToggleSwitchStrokeOnPointerOver" Color="{DynamicResource MacOS.Color.Transparent}" />
@@ -620,9 +620,9 @@
       <SolidColorBrush x:Key="MacOS.TreeViewItemBackgroundPointerOver" Color="{DynamicResource MacOS.Color.Hover}" />
       <SolidColorBrush x:Key="MacOS.TreeViewItemBackgroundPressed" Color="{DynamicResource MacOS.Color.Hover}" />
       <SolidColorBrush x:Key="MacOS.TreeViewItemBackgroundDisabled" Color="{DynamicResource MacOS.Color.Transparent}" />
-      <SolidColorBrush x:Key="MacOS.TreeViewItemBackgroundSelected" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.TreeViewItemBackgroundSelectedPointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.TreeViewItemBackgroundSelectedPressed" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.TreeViewItemBackgroundSelected" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.TreeViewItemBackgroundSelectedPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.TreeViewItemBackgroundSelectedPressed" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.TreeViewItemBackgroundSelectedDisabled" Color="{DynamicResource MacOS.Color.SelectionInactive}" />
       <SolidColorBrush x:Key="MacOS.TreeViewItemForeground" Color="{DynamicResource MacOS.Color.Label}" />
       <SolidColorBrush x:Key="MacOS.TreeViewItemForegroundPointerOver" Color="{DynamicResource MacOS.Color.Label}" />
@@ -732,18 +732,18 @@
       <SolidColorBrush x:Key="MacOS.TableViewRowForegroundPointerOver" Color="{DynamicResource MacOS.Color.Label}" />
       <SolidColorBrush x:Key="MacOS.TableViewRowBackgroundPressed" Color="{DynamicResource MacOS.Color.Hover}" />
       <SolidColorBrush x:Key="MacOS.TableViewRowForegroundPressed" Color="{DynamicResource MacOS.Color.Label}" />
-      <SolidColorBrush x:Key="MacOS.TableViewRowBackgroundSelected" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.TableViewRowBackgroundSelected" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.TableViewRowForegroundSelected" Color="{DynamicResource MacOS.Color.OnAccent}" />
-      <SolidColorBrush x:Key="MacOS.TableViewRowBackgroundSelectedPointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.TableViewRowBackgroundSelectedPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.TableViewRowForegroundSelectedPointerOver" Color="{DynamicResource MacOS.Color.OnAccent}" />
-      <SolidColorBrush x:Key="MacOS.TableViewRowBackgroundSelectedPressed" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.TableViewRowBackgroundSelectedPressed" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.TableViewRowForegroundSelectedPressed" Color="{DynamicResource MacOS.Color.OnAccent}" />
 
     </ResourceDictionary>
     <ResourceDictionary x:Key="Dark">
       <!-- Resources for Button.xaml -->
-      <SolidColorBrush x:Key="MacOS.AccentButtonBackground" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.AccentButtonBackgroundPointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.AccentButtonBackground" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.AccentButtonBackgroundPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.AccentButtonBackgroundPressed" Color="{DynamicResource MacOS.SystemAccentColorDark1}" />
       <SolidColorBrush x:Key="MacOS.AccentButtonBackgroundDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
       <SolidColorBrush x:Key="MacOS.AccentButtonForeground" Color="{DynamicResource MacOS.Color.OnAccent}" />
@@ -788,12 +788,12 @@
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundPointerOver" Color="{DynamicResource MacOS.Color.ControlHover}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundPressed" Color="{DynamicResource MacOS.Color.ControlPressed}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
-      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundChecked" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundCheckedPointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundChecked" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundCheckedPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundCheckedPressed" Color="{DynamicResource MacOS.SystemAccentColorDark1}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundCheckedDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
-      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundIndeterminate" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundIndeterminatePointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundIndeterminate" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundIndeterminatePointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundIndeterminatePressed" Color="{DynamicResource MacOS.SystemAccentColorDark1}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundIndeterminateDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonForeground" Color="{DynamicResource MacOS.Color.Label}" />
@@ -833,8 +833,8 @@
       <!-- Resources for HyperlinkButton.xaml -->
       <Color x:Key="MacOS.HyperlinkVisitedColor">#FFC58AF9</Color>
       <SolidColorBrush x:Key="MacOS.HyperlinkVisitedBrush" Color="{DynamicResource MacOS.HyperlinkVisitedColor}" />
-      <SolidColorBrush x:Key="MacOS.HyperlinkButtonForeground" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.HyperlinkButtonForegroundPointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.HyperlinkButtonForeground" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.HyperlinkButtonForegroundPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.HyperlinkButtonForegroundPressed" Color="{DynamicResource MacOS.SystemAccentColorLight1}" />
       <StaticResource x:Key="MacOS.HyperlinkButtonForegroundDisabled" ResourceKey="MacOS.SystemControlDisabledBaseMediumLowBrush" />
       <SolidColorBrush x:Key="MacOS.HyperlinkButtonForegroundVisited" Color="{DynamicResource MacOS.HyperlinkVisitedColor}" />
@@ -867,9 +867,9 @@
       <SolidColorBrush x:Key="MacOS.ComboBoxItemBackgroundPressed" Color="{DynamicResource MacOS.Color.Hover}" />
       <SolidColorBrush x:Key="MacOS.ComboBoxItemBackgroundPointerOver" Color="{DynamicResource MacOS.Color.Hover}" />
       <SolidColorBrush x:Key="MacOS.ComboBoxItemBackgroundDisabled" Color="{DynamicResource MacOS.Color.Transparent}" />
-      <SolidColorBrush x:Key="MacOS.ComboBoxItemBackgroundSelected" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.ComboBoxItemBackgroundSelectedPressed" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.ComboBoxItemBackgroundSelectedPointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.ComboBoxItemBackgroundSelected" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.ComboBoxItemBackgroundSelectedPressed" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.ComboBoxItemBackgroundSelectedPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.ComboBoxItemBackgroundSelectedDisabled" Color="{DynamicResource MacOS.Color.SelectionInactive}" />
       <SolidColorBrush x:Key="MacOS.ComboBoxItemBorderBrushPressed" Color="{DynamicResource MacOS.Color.Transparent}" />
       <SolidColorBrush x:Key="MacOS.ComboBoxItemBorderBrushPointerOver" Color="{DynamicResource MacOS.Color.Transparent}" />
@@ -924,8 +924,8 @@
       <Thickness x:Key="MacOS.MenuFlyoutItemChevronMargin">12,0,0,0</Thickness>
       <Thickness x:Key="MacOS.MenuFlyoutSeparatorThemePadding">8,5</Thickness>
       <SolidColorBrush x:Key="MacOS.MenuFlyoutItemBackground" Color="{DynamicResource MacOS.Color.Transparent}" />
-      <SolidColorBrush x:Key="MacOS.MenuFlyoutItemBackgroundPointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.MenuFlyoutItemBackgroundPressed" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.MenuFlyoutItemBackgroundPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.MenuFlyoutItemBackgroundPressed" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.MenuFlyoutItemBackgroundDisabled" Color="{DynamicResource MacOS.Color.Transparent}" />
       <SolidColorBrush x:Key="MacOS.MenuFlyoutItemForeground" Color="{DynamicResource MacOS.Color.Label}" />
       <SolidColorBrush x:Key="MacOS.MenuFlyoutItemForegroundPointerOver" Color="{DynamicResource MacOS.Color.OnAccent}" />
@@ -958,12 +958,12 @@
       <SolidColorBrush x:Key="MacOS.TextControlBackground" Color="{DynamicResource MacOS.Color.Surface}" />
       <SolidColorBrush x:Key="MacOS.TextControlBackgroundPointerOver" Color="{DynamicResource MacOS.Color.Surface}" />
       <SolidColorBrush x:Key="MacOS.TextControlBackgroundDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
-      <SolidColorBrush x:Key="MacOS.TextControlBorderBrushFocused" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.TextControlBorderBrushFocused" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.TextControlBorderBrushDisabled" Color="{DynamicResource MacOS.Color.ControlStroke}" />
       <SolidColorBrush x:Key="MacOS.TextControlPlaceholderForeground" Color="{DynamicResource MacOS.Color.SecondaryLabel}" />
       <SolidColorBrush x:Key="MacOS.TextControlPlaceholderForegroundPointerOver" Color="{DynamicResource MacOS.Color.SecondaryLabel}" />
       <SolidColorBrush x:Key="MacOS.TextControlPlaceholderForegroundDisabled" Color="{DynamicResource MacOS.Color.DisabledLabel}" />
-      <SolidColorBrush x:Key="MacOS.TextControlSelectionHighlightColor" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.TextControlSelectionHighlightColor" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.TextControlButtonBackground" Color="{DynamicResource MacOS.Color.Transparent}" />
       <SolidColorBrush x:Key="MacOS.TextControlButtonBackgroundPointerOver" Color="{DynamicResource MacOS.Color.Hover}" />
       <SolidColorBrush x:Key="MacOS.TextControlButtonBackgroundPressed" Color="{DynamicResource MacOS.Color.Hover}" />
@@ -1038,13 +1038,13 @@
       <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillUncheckedPointerOver" Color="{DynamicResource MacOS.Color.ControlHover}" />
       <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillUncheckedPressed" Color="{DynamicResource MacOS.Color.ControlPressed}" />
       <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillUncheckedDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
-      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillChecked" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillCheckedPointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillCheckedPressed" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillChecked" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillCheckedPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillCheckedPressed" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillCheckedDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
-      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillIndeterminate" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillIndeterminatePointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillIndeterminatePressed" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillIndeterminate" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillIndeterminatePointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillIndeterminatePressed" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.CheckBoxCheckBackgroundFillIndeterminateDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
       <SolidColorBrush x:Key="MacOS.CheckBoxCheckGlyphForegroundUnchecked" Color="{DynamicResource MacOS.Color.OnAccent}" />
       <SolidColorBrush x:Key="MacOS.CheckBoxCheckGlyphForegroundUncheckedPointerOver" Color="{DynamicResource MacOS.Color.OnAccent}" />
@@ -1157,13 +1157,13 @@
       <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseFillPointerOver" Color="{DynamicResource MacOS.Color.ControlHover}" />
       <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseFillPressed" Color="{DynamicResource MacOS.Color.ControlPressed}" />
       <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseFillDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
-      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedStroke" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedStrokePointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedStrokePressed" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedStroke" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedStrokePointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedStrokePressed" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedStrokeDisabled" Color="{DynamicResource MacOS.Color.Track}" />
-      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedFill" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedFillPointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedFillPressed" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedFill" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedFillPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedFillPressed" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.RadioButtonOuterEllipseCheckedFillDisabled" Color="{DynamicResource MacOS.Color.Track}" />
       <SolidColorBrush x:Key="MacOS.RadioButtonCheckGlyphFill" Color="{DynamicResource MacOS.Color.OnAccent}" />
       <SolidColorBrush x:Key="MacOS.RadioButtonCheckGlyphFillPointerOver" Color="{DynamicResource MacOS.Color.OnAccent}" />
@@ -1213,9 +1213,9 @@
       <SolidColorBrush x:Key="MacOS.ToggleSwitchStrokeOffPointerOver" Color="{DynamicResource MacOS.Color.Transparent}" />
       <SolidColorBrush x:Key="MacOS.ToggleSwitchStrokeOffPressed" Color="{DynamicResource MacOS.Color.Transparent}" />
       <SolidColorBrush x:Key="MacOS.ToggleSwitchStrokeOffDisabled" Color="{DynamicResource MacOS.Color.Transparent}" />
-      <SolidColorBrush x:Key="MacOS.ToggleSwitchFillOn" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.ToggleSwitchFillOnPointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.ToggleSwitchFillOnPressed" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.ToggleSwitchFillOn" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.ToggleSwitchFillOnPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.ToggleSwitchFillOnPressed" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.ToggleSwitchFillOnDisabled" Color="{DynamicResource MacOS.Color.Track}" />
       <SolidColorBrush x:Key="MacOS.ToggleSwitchStrokeOn" Color="{DynamicResource MacOS.Color.Transparent}" />
       <SolidColorBrush x:Key="MacOS.ToggleSwitchStrokeOnPointerOver" Color="{DynamicResource MacOS.Color.Transparent}" />
@@ -1361,9 +1361,9 @@
       <SolidColorBrush x:Key="MacOS.TreeViewItemBackgroundPointerOver" Color="{DynamicResource MacOS.Color.Hover}" />
       <SolidColorBrush x:Key="MacOS.TreeViewItemBackgroundPressed" Color="{DynamicResource MacOS.Color.Hover}" />
       <SolidColorBrush x:Key="MacOS.TreeViewItemBackgroundDisabled" Color="{DynamicResource MacOS.Color.Transparent}" />
-      <SolidColorBrush x:Key="MacOS.TreeViewItemBackgroundSelected" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.TreeViewItemBackgroundSelectedPointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
-      <SolidColorBrush x:Key="MacOS.TreeViewItemBackgroundSelectedPressed" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.TreeViewItemBackgroundSelected" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.TreeViewItemBackgroundSelectedPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
+      <SolidColorBrush x:Key="MacOS.TreeViewItemBackgroundSelectedPressed" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.TreeViewItemBackgroundSelectedDisabled" Color="{DynamicResource MacOS.Color.SelectionInactive}" />
       <SolidColorBrush x:Key="MacOS.TreeViewItemForeground" Color="{DynamicResource MacOS.Color.Label}" />
       <SolidColorBrush x:Key="MacOS.TreeViewItemForegroundPointerOver" Color="{DynamicResource MacOS.Color.Label}" />
@@ -1473,11 +1473,11 @@
       <SolidColorBrush x:Key="MacOS.TableViewRowForegroundPointerOver" Color="{DynamicResource MacOS.Color.Label}" />
       <SolidColorBrush x:Key="MacOS.TableViewRowBackgroundPressed" Color="{DynamicResource MacOS.Color.Hover}" />
       <SolidColorBrush x:Key="MacOS.TableViewRowForegroundPressed" Color="{DynamicResource MacOS.Color.Label}" />
-      <SolidColorBrush x:Key="MacOS.TableViewRowBackgroundSelected" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.TableViewRowBackgroundSelected" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.TableViewRowForegroundSelected" Color="{DynamicResource MacOS.Color.OnAccent}" />
-      <SolidColorBrush x:Key="MacOS.TableViewRowBackgroundSelectedPointerOver" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.TableViewRowBackgroundSelectedPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.TableViewRowForegroundSelectedPointerOver" Color="{DynamicResource MacOS.Color.OnAccent}" />
-      <SolidColorBrush x:Key="MacOS.TableViewRowBackgroundSelectedPressed" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.TableViewRowBackgroundSelectedPressed" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.TableViewRowForegroundSelectedPressed" Color="{DynamicResource MacOS.Color.OnAccent}" />
 
     </ResourceDictionary>

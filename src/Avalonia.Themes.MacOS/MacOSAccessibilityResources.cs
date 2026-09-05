@@ -34,11 +34,36 @@ internal sealed class MacOSAccessibilityResources(MacOSTheme theme) : ResourcePr
             return true;
         }
 
+        if (text == "MacOS.Color.Accent")
+        {
+            // Explicit semantic overrides remain authoritative. Otherwise the raw
+            // OS accent is preserved as SystemAccentColor, while filled surfaces
+            // use a contrast-safe derivative for their small control labels.
+            if (theme.Tokens.TryGetResource(text, variant, out _))
+                return false;
+            if (((IResourceNode)theme).TryGetResource("MacOS.SystemAccentColor", variant, out var raw)
+                && raw is Color source)
+            {
+                var accent = source;
+                var luminance = Luminance(accent);
+                // Bright accents retain black labels; medium/dark accents favor
+                // white labels with at least 4.5:1 contrast on opaque surfaces.
+                if (luminance < 0.4)
+                {
+                    while (Luminance(accent) > 0.175)
+                        accent = Color.FromArgb(255, (byte)(accent.R * 0.96),
+                            (byte)(accent.G * 0.96), (byte)(accent.B * 0.96));
+                }
+                value = accent;
+                return true;
+            }
+        }
+
         if (text == "MacOS.Color.OnAccent")
         {
             // Prefer the actual resolved accent (including per-variant overrides)
             // to keep text legible when the user chooses e.g. a yellow OS accent.
-            if (((IResourceNode)theme).TryGetResource("MacOS.SystemAccentColor", variant, out var resource)
+            if (((IResourceNode)theme).TryGetResource("MacOS.Color.Accent", variant, out var resource)
                 && resource is Color accent)
             {
                 var luminance = 0.2126 * Linear(accent.R) + 0.7152 * Linear(accent.G) + 0.0722 * Linear(accent.B);
@@ -67,6 +92,9 @@ internal sealed class MacOSAccessibilityResources(MacOSTheme theme) : ResourcePr
         }
         return value is not null;
     }
+
+    private static double Luminance(Color color) =>
+        0.2126 * Linear(color.R) + 0.7152 * Linear(color.G) + 0.0722 * Linear(color.B);
 
     private static double Linear(byte component)
     {
