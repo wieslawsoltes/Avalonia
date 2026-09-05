@@ -1,4 +1,4 @@
-﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:converters="using:Avalonia.Controls.Converters"
         x:ClassModifier="internal">
@@ -26,7 +26,7 @@
   <StreamGeometry x:Key="TreeViewItemCollapsedChevronPathData">M 1,0 10,10 l -9,10 -1,-1 L 8,10 -0,1 Z</StreamGeometry>
   <StreamGeometry x:Key="TreeViewItemExpandedChevronPathData">M0,1 L10,10 20,1 19,0 10,8 1,0 Z</StreamGeometry>
 
-  <ControlTheme x:Key="FluentTreeViewExpandCollapseChevron" TargetType="ToggleButton">
+  <ControlTheme x:Key="MacOSTreeViewExpandCollapseChevron" TargetType="ToggleButton">
     <Setter Property="Margin" Value="0" />
     <Setter Property="Width" Value="{StaticResource TreeViewItemExpandCollapseChevronSize}" />
     <Setter Property="Height" Value="{StaticResource TreeViewItemExpandCollapseChevronSize}" />
@@ -83,7 +83,7 @@
               <Panel Name="PART_ExpandCollapseChevronContainer"
                      Margin="{StaticResource TreeViewItemExpandCollapseChevronMargin}">
                 <ToggleButton Name="PART_ExpandCollapseChevron"
-                              Theme="{StaticResource FluentTreeViewExpandCollapseChevron}"
+                              Theme="{StaticResource MacOSTreeViewExpandCollapseChevron}"
                               Focusable="False"
                               IsChecked="{TemplateBinding IsExpanded, Mode=TwoWay}" />
               </Panel>

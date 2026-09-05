@@ -1,10 +1,10 @@
-﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:converters="using:Avalonia.Controls.Converters"
                     x:ClassModifier="internal">
 
   <Design.PreviewWith>
-    <ScrollViewer Theme="{DynamicResource FluentMenuScrollViewer}" Width="200" Height="200">
+    <ScrollViewer Theme="{DynamicResource MacOSMenuScrollViewer}" Width="200" Height="200">
       <StackPanel Spacing="20">
         <TextBlock>Item 1</TextBlock>
         <TextBlock>Item 2</TextBlock>
@@ -19,7 +19,7 @@
     </ScrollViewer>
   </Design.PreviewWith>
 
-  <ControlTheme x:Key="FluentMenuScrollViewer" TargetType="ScrollViewer">
+  <ControlTheme x:Key="MacOSMenuScrollViewer" TargetType="ScrollViewer">
     <Setter Property="Background" Value="Transparent" />
     <Setter Property="IsScrollChainingEnabled" Value="False" />
     <Setter Property="Template">

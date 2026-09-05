@@ -1,4 +1,4 @@
-﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="using:System"
                     xmlns:converters="using:Avalonia.Controls.Converters"
@@ -41,7 +41,7 @@
   <StreamGeometry x:Key="ButtonSpinnerIncreaseButtonIcon">M0,9 L10,0 20,9 19,10 10,2 1,10 z</StreamGeometry>
   <StreamGeometry x:Key="ButtonSpinnerDecreaseButtonIcon">M0,1 L10,10 20,1 19,0 10,8 1,0 z</StreamGeometry>
 
-  <ControlTheme x:Key="FluentButtonSpinnerRepeatButton" TargetType="RepeatButton">
+  <ControlTheme x:Key="MacOSButtonSpinnerRepeatButton" TargetType="RepeatButton">
     <Setter Property="MinWidth" Value="{DynamicResource TextControlInnerButtonMinWidth}" />
     <Setter Property="Template">
       <ControlTemplate>
@@ -98,7 +98,7 @@
                           IsVisible="{TemplateBinding ShowButtonSpinner}">
                 <RepeatButton Name="PART_IncreaseButton"
                               IsTabStop="{TemplateBinding IsTabStop}"
-                              Theme="{StaticResource FluentButtonSpinnerRepeatButton}"
+                              Theme="{StaticResource MacOSButtonSpinnerRepeatButton}"
                               Background="{TemplateBinding Background}"
                               BorderBrush="{TemplateBinding BorderBrush}"
                               BorderThickness="{TemplateBinding BorderThickness, Converter={StaticResource ButtonSpinnerLeftThickness}}"
@@ -113,7 +113,7 @@
 
                 <RepeatButton Name="PART_DecreaseButton"
                               IsTabStop="{TemplateBinding IsTabStop}"
-                              Theme="{StaticResource FluentButtonSpinnerRepeatButton}"
+                              Theme="{StaticResource MacOSButtonSpinnerRepeatButton}"
                               Background="{TemplateBinding Background}"
                               BorderBrush="{TemplateBinding BorderBrush}"
                               BorderThickness="{TemplateBinding BorderThickness, Converter={StaticResource ButtonSpinnerLeftThickness}}"

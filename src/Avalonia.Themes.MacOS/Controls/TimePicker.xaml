@@ -1,4 +1,4 @@
-﻿<!--
+<!--
 // (c) Copyright Microsoft Corporation.
 // This source is subject to the Microsoft Public License (Ms-PL).
 // Please see https://go.microsoft.com/fwlink/?LinkID=131993 for details.
@@ -38,7 +38,7 @@
   <Thickness x:Key="TimePickerFlyoutPresenterItemPadding">0,3,0,6</Thickness>
   <Thickness x:Key="TimePickerHostPadding">0,3,0,6</Thickness>
 
-  <ControlTheme x:Key="FluentTimePickerFlyoutButton" TargetType="Button">
+  <ControlTheme x:Key="MacOSTimePickerFlyoutButton" TargetType="Button">
     <Setter Property="RenderTransform" Value="none" />
     <Setter Property="Template">
       <ControlTemplate>
@@ -85,7 +85,7 @@
         <DataValidationErrors>
           <Grid Name="LayoutRoot" Margin="{TemplateBinding Padding}">
             <Button x:Name="PART_FlyoutButton"
-                    Theme="{StaticResource FluentTimePickerFlyoutButton}"
+                    Theme="{StaticResource MacOSTimePickerFlyoutButton}"
                     Foreground="{TemplateBinding Foreground}"
                     Background="{TemplateBinding Background}"
                     BorderBrush="{TemplateBinding BorderBrush}"
@@ -209,7 +209,7 @@
             <Grid Name="PART_PickerContainer">
               <Grid.Styles>
                 <Style Selector="DateTimePickerPanel > ListBoxItem">
-                  <Setter Property="Theme" Value="{StaticResource FluentDateTimePickerItem}" />
+                  <Setter Property="Theme" Value="{StaticResource MacOSDateTimePickerItem}" />
                 </Style>
               </Grid.Styles>
               <!--Ignore col defs here, set in code-->
@@ -221,8 +221,8 @@
                                        ShouldLoop="True"
                                        ItemHeight="{DynamicResource TimePickerFlyoutPresenterItemHeight}"/>
                 </ScrollViewer>
-                <RepeatButton Name="PART_HourUpButton" Theme="{StaticResource FluentDateTimePickerUpButton}"/>
-                <RepeatButton Name="PART_HourDownButton" Theme="{StaticResource FluentDateTimePickerDownButton}"/>
+                <RepeatButton Name="PART_HourUpButton" Theme="{StaticResource MacOSDateTimePickerUpButton}"/>
+                <RepeatButton Name="PART_HourDownButton" Theme="{StaticResource MacOSDateTimePickerDownButton}"/>
               </Panel>
 
               <Panel Name="PART_MinuteHost" Grid.Column="2">
@@ -233,8 +233,8 @@
                                        ShouldLoop="True"
                                        ItemHeight="{DynamicResource TimePickerFlyoutPresenterItemHeight}"/>
                 </ScrollViewer>
-                <RepeatButton Name="PART_MinuteUpButton" Theme="{StaticResource FluentDateTimePickerUpButton}"/>
-                <RepeatButton Name="PART_MinuteDownButton" Theme="{StaticResource FluentDateTimePickerDownButton}"/>
+                <RepeatButton Name="PART_MinuteUpButton" Theme="{StaticResource MacOSDateTimePickerUpButton}"/>
+                <RepeatButton Name="PART_MinuteDownButton" Theme="{StaticResource MacOSDateTimePickerDownButton}"/>
               </Panel>
               
               <Panel Name="PART_SecondHost" Grid.Column="4">
@@ -245,8 +245,8 @@
                                        ShouldLoop="True"
                                        ItemHeight="{DynamicResource TimePickerFlyoutPresenterItemHeight}"/>
                 </ScrollViewer>
-                <RepeatButton Name="PART_SecondUpButton" Theme="{StaticResource FluentDateTimePickerUpButton}"/>
-                <RepeatButton Name="PART_SecondDownButton" Theme="{StaticResource FluentDateTimePickerDownButton}"/>
+                <RepeatButton Name="PART_SecondUpButton" Theme="{StaticResource MacOSDateTimePickerUpButton}"/>
+                <RepeatButton Name="PART_SecondDownButton" Theme="{StaticResource MacOSDateTimePickerDownButton}"/>
               </Panel>
 
               <Panel Name="PART_PeriodHost" Grid.Column="6">
@@ -257,8 +257,8 @@
                                        ShouldLoop="False"
                                        ItemHeight="{DynamicResource TimePickerFlyoutPresenterItemHeight}"/>
                 </ScrollViewer>
-                <RepeatButton Name="PART_PeriodUpButton" Theme="{StaticResource FluentDateTimePickerUpButton}"/>
-                <RepeatButton Name="PART_PeriodDownButton" Theme="{StaticResource FluentDateTimePickerDownButton}"/>
+                <RepeatButton Name="PART_PeriodUpButton" Theme="{StaticResource MacOSDateTimePickerUpButton}"/>
+                <RepeatButton Name="PART_PeriodDownButton" Theme="{StaticResource MacOSDateTimePickerDownButton}"/>
               </Panel>
 
               <Rectangle x:Name="HighlightRect" ZIndex="-1"
@@ -293,7 +293,7 @@
                          Grid.ColumnSpan="2"/>
               <Button Name="PART_AcceptButton"
                       Grid.Column="0"
-                      Theme="{StaticResource FluentDateTimePickerButton}"
+                      Theme="{StaticResource MacOSDateTimePickerButton}"
                       Height="{DynamicResource TimePickerFlyoutPresenterAcceptDismissHostGridHeight}"
                       HorizontalAlignment="Stretch"
                       VerticalAlignment="Stretch">
@@ -304,7 +304,7 @@
               </Button>
               <Button Name="PART_DismissButton"
                       Grid.Column="1"
-                      Theme="{StaticResource FluentDateTimePickerButton}"
+                      Theme="{StaticResource MacOSDateTimePickerButton}"
                       Height="{DynamicResource TimePickerFlyoutPresenterAcceptDismissHostGridHeight}"
                       FontSize="16" 
                       HorizontalAlignment="Stretch" 

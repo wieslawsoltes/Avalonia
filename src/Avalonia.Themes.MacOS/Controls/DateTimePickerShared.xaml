@@ -11,17 +11,17 @@
   <Design.PreviewWith>
     <Border Padding="20" Width="200">
       <StackPanel Spacing="20">
-        <ListBoxItem Theme="{DynamicResource FluentDateTimePickerItem}">Standard Item</ListBoxItem>
-        <ListBoxItem Theme="{DynamicResource FluentDateTimePickerItem}" Classes="MonthItem">Month Item</ListBoxItem>
-        <RepeatButton Theme="{DynamicResource FluentDateTimePickerButton}">Button</RepeatButton>
-        <RepeatButton Theme="{DynamicResource FluentDateTimePickerUpButton}" IsVisible="True"/>
-        <RepeatButton Theme="{DynamicResource FluentDateTimePickerDownButton}" IsVisible="True"/>
+        <ListBoxItem Theme="{DynamicResource MacOSDateTimePickerItem}">Standard Item</ListBoxItem>
+        <ListBoxItem Theme="{DynamicResource MacOSDateTimePickerItem}" Classes="MonthItem">Month Item</ListBoxItem>
+        <RepeatButton Theme="{DynamicResource MacOSDateTimePickerButton}">Button</RepeatButton>
+        <RepeatButton Theme="{DynamicResource MacOSDateTimePickerUpButton}" IsVisible="True"/>
+        <RepeatButton Theme="{DynamicResource MacOSDateTimePickerDownButton}" IsVisible="True"/>
       </StackPanel>
     </Border>
   </Design.PreviewWith>
 
   <!-- Theme for the items displayed in the selectors -->
-  <ControlTheme x:Key="FluentDateTimePickerItem" TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+  <ControlTheme x:Key="MacOSDateTimePickerItem" TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
     <Setter Property="Padding" Value="{DynamicResource DatePickerFlyoutPresenterItemPadding}"/>
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="HorizontalContentAlignment" Value="Center" />
@@ -43,7 +43,7 @@
   </ControlTheme>
 
   <!-- This is used for both the accept/dismiss & repeatbuttons in the presenter-->
-  <ControlTheme x:Key="FluentDateTimePickerButton" TargetType="Button">
+  <ControlTheme x:Key="MacOSDateTimePickerButton" TargetType="Button">
     <Setter Property="Background" Value="{DynamicResource DateTimePickerFlyoutButtonBackground}" />
     <Setter Property="Height" Value="{DynamicResource DateTimePickerButtonHeight}" />
     <Setter Property="HorizontalContentAlignment" Value="Center"/>
@@ -83,7 +83,7 @@
     </Style>
   </ControlTheme>
 
-  <ControlTheme x:Key="FluentDateTimePickerUpButton" TargetType="RepeatButton" BasedOn="{StaticResource FluentDateTimePickerButton}">
+  <ControlTheme x:Key="MacOSDateTimePickerUpButton" TargetType="RepeatButton" BasedOn="{StaticResource MacOSDateTimePickerButton}">
     <Setter Property="VerticalAlignment" Value="Top"/>
     <Setter Property="Height" Value="{DynamicResource DateTimePickerButtonHeight}" />
     <Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -99,7 +99,7 @@
     </Setter>
   </ControlTheme>
 
-  <ControlTheme x:Key="FluentDateTimePickerDownButton" TargetType="RepeatButton" BasedOn="{StaticResource FluentDateTimePickerButton}">
+  <ControlTheme x:Key="MacOSDateTimePickerDownButton" TargetType="RepeatButton" BasedOn="{StaticResource MacOSDateTimePickerButton}">
     <Setter Property="VerticalAlignment" Value="Bottom"/>
     <Setter Property="Height" Value="{DynamicResource DateTimePickerButtonHeight}" />
     <Setter Property="HorizontalAlignment" Value="Stretch" />

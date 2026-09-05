@@ -11,7 +11,7 @@
   <x:Double x:Key="CalendarDatePickerCurrentDayFontSize">12</x:Double>
   <x:Double x:Key="CalendarDatePickerMinHeight">32</x:Double>
 
-  <ControlTheme x:Key="FluentCalendarDatePickerButton" TargetType="Button">
+  <ControlTheme x:Key="MacOSCalendarDatePickerButton" TargetType="Button">
     <Setter Property="TextElement.Foreground" Value="{DynamicResource CalendarDatePickerCalendarGlyphForeground}" />
     <Setter Property="Margin" Value="2,0,4,0" />
     <Setter Property="Width" Value="{DynamicResource CalendarDatePickerDropDownButtonWidth}" />
@@ -121,7 +121,7 @@
                 </TextBox.Styles>
               </TextBox>
               <Button Name="PART_Button"
-                      Theme="{StaticResource FluentCalendarDatePickerButton}"
+                      Theme="{StaticResource MacOSCalendarDatePickerButton}"
                       Grid.Column="1"
                       Focusable="False" />
               <Popup Name="PART_Popup"

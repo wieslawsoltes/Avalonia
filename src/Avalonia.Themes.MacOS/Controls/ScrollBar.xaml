@@ -1,4 +1,4 @@
-﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     x:ClassModifier="internal">
   <Design.PreviewWith>
@@ -44,7 +44,7 @@
     <MenuItem Header="{DynamicResource StringScrollBarScrollRight}" Command="{Binding $parent[ScrollBar].LineRight}" AutomationProperties.AutomationId="ScrollRight" />
   </MenuFlyout>
 
-  <ControlTheme x:Key="FluentScrollBarThumb" TargetType="Thumb">
+  <ControlTheme x:Key="MacOSScrollBarThumb" TargetType="Thumb">
     <Setter Property="Background" Value="{DynamicResource ScrollBarPanningThumbBackground}"/>
     <Setter Property="Template">
       <Setter.Value>
@@ -72,7 +72,7 @@
     </Style>
   </ControlTheme>
 
-  <ControlTheme x:Key="FluentScrollBarPageButton" TargetType="RepeatButton">
+  <ControlTheme x:Key="MacOSScrollBarPageButton" TargetType="RepeatButton">
     <Setter Property="Background" Value="Transparent" />
     <Setter Property="VerticalAlignment" Value="Stretch" />
     <Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -84,7 +84,7 @@
     </Setter>
   </ControlTheme>
 
-  <ControlTheme x:Key="FluentScrollBarLineButton" TargetType="RepeatButton">
+  <ControlTheme x:Key="MacOSScrollBarLineButton" TargetType="RepeatButton">
     <Setter Property="Opacity" Value="0" />
     <Setter Property="TextElement.Foreground" Value="{DynamicResource ScrollBarButtonArrowForeground}"/>
     <Setter Property="Template">
@@ -160,7 +160,7 @@
 
                 <RepeatButton Name="PART_LineUpButton"
                               HorizontalAlignment="Center"
-                              Theme="{StaticResource FluentScrollBarLineButton}"
+                              Theme="{StaticResource MacOSScrollBarLineButton}"
                               Grid.Row="0"
                               Focusable="False"
                               MinWidth="{DynamicResource ScrollBarSize}"
@@ -182,18 +182,18 @@
                   <Track.DecreaseButton>
                     <RepeatButton Name="PART_PageUpButton"
                                   Classes="largeIncrease"
-                                  Theme="{StaticResource FluentScrollBarPageButton}"
+                                  Theme="{StaticResource MacOSScrollBarPageButton}"
                                   Focusable="False"
                                   AutomationProperties.Name="Page up"/>
                   </Track.DecreaseButton>
                   <Track.IncreaseButton>
                     <RepeatButton Name="PART_PageDownButton"
                                   Classes="largeIncrease"
-                                  Theme="{StaticResource FluentScrollBarPageButton}"
+                                  Theme="{StaticResource MacOSScrollBarPageButton}"
                                   Focusable="False"
                                   AutomationProperties.Name="Page down"/>
                   </Track.IncreaseButton>
-                  <Thumb Theme="{StaticResource FluentScrollBarThumb}"
+                  <Thumb Theme="{StaticResource MacOSScrollBarThumb}"
                          Width="{DynamicResource ScrollBarSize}"
                          MinHeight="{DynamicResource ScrollBarSize}"
                          RenderTransform="{DynamicResource VerticalSmallScrollThumbScaleTransform}"
@@ -203,7 +203,7 @@
 
                 <RepeatButton Name="PART_LineDownButton"
                               HorizontalAlignment="Center"
-                              Theme="{StaticResource FluentScrollBarLineButton}"
+                              Theme="{StaticResource MacOSScrollBarLineButton}"
                               Grid.Row="2"
                               Focusable="False"
                               MinWidth="{DynamicResource ScrollBarSize}"
@@ -243,7 +243,7 @@
                 </Rectangle>
 
                 <RepeatButton Name="PART_LineUpButton"
-                              Theme="{StaticResource FluentScrollBarLineButton}"
+                              Theme="{StaticResource MacOSScrollBarLineButton}"
                               VerticalAlignment="Center"
                               Grid.Column="0"
                               Focusable="False"
@@ -265,18 +265,18 @@
                   <Track.DecreaseButton>
                     <RepeatButton Name="PART_PageUpButton"
                                   Classes="largeIncrease"
-                                  Theme="{StaticResource FluentScrollBarPageButton}"
+                                  Theme="{StaticResource MacOSScrollBarPageButton}"
                                   Focusable="False"
                                   AutomationProperties.Name="Page left"/>
                   </Track.DecreaseButton>
                   <Track.IncreaseButton>
                     <RepeatButton Name="PART_PageDownButton"
                                   Classes="largeIncrease"
-                                  Theme="{StaticResource FluentScrollBarPageButton}"
+                                  Theme="{StaticResource MacOSScrollBarPageButton}"
                                   Focusable="False"
                                   AutomationProperties.Name="Page right"/>
                   </Track.IncreaseButton>
-                  <Thumb Theme="{StaticResource FluentScrollBarThumb}"
+                  <Thumb Theme="{StaticResource MacOSScrollBarThumb}"
                          Height="{DynamicResource ScrollBarSize}"
                          MinWidth="{DynamicResource ScrollBarSize}"
                          RenderTransform="{DynamicResource HorizontalSmallScrollThumbScaleTransform}"
@@ -285,7 +285,7 @@
                 </Track>
 
                 <RepeatButton Name="PART_LineDownButton"
-                              Theme="{StaticResource FluentScrollBarLineButton}"
+                              Theme="{StaticResource MacOSScrollBarLineButton}"
                               VerticalAlignment="Center"
                               Grid.Column="2"
                               Focusable="False"

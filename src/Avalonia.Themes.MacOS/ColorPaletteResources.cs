@@ -1,18 +1,18 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Styling;
-using Avalonia.Themes.Fluent.Accents;
+using Avalonia.Themes.MacOS.Accents;
 
-namespace Avalonia.Themes.Fluent;
+namespace Avalonia.Themes.MacOS;
 
 /// <summary>
-/// Represents a specialized resource dictionary that contains color resources used by FluentTheme elements.
+/// Represents a specialized resource dictionary that contains color resources used by MacOSTheme elements.
 /// </summary>
 /// <remarks>
-/// This class can only be used in <see cref="FluentTheme.Palettes"/>.
+/// This class can only be used in <see cref="MacOSTheme.Palettes"/>.
 /// </remarks>
 public partial class ColorPaletteResources : ResourceProvider
 {

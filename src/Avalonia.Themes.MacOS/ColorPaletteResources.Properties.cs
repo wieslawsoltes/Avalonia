@@ -1,6 +1,6 @@
-﻿using Avalonia.Media;
+using Avalonia.Media;
 
-namespace Avalonia.Themes.Fluent;
+namespace Avalonia.Themes.MacOS;
 
 public partial class ColorPaletteResources
 {

@@ -32,7 +32,7 @@
     <MenuItem Header="{DynamicResource StringTextFlyoutPasteText}" Command="{Binding $parent[TextBox].Paste}" IsEnabled="{Binding $parent[TextBox].CanPaste}" />
   </MenuFlyout>
 
-  <ControlTheme x:Key="FluentTextBoxButton" TargetType="Button">
+  <ControlTheme x:Key="MacOSTextBoxButton" TargetType="Button">
     <Setter Property="Background" Value="{DynamicResource TextControlButtonBackground}" />
     <Setter Property="BorderBrush" Value="{DynamicResource TextControlButtonBorderBrush}" />
     <Setter Property="Focusable" Value="False"/>
@@ -71,9 +71,9 @@
     </Style>
   </ControlTheme>
 
-  <ControlTheme x:Key="FluentTextBoxToggleButton"
+  <ControlTheme x:Key="MacOSTextBoxToggleButton"
                 TargetType="ToggleButton"
-                BasedOn="{StaticResource FluentTextBoxButton}">
+                BasedOn="{StaticResource MacOSTextBoxButton}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="ToggleButton">
@@ -251,7 +251,7 @@
     <Style Selector="^.revealPasswordButton[AcceptsReturn=False][IsReadOnly=False]:not(TextBox:empty)">
       <Setter Property="InnerRightContent">
         <Template>
-          <ToggleButton Theme="{StaticResource FluentTextBoxToggleButton}"
+          <ToggleButton Theme="{StaticResource MacOSTextBoxToggleButton}"
                         IsChecked="{Binding $parent[TextBox].RevealPassword, Mode=TwoWay}"
                         ClipToBounds="True">
             <Panel>
@@ -270,7 +270,7 @@
     <Style Selector="^.clearButton[AcceptsReturn=False][IsReadOnly=False]:focus:not(TextBox:empty)">
       <Setter Property="InnerRightContent">
         <Template>
-          <Button Theme="{StaticResource FluentTextBoxButton}"
+          <Button Theme="{StaticResource MacOSTextBoxButton}"
                   Command="{Binding $parent[TextBox].Clear}"
                   ClipToBounds="True">
             <PathIcon Data="{StaticResource TextBoxClearButtonData}" Height="10" Width="10"/>

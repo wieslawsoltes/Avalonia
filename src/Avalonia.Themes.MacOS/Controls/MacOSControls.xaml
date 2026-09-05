@@ -1,0 +1,91 @@
+<Styles
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:ClassModifier="internal">
+
+    <Styles.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/AdornerLayer.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/Button.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/CommandBar.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/CarouselPage.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/ContentPage.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/DrawerPage.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/NavigationPage.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/TabbedPage.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/RadioButton.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/Expander.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/ProgressBar.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/AutoCompleteBox.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/ButtonSpinner.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/Calendar.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/CalendarButton.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/CalendarDatePicker.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/CalendarDayButton.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/CalendarItem.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/Carousel.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/CheckBox.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/FlyoutPresenter.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/GroupBox.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/GridSplitter.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/HyperlinkButton.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/ItemsControl.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/Label.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/ListBox.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/ListBoxItem.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/MenuScrollViewer.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/Menu.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/MenuItem.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/MenuFlyoutPresenter.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/NotificationCard.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/NumericUpDown.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/OverlayPopupHost.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/PopupRoot.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/PathIcon.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/PipsPager.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/RepeatButton.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/ScrollBar.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/ScrollViewer.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/Separator.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/SplitButton.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/SplitView.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/TabControl.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/TabItem.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/TableView.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/TableViewCell.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/TableViewColumnHeader.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/TableViewRow.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/TabStrip.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/TabStripItem.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/TextBox.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/ToggleButton.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/ToggleSwitch.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/ToolTip.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/TransitioningContentControl.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/TreeView.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/TreeViewItem.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/WindowNotificationManager.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/Window.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/WindowDrawnDecorations.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/ComboBox.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/ComboBoxItem.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/ContextMenu.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/DataValidationErrors.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/DateTimePickerShared.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/DatePicker.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/TimePicker.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/DropDownButton.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/EmbeddableControlRoot.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/Slider.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/ManagedFileChooser.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/SelectableTextBlock.xaml"/>
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/RefreshContainer.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/RefreshVisualizer.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/ThemeVariantScope.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/HeaderedContentControl.xaml" />
+                <MergeResourceInclude Source="avares://Avalonia.Themes.MacOS/Controls/TextSelectionHandle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Styles.Resources>
+</Styles>

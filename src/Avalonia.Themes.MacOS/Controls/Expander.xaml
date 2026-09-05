@@ -64,7 +64,7 @@
   <Thickness x:Key="ExpanderContentRightBorderThickness">0,1,1,1</Thickness>
   <Thickness x:Key="ExpanderContentDownBorderThickness">1,0,1,1</Thickness>
 
-  <ControlTheme x:Key="FluentExpanderToggleButtonTheme" TargetType="ToggleButton">
+  <ControlTheme x:Key="MacOSExpanderToggleButtonTheme" TargetType="ToggleButton">
     <Setter Property="Background" Value="{DynamicResource ExpanderHeaderBackground}" />
     <Setter Property="BorderBrush" Value="{DynamicResource ExpanderHeaderBorderBrush}" />
     <Setter Property="BorderThickness" Value="{DynamicResource ExpanderHeaderBorderThickness}" />
@@ -188,25 +188,25 @@
 
   </ControlTheme>
 
-  <ControlTheme x:Key="FluentExpanderToggleButtonUpTheme" TargetType="ToggleButton" BasedOn="{StaticResource FluentExpanderToggleButtonTheme}">
+  <ControlTheme x:Key="MacOSExpanderToggleButtonUpTheme" TargetType="ToggleButton" BasedOn="{StaticResource MacOSExpanderToggleButtonTheme}">
     <Style Selector="^ /template/ Path#ExpandCollapseChevron">
       <Setter Property="Data" Value="M 0 7 L 7 0 L 14 7" />
     </Style>
   </ControlTheme>
 
-  <ControlTheme x:Key="FluentExpanderToggleButtonDownTheme" TargetType="ToggleButton" BasedOn="{StaticResource FluentExpanderToggleButtonTheme}">
+  <ControlTheme x:Key="MacOSExpanderToggleButtonDownTheme" TargetType="ToggleButton" BasedOn="{StaticResource MacOSExpanderToggleButtonTheme}">
     <Style Selector="^ /template/ Path#ExpandCollapseChevron">
       <Setter Property="Data" Value="M 0 0 L 7 7 L 14 0" />
     </Style>
   </ControlTheme>
 
-  <ControlTheme x:Key="FluentExpanderToggleButtonLeftTheme" TargetType="ToggleButton" BasedOn="{StaticResource FluentExpanderToggleButtonTheme}">
+  <ControlTheme x:Key="MacOSExpanderToggleButtonLeftTheme" TargetType="ToggleButton" BasedOn="{StaticResource MacOSExpanderToggleButtonTheme}">
     <Style Selector="^ /template/ Path#ExpandCollapseChevron">
       <Setter Property="Data" Value="M 7 0 L 0 7 L 7 14" />
     </Style>
   </ControlTheme>
 
-  <ControlTheme x:Key="FluentExpanderToggleButtonRightTheme" TargetType="ToggleButton" BasedOn="{StaticResource FluentExpanderToggleButtonTheme}">
+  <ControlTheme x:Key="MacOSExpanderToggleButtonRightTheme" TargetType="ToggleButton" BasedOn="{StaticResource MacOSExpanderToggleButtonTheme}">
     <Style Selector="^ /template/ Path#ExpandCollapseChevron">
       <Setter Property="Data" Value="M 0 0 L 7 7 L 0 14" />
     </Style>
@@ -309,16 +309,16 @@
     </Style>
 
     <Style Selector="^:left /template/ ToggleButton#ExpanderHeader">
-      <Setter Property="Theme" Value="{DynamicResource FluentExpanderToggleButtonLeftTheme}" />
+      <Setter Property="Theme" Value="{DynamicResource MacOSExpanderToggleButtonLeftTheme}" />
     </Style>
     <Style Selector="^:up /template/ ToggleButton#ExpanderHeader">
-      <Setter Property="Theme" Value="{DynamicResource FluentExpanderToggleButtonUpTheme}" />
+      <Setter Property="Theme" Value="{DynamicResource MacOSExpanderToggleButtonUpTheme}" />
     </Style>
     <Style Selector="^:right /template/ ToggleButton#ExpanderHeader">
-      <Setter Property="Theme" Value="{DynamicResource FluentExpanderToggleButtonRightTheme}" />
+      <Setter Property="Theme" Value="{DynamicResource MacOSExpanderToggleButtonRightTheme}" />
     </Style>
     <Style Selector="^:down /template/ ToggleButton#ExpanderHeader">
-      <Setter Property="Theme" Value="{DynamicResource FluentExpanderToggleButtonDownTheme}" />
+      <Setter Property="Theme" Value="{DynamicResource MacOSExpanderToggleButtonDownTheme}" />
     </Style>
 
     <Style Selector="^:left /template/ Border#ExpanderContent">

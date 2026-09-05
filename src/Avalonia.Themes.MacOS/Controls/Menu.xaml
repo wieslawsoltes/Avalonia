@@ -13,7 +13,7 @@
 
   <x:Double x:Key="MenuBarHeight">32</x:Double>
 
-  <ControlTheme x:Key="FluentTopLevelMenuItem" TargetType="MenuItem">
+  <ControlTheme x:Key="MacOSTopLevelMenuItem" TargetType="MenuItem">
     <Setter Property="Background" Value="{DynamicResource MenuFlyoutItemBackground}" />
     <Setter Property="Foreground" Value="{DynamicResource MenuFlyoutItemForeground}" />
     <!--  Narrow padding should be used for mouse input, when non-narrow one should be used for touch input in future.  -->
@@ -47,7 +47,7 @@
                       MinHeight="{DynamicResource MenuFlyoutThemeMinHeight}"
                       HorizontalAlignment="Stretch"
                       CornerRadius="{DynamicResource OverlayCornerRadius}">
-                <ScrollViewer Theme="{StaticResource FluentMenuScrollViewer}">
+                <ScrollViewer Theme="{StaticResource MacOSMenuScrollViewer}">
                   <ItemsPresenter Name="PART_ItemsPresenter"
                                   ItemsPanel="{TemplateBinding ItemsPanel}"
                                   Margin="{DynamicResource MenuFlyoutScrollerMargin}"
@@ -94,7 +94,7 @@
   <ControlTheme x:Key="{x:Type Menu}" TargetType="Menu">
     <Setter Property="Background" Value="Transparent" />
     <Setter Property="Height" Value="{DynamicResource MenuBarHeight}" />
-    <Setter Property="ItemContainerTheme" Value="{StaticResource FluentTopLevelMenuItem}" />
+    <Setter Property="ItemContainerTheme" Value="{StaticResource MacOSTopLevelMenuItem}" />
     <Setter Property="Template">
       <ControlTemplate>
         <Border Background="{TemplateBinding Background}"

@@ -1,4 +1,4 @@
-﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:converters="using:Avalonia.Controls.Converters"
         x:ClassModifier="internal">
@@ -40,7 +40,7 @@
   <converters:MarginMultiplierConverter x:Key="SecondaryButtonBorderMultiplier" Right="True" Top="True" Bottom="True" Indent="1" />
   <converters:MarginMultiplierConverter x:Key="SeparatorBorderMultiplier" Top="True" Bottom="True" Indent="1" />
 
-  <ControlTheme x:Key="FluentSplitButtonComponent" TargetType="Button">
+  <ControlTheme x:Key="MacOSSplitButtonComponent" TargetType="Button">
     <Setter Property="Template">
       <ControlTemplate>
         <ContentPresenter x:Name="PART_ContentPresenter"
@@ -142,7 +142,7 @@
 
           <Button x:Name="PART_PrimaryButton"
                   Grid.Column="0"
-                  Theme="{StaticResource FluentSplitButtonComponent}"
+                  Theme="{StaticResource MacOSSplitButtonComponent}"
                   MinWidth="{DynamicResource SplitButtonPrimaryButtonSize}"
                   Foreground="{TemplateBinding Foreground}"
                   Background="{TemplateBinding Background}"
@@ -170,7 +170,7 @@
 
           <Button x:Name="PART_SecondaryButton"
                   Grid.Column="2"
-                  Theme="{StaticResource FluentSplitButtonComponent}"
+                  Theme="{StaticResource MacOSSplitButtonComponent}"
                   MinWidth="{DynamicResource SplitButtonSecondaryButtonSize}"
                   BorderBrush="{TemplateBinding BorderBrush}"
                   Foreground="{TemplateBinding Foreground}"

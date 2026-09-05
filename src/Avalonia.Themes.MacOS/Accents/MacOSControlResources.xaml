@@ -1087,7 +1087,7 @@
       <Thickness x:Key="HorizontalMenuFlyoutItemThemePaddingNarrow">8,4,8,7</Thickness>
 
       <!-- Resources for TextBox.xaml -->
-      <!-- Copied from FluentBaseDark.xaml -->
+      <!-- Copied from MacOSBaseDark.xaml -->
       <StaticResource x:Key="TextControlForeground" ResourceKey="SystemControlForegroundBaseHighBrush" />
       <StaticResource x:Key="TextControlForegroundPointerOver" ResourceKey="SystemControlForegroundBaseHighBrush" />
       <StaticResource x:Key="TextControlForegroundDisabled" ResourceKey="SystemControlDisabledChromeDisabledLowBrush" />

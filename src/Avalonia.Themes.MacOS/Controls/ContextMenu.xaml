@@ -54,7 +54,7 @@
                 MinHeight="{TemplateBinding MinHeight}"
                 HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
                 CornerRadius="{TemplateBinding CornerRadius}">
-          <ScrollViewer Theme="{StaticResource FluentMenuScrollViewer}">
+          <ScrollViewer Theme="{StaticResource MacOSMenuScrollViewer}">
             <ItemsPresenter Name="PART_ItemsPresenter"
                             ItemsPanel="{TemplateBinding ItemsPanel}"
                             Margin="{DynamicResource MenuFlyoutScrollerMargin}"

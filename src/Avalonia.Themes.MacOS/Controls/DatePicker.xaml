@@ -39,7 +39,7 @@
   <Thickness x:Key="DatePickerHostMonthPadding">9,3,0,6</Thickness>
   <x:Double x:Key="DatePickerSpacerThemeWidth">1</x:Double>
 
-  <ControlTheme x:Key="FluentDatePickerFlyoutButton" TargetType="Button">
+  <ControlTheme x:Key="MacOSDatePickerFlyoutButton" TargetType="Button">
     <Setter Property="RenderTransform" Value="none" />
     <Setter Property="Template">
       <ControlTemplate>
@@ -86,7 +86,7 @@
         <DataValidationErrors>
           <Grid Name="LayoutRoot" Margin="{TemplateBinding Padding}">
             <Button Name="PART_FlyoutButton"
-                    Theme="{StaticResource FluentDatePickerFlyoutButton}"
+                    Theme="{StaticResource MacOSDatePickerFlyoutButton}"
                     Foreground="{TemplateBinding Foreground}"
                     Background="{TemplateBinding Background}"
                     BorderBrush="{TemplateBinding BorderBrush}"
@@ -167,7 +167,7 @@
             <Grid Name="PART_PickerContainer">
               <Grid.Styles>
                 <Style Selector="DateTimePickerPanel > ListBoxItem">
-                  <Setter Property="Theme" Value="{StaticResource FluentDateTimePickerItem}" />
+                  <Setter Property="Theme" Value="{StaticResource MacOSDateTimePickerItem}" />
                 </Style>
               </Grid.Styles>
               <!--Column Definitions set in code, ignore here-->
@@ -179,8 +179,8 @@
                                        ItemHeight="{DynamicResource DatePickerFlyoutPresenterItemHeight}"
                                        ShouldLoop="True" />
                 </ScrollViewer>
-                <RepeatButton Name="PART_MonthUpButton" Theme="{StaticResource FluentDateTimePickerUpButton}"/>
-                <RepeatButton Name="PART_MonthDownButton" Theme="{StaticResource FluentDateTimePickerDownButton}"/>
+                <RepeatButton Name="PART_MonthUpButton" Theme="{StaticResource MacOSDateTimePickerUpButton}"/>
+                <RepeatButton Name="PART_MonthDownButton" Theme="{StaticResource MacOSDateTimePickerDownButton}"/>
               </Panel>
               <Panel Name="PART_DayHost">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled"
@@ -190,8 +190,8 @@
                                        ItemHeight="{DynamicResource DatePickerFlyoutPresenterItemHeight}"
                                        ShouldLoop="True" />
                 </ScrollViewer>
-                <RepeatButton Name="PART_DayUpButton" Theme="{StaticResource FluentDateTimePickerUpButton}"/>
-                <RepeatButton Name="PART_DayDownButton" Theme="{StaticResource FluentDateTimePickerDownButton}"/>
+                <RepeatButton Name="PART_DayUpButton" Theme="{StaticResource MacOSDateTimePickerUpButton}"/>
+                <RepeatButton Name="PART_DayDownButton" Theme="{StaticResource MacOSDateTimePickerDownButton}"/>
               </Panel>
               <Panel Name="PART_YearHost">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled"
@@ -201,8 +201,8 @@
                                        ItemHeight="{DynamicResource DatePickerFlyoutPresenterItemHeight}"
                                        ShouldLoop="False" />
                 </ScrollViewer>
-                <RepeatButton Name="PART_YearUpButton" Theme="{StaticResource FluentDateTimePickerUpButton}"/>
-                <RepeatButton Name="PART_YearDownButton" Theme="{StaticResource FluentDateTimePickerDownButton}"/>
+                <RepeatButton Name="PART_YearUpButton" Theme="{StaticResource MacOSDateTimePickerUpButton}"/>
+                <RepeatButton Name="PART_YearDownButton" Theme="{StaticResource MacOSDateTimePickerDownButton}"/>
               </Panel>
               <Rectangle Name="HighlightRect" IsHitTestVisible="False" ZIndex="-1"
                          Fill="{DynamicResource DatePickerFlyoutPresenterHighlightFill}"
@@ -229,7 +229,7 @@
                          Grid.ColumnSpan="2"/>
               <Button Name="PART_AcceptButton"
                       Grid.Column="0"
-                      Theme="{StaticResource FluentDateTimePickerButton}"
+                      Theme="{StaticResource MacOSDateTimePickerButton}"
                       Height="{DynamicResource DatePickerFlyoutPresenterAcceptDismissHostGridHeight}"
                       HorizontalAlignment="Stretch"
                       VerticalAlignment="Stretch">
@@ -240,7 +240,7 @@
               </Button>
               <Button Name="PART_DismissButton"
                       Grid.Column="1"
-                      Theme="{StaticResource FluentDateTimePickerButton}"
+                      Theme="{StaticResource MacOSDateTimePickerButton}"
                       Height="{DynamicResource DatePickerFlyoutPresenterAcceptDismissHostGridHeight}"
                       HorizontalAlignment="Stretch" 
                       VerticalAlignment="Stretch">

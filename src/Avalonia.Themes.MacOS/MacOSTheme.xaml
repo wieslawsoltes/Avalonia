@@ -1,8 +1,8 @@
-﻿<Styles x:Class="Avalonia.Themes.Fluent.FluentTheme"
+<Styles x:Class="Avalonia.Themes.MacOS.MacOSTheme"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:fluent="using:Avalonia.Themes.Fluent"
-        xmlns:accents="using:Avalonia.Themes.Fluent.Accents">
+        xmlns:macOS="using:Avalonia.Themes.MacOS"
+        xmlns:accents="using:Avalonia.Themes.MacOS.Accents">
   <Styles.Resources>
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
@@ -10,11 +10,11 @@
              As that's an only place for user to redefine palette in a good way -->
         <ResourceInclude Source="/Accents/BaseColorsPalette.xaml" />
         <accents:SystemAccentColors />
-        <fluent:ColorPaletteResourcesCollection />
+        <macOS:ColorPaletteResourcesCollection />
 
         <!-- Resources and brushes will be merged into current dictionary for slightly better performance and possible optimizations -->
         <MergeResourceInclude Source="/Accents/BaseResources.xaml" />
-        <MergeResourceInclude Source="/Accents/FluentControlResources.xaml" />
+        <MergeResourceInclude Source="/Accents/MacOSControlResources.xaml" />
         <MergeResourceInclude Source="/Strings/InvariantResources.xaml" />
       </ResourceDictionary.MergedDictionaries>
       
@@ -23,5 +23,5 @@
     </ResourceDictionary>
   </Styles.Resources>
   
-  <StyleInclude Source="/Controls/FluentControls.xaml" />
+  <StyleInclude Source="/Controls/MacOSControls.xaml" />
 </Styles>

@@ -1,4 +1,4 @@
-﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:conv="using:Avalonia.Controls.Converters"
                     x:ClassModifier="internal">
@@ -85,13 +85,13 @@
               <ContentControl Grid.Column="0"
                               x:Name="PART_ToggleIconPresenter"
                               IsVisible="False"
-                              Theme="{StaticResource FluentMenuItemIconTheme}"
+                              Theme="{StaticResource MacOSMenuItemIconTheme}"
                               Margin="{DynamicResource MenuIconPresenterMargin}" />
 
               <ContentControl Grid.Column="1"
                               x:Name="PART_IconPresenter"
                               IsVisible="False"
-                              Theme="{StaticResource FluentMenuItemIconTheme}"
+                              Theme="{StaticResource MacOSMenuItemIconTheme}"
                               Content="{TemplateBinding Icon}"
                               Margin="{DynamicResource MenuIconPresenterMargin}" />
 
@@ -133,7 +133,7 @@
                     MinHeight="{DynamicResource MenuFlyoutThemeMinHeight}"
                     HorizontalAlignment="Stretch"
                     CornerRadius="{DynamicResource OverlayCornerRadius}">
-              <ScrollViewer Theme="{StaticResource FluentMenuScrollViewer}">
+              <ScrollViewer Theme="{StaticResource MacOSMenuScrollViewer}">
                 <ItemsPresenter Name="PART_ItemsPresenter"
                                 ItemsPanel="{TemplateBinding ItemsPanel}"
                                 Margin="{DynamicResource MenuFlyoutScrollerMargin}"
@@ -236,12 +236,12 @@
       </Setter>
     </Style>
   </ControlTheme>
-  <ControlTheme x:Key="HorizontalMenuItem" TargetType="MenuItem" BasedOn="{StaticResource FluentTopLevelMenuItem}">
+  <ControlTheme x:Key="HorizontalMenuItem" TargetType="MenuItem" BasedOn="{StaticResource MacOSTopLevelMenuItem}">
     <Setter Property="Padding" Value="{DynamicResource HorizontalMenuFlyoutItemThemePaddingNarrow}" />
     <Setter Property="Margin" Value="{DynamicResource HorizontalMenuFlyoutItemMargin}" />
   </ControlTheme>
 
-  <ControlTheme x:Key="FluentMenuItemIconTheme"
+  <ControlTheme x:Key="MacOSMenuItemIconTheme"
                 TargetType="ContentControl">
     <Setter Property="Width"
             Value="16" />

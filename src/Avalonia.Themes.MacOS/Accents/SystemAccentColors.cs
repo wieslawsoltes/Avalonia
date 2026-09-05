@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
 
-namespace Avalonia.Themes.Fluent.Accents;
+namespace Avalonia.Themes.MacOS.Accents;
 
 internal sealed class SystemAccentColors : ResourceProvider
 {
@@ -17,7 +17,7 @@ internal sealed class SystemAccentColors : ResourceProvider
     public const string AccentLight2Key = "SystemAccentColorLight2";
     public const string AccentLight3Key = "SystemAccentColorLight3";
     
-    private static readonly Color s_defaultSystemAccentColor = Color.FromRgb(0, 120, 215);
+    private static readonly Color s_defaultSystemAccentColor = Color.FromRgb(0, 122, 255);
     private bool _invalidateColors = true;
     private Color _systemAccentColor;
     private Color _systemAccentColorDark1, _systemAccentColorDark2, _systemAccentColorDark3;

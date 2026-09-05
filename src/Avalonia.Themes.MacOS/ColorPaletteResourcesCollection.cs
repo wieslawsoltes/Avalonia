@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -6,7 +6,7 @@ using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Styling;
 
-namespace Avalonia.Themes.Fluent;
+namespace Avalonia.Themes.MacOS;
 
 internal sealed class ColorPaletteResourcesCollection : ResourceProvider, IDictionary<ThemeVariant, ColorPaletteResources>
 {
@@ -26,7 +26,7 @@ internal sealed class ColorPaletteResourcesCollection : ResourceProvider, IDicti
                 if (key != ThemeVariant.Dark && key != ThemeVariant.Light)
                 {
                     throw new InvalidOperationException(
-                        $"{nameof(FluentTheme)}.{nameof(FluentTheme.Palettes)} only supports Light and Dark variants.");
+                        $"{nameof(MacOSTheme)}.{nameof(MacOSTheme.Palettes)} only supports Light and Dark variants.");
                 }
             },
             (_, x) =>

@@ -5,7 +5,7 @@
   <x:Double x:Key="CaptionButtonWidth">45</x:Double>
   <x:Double x:Key="CaptionButtonHeight">30</x:Double>
 
-  <ControlTheme x:Key="FluentDrawnCaptionButton" TargetType="Button">
+  <ControlTheme x:Key="MacOSDrawnCaptionButton" TargetType="Button">
     <Setter Property="Background" Value="{DynamicResource CaptionButtonBackground}" />
     <Setter Property="BorderBrush" Value="{DynamicResource CaptionButtonBorderBrush}" />
     <Setter Property="Foreground" Value="{DynamicResource CaptionButtonForeground}"/>
@@ -77,7 +77,7 @@
                           Spacing="2"
                           TextElement.FontSize="10">
                 <Button x:Name="PART_FullScreenButton"
-                        Theme="{StaticResource FluentDrawnCaptionButton}"
+                        Theme="{StaticResource MacOSDrawnCaptionButton}"
                         WindowDecorationProperties.ElementRole="FullScreenButton">
                   <Viewbox Width="11" Margin="2">
                     <Path Name="FullScreenButtonPath"
@@ -87,7 +87,7 @@
                   </Viewbox>
                 </Button>
                 <Button x:Name="PART_MinimizeButton"
-                        Theme="{StaticResource FluentDrawnCaptionButton}"
+                        Theme="{StaticResource MacOSDrawnCaptionButton}"
                         WindowDecorationProperties.ElementRole="MinimizeButton">
                   <Viewbox Width="11" Margin="2">
                     <Path Stretch="UniformToFill"
@@ -96,7 +96,7 @@
                   </Viewbox>
                 </Button>
                 <Button x:Name="PART_MaximizeButton"
-                        Theme="{StaticResource FluentDrawnCaptionButton}"
+                        Theme="{StaticResource MacOSDrawnCaptionButton}"
                         WindowDecorationProperties.ElementRole="MaximizeButton">
                   <Viewbox Width="11" Margin="2">
                     <Viewbox.RenderTransform>
@@ -111,7 +111,7 @@
                 <Button x:Name="PART_CloseButton"
                         Background="#ffe81123"
                         BorderBrush="#fff1707a"
-                        Theme="{StaticResource FluentDrawnCaptionButton}"
+                        Theme="{StaticResource MacOSDrawnCaptionButton}"
                         WindowDecorationProperties.ElementRole="CloseButton">
                   <Viewbox Width="11" Margin="2">
                     <Path Stretch="UniformToFill"
@@ -138,7 +138,7 @@
                           Spacing="2"
                           TextElement.FontSize="10">
                 <Button x:Name="PART_PopoverFullScreenButton"
-                        Theme="{StaticResource FluentDrawnCaptionButton}"
+                        Theme="{StaticResource MacOSDrawnCaptionButton}"
                         WindowDecorationProperties.ElementRole="FullScreenButton">
                   <Viewbox Width="11" Margin="2">
                     <Path Stretch="UniformToFill"
@@ -149,7 +149,7 @@
                 <Button x:Name="PART_PopoverCloseButton"
                         Background="#ffe81123"
                         BorderBrush="#fff1707a"
-                        Theme="{StaticResource FluentDrawnCaptionButton}"
+                        Theme="{StaticResource MacOSDrawnCaptionButton}"
                         WindowDecorationProperties.ElementRole="CloseButton">
                   <Viewbox Width="11" Margin="2">
                     <Path Stretch="UniformToFill"

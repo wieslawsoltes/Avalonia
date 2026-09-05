@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 
-namespace Avalonia.Themes.Fluent
+namespace Avalonia.Themes.MacOS
 {
     public enum DensityStyle
     {
@@ -14,25 +14,25 @@ namespace Avalonia.Themes.Fluent
     }
 
     /// <summary>
-    /// Includes the fluent theme in an application.
+    /// Includes the macOS theme in an application.
     /// </summary>
-    public class FluentTheme : Styles, IResourceNode
+    public class MacOSTheme : Styles, IResourceNode
     {
         private readonly ResourceDictionary _compactStyles;
         private DensityStyle _densityStyle;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FluentTheme"/> class.
+        /// Initializes a new instance of the <see cref="MacOSTheme"/> class.
         /// </summary>
         /// <param name="sp">The parent's service provider.</param>
-        public FluentTheme(IServiceProvider? sp = null)
+        public MacOSTheme(IServiceProvider? sp = null)
         {
             AvaloniaXamlLoader.Load(sp, this);
             
             _compactStyles = (ResourceDictionary)GetAndRemove("CompactStyles");
 
             Palettes = Resources.MergedDictionaries.OfType<ColorPaletteResourcesCollection>().FirstOrDefault()
-                ?? throw new InvalidOperationException("FluentTheme was initialized with missing ColorPaletteResourcesCollection.");
+                ?? throw new InvalidOperationException("MacOSTheme was initialized with missing ColorPaletteResourcesCollection.");
             
             object GetAndRemove(string key)
             {
@@ -43,11 +43,11 @@ namespace Avalonia.Themes.Fluent
             }
         }
 
-        public static readonly DirectProperty<FluentTheme, DensityStyle> DensityStyleProperty = AvaloniaProperty.RegisterDirect<FluentTheme, DensityStyle>(
+        public static readonly DirectProperty<MacOSTheme, DensityStyle> DensityStyleProperty = AvaloniaProperty.RegisterDirect<MacOSTheme, DensityStyle>(
             nameof(DensityStyle), o => o.DensityStyle, (o, v) => o.DensityStyle = v);
 
         /// <summary>
-        /// Gets or sets the density style of the fluent theme (normal, compact).
+        /// Gets or sets the density style of the macOS theme (normal, compact).
         /// </summary>
         public DensityStyle DensityStyle
         {
