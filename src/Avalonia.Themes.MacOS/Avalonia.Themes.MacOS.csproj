@@ -20,7 +20,9 @@
     <PackageTags>avalonia;macos;theme;design-tokens;accessibility;xaml</PackageTags>
   </PropertyGroup>
   <ItemGroup>
-    <None Update="README.md" Pack="true" PackagePath="/" />
-    <None Update="Tokens/token-manifest.json" Pack="true" PackagePath="design-tokens/" />
+    <None Remove="README.md" />
+    <None Include="README.md" Pack="true" PackagePath="" />
+    <None Remove="Tokens/token-manifest.json" />
+    <None Include="Tokens/token-manifest.json" Pack="true" PackagePath="design-tokens/" />
   </ItemGroup>
 </Project>
