@@ -1,0 +1,117 @@
+<!--
+// (c) Copyright Microsoft Corporation.
+// This source is subject to the Microsoft Public License (Ms-PL).
+// Please see https://go.microsoft.com/fwlink/?LinkID=131993 for details.
+// All other rights reserved.
+-->
+
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:ClassModifier="internal">
+  <Design.PreviewWith>
+    <Border Padding="20" Width="200">
+      <StackPanel Spacing="20">
+        <ListBoxItem Theme="{DynamicResource MacOSDateTimePickerItem}">Standard Item</ListBoxItem>
+        <ListBoxItem Theme="{DynamicResource MacOSDateTimePickerItem}" Classes="MonthItem">Month Item</ListBoxItem>
+        <RepeatButton Theme="{DynamicResource MacOSDateTimePickerButton}">Button</RepeatButton>
+        <RepeatButton Theme="{DynamicResource MacOSDateTimePickerUpButton}" IsVisible="True"/>
+        <RepeatButton Theme="{DynamicResource MacOSDateTimePickerDownButton}" IsVisible="True"/>
+      </StackPanel>
+    </Border>
+  </Design.PreviewWith>
+
+  <!-- Theme for the items displayed in the selectors -->
+  <ControlTheme x:Key="MacOSDateTimePickerItem" TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+    <Setter Property="Padding" Value="{DynamicResource MacOS.DatePickerFlyoutPresenterItemPadding}"/>
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+
+    <Style Selector="^:selected">
+      <Setter Property="IsHitTestVisible" Value="False"/>
+      <Style Selector="^/template/ Rectangle#PressedBackground">
+        <Setter Property="Fill" Value="Transparent"/>
+      </Style>
+      <Style Selector="^/template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.SystemControlForegroundBaseHighBrush}"/>
+      </Style>
+    </Style>
+    <Style Selector="^.MonthItem">
+      <Setter Property="Padding" Value="{DynamicResource MacOS.DatePickerFlyoutPresenterMonthPadding}"/>
+      <Setter Property="HorizontalContentAlignment" Value="Left" />
+    </Style>
+  </ControlTheme>
+
+  <!-- This is used for both the accept/dismiss & repeatbuttons in the presenter-->
+  <ControlTheme x:Key="MacOSDateTimePickerButton" TargetType="Button">
+    <Setter Property="Background" Value="{DynamicResource MacOS.DateTimePickerFlyoutButtonBackground}" />
+    <Setter Property="Height" Value="{DynamicResource MacOS.DateTimePickerButtonHeight}" />
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <!-- 
+                The background is doubled here for the loopingselector up/down repeat buttons 
+                that appear opaque. Not sure how MS does it though I suspect this is it
+                but source isn't MIT yet, so this is my solution -->
+        <Border Background="{TemplateBinding Background}">
+          <ContentPresenter x:Name="PART_ContentPresenter"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="{DynamicResource MacOS.DateTimePickerFlyoutButtonBorderBrush}"
+                  BorderThickness="{DynamicResource MacOS.DateTimeFlyoutButtonBorderThickness}"
+                  Content="{TemplateBinding Content}"
+                  Foreground="{DynamicResource MacOS.SystemControlHighlightAltBaseHighBrush}"
+                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                  Padding="{TemplateBinding Padding}"
+                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                  CornerRadius="{TemplateBinding CornerRadius}"/>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource MacOS.DateTimePickerFlyoutButtonBackgroundPointerOver}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.DateTimePickerFlyoutButtonBorderBrushPointerOver}"/>
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.DateTimePickerFlyoutButtonForegroundPointerOver}"/>
+    </Style>
+
+    <Style Selector="^:pressed /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource MacOS.DateTimePickerFlyoutButtonBackgroundPressed}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.DateTimePickerFlyoutButtonBorderBrushPressed}"/>
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.DateTimePickerFlyoutButtonForegroundPressed}"/>
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="MacOSDateTimePickerUpButton" TargetType="RepeatButton" BasedOn="{StaticResource MacOSDateTimePickerButton}">
+    <Setter Property="VerticalAlignment" Value="Top"/>
+    <Setter Property="Height" Value="{DynamicResource MacOS.DateTimePickerButtonHeight}" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="Focusable" Value="False" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlBackgroundChromeMediumLowBrush}" />
+    <Setter Property="IsVisible" Value="False"/>
+    <Setter Property="Content">
+      <Template>
+        <Viewbox Height="10" Width="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+          <Path Stroke="{Binding $parent[RepeatButton].Foreground}" StrokeThickness="1" Data="M 0,9 L 9,0 L 18,9"/>
+        </Viewbox>
+      </Template>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="MacOSDateTimePickerDownButton" TargetType="RepeatButton" BasedOn="{StaticResource MacOSDateTimePickerButton}">
+    <Setter Property="VerticalAlignment" Value="Bottom"/>
+    <Setter Property="Height" Value="{DynamicResource MacOS.DateTimePickerButtonHeight}" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="Focusable" Value="False" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlBackgroundChromeMediumLowBrush}" />
+    <Setter Property="IsVisible" Value="False"/>
+    <Setter Property="Content">
+      <Template>
+        <Viewbox Height="10" Width="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+          <Path Stroke="{Binding $parent[RepeatButton].Foreground}" StrokeThickness="1" Data="M 0,0 L 9,9 L 18,0"/>
+        </Viewbox>
+      </Template>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

@@ -1,0 +1,180 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="using:Avalonia.Controls.Converters"
+        x:ClassModifier="internal">
+
+  <Design.PreviewWith>
+    <Border Padding="20"
+            MinWidth="300">
+      <TreeView>
+        <TreeViewItem Header="Level 1" IsExpanded="True">
+          <TreeViewItem Header="Level 2.1" IsSelected="True" IsExpanded="True">
+            <TreeViewItem Header="Level 3.1" />
+            <TreeViewItem Header="Level 3.2" IsSelected="True">
+              <TreeViewItem Header="Level 4" />
+            </TreeViewItem>
+          </TreeViewItem>
+          <TreeViewItem Header="Level 2.2" IsEnabled="False" />
+        </TreeViewItem>
+      </TreeView>
+    </Border>
+  </Design.PreviewWith>
+
+  <x:Double x:Key="MacOS.TreeViewItemIndent">18</x:Double>
+  <x:Double x:Key="MacOS.TreeViewItemExpandCollapseChevronSize">9</x:Double>
+  <Thickness x:Key="MacOS.TreeViewItemExpandCollapseChevronMargin">8,0</Thickness>
+  <StreamGeometry x:Key="TreeViewItemCollapsedChevronPathData">M 1,0 10,10 l -9,10 -1,-1 L 8,10 -0,1 Z</StreamGeometry>
+  <StreamGeometry x:Key="TreeViewItemExpandedChevronPathData">M0,1 L10,10 20,1 19,0 10,8 1,0 Z</StreamGeometry>
+
+  <ControlTheme x:Key="MacOSTreeViewExpandCollapseChevron" TargetType="ToggleButton">
+    <Setter Property="Margin" Value="0" />
+    <Setter Property="Width" Value="{DynamicResource MacOS.TreeViewItemExpandCollapseChevronSize}" />
+    <Setter Property="Height" Value="{DynamicResource MacOS.TreeViewItemExpandCollapseChevronSize}" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="Transparent"
+                Width="{TemplateBinding Width}"
+                Height="{TemplateBinding Height}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+          <Path x:Name="ChevronPath"
+                Data="{StaticResource TreeViewItemCollapsedChevronPathData}"
+                Fill="{DynamicResource MacOS.TreeViewItemForeground}"
+                Stretch="Uniform"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center" />
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:checked /template/ Path#ChevronPath">
+      <Setter Property="Data" Value="{StaticResource TreeViewItemExpandedChevronPathData}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type TreeViewItem}" TargetType="TreeViewItem">
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.Selection.Radius}" />
+    <Setter Property="Margin" Value="{DynamicResource MacOS.Selection.Margin}" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.TreeViewItemBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MacOS.TreeViewItemBorderBrush}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource MacOS.TreeViewItemBorderThemeThickness}" />
+    <Setter Property="Foreground" Value="{DynamicResource MacOS.TreeViewItemForeground}" />
+    <Setter Property="MinHeight" Value="{DynamicResource MacOS.TreeViewItemMinHeight}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <StackPanel>
+          <Border Name="PART_LayoutRoot"
+                  Classes="TreeViewItemLayoutRoot"
+                  Focusable="True"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  CornerRadius="{TemplateBinding CornerRadius}"
+                  MinHeight="{TemplateBinding MinHeight}"
+                  TemplatedControl.IsTemplateFocusTarget="True">
+            <Grid Name="PART_Header"
+                  ColumnDefinitions="Auto, *">
+              <Grid.Margin>
+                <MultiBinding Converter="{x:Static converters:TreeViewItemIndentConverter.Instance}">
+                  <Binding Path="Level" RelativeSource="{RelativeSource TemplatedParent}" />
+                  <DynamicResource ResourceKey="MacOS.TreeViewItemIndent" />
+                </MultiBinding>
+              </Grid.Margin>
+              <Panel Name="PART_ExpandCollapseChevronContainer"
+                     Margin="{DynamicResource MacOS.TreeViewItemExpandCollapseChevronMargin}">
+                <ToggleButton Name="PART_ExpandCollapseChevron"
+                              Theme="{StaticResource MacOSTreeViewExpandCollapseChevron}"
+                              Focusable="False"
+                              IsChecked="{TemplateBinding IsExpanded, Mode=TwoWay}" />
+              </Panel>
+              <ContentPresenter Name="PART_HeaderPresenter"
+                                Grid.Column="1"
+                                Focusable="False"
+                                Background="Transparent"
+                                Content="{TemplateBinding Header}"
+                                ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                                VerticalAlignment="{TemplateBinding VerticalAlignment}"
+                                Margin="{TemplateBinding Padding}" />
+            </Grid>
+          </Border>
+          <ItemsPresenter Name="PART_ItemsPresenter"
+                          IsVisible="{TemplateBinding IsExpanded}"
+                          ItemsPanel="{TemplateBinding ItemsPanel}" />
+        </StackPanel>
+      </ControlTemplate>
+    </Setter>
+
+    <!--  PointerOver state  -->
+    <Style Selector="^ /template/ Border#PART_LayoutRoot:pointerover">
+      <Setter Property="Background" Value="{DynamicResource MacOS.TreeViewItemBackgroundPointerOver}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.TreeViewItemBorderBrushPointerOver}" />
+    </Style>
+    <Style Selector="^ /template/ Border#PART_LayoutRoot:pointerover > Grid#PART_Header > ContentPresenter#PART_HeaderPresenter">
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.TreeViewItemForegroundPointerOver}" />
+    </Style>
+
+    <!--  Pressed state  -->
+    <Style Selector="^:pressed /template/ Border#PART_LayoutRoot:pointerover">
+      <Setter Property="Background" Value="{DynamicResource MacOS.TreeViewItemBackgroundPressed}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.TreeViewItemBorderBrushPressed}" />
+    </Style>
+    <Style Selector="^:pressed /template/ Border#PART_LayoutRoot:pointerover > Grid#PART_Header > ContentPresenter#PART_HeaderPresenter">
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.TreeViewItemForegroundPressed}" />
+    </Style>
+
+    <!--  Disabled state  -->
+    <Style Selector="^:disabled /template/ Border#PART_LayoutRoot">
+      <Setter Property="Background" Value="{DynamicResource MacOS.TreeViewItemBackgroundDisabled}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.TreeViewItemBorderBrushDisabled}" />
+    </Style>
+    <Style Selector="^:disabled /template/ ContentPresenter#PART_HeaderPresenter">
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.TreeViewItemForegroundDisabled}" />
+    </Style>
+
+    <!--  Selected state  -->
+    <Style Selector="^:selected /template/ Border#PART_LayoutRoot">
+      <Setter Property="Background" Value="{DynamicResource MacOS.TreeViewItemBackgroundSelected}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.TreeViewItemBorderBrushSelected}" />
+    </Style>
+    <Style Selector="^:selected /template/ Border#PART_LayoutRoot > Grid#PART_Header > ContentPresenter#PART_HeaderPresenter">
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.TreeViewItemForegroundSelected}" />
+    </Style>
+
+    <!--  Selected PointerOver state  -->
+    <Style Selector="^:selected /template/ Border#PART_LayoutRoot:pointerover">
+      <Setter Property="Background" Value="{DynamicResource MacOS.TreeViewItemBackgroundSelectedPointerOver}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.TreeViewItemBorderBrushSelectedPointerOver}" />
+    </Style>
+    <Style Selector="^:selected /template/ Border#PART_LayoutRoot:pointerover > Grid#PART_Header > ContentPresenter#PART_HeaderPresenter">
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.TreeViewItemForegroundSelectedPointerOver}" />
+    </Style>
+
+    <!--  Selected Pressed state  -->
+    <Style Selector="^:pressed:selected /template/ Border#PART_LayoutRoot:pointerover">
+      <Setter Property="Background" Value="{DynamicResource MacOS.TreeViewItemBackgroundSelectedPressed}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.TreeViewItemBorderBrushSelectedPressed}" />
+    </Style>
+    <Style Selector="^:pressed:selected /template/ Border#PART_LayoutRoot:pointerover > Grid#PART_Header > ContentPresenter#PART_HeaderPresenter">
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.TreeViewItemForegroundSelectedPressed}" />
+    </Style>
+
+    <!--  Disabled Selected state  -->
+    <Style Selector="^:disabled:selected /template/ Border#PART_LayoutRoot">
+      <Setter Property="Background" Value="{DynamicResource MacOS.TreeViewItemBackgroundSelectedDisabled}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.TreeViewItemBorderBrushSelectedDisabled}" />
+    </Style>
+    <Style Selector="^:disabled:selected /template/ Border#PART_LayoutRoot > Grid#PART_Header > ContentPresenter#PART_HeaderPresenter">
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.TreeViewItemForegroundSelectedDisabled}" />
+    </Style>
+
+    <Style Selector="^:empty /template/ ToggleButton#PART_ExpandCollapseChevron">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+    <Style Selector="^:empty /template/ Panel#PART_ExpandCollapseChevronContainer">
+      <Setter Property="Width" Value="{DynamicResource MacOS.TreeViewItemExpandCollapseChevronSize}" />
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

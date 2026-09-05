@@ -1,0 +1,89 @@
+name: Record macOS theme screenshot checkpoint
+on:
+  push:
+    branches: [feature/macos26-theme]
+    paths:
+      - 'eng/macos26/checkpoint.json'
+      - '.github/workflows/macos-theme-checkpoint.yml'
+permissions:
+  contents: read
+jobs:
+  checkpoint:
+    if: github.repository == 'wieslawsoltes/Avalonia' && github.ref == 'refs/heads/feature/macos26-theme'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/macos26-theme
+          fetch-depth: 0
+      - name: Read explicit checkpoint identity
+        id: identity
+        run: |
+          python3 - <<'PY'
+          import json, os, re
+          data = json.load(open('eng/macos26/checkpoint.json'))
+          assert isinstance(data['runId'], int) and data['runId'] > 0
+          assert re.fullmatch(r'[a-zA-Z0-9_-]+', data['artifact'])
+          assert re.fullmatch(r'[a-z0-9-]+', data['checkpoint'])
+          assert re.fullmatch(r'[a-f0-9]{40}', data['commit'])
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f"run={data['runId']}\nartifact={data['artifact']}\n")
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ steps.identity.outputs.run }}
+          name: ${{ steps.identity.outputs.artifact }}
+          path: ${{ runner.temp }}/macos-evidence
+      - name: Verify and record real PNGs without executing artifact content
+        env:
+          EVIDENCE_ROOT: ${{ runner.temp }}/macos-evidence
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, json, os, shutil, subprocess
+          config = json.loads(Path('eng/macos26/checkpoint.json').read_text())
+          source = Path(os.environ['EVIDENCE_ROOT']) / 'screenshots'
+          manifest = json.loads((source / 'manifest.json').read_text())
+          assert manifest['commit'] == config['commit'], 'Unexpected source commit'
+          subprocess.run(['git', 'merge-base', '--is-ancestor', config['commit'], 'HEAD'], check=True)
+          target = Path('docs/themes/macos26/screenshots') / config['checkpoint']
+          target.mkdir(parents=True, exist_ok=True)
+          for frame in manifest['screenshots']:
+              name = frame['file']
+              assert Path(name).name == name and name.endswith('.png'), 'Unsafe filename'
+              content = (source / name).read_bytes()
+              assert content[:8] == b'\x89PNG\r\n\x1a\n', 'Not a PNG'
+              assert hashlib.sha256(content).hexdigest() == frame['sha256'], 'PNG checksum mismatch'
+              (target / name).write_bytes(content)
+          shutil.copyfile(source / 'manifest.json', target / 'manifest.json')
+          lines = [f"# {config['checkpoint']}", '', config['description'], '',
+              f"Source commit: `{manifest['commit']}`.",
+              f"Platform: **{manifest['operatingSystem']}**, `{manifest['architecture']}`, **{manifest['windowing']}**.",
+              '', manifest['capture'], '', config['validation'], '',
+              '## Overview', '', '### Light', '![Light overview](overview-Light.png)', '',
+              '### Dark', '![Dark overview](overview-Dark.png)', '',
+              '## Capture inventory', '', '| Frame | Appearance | Density |', '| --- | --- | --- |']
+          lines += [f"| [{f['file']}]({f['file']}) | {f['variant']} | {f['density']} |" for f in manifest['screenshots']]
+          (target / 'README.md').write_text('\n'.join(lines) + '\n')
+          progress = Path('docs/themes/macos26/PROGRESS.md')
+          text = progress.read_text()
+          heading = f"## Screenshot checkpoint: {config['checkpoint']}"
+          if heading not in text:
+              text += f"\n{heading}\n\n{config['description']}\n\n{config['validation']}\n\n"
+              text += f"[{len(manifest['screenshots'])} verified screenshots and provenance](screenshots/{config['checkpoint']}/README.md).\n"
+              progress.write_text(text)
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/themes/macos26
+          if ! git diff --cached --quiet; then
+            git commit -m 'docs(macos): record verified ControlCatalog screenshot checkpoint'
+            git pull --rebase origin feature/macos26-theme
+            git push origin HEAD:feature/macos26-theme
+          fi

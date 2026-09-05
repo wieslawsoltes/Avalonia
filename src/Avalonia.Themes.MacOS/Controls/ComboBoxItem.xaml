@@ -1,0 +1,87 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    x:ClassModifier="internal">
+  <Design.PreviewWith>
+    <Border Padding="20">
+      <Border Background="{DynamicResource MacOS.ComboBoxDropDownBackground}" BorderBrush="{DynamicResource MacOS.ComboBoxDropDownBorderBrush}" BorderThickness="{DynamicResource MacOS.ComboBoxDropdownBorderThickness}" Margin="0,-1,0,-1" Padding="{DynamicResource MacOS.ComboBoxDropdownBorderPadding}" CornerRadius="{DynamicResource MacOS.OverlayCornerRadius}">
+        <StackPanel HorizontalAlignment="Stretch">
+          <ComboBoxItem>Item 1</ComboBoxItem>
+          <ComboBoxItem>Item 2 long</ComboBoxItem>
+          <ComboBoxItem IsSelected="True">Item 3</ComboBoxItem>
+          <ComboBoxItem IsEnabled="False">Item 4</ComboBoxItem>
+          <ComboBoxItem IsSelected="True" IsEnabled="False">Item 5</ComboBoxItem>
+        </StackPanel>
+      </Border>
+    </Border>
+  </Design.PreviewWith>
+
+  <ControlTheme x:Key="{x:Type ComboBoxItem}" TargetType="ComboBoxItem">
+    <Setter Property="Foreground" Value="{DynamicResource MacOS.ComboBoxItemForeground}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.ComboBoxItemBackground}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.ComboBoxItemThemePadding}" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <ContentPresenter Name="PART_ContentPresenter"
+                          Foreground="{TemplateBinding Foreground}"
+                          Background="{TemplateBinding Background}"
+                          BorderBrush="{TemplateBinding BorderBrush}"
+                          BorderThickness="{TemplateBinding BorderThickness}"
+                          CornerRadius="{TemplateBinding CornerRadius}"
+                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                          Content="{TemplateBinding Content}"
+                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                          Padding="{TemplateBinding Padding}" />
+      </ControlTemplate>
+    </Setter>
+
+    <!--  PointerOver state  -->
+    <Style Selector="^:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource MacOS.ComboBoxItemBackgroundPointerOver}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ComboBoxItemBorderBrushPointerOver}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.ComboBoxItemForegroundPointerOver}" />
+    </Style>
+
+    <!--  Disabled state  -->
+    <Style Selector="^:disabled /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource MacOS.ComboBoxItemBackgroundDisabled}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ComboBoxItemBorderBrushDisabled}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.ComboBoxItemForegroundDisabled}" />
+    </Style>
+
+    <!--  Pressed state  -->
+    <Style Selector="^:pressed /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource MacOS.ComboBoxItemBackgroundPressed}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ComboBoxItemBorderBrushPressed}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.ComboBoxItemForegroundPressed}" />
+    </Style>
+
+    <!--  Selected state  -->
+    <Style Selector="^:selected">
+      <Style Selector="^ /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource MacOS.ComboBoxItemBackgroundSelected}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ComboBoxItemBorderBrushSelected}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ComboBoxItemForegroundSelected}" />
+      </Style>
+      <!--  Selected Disabled state  -->
+      <Style Selector="^:disabled /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource MacOS.ComboBoxItemBackgroundSelectedDisabled}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ComboBoxItemBorderBrushSelectedDisabled}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ComboBoxItemForegroundSelectedDisabled}" />
+      </Style>
+      <!--  Selected PointerOver state  -->
+      <Style Selector="^:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource MacOS.ComboBoxItemBackgroundSelectedPointerOver}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ComboBoxItemBorderBrushSelectedPointerOver}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ComboBoxItemForegroundSelectedPointerOver}" />
+      </Style>
+      <!--  Selected Pressed state  -->
+      <Style Selector="^:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource MacOS.ComboBoxItemBackgroundSelectedPressed}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ComboBoxItemBorderBrushSelectedPressed}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ComboBoxItemForegroundSelectedPressed}" />
+      </Style>
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

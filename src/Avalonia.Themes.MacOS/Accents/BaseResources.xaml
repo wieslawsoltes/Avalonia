@@ -1,0 +1,443 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="using:System"
+                    xmlns:converters="using:Avalonia.Controls.Converters"
+                    x:ClassModifier="internal">
+  <FontFamily x:Key="MacOS.ContentControlThemeFontFamily">$Default</FontFamily>
+  <sys:Double x:Key="MacOS.ControlContentThemeFontSize">13</sys:Double>
+
+  <SolidColorBrush x:Key="MacOS.SystemControlTransparentBrush" Color="Transparent" />
+  <x:Boolean x:Key="MacOS.UseSystemFocusVisuals">True</x:Boolean>
+  <Thickness x:Key="MacOS.TextControlBorderThemeThickness">1</Thickness>
+  <Thickness x:Key="MacOS.TextControlBorderThemeThicknessFocused">1</Thickness>
+  <Thickness x:Key="MacOS.TextControlThemePadding">9,5</Thickness>
+  <sys:Double x:Key="MacOS.IconElementThemeHeight">20</sys:Double>
+  <sys:Double x:Key="MacOS.IconElementThemeWidth">20</sys:Double>
+  <sys:Double x:Key="MacOS.RefreshVisualizerIndicatorSize">24</sys:Double>
+  <Thickness x:Key="MacOS.ButtonPadding">14,5</Thickness>
+  <Thickness x:Key="MacOS.CheckBoxPadding">8,0,0,0</Thickness>
+  <Thickness x:Key="MacOS.RadioButtonPadding">8,0,0,0</Thickness>
+  <Thickness x:Key="MacOS.ButtonSpinnerPadding">10,0</Thickness>
+  <Thickness x:Key="MacOS.LabelPadding">3</Thickness>
+  <Thickness x:Key="MacOS.HeaderedContentControlPadding">3</Thickness>
+  <Thickness x:Key="MacOS.CalendarDatePickerPadding">4</Thickness>
+  <Thickness x:Key="MacOS.CommandBarButtonPadding">8,4</Thickness>
+  <Thickness x:Key="MacOS.CommandBarToggleButtonPadding">8,4</Thickness>
+  <Thickness x:Key="MacOS.CommandBarSeparatorMargin">8,4</Thickness>
+  <Thickness x:Key="MacOS.CommandBarSeparatorOverflowMargin">4,4</Thickness>
+  <Thickness x:Key="MacOS.CommandBarPadding">4,0</Thickness>
+  <Thickness x:Key="MacOS.CommandBarOverflowButtonPadding">12,0</Thickness>
+  <Thickness x:Key="MacOS.ManagedFileChooserQuickLinksPadding">0,20</Thickness>
+  <Thickness x:Key="MacOS.ManagedFileChooserQuickLinksItemPadding">30,6</Thickness>
+  <Thickness x:Key="MacOS.NavigationPageCommandBarButtonPadding">8,0</Thickness>
+
+  <!-- Calendar cell sizes -->
+  <x:Double x:Key="MacOS.CalendarButtonMinWidth">40</x:Double>
+  <x:Double x:Key="MacOS.CalendarButtonMinHeight">40</x:Double>
+  <Thickness x:Key="MacOS.CalendarButtonBorderThickness">2</Thickness>
+  <Thickness x:Key="MacOS.CalendarBorderThickness">1</Thickness>
+  <x:Double x:Key="MacOS.CalendarDatePickerDropDownButtonWidth">20</x:Double>
+
+  <!-- CommandBar dimensions -->
+  <x:Double x:Key="MacOS.CommandBarButtonWidth">56</x:Double>
+  <x:Double x:Key="MacOS.CommandBarButtonCompactWidth">32</x:Double>
+  <x:Double x:Key="MacOS.CommandBarButtonLabelRightMinWidth">40</x:Double>
+  <x:Double x:Key="MacOS.CommandBarButtonMinHeight">30</x:Double>
+  <x:Double x:Key="MacOS.CommandBarButtonIsInOverflowMinHeight">28</x:Double>
+  <x:Double x:Key="MacOS.CommandBarSeparatorWidth">1</x:Double>
+  <x:Double x:Key="MacOS.CommandBarSeparatorOverflowHeight">1</x:Double>
+  <x:Double x:Key="MacOS.CommandBarSeparatorMinHeight">24</x:Double>
+  <x:Double x:Key="MacOS.CommandBarMinHeight">44</x:Double>
+
+  <!-- DatePicker / TimePicker -->
+  <Thickness x:Key="MacOS.DatePickerBorderThickness">1</Thickness>
+  <x:Double x:Key="MacOS.DatePickerPresenterWidth">296</x:Double>
+  <x:Double x:Key="MacOS.TimePickerPresenterWidth">242</x:Double>
+  <x:Double x:Key="MacOS.DateTimePickerButtonHeight">22</x:Double>
+
+  <!-- GridSplitter -->
+  <x:Double x:Key="MacOS.GridSplitterThickness">6</x:Double>
+
+  <!-- ManagedFileChooser -->
+  <x:Double x:Key="MacOS.ManagedFileChooserOverwritePromptMinWidth">270</x:Double>
+  <x:Double x:Key="MacOS.ManagedFileChooserQuickLinksWidth">240</x:Double>
+  <x:Double x:Key="MacOS.ManagedFileChooserQuickLinksItemHeight">32</x:Double>
+  <x:Double x:Key="MacOS.ManagedFileChooserNavBarControlHeight">30</x:Double>
+  <x:Double x:Key="MacOS.ManagedFileChooserNavBarButtonWidth">40</x:Double>
+
+  <!-- NotificationCard -->
+  <x:Double x:Key="MacOS.NotificationCardWidth">350</x:Double>
+
+  <!-- PipsPager -->
+  <x:Double x:Key="MacOS.PipsPagerNavigationButtonSize">24</x:Double>
+  <Thickness x:Key="MacOS.PipsPagerNavigationButtonBorderThickness">1</Thickness>
+  <x:Double x:Key="MacOS.PipsPagerItemWidth">12</x:Double>
+  <x:Double x:Key="MacOS.PipsPagerItemHeight">24</x:Double>
+  <x:Double x:Key="MacOS.PipsPagerItemDotSize">4</x:Double>
+  <x:Double x:Key="MacOS.PipsPagerItemDotSizeActive">6</x:Double>
+
+  <!-- Inner text-control buttons (TextBox clear/reveal, ButtonSpinner arrows) -->
+  <x:Double x:Key="MacOS.TextControlInnerButtonMinWidth">34</x:Double>
+
+  <!-- Override system shape defaults -->
+  <CornerRadius x:Key="MacOS.ControlCornerRadius">8</CornerRadius>
+  <CornerRadius x:Key="MacOS.OverlayCornerRadius">14</CornerRadius>
+
+  <!-- ScrollBar animation -->
+  <TransformOperations x:Key="MacOS.VerticalSmallScrollThumbScaleTransform">scaleX(0.125) translateX(-2px)</TransformOperations>
+  <TransformOperations x:Key="MacOS.HorizontalSmallScrollThumbScaleTransform">scaleY(0.125) translateY(-2px)</TransformOperations>
+
+  <converters:CornerRadiusFilterConverter x:Key="TopCornerRadiusFilterConverter" Filter="TopLeft, TopRight" />
+  <converters:CornerRadiusFilterConverter x:Key="RightCornerRadiusFilterConverter" Filter="TopRight, BottomRight" />
+  <converters:CornerRadiusFilterConverter x:Key="BottomCornerRadiusFilterConverter" Filter="BottomLeft, BottomRight" />
+  <converters:CornerRadiusFilterConverter x:Key="LeftCornerRadiusFilterConverter" Filter="TopLeft, BottomLeft" />
+
+  <x:Double x:Key="MacOS.AutoCompleteListMaxHeight">374</x:Double>
+  <Thickness x:Key="MacOS.AutoCompleteListMargin">0,2,0,2</Thickness>
+  <Thickness x:Key="MacOS.AutoCompleteListBorderThemeThickness">1</Thickness>
+  <Thickness x:Key="MacOS.AutoCompleteListPadding">-1,0,-1,0</Thickness>
+  <x:Double x:Key="MacOS.TextControlThemeMinHeight">28</x:Double>
+  <x:Double x:Key="MacOS.TextControlThemeMinWidth">64</x:Double>
+  <x:Double x:Key="MacOS.FlyoutThemeMaxWidth">456</x:Double>
+  <Thickness x:Key="MacOS.DateTimeFlyoutButtonBorderThickness">0</Thickness>
+  <Thickness x:Key="MacOS.DateTimeFlyoutBorderThickness">1</Thickness>
+  <Thickness x:Key="MacOS.DateTimeFlyoutBorderPadding">0</Thickness>
+
+  <Thickness x:Key="MacOS.FlyoutContentThemePadding">12,11,12,12</Thickness>
+  <x:Double x:Key="MacOS.FlyoutThemeMinWidth">96</x:Double>
+  <x:Double x:Key="MacOS.FlyoutThemeMinHeight">40</x:Double>
+  <x:Double x:Key="MacOS.FlyoutThemeMaxHeight">758</x:Double>
+
+  <!-- Moved from FlyoutPresenter.xaml -->
+  <Thickness x:Key="MacOS.FlyoutBorderThemePadding">0</Thickness>
+
+  <!-- Moved from MenuItem.xaml -->
+  <Thickness x:Key="MacOS.MenuFlyoutScrollerMargin">0</Thickness>
+
+  <!-- Moved from Menu.xaml -->
+  <Thickness x:Key="MacOS.MenuBarItemPadding">12,0,12,0</Thickness>
+  
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Default">
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundAccentBrush" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundAltHighBrush" Color="{DynamicResource MacOS.SystemAltHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundAltMediumHighBrush"
+                       Color="{DynamicResource MacOS.SystemAltMediumHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundAltMediumBrush" Color="{DynamicResource MacOS.SystemAltMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundAltMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemAltMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundBaseHighBrush" Color="{DynamicResource MacOS.SystemBaseHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundBaseLowBrush" Color="{DynamicResource MacOS.SystemBaseLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundBaseMediumBrush" Color="{DynamicResource MacOS.SystemBaseMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundBaseMediumHighBrush"
+                       Color="{DynamicResource MacOS.SystemBaseMediumHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundBaseMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemBaseMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundChromeBlackHighBrush"
+                       Color="{DynamicResource MacOS.SystemChromeBlackHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundChromeBlackMediumBrush"
+                       Color="{DynamicResource MacOS.SystemChromeBlackMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundChromeBlackLowBrush"
+                       Color="{DynamicResource MacOS.SystemChromeBlackLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundChromeBlackMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemChromeBlackMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundChromeMediumBrush"
+                       Color="{DynamicResource MacOS.SystemChromeMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundChromeMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemChromeMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundChromeWhiteBrush" Color="{DynamicResource MacOS.SystemChromeWhiteColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundListLowBrush" Color="{DynamicResource MacOS.SystemListLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundListMediumBrush" Color="{DynamicResource MacOS.SystemListMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlDisabledAccentBrush" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlDisabledBaseHighBrush" Color="{DynamicResource MacOS.SystemBaseHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlDisabledBaseLowBrush" Color="{DynamicResource MacOS.SystemBaseLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlDisabledBaseMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemBaseMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlDisabledChromeDisabledHighBrush"
+                       Color="{DynamicResource MacOS.SystemChromeDisabledHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlDisabledChromeDisabledLowBrush"
+                       Color="{DynamicResource MacOS.SystemChromeDisabledLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlDisabledChromeHighBrush" Color="{DynamicResource MacOS.SystemChromeHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlDisabledChromeMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemChromeMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlDisabledListMediumBrush" Color="{DynamicResource MacOS.SystemListMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlDisabledTransparentBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.SystemControlFocusVisualPrimaryBrush" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlFocusVisualSecondaryBrush" Color="{DynamicResource MacOS.Color.Transparent}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlRevealFocusVisualBrush" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundAccentBrush" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundAltHighBrush" Color="{DynamicResource MacOS.SystemAltHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundAltMediumHighBrush"
+                       Color="{DynamicResource MacOS.SystemAltMediumHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundBaseHighBrush" Color="{DynamicResource MacOS.SystemBaseHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundBaseLowBrush" Color="{DynamicResource MacOS.SystemBaseLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundBaseMediumBrush" Color="{DynamicResource MacOS.SystemBaseMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundBaseMediumHighBrush"
+                       Color="{DynamicResource MacOS.SystemBaseMediumHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundBaseMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemBaseMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundChromeBlackHighBrush"
+                       Color="{DynamicResource MacOS.SystemChromeBlackHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundChromeHighBrush" Color="{DynamicResource MacOS.SystemChromeHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundChromeMediumBrush"
+                       Color="{DynamicResource MacOS.SystemChromeMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundChromeDisabledLowBrush"
+                       Color="{DynamicResource MacOS.SystemChromeDisabledLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundChromeWhiteBrush" Color="{DynamicResource MacOS.SystemChromeWhiteColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundChromeBlackMediumBrush"
+                       Color="{DynamicResource MacOS.SystemChromeBlackMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundChromeBlackMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemChromeBlackMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundChromeGrayBrush" Color="{DynamicResource MacOS.SystemChromeGrayColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundListLowBrush" Color="{DynamicResource MacOS.SystemListLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundListMediumBrush" Color="{DynamicResource MacOS.SystemListMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundTransparentBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAccentBrush" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltAccentBrush" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltAltHighBrush" Color="{DynamicResource MacOS.SystemAltHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltBaseHighBrush" Color="{DynamicResource MacOS.SystemBaseHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltBaseLowBrush" Color="{DynamicResource MacOS.SystemBaseLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltBaseMediumBrush" Color="{DynamicResource MacOS.SystemBaseMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltBaseMediumHighBrush"
+                       Color="{DynamicResource MacOS.SystemBaseMediumHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltAltMediumHighBrush"
+                       Color="{DynamicResource MacOS.SystemAltMediumHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltBaseMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemBaseMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltListAccentHighBrush" Color="{DynamicResource MacOS.SystemAccentColor}"
+                       Opacity="0.7" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltListAccentLowBrush" Color="{DynamicResource MacOS.SystemAccentColor}"
+                       Opacity="0.4" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltListAccentMediumBrush"
+                       Color="{DynamicResource MacOS.SystemAccentColor}" Opacity="0.6" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltChromeWhiteBrush"
+                       Color="{DynamicResource MacOS.SystemChromeWhiteColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltTransparentBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightBaseHighBrush" Color="{DynamicResource MacOS.SystemBaseHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightBaseLowBrush" Color="{DynamicResource MacOS.SystemBaseLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightBaseMediumBrush" Color="{DynamicResource MacOS.SystemBaseMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightBaseMediumHighBrush"
+                       Color="{DynamicResource MacOS.SystemBaseMediumHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightBaseMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemBaseMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightChromeAltLowBrush" Color="{DynamicResource MacOS.SystemChromeAltLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightChromeHighBrush" Color="{DynamicResource MacOS.SystemChromeHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightListAccentHighBrush" Color="{DynamicResource MacOS.SystemAccentColor}"
+                       Opacity="0.7" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightListAccentLowBrush" Color="{DynamicResource MacOS.SystemAccentColor}"
+                       Opacity="0.4" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightListAccentMediumBrush" Color="{DynamicResource MacOS.SystemAccentColor}"
+                       Opacity="0.6" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightListMediumBrush" Color="{DynamicResource MacOS.SystemListMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightListLowBrush" Color="{DynamicResource MacOS.SystemListLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightChromeWhiteBrush" Color="{DynamicResource MacOS.SystemChromeWhiteColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightTransparentBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHyperlinkTextBrush" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHyperlinkBaseHighBrush" Color="{DynamicResource MacOS.SystemBaseHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHyperlinkBaseMediumBrush" Color="{DynamicResource MacOS.SystemBaseMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHyperlinkBaseMediumHighBrush"
+                       Color="{DynamicResource MacOS.SystemBaseMediumHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageBackgroundAltMediumBrush" Color="{DynamicResource MacOS.SystemAltMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageBackgroundAltHighBrush" Color="{DynamicResource MacOS.SystemAltHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageBackgroundMediumAltMediumBrush"
+                       Color="{DynamicResource MacOS.SystemAltMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageBackgroundBaseLowBrush" Color="{DynamicResource MacOS.SystemBaseLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageBackgroundBaseMediumBrush"
+                       Color="{DynamicResource MacOS.SystemBaseMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageBackgroundListLowBrush" Color="{DynamicResource MacOS.SystemListLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageBackgroundChromeLowBrush" Color="{DynamicResource MacOS.SystemChromeLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageBackgroundChromeMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemChromeMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageBackgroundTransparentBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageTextBaseHighBrush" Color="{DynamicResource MacOS.SystemBaseHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageTextBaseMediumBrush" Color="{DynamicResource MacOS.SystemBaseMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageTextChromeBlackMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemChromeBlackMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlErrorTextForegroundBrush" Color="{DynamicResource MacOS.SystemErrorTextColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlTransientBorderBrush" Color="#000000" Opacity="0.14" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightListLowRevealBackgroundBrush"
+                       Color="{DynamicResource MacOS.SystemListMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightListMediumRevealBackgroundBrush"
+                       Color="{DynamicResource MacOS.SystemListMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAccentRevealBackgroundBrush"
+                       Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAccent3RevealBackgroundBrush"
+                       Color="{DynamicResource MacOS.SystemAccentColor}" Opacity="0.6" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAccent2RevealBackgroundBrush"
+                       Color="{DynamicResource MacOS.SystemAccentColor}" Opacity="0.8" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundChromeWhiteRevealBorderBrush"
+                       Color="{DynamicResource MacOS.SystemChromeWhiteColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltTransparentRevealBorderBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundTransparentRevealBorderBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.SystemControlTransientBackgroundBrush"
+                       Color="{DynamicResource MacOS.SystemChromeMediumLowColor}" />
+      <StaticResource x:Key="MacOS.SystemControlDescriptionTextForegroundBrush"
+                      ResourceKey="MacOS.SystemControlPageTextBaseMediumBrush" />
+
+      <SolidColorBrush x:Key="MacOS.SystemControlTransparentRevealBackgroundBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.SystemControlTransparentRevealBorderBrush" Color="Transparent" />
+
+      <SolidColorBrush x:Key="MacOS.SystemRegionBrush" Color="{DynamicResource MacOS.SystemRegionColor}" />
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="Dark">
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundAccentBrush" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundAltHighBrush" Color="{DynamicResource MacOS.SystemAltHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundAltMediumHighBrush"
+                       Color="{DynamicResource MacOS.SystemAltMediumHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundAltMediumBrush" Color="{DynamicResource MacOS.SystemAltMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundAltMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemAltMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundBaseHighBrush" Color="{DynamicResource MacOS.SystemBaseHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundBaseLowBrush" Color="{DynamicResource MacOS.SystemBaseLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundBaseMediumBrush" Color="{DynamicResource MacOS.SystemBaseMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundBaseMediumHighBrush"
+                       Color="{DynamicResource MacOS.SystemBaseMediumHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundBaseMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemBaseMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundChromeBlackHighBrush"
+                       Color="{DynamicResource MacOS.SystemChromeBlackHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundChromeBlackMediumBrush"
+                       Color="{DynamicResource MacOS.SystemChromeBlackMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundChromeBlackLowBrush"
+                       Color="{DynamicResource MacOS.SystemChromeBlackLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundChromeBlackMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemChromeBlackMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundChromeMediumBrush"
+                       Color="{DynamicResource MacOS.SystemChromeMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundChromeMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemChromeMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundChromeWhiteBrush" Color="{DynamicResource MacOS.SystemChromeWhiteColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundListLowBrush" Color="{DynamicResource MacOS.SystemListLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundListMediumBrush" Color="{DynamicResource MacOS.SystemListMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlDisabledAccentBrush" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlDisabledBaseHighBrush" Color="{DynamicResource MacOS.SystemBaseHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlDisabledBaseLowBrush" Color="{DynamicResource MacOS.SystemBaseLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlDisabledBaseMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemBaseMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlDisabledChromeDisabledHighBrush"
+                       Color="{DynamicResource MacOS.SystemChromeDisabledHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlDisabledChromeDisabledLowBrush"
+                       Color="{DynamicResource MacOS.SystemChromeDisabledLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlDisabledChromeHighBrush" Color="{DynamicResource MacOS.SystemChromeHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlDisabledChromeMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemChromeMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlDisabledListMediumBrush" Color="{DynamicResource MacOS.SystemListMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlDisabledTransparentBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.SystemControlFocusVisualPrimaryBrush" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlFocusVisualSecondaryBrush" Color="{DynamicResource MacOS.Color.Transparent}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlRevealFocusVisualBrush" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundAccentBrush" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundAltHighBrush" Color="{DynamicResource MacOS.SystemAltHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundAltMediumHighBrush"
+                       Color="{DynamicResource MacOS.SystemAltMediumHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundBaseHighBrush" Color="{DynamicResource MacOS.SystemBaseHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundBaseLowBrush" Color="{DynamicResource MacOS.SystemBaseLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundBaseMediumBrush" Color="{DynamicResource MacOS.SystemBaseMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundBaseMediumHighBrush"
+                       Color="{DynamicResource MacOS.SystemBaseMediumHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundBaseMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemBaseMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundChromeBlackHighBrush"
+                       Color="{DynamicResource MacOS.SystemChromeBlackHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundChromeHighBrush" Color="{DynamicResource MacOS.SystemChromeHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundChromeMediumBrush"
+                       Color="{DynamicResource MacOS.SystemChromeMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundChromeWhiteBrush" Color="{DynamicResource MacOS.SystemChromeWhiteColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundChromeDisabledLowBrush"
+                       Color="{DynamicResource MacOS.SystemChromeDisabledLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundChromeGrayBrush" Color="{DynamicResource MacOS.SystemChromeGrayColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundListLowBrush" Color="{DynamicResource MacOS.SystemListLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundListMediumBrush" Color="{DynamicResource MacOS.SystemListMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundTransparentBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundChromeBlackMediumBrush"
+                       Color="{DynamicResource MacOS.SystemChromeBlackMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlForegroundChromeBlackMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemChromeBlackMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAccentBrush" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltAccentBrush" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltAltHighBrush" Color="{DynamicResource MacOS.SystemAltHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltBaseHighBrush" Color="{DynamicResource MacOS.SystemBaseHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltBaseLowBrush" Color="{DynamicResource MacOS.SystemBaseLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltBaseMediumBrush" Color="{DynamicResource MacOS.SystemBaseMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltBaseMediumHighBrush"
+                       Color="{DynamicResource MacOS.SystemBaseMediumHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltAltMediumHighBrush"
+                       Color="{DynamicResource MacOS.SystemAltMediumHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltBaseMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemBaseMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltListAccentHighBrush" Color="{DynamicResource MacOS.SystemAccentColor}"
+                       Opacity="0.9" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltListAccentLowBrush" Color="{DynamicResource MacOS.SystemAccentColor}"
+                       Opacity="0.6" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltListAccentMediumBrush"
+                       Color="{DynamicResource MacOS.SystemAccentColor}" Opacity="0.8" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltChromeWhiteBrush"
+                       Color="{DynamicResource MacOS.SystemChromeWhiteColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltTransparentBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightBaseHighBrush" Color="{DynamicResource MacOS.SystemBaseHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightBaseLowBrush" Color="{DynamicResource MacOS.SystemBaseLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightBaseMediumBrush" Color="{DynamicResource MacOS.SystemBaseMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightBaseMediumHighBrush"
+                       Color="{DynamicResource MacOS.SystemBaseMediumHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightBaseMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemBaseMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightChromeAltLowBrush" Color="{DynamicResource MacOS.SystemChromeAltLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightChromeHighBrush" Color="{DynamicResource MacOS.SystemChromeHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightListAccentHighBrush" Color="{DynamicResource MacOS.SystemAccentColor}"
+                       Opacity="0.9" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightListAccentLowBrush" Color="{DynamicResource MacOS.SystemAccentColor}"
+                       Opacity="0.6" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightListAccentMediumBrush" Color="{DynamicResource MacOS.SystemAccentColor}"
+                       Opacity="0.8" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightListMediumBrush" Color="{DynamicResource MacOS.SystemListMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightListLowBrush" Color="{DynamicResource MacOS.SystemListLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightChromeWhiteBrush" Color="{DynamicResource MacOS.SystemChromeWhiteColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightTransparentBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHyperlinkTextBrush" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHyperlinkBaseHighBrush" Color="{DynamicResource MacOS.SystemBaseHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHyperlinkBaseMediumBrush" Color="{DynamicResource MacOS.SystemBaseMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHyperlinkBaseMediumHighBrush"
+                       Color="{DynamicResource MacOS.SystemBaseMediumHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageBackgroundAltMediumBrush" Color="{DynamicResource MacOS.SystemAltMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageBackgroundAltHighBrush" Color="{DynamicResource MacOS.SystemAltHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageBackgroundMediumAltMediumBrush"
+                       Color="{DynamicResource MacOS.SystemAltMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageBackgroundBaseLowBrush" Color="{DynamicResource MacOS.SystemBaseLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageBackgroundBaseMediumBrush"
+                       Color="{DynamicResource MacOS.SystemBaseMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageBackgroundListLowBrush" Color="{DynamicResource MacOS.SystemListLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageBackgroundChromeLowBrush" Color="{DynamicResource MacOS.SystemChromeLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageBackgroundChromeMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemChromeMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageBackgroundTransparentBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageTextBaseHighBrush" Color="{DynamicResource MacOS.SystemBaseHighColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageTextBaseMediumBrush" Color="{DynamicResource MacOS.SystemBaseMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlPageTextChromeBlackMediumLowBrush"
+                       Color="{DynamicResource MacOS.SystemChromeBlackMediumLowColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlErrorTextForegroundBrush" Color="{DynamicResource MacOS.SystemErrorTextColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlTransientBorderBrush" Color="#000000" Opacity="0.36" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightListLowRevealBackgroundBrush"
+                       Color="{DynamicResource MacOS.SystemListMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightListMediumRevealBackgroundBrush"
+                       Color="{DynamicResource MacOS.SystemListMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAccentRevealBackgroundBrush"
+                       Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAccent3RevealBackgroundBrush"
+                       Color="{DynamicResource MacOS.SystemAccentColor}" Opacity="0.6" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAccent2RevealBackgroundBrush"
+                       Color="{DynamicResource MacOS.SystemAccentColor}" Opacity="0.8" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundChromeWhiteRevealBorderBrush"
+                       Color="{DynamicResource MacOS.SystemChromeWhiteColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlHighlightAltTransparentRevealBorderBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.SystemControlBackgroundTransparentRevealBorderBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.SystemControlTransientBackgroundBrush"
+                       Color="{DynamicResource MacOS.SystemChromeMediumLowColor}" />
+      <StaticResource x:Key="MacOS.SystemControlDescriptionTextForegroundBrush"
+                      ResourceKey="MacOS.SystemControlPageTextBaseMediumBrush" />
+      <SolidColorBrush x:Key="MacOS.SystemControlTransparentRevealBackgroundBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.SystemControlTransparentRevealBorderBrush" Color="Transparent" />
+
+      <SolidColorBrush x:Key="MacOS.SystemRegionBrush" Color="{DynamicResource MacOS.SystemRegionColor}" />
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

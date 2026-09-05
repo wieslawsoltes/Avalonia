@@ -1,0 +1,80 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    x:ClassModifier="internal">
+  <Design.PreviewWith>
+    <Border Padding="0">
+      <ListBox>
+        <ListBoxItem IsEnabled="False">Disabled</ListBoxItem>
+        <ListBoxItem Background="#66000000"
+                     Padding="20">
+          Test
+        </ListBoxItem>
+        <ListBoxItem>Test</ListBoxItem>
+      </ListBox>
+    </Border>
+  </Design.PreviewWith>
+  <Thickness x:Key="MacOS.ListBoxItemPadding">10,6</Thickness>
+  <ControlTheme x:Key="{x:Type ListBoxItem}" TargetType="ListBoxItem">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.ListBoxItemPadding}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.Selection.Radius}" />
+    <Setter Property="Margin" Value="{DynamicResource MacOS.Selection.Margin}" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <ContentPresenter Name="PART_ContentPresenter"
+                          Background="{TemplateBinding Background}"
+                          BorderBrush="{TemplateBinding BorderBrush}"
+                          BorderThickness="{TemplateBinding BorderThickness}"
+                          CornerRadius="{TemplateBinding CornerRadius}"
+                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                          Content="{TemplateBinding Content}"
+                          Padding="{TemplateBinding Padding}"
+                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" />
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.Brush.DisabledLabel}" />
+    </Style>
+
+    <!--  PointerOver State  -->
+    <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource MacOS.Brush.Hover}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.Brush.Label}" />
+    </Style>
+
+    <!--  Pressed State  -->
+    <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource MacOS.Brush.Hover}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.Brush.Label}" />
+    </Style>
+
+    <!--  Selected State  -->
+    <Style Selector="^:selected">
+
+      <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource MacOS.AccentButtonBackground}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.Brush.OnAccent}" />
+      </Style>
+
+      <!--  Selected Unfocused State  -->
+      <Style Selector="^:not(:focus) /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource MacOS.AccentButtonBackground}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.Brush.OnAccent}" />
+      </Style>
+
+      <!--  Selected PointerOver State  -->
+      <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource MacOS.AccentButtonBackground}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.Brush.OnAccent}" />
+      </Style>
+
+      <!--  Selected Pressed State  -->
+      <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource MacOS.AccentButtonBackground}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.Brush.OnAccent}" />
+      </Style>
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

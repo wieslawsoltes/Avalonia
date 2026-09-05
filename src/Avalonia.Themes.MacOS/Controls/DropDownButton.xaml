@@ -1,0 +1,106 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    x:ClassModifier="internal">
+    <Design.PreviewWith>
+      <Border Padding="20">
+        <StackPanel Spacing="20">
+          <DropDownButton Content="Click Me!" />
+          <DropDownButton Content="Disabled" IsEnabled="False" />
+        </StackPanel>
+      </Border>
+    </Design.PreviewWith>
+  
+    <x:Double x:Key="MacOS.DropDownButtonMinHeight">28</x:Double>
+    
+    <ControlTheme x:Key="{x:Type DropDownButton}" TargetType="DropDownButton">
+      <Setter Property="Background" Value="{DynamicResource MacOS.ButtonBackground}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.ButtonForeground}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ButtonBorderBrush}" />
+      <Setter Property="BorderThickness" Value="{DynamicResource MacOS.ButtonBorderThemeThickness}" />
+      <Setter Property="Padding" Value="{DynamicResource MacOS.ButtonPadding}" />
+      <Setter Property="MinHeight" Value="{DynamicResource MacOS.DropDownButtonMinHeight}" />
+      <Setter Property="HorizontalAlignment" Value="Left" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="CornerRadius" Value="{DynamicResource MacOS.ControlCornerRadius}" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate>
+            <Border x:Name="RootBorder" 
+                    Background="{TemplateBinding Background}" 
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}" 
+                    CornerRadius="{TemplateBinding CornerRadius}"
+                    ClipToBounds="True">
+              <Grid x:Name="InnerGrid">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                
+                <ContentPresenter x:Name="PART_ContentPresenter" 
+                                  Grid.Column="0" 
+                                  Content="{TemplateBinding Content}" 
+                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                  Padding="{TemplateBinding Padding}" 
+                                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+                
+                <PathIcon x:Name="DropDownGlyph"
+                          Grid.Column="1" 
+                          UseLayoutRounding="False"
+                          IsHitTestVisible="False" 
+                          Height="12" 
+                          Width="12"
+                          Margin="0,0,10,0"
+                          Data="M1939 486L2029 576L1024 1581L19 576L109 486L1024 1401L1939 486Z"
+                          HorizontalAlignment="Right"
+                          VerticalAlignment="Center"
+                          Foreground="{DynamicResource MacOS.ComboBoxDropDownGlyphForeground}"/>
+              </Grid>
+            </Border>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+      
+    <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="RecognizesAccessKey" Value="True" />
+    </Style>
+
+      <!--  PointerOver State  -->
+      <Style Selector="^:pointerover /template/ Border#RootBorder">
+        <Setter Property="Background" Value="{DynamicResource MacOS.ButtonBackgroundPointerOver}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ButtonBorderBrushPointerOver}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource MacOS.ButtonForegroundPointerOver}" />
+      </Style>
+      <Style Selector="^:pointerover /template/ PathIcon#DropDownGlyph">
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ButtonForegroundPointerOver}" />
+      </Style>
+
+      <!--  Pressed State  -->
+      <Style Selector="^:pressed">
+        <Setter Property="RenderTransform" Value="scale(0.98)" />
+      </Style>
+
+      <Style Selector="^:pressed /template/ Border#RootBorder">
+        <Setter Property="Background" Value="{DynamicResource MacOS.ButtonBackgroundPressed}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ButtonBorderBrushPressed}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource MacOS.ButtonForegroundPressed}" />
+      </Style>
+      <Style Selector="^:pressed /template/ PathIcon#DropDownGlyph">
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ButtonForegroundPressed}" />
+      </Style>
+
+      <!--  Disabled State  -->
+      <Style Selector="^:disabled /template/ Border#RootBorder">
+        <Setter Property="Background" Value="{DynamicResource MacOS.ButtonBackgroundDisabled}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ButtonBorderBrushDisabled}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource MacOS.ButtonForegroundDisabled}" />
+      </Style>
+      <Style Selector="^:disabled /template/ PathIcon#DropDownGlyph">
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ButtonForegroundDisabled}" />
+      </Style>
+    </ControlTheme>
+  
+</ResourceDictionary>

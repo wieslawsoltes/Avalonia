@@ -31,6 +31,8 @@
       <!-- Styles attached dynamically depending on current theme (simple or fluent) -->
       <FluentTheme x:Key="FluentTheme" />
       <SimpleTheme x:Key="SimpleTheme" />
+      <MacOSTheme x:Key="MacOSTheme" />
+      <StyleInclude x:Key="ColorPickerMacOS" Source="avares://Avalonia.Controls.ColorPicker/Themes/MacOS/MacOS.xaml" />
       <StyleInclude x:Key="ColorPickerFluent" Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
       <StyleInclude x:Key="ColorPickerSimple" Source="avares://Avalonia.Controls.ColorPicker/Themes/Simple/Simple.xaml" />
     </ResourceDictionary>

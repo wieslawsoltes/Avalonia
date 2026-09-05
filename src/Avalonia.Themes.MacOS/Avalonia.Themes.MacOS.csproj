@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>$(AvsCurrentTargetFramework);$(AvsLegacyTargetFrameworks)</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Avalonia.Base\Avalonia.Base.csproj" />
+    <ProjectReference Include="..\Avalonia.Controls\Avalonia.Controls.csproj" />
+    <ProjectReference Include="..\Avalonia.Dialogs\Avalonia.Dialogs.csproj" />
+    <ProjectReference Include="..\Markup\Avalonia.Markup.Xaml\Avalonia.Markup.Xaml.csproj" />
+    <AvaloniaResource Include="**/*.xaml" />
+  </ItemGroup>
+  <Import Project="..\..\build\NullableEnable.props" />
+  <Import Project="..\..\build\BuildTargets.targets" />
+  <Import Project="..\..\build\TrimmingEnable.props" />
+  <Import Project="..\..\build\DevAnalyzers.props" />
+  <PropertyGroup>
+    <Description>macOS 26-inspired Avalonia control theme with light/dark semantic palettes, typed live design tokens and accessibility policies.</Description>
+    <PackageDescription>$(Description)</PackageDescription>
+    <RepositoryUrl>https://github.com/wieslawsoltes/Avalonia</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/wieslawsoltes/Avalonia</PackageProjectUrl>
+    <PackageReleaseNotes>Development theme from the fork; see docs/themes/macos26/PROGRESS.md for release validation.</PackageReleaseNotes>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>avalonia;macos;theme;design-tokens;accessibility;xaml</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="README.md" />
+    <None Include="README.md" Pack="true" PackagePath="" />
+    <None Remove="Tokens/token-manifest.json" />
+    <None Include="Tokens/token-manifest.json" Pack="true" PackagePath="design-tokens/" />
+  </ItemGroup>
+</Project>

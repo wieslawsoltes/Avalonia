@@ -1,0 +1,175 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    x:ClassModifier="internal">
+  <Design.PreviewWith>
+    <Border Padding="20">
+      <StackPanel Spacing="10">
+        <RadioButton Content="Option 1" Background="Green" />
+        <RadioButton Content="Option 2" />
+        <RadioButton IsEnabled="False" Content="Option 3" />
+        <RadioButton Content="Option 2" />
+      </StackPanel>
+    </Border>
+  </Design.PreviewWith>
+  
+  <x:Double x:Key="MacOS.RadioButtonMinHeight">28</x:Double>
+  
+  <ControlTheme x:Key="{x:Type RadioButton}" TargetType="RadioButton">
+    <Setter Property="Background" Value="{DynamicResource MacOS.RadioButtonBackground}" />
+    <Setter Property="Foreground" Value="{DynamicResource MacOS.RadioButtonForeground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MacOS.RadioButtonBorderBrush}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.ControlCornerRadius}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.RadioButtonPadding}" />
+    <Setter Property="HorizontalAlignment" Value="Left" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="HorizontalContentAlignment" Value="Left" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Template">
+      <ControlTemplate TargetType="RadioButton">
+        <Border
+            Name="RootBorder"
+            Background="{TemplateBinding Background}"
+            BorderBrush="{TemplateBinding BorderBrush}"
+            BorderThickness="{TemplateBinding BorderThickness}"
+            CornerRadius="{TemplateBinding CornerRadius}">
+          <Grid ColumnDefinitions="20,*">
+            <Grid Height="{DynamicResource MacOS.RadioButtonMinHeight}" VerticalAlignment="Top">
+
+              <Ellipse
+                  Name="OuterEllipse"
+                  Width="{DynamicResource MacOS.RadioButton.Size}"
+                  Height="{DynamicResource MacOS.RadioButton.Size}"
+                  Fill="{DynamicResource MacOS.RadioButtonOuterEllipseFill}"
+                  Stroke="{DynamicResource MacOS.RadioButtonOuterEllipseStroke}"
+                  StrokeThickness="{DynamicResource MacOS.RadioButtonBorderThemeThickness}"
+                  UseLayoutRounding="False" />
+
+              <Ellipse
+                  Name="CheckOuterEllipse"
+                  Width="{DynamicResource MacOS.RadioButton.Size}"
+                  Height="{DynamicResource MacOS.RadioButton.Size}"
+                  Fill="{DynamicResource MacOS.RadioButtonOuterEllipseCheckedFill}"
+                  Opacity="0"
+                  Stroke="{DynamicResource MacOS.RadioButtonOuterEllipseCheckedStroke}"
+                  StrokeThickness="{DynamicResource MacOS.RadioButtonBorderThemeThickness}"
+                  UseLayoutRounding="False" />
+
+              <Ellipse
+                  Name="CheckGlyph"
+                  Width="{DynamicResource MacOS.RadioButton.GlyphSize}"
+                  Height="{DynamicResource MacOS.RadioButton.GlyphSize}"
+                  Fill="{DynamicResource MacOS.RadioButtonCheckGlyphFill}"
+                  Opacity="0"
+                  Stroke="{DynamicResource MacOS.RadioButtonCheckGlyphStroke}"
+                  UseLayoutRounding="False" />
+            </Grid>
+
+            <ContentPresenter
+                Name="PART_ContentPresenter"
+                Grid.Column="1"
+                Margin="{TemplateBinding Padding}"
+                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                Content="{TemplateBinding Content}"
+                ContentTemplate="{TemplateBinding ContentTemplate}"
+                Foreground="{TemplateBinding Foreground}" />
+          </Grid>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="RecognizesAccessKey" Value="True" />
+    </Style>
+
+    <!--  PointerOver State  -->
+    <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.RadioButtonForegroundPointerOver}" />
+    </Style>
+
+    <Style Selector="^:pointerover /template/ Border#RootBorder">
+      <Setter Property="Background" Value="{DynamicResource MacOS.RadioButtonBackgroundPointerOver}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.RadioButtonBorderBrushPointerOver}" />
+    </Style>
+
+    <Style Selector="^:pointerover /template/ Ellipse#OuterEllipse">
+      <Setter Property="Stroke" Value="{DynamicResource MacOS.RadioButtonOuterEllipseStrokePointerOver}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.RadioButtonOuterEllipseFillPointerOver}" />
+    </Style>
+
+    <Style Selector="^:pointerover /template/ Ellipse#CheckOuterEllipse">
+      <Setter Property="Stroke" Value="{DynamicResource MacOS.RadioButtonOuterEllipseCheckedStrokePointerOver}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.RadioButtonOuterEllipseCheckedFillPointerOver}" />
+    </Style>
+
+    <Style Selector="^:pointerover /template/ Ellipse#CheckGlyph">
+      <Setter Property="Stroke" Value="{DynamicResource MacOS.RadioButtonCheckGlyphStrokePointerOver}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.RadioButtonCheckGlyphFillPointerOver}" />
+    </Style>
+
+
+    <!--  Pressed State  -->
+    <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.RadioButtonForegroundPressed}" />
+    </Style>
+
+    <Style Selector="^:pressed /template/ Border#RootBorder">
+      <Setter Property="Background" Value="{DynamicResource MacOS.RadioButtonBackgroundPressed}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.RadioButtonBorderBrushPressed}" />
+    </Style>
+
+    <Style Selector="^:pressed /template/ Ellipse#OuterEllipse">
+      <Setter Property="Stroke" Value="{DynamicResource MacOS.RadioButtonOuterEllipseStrokePressed}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.RadioButtonOuterEllipseFillPressed}" />
+    </Style>
+
+    <Style Selector="^:pressed /template/ Ellipse#CheckOuterEllipse">
+      <Setter Property="Stroke" Value="{DynamicResource MacOS.RadioButtonOuterEllipseCheckedStrokePressed}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.RadioButtonOuterEllipseCheckedFillPressed}" />
+    </Style>
+
+    <Style Selector="^:pressed /template/ Ellipse#CheckGlyph">
+      <Setter Property="Stroke" Value="{DynamicResource MacOS.RadioButtonCheckGlyphStrokePressed}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.RadioButtonCheckGlyphFillPressed}" />
+    </Style>
+
+
+    <!--  Disabled State  -->
+    <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.RadioButtonForegroundDisabled}" />
+    </Style>
+
+    <Style Selector="^:disabled /template/ Border#RootBorder">
+      <Setter Property="Background" Value="{DynamicResource MacOS.RadioButtonBackgroundDisabled}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.RadioButtonBorderBrushDisabled}" />
+    </Style>
+
+    <Style Selector="^:disabled /template/ Ellipse#OuterEllipse">
+      <Setter Property="Stroke" Value="{DynamicResource MacOS.RadioButtonOuterEllipseStrokeDisabled}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.RadioButtonOuterEllipseFillDisabled}" />
+    </Style>
+
+    <Style Selector="^:disabled /template/ Ellipse#CheckOuterEllipse">
+      <Setter Property="Stroke" Value="{DynamicResource MacOS.RadioButtonOuterEllipseCheckedStrokeDisabled}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.RadioButtonOuterEllipseCheckedFillDisabled}" />
+    </Style>
+
+    <Style Selector="^:disabled /template/ Ellipse#CheckGlyph">
+      <Setter Property="Fill" Value="{DynamicResource MacOS.RadioButtonCheckGlyphFillDisabled}" />
+      <Setter Property="Stroke" Value="{DynamicResource MacOS.RadioButtonCheckGlyphStrokeDisabled}" />
+    </Style>
+
+
+    <!--  Checked State  -->
+    <Style Selector="^:checked /template/ Ellipse#CheckGlyph">
+      <Setter Property="Opacity" Value="1" />
+    </Style>
+
+    <Style Selector="^:checked /template/ Ellipse#OuterEllipse">
+      <Setter Property="Opacity" Value="0" />
+    </Style>
+
+    <Style Selector="^:checked /template/ Ellipse#CheckOuterEllipse">
+      <Setter Property="Opacity" Value="1" />
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

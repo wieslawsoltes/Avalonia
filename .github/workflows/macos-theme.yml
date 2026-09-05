@@ -1,0 +1,107 @@
+name: macOS theme
+on:
+  workflow_call:
+    inputs:
+      source_ref:
+        required: true
+        type: string
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: macos-theme-${{ github.ref }}-${{ inputs.source_ref || github.sha }}
+  cancel-in-progress: false
+jobs:
+  validate:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-26, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Prepare evidence
+        run: |
+          mkdir -p artifacts/macos-theme/logs
+          echo "MACOS_THEME_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+      - name: Build native macOS backend
+        if: runner.os == 'macOS'
+        run: |
+          xcodebuild -project native/Avalonia.Native/src/OSX/Avalonia.Native.OSX.xcodeproj \
+            -configuration Release -arch "$(uname -m)" \
+            SYMROOT="$GITHUB_WORKSPACE/Build/Products" CODE_SIGNING_ALLOWED=NO \
+            > artifacts/macos-theme/logs/native-build.log 2>&1 \
+            || { tail -100 artifacts/macos-theme/logs/native-build.log; exit 1; }
+      - name: Build theme for .NET 8 and .NET 10
+        id: theme
+        run: |
+          dotnet build src/Avalonia.Themes.MacOS/Avalonia.Themes.MacOS.csproj -c Release \
+            > artifacts/macos-theme/logs/theme-build.log 2>&1 \
+            || { tail -100 artifacts/macos-theme/logs/theme-build.log; exit 1; }
+          tail -8 artifacts/macos-theme/logs/theme-build.log
+      - name: Build ControlCatalog capture app
+        id: catalog
+        run: |
+          dotnet build samples/ControlCatalog.MacOS/ControlCatalog.MacOS.csproj -c Release \
+            > artifacts/macos-theme/logs/catalog-build.log 2>&1 \
+            || { tail -100 artifacts/macos-theme/logs/catalog-build.log; exit 1; }
+          tail -8 artifacts/macos-theme/logs/catalog-build.log
+      - name: Run theme contract and rendering tests
+        if: ${{ !cancelled() && steps.theme.outcome == 'success' }}
+        run: |
+          dotnet run --project tests/Avalonia.Themes.MacOS.UnitTests/Avalonia.Themes.MacOS.UnitTests.csproj -c Release \
+            > artifacts/macos-theme/logs/tests.log 2>&1 \
+            || { tail -120 artifacts/macos-theme/logs/tests.log; exit 1; }
+          tail -12 artifacts/macos-theme/logs/tests.log
+      - name: Capture real ControlCatalog frames
+        if: ${{ !cancelled() && steps.catalog.outcome == 'success' }}
+        run: |
+          args=()
+          if [ "$RUNNER_OS" != macOS ]; then args+=(--headless); fi
+          dotnet run --no-build -c Release --project samples/ControlCatalog.MacOS/ControlCatalog.MacOS.csproj -- \
+            --output artifacts/macos-theme/screenshots "${args[@]}" \
+            > artifacts/macos-theme/logs/capture.log 2>&1 \
+            || { tail -120 artifacts/macos-theme/logs/capture.log; exit 1; }
+          cat artifacts/macos-theme/logs/capture.log
+      - name: Pack standalone theme
+        if: ${{ !cancelled() && steps.theme.outcome == 'success' }}
+        run: |
+          dotnet pack src/Avalonia.Themes.MacOS/Avalonia.Themes.MacOS.csproj -c Release \
+            -o artifacts/macos-theme/packages \
+            > artifacts/macos-theme/logs/pack.log 2>&1 \
+            || { tail -100 artifacts/macos-theme/logs/pack.log; exit 1; }
+          tail -12 artifacts/macos-theme/logs/pack.log
+      - name: Validate a clean package-only consumer
+        if: ${{ !cancelled() && steps.theme.outcome == 'success' && runner.os == 'Linux' }}
+        run: |
+          python3 eng/macos26/package-smoke.py > artifacts/macos-theme/logs/package-consumer.log 2>&1 \
+            || { tail -120 artifacts/macos-theme/logs/package-consumer.log; exit 1; }
+          tail -12 artifacts/macos-theme/logs/package-consumer.log
+      - name: Audit source contracts
+        if: ${{ !cancelled() && hashFiles('eng/macos26/audit.py') != '' }}
+        run: python3 eng/macos26/audit.py
+      - name: Archive source for evidence review
+        if: always()
+        run: |
+          tar -czf artifacts/macos-theme/source.tar.gz --exclude='*/bin' --exclude='*/obj' --exclude='*/__pycache__' \
+            src/Avalonia.Themes.MacOS src/Avalonia.Controls.ColorPicker/Themes/MacOS \
+            samples/ControlCatalog.MacOS samples/ControlCatalog/Pages/MacOSThemePage* \
+            tests/Avalonia.Themes.MacOS.UnitTests eng/macos26 .github/workflows/macos-theme.yml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macos-theme-evidence-${{ matrix.os }}-${{ github.run_id }}
+          path: artifacts/macos-theme
+          retention-days: 30
+          if-no-files-found: error

@@ -1,0 +1,23 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    x:ClassModifier="internal">
+    <ControlTheme x:Key="{x:Type GridSplitter}" TargetType="GridSplitter">
+      <Setter Property="Focusable" Value="True" />
+      <Setter Property="MinWidth" Value="{DynamicResource MacOS.GridSplitterThickness}" />
+      <Setter Property="MinHeight" Value="{DynamicResource MacOS.GridSplitterThickness}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.SystemAltMediumLowColor}" />
+      <Setter Property="PreviewContent">
+        <Template>
+          <Rectangle Fill="{DynamicResource MacOS.SystemAccentColor}" />
+        </Template>
+      </Setter>
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  CornerRadius="{TemplateBinding CornerRadius}"
+                  Background="{TemplateBinding Background}" />
+        </ControlTemplate>
+      </Setter>
+    </ControlTheme>
+</ResourceDictionary>

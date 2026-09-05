@@ -1,0 +1,43 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    x:ClassModifier="internal">
+  <ControlTheme x:Key="{x:Type MenuFlyoutPresenter}" TargetType="MenuFlyoutPresenter">
+    <Setter Property="Background" Value="{DynamicResource MacOS.MenuFlyoutPresenterBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MacOS.MenuFlyoutPresenterBorderBrush}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource MacOS.MenuFlyoutPresenterBorderThemeThickness}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.MenuFlyoutPresenterThemePadding}" />
+    <Setter Property="MaxWidth" Value="{DynamicResource MacOS.FlyoutThemeMaxWidth}" />
+    <Setter Property="MinHeight" Value="{DynamicResource MacOS.MenuFlyoutThemeMinHeight}" />
+    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
+    <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.OverlayCornerRadius}" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="LayoutRoot"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                Padding="{DynamicResource MacOS.FlyoutBorderThemePadding}"
+                CornerRadius="{TemplateBinding CornerRadius}">
+          <ScrollViewer HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                        Theme="{StaticResource MacOSMenuScrollViewer}"
+                        VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
+            <ItemsPresenter Name="PART_ItemsPresenter"
+                            ItemsPanel="{TemplateBinding ItemsPanel}"
+                            Margin="{DynamicResource MacOS.MenuFlyoutScrollerMargin}"
+                            KeyboardNavigation.TabNavigation="Continue"
+                            Grid.IsSharedSizeScope="True" />
+          </ScrollViewer>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+  <ControlTheme x:Key="HorizontalMenuFlyoutPresenter" TargetType="MenuFlyoutPresenter"  BasedOn="{StaticResource {x:Type MenuFlyoutPresenter}}">
+    <Setter Property="MinWidth" Value="{DynamicResource MacOS.HorizontalMenuFlyoutThemeMinWidth}" />
+    <Setter Property="ItemsPanel">
+      <ItemsPanelTemplate>
+        <StackPanel Orientation="Horizontal"/>
+      </ItemsPanelTemplate>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

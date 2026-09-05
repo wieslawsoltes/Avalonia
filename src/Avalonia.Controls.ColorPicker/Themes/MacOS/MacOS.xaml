@@ -1,0 +1,44 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="using:Avalonia.Controls.Converters">
+
+  <Styles.Resources>
+    <ResourceDictionary>
+
+      <!-- Shared Resources -->
+      
+
+      <!-- TODO: Enable the commented-out resources below once Avalonia supports extending light/dark resource dictionaries -->
+      
+      
+      <!--<DynamicResource x:Key="ColorControlDefaultSelectorBrush" ResourceKey="SystemControlForegroundBaseHighBrush" />-->
+      
+      
+      <!--<DynamicResource x:Key="ColorViewTabBackgroundBrush" ResourceKey="SystemControlBackgroundBaseLowBrush" />-->
+      
+
+      <!-- Shared Converters -->
+      <converters:EnumToBoolConverter x:Key="EnumToBoolConverter" />
+      <converters:ToBrushConverter x:Key="ToBrushConverter" />
+      <converters:CornerRadiusFilterConverter x:Key="LeftCornerRadiusFilterConverter" Filter="TopLeft, BottomLeft"/>
+      <converters:CornerRadiusFilterConverter x:Key="RightCornerRadiusFilterConverter" Filter="TopRight, BottomRight"/>
+      <converters:CornerRadiusFilterConverter x:Key="TopCornerRadiusFilterConverter" Filter="TopLeft, TopRight"/>
+      <converters:CornerRadiusFilterConverter x:Key="BottomCornerRadiusFilterConverter" Filter="BottomLeft, BottomRight"/>
+      <converters:CornerRadiusToDoubleConverter x:Key="TopLeftCornerRadiusConverter" Corner="TopLeft" />
+      <converters:CornerRadiusToDoubleConverter x:Key="BottomRightCornerRadiusConverter" Corner="BottomRight" />
+
+      <ResourceDictionary.MergedDictionaries>
+
+        <!-- Primitives -->
+        <MergeResourceInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/MacOS/ColorPreviewer.xaml" />
+        <MergeResourceInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/MacOS/ColorSlider.xaml" />
+        <MergeResourceInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/MacOS/ColorSpectrum.xaml" />
+
+        <!-- Controls -->
+        <MergeResourceInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/MacOS/ColorPicker.xaml" />
+        <MergeResourceInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/MacOS/ColorView.xaml" />
+
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Styles.Resources>
+</Styles>

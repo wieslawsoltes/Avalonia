@@ -1,0 +1,123 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    x:ClassModifier="internal">
+  <Design.PreviewWith>
+    <Border Padding="20">
+      <StackPanel Spacing="20">
+        <ToggleButton Content="Click Me!" />
+        <ToggleButton Content="Disabled" IsEnabled="False" />
+        <ToggleButton Content="Three state" IsThreeState="True" />
+      </StackPanel>
+    </Border>
+  </Design.PreviewWith>
+
+  <ControlTheme x:Key="{x:Type ToggleButton}" TargetType="ToggleButton">
+    <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackground}" />
+    <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForeground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrush}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource MacOS.ToggleButtonBorderThemeThickness}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.ControlCornerRadius}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.ButtonPadding}" />
+    <Setter Property="HorizontalAlignment" Value="Left" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="RenderTransform" Value="none" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <TransformOperationsTransition Property="RenderTransform" Duration="{DynamicResource MacOS.Motion.Interaction}" />
+      </Transitions>
+    </Setter>
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <ContentPresenter x:Name="PART_ContentPresenter"
+                          Background="{TemplateBinding Background}"
+                          BorderBrush="{TemplateBinding BorderBrush}"
+                          BorderThickness="{TemplateBinding BorderThickness}"
+                          CornerRadius="{TemplateBinding CornerRadius}"
+                          Content="{TemplateBinding Content}"
+                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                          Padding="{TemplateBinding Padding}"
+                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="RecognizesAccessKey" Value="True" />
+    </Style>
+
+    <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackgroundPointerOver}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrushPointerOver}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForegroundPointerOver}" />
+    </Style>
+
+    <Style Selector="^:pressed">
+      <Setter Property="RenderTransform" Value="scale(0.98)" />
+    </Style>
+
+    <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackgroundPressed}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrushPressed}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForegroundPressed}" />
+    </Style>
+
+    <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackgroundDisabled}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrushDisabled}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForegroundDisabled}" />
+    </Style>
+
+    <Style Selector="^:indeterminate">
+      <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackgroundIndeterminate}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrushIndeterminate}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForegroundIndeterminate}" />
+      </Style>
+
+      <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackgroundIndeterminatePointerOver}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrushIndeterminatePointerOver}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForegroundIndeterminatePointerOver}" />
+      </Style>
+
+      <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackgroundIndeterminatePressed}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrushIndeterminatePressed}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForegroundIndeterminatePressed}" />
+      </Style>
+
+      <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackgroundIndeterminateDisabled}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrushIndeterminateDisabled}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForegroundIndeterminateDisabled}" />
+      </Style>
+    </Style>
+
+    <Style Selector="^:checked">
+      <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackgroundChecked}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrushChecked}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForegroundChecked}" />
+      </Style>
+
+      <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackgroundCheckedPointerOver}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrushCheckedPointerOver}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForegroundCheckedPointerOver}" />
+      </Style>
+
+      <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackgroundCheckedPressed}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrushCheckedPressed}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForegroundCheckedPressed}" />
+      </Style>
+
+      <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackgroundCheckedDisabled}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrushCheckedDisabled}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForegroundCheckedDisabled}" />
+      </Style>
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>
