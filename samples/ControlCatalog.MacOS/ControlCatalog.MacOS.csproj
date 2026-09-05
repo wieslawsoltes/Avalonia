@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>$(AvsCurrentTargetFramework)</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../ControlCatalog/ControlCatalog.csproj" />
+    <ProjectReference Include="../../src/Headless/Avalonia.Headless/Avalonia.Headless.csproj" />
+    <ProjectReference Include="../../src/HarfBuzz/Avalonia.HarfBuzz/Avalonia.HarfBuzz.csproj" />
+  </ItemGroup>
+  <Import Project="../../build/BuildTargets.targets" />
+  <Import Project="../../build/SampleApp.props" />
+</Project>
