@@ -309,6 +309,23 @@ public sealed class ThemeTests
             Assert.IsAssignableFrom<ISolidColorBrush>(presenter.Foreground).Color);
     }
 
+    [AvaloniaFact]
+    public void Expander_Color_Tokens_Keep_Their_Type_And_Follow_Live_Semantics()
+    {
+        var expander = new Expander { Header = "Options" };
+        using var host = new Host(expander);
+        var toggle = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(expander)
+            .OfType<Avalonia.Controls.Primitives.ToggleButton>().First();
+        var color = Color.Parse("#DDEEFF");
+        Theme.SetToken(MacOSSemanticTokens.Surface, color);
+        Dispatcher.UIThread.RunJobs();
+        Assert.Equal(color, Resolve<Color>(MacOSTokens.ExpanderHeaderBackground.Key));
+        Assert.Equal(color, Assert.IsAssignableFrom<ISolidColorBrush>(toggle.Background).Color);
+        Theme.SetToken(MacOSTokens.ExpanderHeaderBackground, Colors.Bisque);
+        Dispatcher.UIThread.RunJobs();
+        Assert.Equal(Colors.Bisque, Assert.IsAssignableFrom<ISolidColorBrush>(toggle.Background).Color);
+    }
+
     private sealed class Host : IDisposable
     {
         public Window Window { get; }

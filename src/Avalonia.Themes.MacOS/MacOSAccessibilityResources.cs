@@ -34,6 +34,24 @@ internal sealed class MacOSAccessibilityResources(MacOSTheme theme) : ResourcePr
             return true;
         }
 
+        // These inherited component resources are Color, not IBrush. Resolve
+        // their semantic roles without changing the public CLR token contract.
+        var expanderRole = text switch
+        {
+            "MacOS.ExpanderHeaderBackground" or "MacOS.ExpanderContentBackground" => "Surface",
+            "MacOS.ExpanderHeaderBackgroundPointerOver" => "ControlHover",
+            "MacOS.ExpanderHeaderBackgroundPressed" => "ControlPressed",
+            "MacOS.ExpanderHeaderBackgroundDisabled" => "ControlDisabled",
+            "MacOS.ExpanderHeaderBorderBrush" or "MacOS.ExpanderHeaderBorderBrushPointerOver"
+                or "MacOS.ExpanderHeaderBorderBrushPressed" or "MacOS.ExpanderContentBorderBrush" => "Separator",
+            "MacOS.ExpanderHeaderForeground" or "MacOS.ExpanderHeaderForegroundPointerOver"
+                or "MacOS.ExpanderHeaderForegroundPressed" or "MacOS.ExpanderChevronForeground"
+                or "MacOS.ExpanderChevronForegroundPointerOver" or "MacOS.ExpanderChevronForegroundPressed" => "Label",
+            _ => null
+        };
+        if (expanderRole is not null && !theme.Tokens.TryGetResource(text, variant, out _))
+            return ((IResourceNode)theme).TryGetResource("MacOS.Color." + expanderRole, variant, out value);
+
         if (text == "MacOS.Color.Accent")
         {
             // Explicit semantic overrides remain authoritative. Otherwise the raw

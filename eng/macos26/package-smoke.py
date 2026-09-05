@@ -37,7 +37,8 @@ def main():
     theme = packages[0]
     version = metadata(theme).find('n:metadata/n:version', NS).text
     pending, built = ['Avalonia.Headless', 'Avalonia.Themes.MacOS'], set()
-    projects = {p.stem: p for p in (ROOT / 'src').rglob('*.csproj')}
+    projects = {p.stem: p for directory in ('src', 'packages')
+                for p in (ROOT / directory).rglob('*.csproj')}
     while pending:
         name = pending.pop()
         if name in built:
