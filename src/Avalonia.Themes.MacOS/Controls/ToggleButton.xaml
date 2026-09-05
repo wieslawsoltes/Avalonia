@@ -23,7 +23,7 @@
     <Setter Property="RenderTransform" Value="none" />
     <Setter Property="Transitions">
       <Transitions>
-        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:.075" />
+        <TransformOperationsTransition Property="RenderTransform" Duration="{DynamicResource MacOS.Motion.Interaction}" />
       </Transitions>
     </Setter>
 
