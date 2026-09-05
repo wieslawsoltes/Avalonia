@@ -10,6 +10,7 @@
   <Import Project="../../build/XUnit.props" />
   <Import Project="../../build/SharedVersion.props" />
   <ItemGroup>
+    <ProjectReference Include="../../src/Avalonia.Controls.ColorPicker/Avalonia.Controls.ColorPicker.csproj" />
     <ProjectReference Include="../../src/Avalonia.Fonts.Inter/Avalonia.Fonts.Inter.csproj" />
     <ProjectReference Include="../../src/Avalonia.Themes.MacOS/Avalonia.Themes.MacOS.csproj" />
     <ProjectReference Include="../../src/HarfBuzz/Avalonia.HarfBuzz/Avalonia.HarfBuzz.csproj" />

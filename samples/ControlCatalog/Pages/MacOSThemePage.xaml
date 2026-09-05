@@ -28,7 +28,7 @@
           <TextBlock Text="Designed to feel at home." FontSize="28" FontWeight="SemiBold" />
           <TextBlock Classes="secondary" Text="macOS 26 · Avalonia controls · Live design tokens" />
         </StackPanel>
-        <Button Grid.Column="1" Content="Customize appearance" VerticalAlignment="Center" />
+        <Button Grid.Column="1" Content="Customize appearance" Click="OnCustomizeAppearance" VerticalAlignment="Center" />
       </Grid>
       <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto">
         <Border Classes="card" Grid.Column="0" Grid.Row="0">

@@ -259,6 +259,42 @@ public sealed class ThemeTests
         Assert.True(tabs.Bounds.Height > 0);
     }
 
+    [AvaloniaFact]
+    public void Optional_ColorPicker_Companion_Uses_The_Public_Token_Overrides()
+    {
+        Application.Current!.Styles.Add(new Avalonia.Markup.Xaml.Styling.StyleInclude(new Uri("avares://Avalonia.Controls.ColorPicker/"))
+        {
+            Source = new Uri("avares://Avalonia.Controls.ColorPicker/Themes/MacOS/MacOS.xaml")
+        });
+        var control = new Avalonia.Controls.Primitives.ColorSlider();
+        using var host = new Host(control);
+        Theme.SetToken(MacOSTokens.ColorPicker_ColorSliderSize, 34d);
+        Dispatcher.UIThread.RunJobs();
+        Assert.Equal(34d, control.MinHeight);
+    }
+
+    [AvaloniaTheory]
+    [InlineData("#007AFF")]
+    [InlineData("#0A84FF")]
+    [InlineData("#FFCC00")]
+    [InlineData("#8E44AD")]
+    public void Accent_Fill_And_Label_Maintain_At_Least_4_Point_5_Contrast(string value)
+    {
+        Theme.SetToken(MacOSTokens.SystemAccentColor, Color.Parse(value));
+        var background = Resolve<Color>(MacOSSemanticTokens.Accent.Key);
+        var foreground = Resolve<Color>(MacOSSemanticTokens.OnAccent.Key);
+        static double Linear(byte component)
+        {
+            var c = component / 255d;
+            return c <= 0.04045 ? c / 12.92 : Math.Pow((c + 0.055) / 1.055, 2.4);
+        }
+        static double Luminance(Color c) => 0.2126 * Linear(c.R) + 0.7152 * Linear(c.G) + 0.0722 * Linear(c.B);
+        var a = Luminance(background);
+        var b = Luminance(foreground);
+        var ratio = (Math.Max(a, b) + 0.05) / (Math.Min(a, b) + 0.05);
+        Assert.True(ratio >= 4.5, $"{value}: contrast was {ratio:F3}:1");
+    }
+
     private sealed class Host : IDisposable
     {
         public Window Window { get; }

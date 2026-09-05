@@ -44,7 +44,7 @@ internal sealed class MacOSAccessibilityResources(MacOSTheme theme) : ResourcePr
             if (((IResourceNode)theme).TryGetResource("MacOS.SystemAccentColor", variant, out var raw)
                 && raw is Color source)
             {
-                var accent = source;
+                var accent = Color.FromRgb(source.R, source.G, source.B);
                 var luminance = Luminance(accent);
                 // Bright accents retain black labels; medium/dark accents favor
                 // white labels with at least 4.5:1 contrast on opaque surfaces.
