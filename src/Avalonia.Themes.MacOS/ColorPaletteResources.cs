@@ -97,6 +97,7 @@ public partial class ColorPaletteResources : ResourceProvider
         {
             _colors[key] = value;
         }
+        RaiseResourcesChanged();
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)

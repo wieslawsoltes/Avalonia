@@ -27,8 +27,10 @@ namespace Avalonia.Themes.MacOS
         /// <param name="sp">The parent's service provider.</param>
         public MacOSTheme(IServiceProvider? sp = null)
         {
+            _accessibilityResources = new MacOSAccessibilityResources(this);
             AvaloniaXamlLoader.Load(sp, this);
             Resources.MergedDictionaries.Add(Tokens);
+            Resources.MergedDictionaries.Add(_accessibilityResources);
             
             _compactStyles = (ResourceDictionary)GetAndRemove("CompactStyles");
 
@@ -62,6 +64,10 @@ namespace Avalonia.Themes.MacOS
         {
             base.OnPropertyChanged(change);
 
+            if (change.Property == IncreaseContrastProperty || change.Property == ReduceMotionProperty
+                || change.Property == ReduceTransparencyProperty)
+                _accessibilityResources.Invalidate();
+
             if (change.Property == DensityStyleProperty)
             {
                 Owner?.NotifyHostedResourcesChanged(ResourcesChangedEventArgs.Create());
@@ -71,6 +77,8 @@ namespace Avalonia.Themes.MacOS
         bool IResourceNode.TryGetResource(object key, ThemeVariant? theme, out object? value)
         {
             key = MacOSTokenAliases.Normalize(key);
+            if (_accessibilityResources.TryGetResource(key, theme, out value))
+                return true;
             if (Tokens.TryGetResource(key, theme, out value))
                 return true;
 
