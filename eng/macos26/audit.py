@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+"""Verify copied template contracts and the public design-token inventory."""
+from pathlib import Path
+from xml.etree import ElementTree as ET
+import json
+import re
+
+ROOT = Path(__file__).resolve().parents[2]
+SOURCE = ROOT / 'src/Avalonia.Themes.Fluent'
+THEME = ROOT / 'src/Avalonia.Themes.MacOS'
+X = '{http://schemas.microsoft.com/winfx/2006/xaml}'
+
+
+def main():
+    errors = []
+    manifest = json.loads((THEME / 'Tokens/token-manifest.json').read_text())
+    tokens = {entry['key'] for entry in manifest['tokens']}
+    if len(tokens) != len(manifest['tokens']):
+        errors.append('Duplicate token keys in manifest')
+    declared, references = set(), set()
+    for path in THEME.rglob('*.xaml'):
+        text = path.read_text()
+        ET.fromstring(text)
+        if 'avares://Avalonia.Themes.Fluent/' in text or 'using:Avalonia.Themes.Fluent' in text:
+            errors.append(f'Fluent dependency in {path.relative_to(ROOT)}')
+        for node in ET.fromstring(text).iter():
+            key = node.get(X + 'Key', '')
+            if key.startswith('MacOS.'):
+                declared.add(key)
+        references.update(re.findall(r'\{(?:DynamicResource|StaticResource) (MacOS\.[^{}]+)\}', text))
+    for key in references - tokens:
+        errors.append('Referenced visual token missing from public inventory: ' + key)
+    runtime = {'MacOS.SystemAccentColor' + suffix for suffix in ('', 'Dark1', 'Dark2', 'Dark3', 'Light1', 'Light2', 'Light3')}
+    for key in tokens - declared - runtime:
+        errors.append('Token has no XAML or runtime definition: ' + key)
+    for original in SOURCE.rglob('*.xaml'):
+        relative = original.relative_to(SOURCE)
+        destination = THEME / str(relative).replace('Fluent', 'MacOS')
+        if not destination.exists():
+            errors.append('Missing copied dictionary: ' + str(relative))
+            continue
+        before, after = original.read_text(encoding='utf-8-sig'), destination.read_text()
+        expected_parts = set(re.findall(r'x:Name="(PART_[^"]+)"', before))
+        actual_parts = set(re.findall(r'x:Name="(PART_[^"]+)"', after))
+        if expected_parts - actual_parts:
+            errors.append(f'{relative}: removed template parts {expected_parts - actual_parts}')
+        expected_selectors = set(re.findall(r'Selector="([^"]+)"', before))
+        actual_selectors = set(re.findall(r'Selector="([^"]+)"', after))
+        if expected_selectors - actual_selectors:
+            errors.append(f'{relative}: removed pseudo-class/style selectors {expected_selectors - actual_selectors}')
+        expected_types = set(re.findall(r'x:Key="(\{x:Type [^}]+\})"', before))
+        actual_types = set(re.findall(r'x:Key="(\{x:Type [^}]+\})"', after))
+        if expected_types - actual_types:
+            errors.append(f'{relative}: removed implicit themes {expected_types - actual_types}')
+    if errors:
+        raise SystemExit('\n'.join(errors))
+    print(f'PASS: {len(tokens)} public tokens; {len(manifest["controls"])} implicit themes; template parts and selectors retained.')
+
+if __name__ == '__main__':
+    main()

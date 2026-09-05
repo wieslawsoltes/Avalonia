@@ -62,6 +62,7 @@
     </Project>
     <Project Path="samples/ControlCatalog.Browser/ControlCatalog.Browser.csproj" />
     <Project Path="samples/ControlCatalog.Desktop/ControlCatalog.Desktop.csproj" />
+    <Project Path="samples/ControlCatalog.MacOS/ControlCatalog.MacOS.csproj" />
     <Project Path="samples/ControlCatalog.iOS/ControlCatalog.iOS.csproj" />
     <Project Path="samples/ControlCatalog.MacCatalyst/ControlCatalog.MacCatalyst.csproj" />
     <Project Path="samples/ControlCatalog.tvOS/ControlCatalog.tvOS.csproj" />
@@ -158,6 +159,7 @@
     <Project Path="tests/Avalonia.Skia.RenderTests/Avalonia.Skia.RenderTests.csproj" />
     <Project Path="tests/Avalonia.Skia.UnitTests/Avalonia.Skia.UnitTests.csproj" />
     <Project Path="tests/Avalonia.UnitTests/Avalonia.UnitTests.csproj" />
+    <Project Path="tests/Avalonia.Themes.MacOS.UnitTests/Avalonia.Themes.MacOS.UnitTests.csproj" />
     <Project Path="tests/Avalonia.Wayland.UnitTests/Avalonia.Wayland.UnitTests.csproj" />
   </Folder>
   <Folder Name="/Tests/TestFiles/" />
@@ -166,6 +168,7 @@
   </Folder>
   <Folder Name="/Themes/">
     <Project Path="src/Avalonia.Themes.Fluent/Avalonia.Themes.Fluent.csproj" />
+    <Project Path="src/Avalonia.Themes.MacOS/Avalonia.Themes.MacOS.csproj" />
     <Project Path="src/Avalonia.Themes.Simple/Avalonia.Themes.Simple.csproj" />
   </Folder>
   <Folder Name="/Tools/">

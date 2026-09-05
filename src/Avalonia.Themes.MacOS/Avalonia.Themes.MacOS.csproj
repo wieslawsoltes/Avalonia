@@ -13,4 +13,14 @@
   <Import Project="..\..\build\BuildTargets.targets" />
   <Import Project="..\..\build\TrimmingEnable.props" />
   <Import Project="..\..\build\DevAnalyzers.props" />
+  <PropertyGroup>
+    <Description>macOS 26-inspired Avalonia control theme with light/dark semantic palettes, typed live design tokens and accessibility policies.</Description>
+    <PackageDescription>$(Description)</PackageDescription>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>avalonia;macos;theme;design-tokens;accessibility;xaml</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Update="README.md" Pack="true" PackagePath="/" />
+    <None Update="Tokens/token-manifest.json" Pack="true" PackagePath="design-tokens/" />
+  </ItemGroup>
 </Project>
