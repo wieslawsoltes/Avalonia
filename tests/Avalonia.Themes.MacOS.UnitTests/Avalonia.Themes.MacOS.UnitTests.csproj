@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>$(AvsCurrentTargetFramework)</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <IsTestProject>true</IsTestProject>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <Import Project="../../build/UnitTests.NetCore.targets" />
+  <Import Project="../../build/UnitTests.NetFX.props" />
+  <Import Project="../../build/XUnit.props" />
+  <Import Project="../../build/SharedVersion.props" />
+  <ItemGroup>
+    <ProjectReference Include="../../src/Avalonia.Themes.MacOS/Avalonia.Themes.MacOS.csproj" />
+    <ProjectReference Include="../../src/HarfBuzz/Avalonia.HarfBuzz/Avalonia.HarfBuzz.csproj" />
+    <ProjectReference Include="../../src/Headless/Avalonia.Headless.XUnit/Avalonia.Headless.XUnit.csproj" />
+    <ProjectReference Include="../../src/Skia/Avalonia.Skia/Avalonia.Skia.csproj" />
+    <None Include="../../src/Avalonia.Themes.MacOS/Tokens/token-manifest.json" Link="token-manifest.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
