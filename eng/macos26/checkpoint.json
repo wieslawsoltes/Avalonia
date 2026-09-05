@@ -1,0 +1,8 @@
+{
+  "checkpoint": "01-initial-controls",
+  "runId": 33988621013,
+  "artifact": "macos-theme-evidence-ubuntu-latest-33988621013",
+  "commit": "54412bbc7de2b0563a80bcab74f475d1c7e43c67",
+  "description": "First successful full capture: 47 real Avalonia ControlCatalog frames. Reviewed defects include switch knob positioning, invisible white slider thumb in light mode, unharmonized page backgrounds, selection geometry and remaining inherited form treatments. This is a progress checkpoint, not a release baseline.",
+  "validation": "Theme and ControlCatalog compile; capture succeeds. At this exact source commit, the test build still reports duplicate using directives/analyzer errors and package readme inclusion is not yet fixed. Later commits address these separately. No native macOS validation is claimed."
+}
