@@ -326,6 +326,19 @@ public sealed class ThemeTests
         Assert.Equal(Colors.Bisque, Assert.IsAssignableFrom<ISolidColorBrush>(toggle.Background).Color);
     }
 
+    [AvaloniaTheory]
+    [InlineData("#FFCC00")]
+    [InlineData("#8E44AD")]
+    public void Custom_Accent_Does_Not_Revert_To_The_OS_Shade_When_Pressed(string value)
+    {
+        Theme.SetToken(MacOSTokens.SystemAccentColor, Color.Parse(value));
+        Dispatcher.UIThread.RunJobs();
+        var accent = Resolve<Color>(MacOSSemanticTokens.Accent.Key);
+        Assert.Equal(accent, Resolve<ISolidColorBrush>(MacOSTokens.AccentButtonBackgroundPressed.Key).Color);
+        Assert.Equal(accent, Resolve<ISolidColorBrush>(MacOSTokens.ToggleButtonBackgroundCheckedPressed.Key).Color);
+        Assert.Equal(accent, Resolve<ISolidColorBrush>(MacOSTokens.ToggleButtonBackgroundIndeterminatePressed.Key).Color);
+    }
+
     private sealed class Host : IDisposable
     {
         public Window Window { get; }

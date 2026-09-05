@@ -36,6 +36,9 @@ def main():
         raise RuntimeError('Expected exactly one freshly built theme package')
     theme = packages[0]
     version = metadata(theme).find('n:metadata/n:version', NS).text
+    # The aggregate package's custom pack target builds the designer host
+    # outside the normal ProjectReference restore graph.
+    run('dotnet', 'restore', str(ROOT / 'src/tools/Avalonia.Designer.HostApp/Avalonia.Designer.HostApp.csproj'))
     pending, built = ['Avalonia.Headless', 'Avalonia.Themes.MacOS'], set()
     projects = {p.stem: p for directory in ('src', 'packages')
                 for p in (ROOT / directory).rglob('*.csproj')}

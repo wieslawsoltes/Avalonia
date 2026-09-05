@@ -7,7 +7,7 @@
       <!-- Resources for Button.xaml -->
       <SolidColorBrush x:Key="MacOS.AccentButtonBackground" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.AccentButtonBackgroundPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
-      <SolidColorBrush x:Key="MacOS.AccentButtonBackgroundPressed" Color="{DynamicResource MacOS.SystemAccentColorDark1}" />
+      <SolidColorBrush x:Key="MacOS.AccentButtonBackgroundPressed" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.AccentButtonBackgroundDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
       <SolidColorBrush x:Key="MacOS.AccentButtonForeground" Color="{DynamicResource MacOS.Color.OnAccent}" />
       <SolidColorBrush x:Key="MacOS.AccentButtonForegroundPointerOver" Color="{DynamicResource MacOS.Color.OnAccent}" />
@@ -53,11 +53,11 @@
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundChecked" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundCheckedPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
-      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundCheckedPressed" Color="{DynamicResource MacOS.SystemAccentColorDark1}" />
+      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundCheckedPressed" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundCheckedDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundIndeterminate" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundIndeterminatePointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
-      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundIndeterminatePressed" Color="{DynamicResource MacOS.SystemAccentColorDark1}" />
+      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundIndeterminatePressed" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundIndeterminateDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonForeground" Color="{DynamicResource MacOS.Color.Label}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonForegroundPointerOver" Color="{DynamicResource MacOS.Color.Label}" />
@@ -726,7 +726,7 @@
       <!-- Resources for Button.xaml -->
       <SolidColorBrush x:Key="MacOS.AccentButtonBackground" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.AccentButtonBackgroundPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
-      <SolidColorBrush x:Key="MacOS.AccentButtonBackgroundPressed" Color="{DynamicResource MacOS.SystemAccentColorDark1}" />
+      <SolidColorBrush x:Key="MacOS.AccentButtonBackgroundPressed" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.AccentButtonBackgroundDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
       <SolidColorBrush x:Key="MacOS.AccentButtonForeground" Color="{DynamicResource MacOS.Color.OnAccent}" />
       <SolidColorBrush x:Key="MacOS.AccentButtonForegroundPointerOver" Color="{DynamicResource MacOS.Color.OnAccent}" />
@@ -772,11 +772,11 @@
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundChecked" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundCheckedPointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
-      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundCheckedPressed" Color="{DynamicResource MacOS.SystemAccentColorDark1}" />
+      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundCheckedPressed" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundCheckedDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundIndeterminate" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundIndeterminatePointerOver" Color="{DynamicResource MacOS.Color.Accent}" />
-      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundIndeterminatePressed" Color="{DynamicResource MacOS.SystemAccentColorDark1}" />
+      <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundIndeterminatePressed" Color="{DynamicResource MacOS.Color.Accent}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonBackgroundIndeterminateDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonForeground" Color="{DynamicResource MacOS.Color.Label}" />
       <SolidColorBrush x:Key="MacOS.ToggleButtonForegroundPointerOver" Color="{DynamicResource MacOS.Color.Label}" />
