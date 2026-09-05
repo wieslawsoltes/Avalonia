@@ -47,8 +47,8 @@ def main():
             errors.append('Missing copied dictionary: ' + str(relative))
             continue
         before, after = original.read_text(encoding='utf-8-sig'), destination.read_text()
-        expected_parts = set(re.findall(r'x:Name="(PART_[^"]+)"', before))
-        actual_parts = set(re.findall(r'x:Name="(PART_[^"]+)"', after))
+        expected_parts = set(re.findall(r'(?:x:)?Name="(PART_[^"]+)"', before))
+        actual_parts = set(re.findall(r'(?:x:)?Name="(PART_[^"]+)"', after))
         if expected_parts - actual_parts:
             errors.append(f'{relative}: removed template parts {expected_parts - actual_parts}')
         expected_selectors = set(re.findall(r'Selector="([^"]+)"', before))

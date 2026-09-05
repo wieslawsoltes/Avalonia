@@ -31,7 +31,8 @@ public static class MacOSCatalogPages
     path = catalog / 'Pages/MacOSThemePage.xaml'
     path.write_text(path.read_text().replace('Watermark="', 'PlaceholderText="'))
     path = ROOT / 'tests/Avalonia.Themes.MacOS.UnitTests/ThemeTests.cs'
-    text = path.read_text().replace('using Avalonia.Media;\n', 'using Avalonia.Media;\nusing Avalonia.Media.Imaging;\n')
+    text = path.read_text().replace('using Avalonia.Media.Imaging;\n', '')
+    text = text.replace('using Avalonia.Media;\n', 'using Avalonia.Media;\nusing Avalonia.Media.Imaging;\n')
     text = text.replace('frame.Save(output);', 'frame.Save(output, PngBitmapEncoderOptions.Default);')
     path.write_text(text)
     commit('fix(macos): use public catalog factories and explicit PNG encoder options',
