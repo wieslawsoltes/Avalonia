@@ -12,8 +12,8 @@
     </Border>
   </Design.PreviewWith>
 
-  <x:Double x:Key="MacOS.TabStripItemMinHeight">48</x:Double>
-  <x:Double x:Key="MacOS.TabStripItemPipeThickness">2</x:Double>
+  <x:Double x:Key="MacOS.TabStripItemMinHeight">28</x:Double>
+  <x:Double x:Key="MacOS.TabStripItemPipeThickness">0</x:Double>
 
   <ControlTheme x:Key="{x:Type TabStripItem}" TargetType="TabStripItem">
     <Setter Property="FontSize" Value="{DynamicResource MacOS.TabItemHeaderFontSize}" />
@@ -21,7 +21,8 @@
     <Setter Property="Background" Value="{DynamicResource MacOS.TabItemHeaderBackgroundUnselected}" />
     <Setter Property="Foreground" Value="{DynamicResource MacOS.TabItemHeaderForegroundUnselected}" />
     <Setter Property="Padding" Value="{DynamicResource MacOS.TabItemHeaderMargin}" />
-    <Setter Property="Margin" Value="0" />
+    <Setter Property="Margin" Value="2" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.Selection.Radius}" />
     <Setter Property="MinHeight" Value="{DynamicResource MacOS.TabStripItemMinHeight}" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="Template">

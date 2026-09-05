@@ -12,7 +12,7 @@
 
   <StreamGeometry x:Key="DrawerPaneButtonIcon">M3 17h18a1 1 0 0 1 .117 1.993L21 19H3a1 1 0 0 1-.117-1.993L3 17h18H3Zm0-6 18-.002a1 1 0 0 1 .117 1.993l-.117.007L3 13a1 1 0 0 1-.117-1.993L3 11l18-.002L3 11Zm0-6h18a1 1 0 0 1 .117 1.993L21 7H3a1 1 0 0 1-.117-1.993L3 5h18H3Z</StreamGeometry>
 
-  <x:Double x:Key="MacOS.NavigationControlNavBarHeight">48</x:Double>
+  <x:Double x:Key="MacOS.NavigationControlNavBarHeight">44</x:Double>
   <SolidColorBrush x:Key="MacOS.NavigationControlNavBarBackground" Color="{DynamicResource MacOS.SystemChromeMediumColor}" />
 
   <ControlTheme x:Key="{x:Type DrawerPage}" TargetType="DrawerPage">

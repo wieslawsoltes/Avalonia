@@ -1,17 +1,17 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     x:ClassModifier="internal">
-  <Thickness x:Key="MacOS.SystemControlFocusVisualMargin">0</Thickness>
-  <Thickness x:Key="MacOS.SystemControlFocusVisualPrimaryThickness">2</Thickness>
-  <Thickness x:Key="MacOS.SystemControlFocusVisualSecondaryThickness">1</Thickness>
+  <Thickness x:Key="MacOS.SystemControlFocusVisualMargin">-3</Thickness>
+  <Thickness x:Key="MacOS.SystemControlFocusVisualPrimaryThickness">3</Thickness>
+  <Thickness x:Key="MacOS.SystemControlFocusVisualSecondaryThickness">0</Thickness>
   
   <ControlTheme x:Key="{x:Type AdornerLayer}" TargetType="AdornerLayer">
     <Setter Property="DefaultFocusAdorner">
       <FocusAdornerTemplate>
-        <Border BorderThickness="{DynamicResource MacOS.SystemControlFocusVisualPrimaryThickness}"
+        <Border CornerRadius="{DynamicResource MacOS.Focus.Radius}" BorderThickness="{DynamicResource MacOS.SystemControlFocusVisualPrimaryThickness}"
                 BorderBrush="{DynamicResource MacOS.SystemControlFocusVisualPrimaryBrush}"
                 Margin="{DynamicResource MacOS.SystemControlFocusVisualMargin}">
-          <Border BorderThickness="{DynamicResource MacOS.SystemControlFocusVisualSecondaryThickness}"
+          <Border CornerRadius="{DynamicResource MacOS.Focus.Radius}" BorderThickness="{DynamicResource MacOS.SystemControlFocusVisualSecondaryThickness}"
                   BorderBrush="{DynamicResource MacOS.SystemControlFocusVisualSecondaryBrush}" />
         </Border>
       </FocusAdornerTemplate>

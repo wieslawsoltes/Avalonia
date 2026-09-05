@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     x:ClassModifier="internal">
 
-  <Thickness x:Key="MacOS.TableViewRowPadding">6,9,6,12</Thickness>
+  <Thickness x:Key="MacOS.TableViewRowPadding">8,5</Thickness>
 
   <ControlTheme x:Key="{x:Type TableViewRow}" TargetType="TableViewRow">
     <Setter Property="Background" Value="{DynamicResource MacOS.TableViewRowBackground}" />

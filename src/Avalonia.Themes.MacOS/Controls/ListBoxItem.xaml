@@ -13,7 +13,7 @@
       </ListBox>
     </Border>
   </Design.PreviewWith>
-  <Thickness x:Key="MacOS.ListBoxItemPadding">12,9,12,12</Thickness>
+  <Thickness x:Key="MacOS.ListBoxItemPadding">10,6</Thickness>
   <ControlTheme x:Key="{x:Type ListBoxItem}" TargetType="ListBoxItem">
     <Setter Property="Background" Value="Transparent" />
     <Setter Property="Padding" Value="{DynamicResource MacOS.ListBoxItemPadding}" />

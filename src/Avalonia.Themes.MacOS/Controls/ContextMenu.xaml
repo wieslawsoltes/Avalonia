@@ -31,7 +31,7 @@
   </Design.PreviewWith>
 
   <!--  Added missing resource  -->
-  <Thickness x:Key="MacOS.MenuFlyoutScrollerMargin">0,4,0,4</Thickness>
+  <Thickness x:Key="MacOS.MenuFlyoutScrollerMargin">0</Thickness>
 
   <ControlTheme x:Key="{x:Type ContextMenu}" TargetType="ContextMenu">
     <Setter Property="Background" Value="{DynamicResource MacOS.MenuFlyoutPresenterBackground}" />

@@ -13,6 +13,7 @@
         <macOS:ColorPaletteResourcesCollection />
 
         <!-- Resources and brushes will be merged into current dictionary for slightly better performance and possible optimizations -->
+        <MergeResourceInclude Source="/Tokens/Semantic.xaml" />
         <MergeResourceInclude Source="/Accents/BaseResources.xaml" />
         <MergeResourceInclude Source="/Accents/MacOSControlResources.xaml" />
         <MergeResourceInclude Source="/Strings/InvariantResources.xaml" />

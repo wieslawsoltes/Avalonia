@@ -53,9 +53,9 @@
   <x:Int32 x:Key="MacOS.ComboBoxPopupMaxNumberOfItems">15</x:Int32>
   <x:Int32 x:Key="MacOS.ComboBoxPopupMaxNumberOfItemsThatCanBeShownOnOneSide">7</x:Int32>
 
-  <Thickness x:Key="MacOS.ComboBoxPadding">12,5,0,7</Thickness>
-  <Thickness x:Key="MacOS.ComboBoxEditableTextPadding">11,5,32,6</Thickness>
-  <x:Double x:Key="MacOS.ComboBoxMinHeight">32</x:Double>
+  <Thickness x:Key="MacOS.ComboBoxPadding">10,4,0,4</Thickness>
+  <Thickness x:Key="MacOS.ComboBoxEditableTextPadding">10,4,30,4</Thickness>
+  <x:Double x:Key="MacOS.ComboBoxMinHeight">28</x:Double>
 
   <ControlTheme x:Key="{x:Type ComboBox}" TargetType="ComboBox">
     <Setter Property="Padding" Value="{DynamicResource MacOS.ComboBoxPadding}" />
@@ -131,9 +131,9 @@
                      BorderThickness="0"
                      IsVisible="{TemplateBinding IsEditable}">
               <TextBox.Resources>
-                <SolidColorBrush x:Key="MacOS.TextControlBackgroundFocused">Transparent</SolidColorBrush>
-                <SolidColorBrush x:Key="MacOS.TextControlBackgroundPointerOver">Transparent</SolidColorBrush>
-                <Thickness x:Key="MacOS.TextControlBorderThemeThicknessFocused">0</Thickness>
+                <SolidColorBrush x:Key="MacOS.TextControlBackgroundFocused" Color="{DynamicResource MacOS.Color.Surface}" />
+                <SolidColorBrush x:Key="MacOS.TextControlBackgroundPointerOver" Color="{DynamicResource MacOS.Color.Surface}" />
+                <Thickness x:Key="MacOS.TextControlBorderThemeThicknessFocused">1</Thickness>
               </TextBox.Resources>
             </TextBox>
 

@@ -32,7 +32,7 @@
           <DoubleTransition
               Easing="CubicEaseOut"
               Property="Canvas.Left"
-              Duration="0:0:0.2" />
+              Duration="{DynamicResource MacOS.Motion.Switch}" />
         </Transitions>
     </Setter>
     <Setter Property="Template">
@@ -94,41 +94,41 @@
             <Border
                 x:Name="OuterBorder"
                 Grid.Row="1"
-                Width="40"
-                Height="20"
+                Width="{DynamicResource MacOS.Switch.TrackWidth}"
+                Height="{DynamicResource MacOS.Switch.TrackHeight}"
                 Background="{DynamicResource MacOS.ToggleSwitchFillOff}"
                 BorderBrush="{DynamicResource MacOS.ToggleSwitchStrokeOff}"
                 BorderThickness="{DynamicResource MacOS.ToggleSwitchOuterBorderStrokeThickness}"
-                CornerRadius="10" />
+                CornerRadius="{DynamicResource MacOS.Switch.Radius}" />
 
             <Border
                 x:Name="SwitchKnobBounds"
                 Grid.Row="1"
-                Width="40"
-                Height="20"
+                Width="{DynamicResource MacOS.Switch.TrackWidth}"
+                Height="{DynamicResource MacOS.Switch.TrackHeight}"
                 Background="{DynamicResource MacOS.ToggleSwitchFillOn}"
                 BorderBrush="{DynamicResource MacOS.ToggleSwitchStrokeOn}"
                 BorderThickness="{DynamicResource MacOS.ToggleSwitchOnStrokeThickness}"
-                CornerRadius="10" />
+                CornerRadius="{DynamicResource MacOS.Switch.Radius}" />
 
             <Canvas
                 x:Name="PART_SwitchKnob"
                 Grid.Row="1"
-                Width="20"
-                Height="20"
+                Width="{DynamicResource MacOS.Switch.TrackHeight}"
+                Height="{DynamicResource MacOS.Switch.TrackHeight}"
                 HorizontalAlignment="Left">
 
-              <Grid x:Name="PART_MovingKnobs" Width="20" Height="20">
+              <Grid x:Name="PART_MovingKnobs" Width="{DynamicResource MacOS.Switch.TrackHeight}" Height="{DynamicResource MacOS.Switch.TrackHeight}">
                 <Ellipse
                   x:Name="SwitchKnobOn"
                   Fill="{DynamicResource MacOS.ToggleSwitchKnobFillOn}"
-                  Width="10"
-                  Height="10" />
+                  Width="{DynamicResource MacOS.Switch.KnobSize}"
+                  Height="{DynamicResource MacOS.Switch.KnobSize}" />
                 <Ellipse
                   x:Name="SwitchKnobOff"
                   Fill="{DynamicResource MacOS.ToggleSwitchKnobFillOff}"
-                  Width="10"
-                  Height="10" />
+                  Width="{DynamicResource MacOS.Switch.KnobSize}"
+                  Height="{DynamicResource MacOS.Switch.KnobSize}" />
               </Grid>
             </Canvas>
           </Grid>

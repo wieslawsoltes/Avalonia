@@ -1,0 +1,104 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Default">
+      <Color x:Key="MacOS.Color.Window">#F5F5F7</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Window" Color="{DynamicResource MacOS.Color.Window}" />
+      <Color x:Key="MacOS.Color.Surface">#FFFFFF</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Surface" Color="{DynamicResource MacOS.Color.Surface}" />
+      <Color x:Key="MacOS.Color.Control">#FFFFFF</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Control" Color="{DynamicResource MacOS.Color.Control}" />
+      <Color x:Key="MacOS.Color.ControlHover">#F4F4F6</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.ControlHover" Color="{DynamicResource MacOS.Color.ControlHover}" />
+      <Color x:Key="MacOS.Color.ControlPressed">#E5E5EA</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.ControlPressed" Color="{DynamicResource MacOS.Color.ControlPressed}" />
+      <Color x:Key="MacOS.Color.ControlDisabled">#EBEBEF</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.ControlDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
+      <Color x:Key="MacOS.Color.Label">#1D1D1F</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Label" Color="{DynamicResource MacOS.Color.Label}" />
+      <Color x:Key="MacOS.Color.SecondaryLabel">#636368</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.SecondaryLabel" Color="{DynamicResource MacOS.Color.SecondaryLabel}" />
+      <Color x:Key="MacOS.Color.DisabledLabel">#919197</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.DisabledLabel" Color="{DynamicResource MacOS.Color.DisabledLabel}" />
+      <Color x:Key="MacOS.Color.Separator">#26000000</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Separator" Color="{DynamicResource MacOS.Color.Separator}" />
+      <Color x:Key="MacOS.Color.ControlStroke">#38000000</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.ControlStroke" Color="{DynamicResource MacOS.Color.ControlStroke}" />
+      <Color x:Key="MacOS.Color.SelectionInactive">#DCDCE2</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.SelectionInactive" Color="{DynamicResource MacOS.Color.SelectionInactive}" />
+      <Color x:Key="MacOS.Color.Hover">#10000000</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Hover" Color="{DynamicResource MacOS.Color.Hover}" />
+      <Color x:Key="MacOS.Color.Track">#D5D5DA</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Track" Color="{DynamicResource MacOS.Color.Track}" />
+      <Color x:Key="MacOS.Color.Knob">#FFFFFF</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Knob" Color="{DynamicResource MacOS.Color.Knob}" />
+      <Color x:Key="MacOS.Color.Destructive">#C92B25</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Destructive" Color="{DynamicResource MacOS.Color.Destructive}" />
+      <Color x:Key="MacOS.Color.Success">#248A3D</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Success" Color="{DynamicResource MacOS.Color.Success}" />
+      <Color x:Key="MacOS.Color.Warning">#8A5A00</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Warning" Color="{DynamicResource MacOS.Color.Warning}" />
+      <Color x:Key="MacOS.Color.Material">#EEFFFFFF</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Material" Color="{DynamicResource MacOS.Color.Material}" />
+      <Color x:Key="MacOS.Color.MaterialOpaque">#FAFAFC</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.MaterialOpaque" Color="{DynamicResource MacOS.Color.MaterialOpaque}" />
+      <Color x:Key="MacOS.Color.OnAccent">#FFFFFF</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.OnAccent" Color="{DynamicResource MacOS.Color.OnAccent}" />
+      <Color x:Key="MacOS.Color.Transparent">#00000000</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Transparent" Color="{DynamicResource MacOS.Color.Transparent}" />
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="Dark">
+      <Color x:Key="MacOS.Color.Window">#1E1E20</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Window" Color="{DynamicResource MacOS.Color.Window}" />
+      <Color x:Key="MacOS.Color.Surface">#2C2C2F</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Surface" Color="{DynamicResource MacOS.Color.Surface}" />
+      <Color x:Key="MacOS.Color.Control">#47474B</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Control" Color="{DynamicResource MacOS.Color.Control}" />
+      <Color x:Key="MacOS.Color.ControlHover">#535358</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.ControlHover" Color="{DynamicResource MacOS.Color.ControlHover}" />
+      <Color x:Key="MacOS.Color.ControlPressed">#3B3B40</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.ControlPressed" Color="{DynamicResource MacOS.Color.ControlPressed}" />
+      <Color x:Key="MacOS.Color.ControlDisabled">#343438</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.ControlDisabled" Color="{DynamicResource MacOS.Color.ControlDisabled}" />
+      <Color x:Key="MacOS.Color.Label">#F5F5F7</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Label" Color="{DynamicResource MacOS.Color.Label}" />
+      <Color x:Key="MacOS.Color.SecondaryLabel">#BDBDC5</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.SecondaryLabel" Color="{DynamicResource MacOS.Color.SecondaryLabel}" />
+      <Color x:Key="MacOS.Color.DisabledLabel">#808088</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.DisabledLabel" Color="{DynamicResource MacOS.Color.DisabledLabel}" />
+      <Color x:Key="MacOS.Color.Separator">#33FFFFFF</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Separator" Color="{DynamicResource MacOS.Color.Separator}" />
+      <Color x:Key="MacOS.Color.ControlStroke">#38FFFFFF</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.ControlStroke" Color="{DynamicResource MacOS.Color.ControlStroke}" />
+      <Color x:Key="MacOS.Color.SelectionInactive">#4B4B52</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.SelectionInactive" Color="{DynamicResource MacOS.Color.SelectionInactive}" />
+      <Color x:Key="MacOS.Color.Hover">#18FFFFFF</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Hover" Color="{DynamicResource MacOS.Color.Hover}" />
+      <Color x:Key="MacOS.Color.Track">#5B5B63</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Track" Color="{DynamicResource MacOS.Color.Track}" />
+      <Color x:Key="MacOS.Color.Knob">#F8F8FA</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Knob" Color="{DynamicResource MacOS.Color.Knob}" />
+      <Color x:Key="MacOS.Color.Destructive">#FF6961</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Destructive" Color="{DynamicResource MacOS.Color.Destructive}" />
+      <Color x:Key="MacOS.Color.Success">#50D26C</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Success" Color="{DynamicResource MacOS.Color.Success}" />
+      <Color x:Key="MacOS.Color.Warning">#FFD166</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Warning" Color="{DynamicResource MacOS.Color.Warning}" />
+      <Color x:Key="MacOS.Color.Material">#ED303034</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Material" Color="{DynamicResource MacOS.Color.Material}" />
+      <Color x:Key="MacOS.Color.MaterialOpaque">#303034</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.MaterialOpaque" Color="{DynamicResource MacOS.Color.MaterialOpaque}" />
+      <Color x:Key="MacOS.Color.OnAccent">#FFFFFF</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.OnAccent" Color="{DynamicResource MacOS.Color.OnAccent}" />
+      <Color x:Key="MacOS.Color.Transparent">#00000000</Color>
+      <SolidColorBrush x:Key="MacOS.Brush.Transparent" Color="{DynamicResource MacOS.Color.Transparent}" />
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
+  <x:Double x:Key="MacOS.Switch.TrackWidth">38</x:Double>
+  <x:Double x:Key="MacOS.Switch.TrackHeight">22</x:Double>
+  <x:Double x:Key="MacOS.Switch.KnobSize">18</x:Double>
+  <CornerRadius x:Key="MacOS.Switch.Radius">11</CornerRadius>
+  <CornerRadius x:Key="MacOS.Focus.Radius">10</CornerRadius>
+  <CornerRadius x:Key="MacOS.Selection.Radius">6</CornerRadius>
+  <TimeSpan x:Key="MacOS.Motion.Interaction">0:0:0.12</TimeSpan>
+  <TimeSpan x:Key="MacOS.Motion.Switch">0:0:0.18</TimeSpan>
+</ResourceDictionary>

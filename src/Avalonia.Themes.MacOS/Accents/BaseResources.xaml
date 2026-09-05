@@ -3,18 +3,18 @@
                     xmlns:sys="using:System"
                     xmlns:converters="using:Avalonia.Controls.Converters"
                     x:ClassModifier="internal">
-  <FontFamily x:Key="MacOS.ContentControlThemeFontFamily">fonts:Inter#Inter, $Default</FontFamily>
-  <sys:Double x:Key="MacOS.ControlContentThemeFontSize">14</sys:Double>
+  <FontFamily x:Key="MacOS.ContentControlThemeFontFamily">$Default</FontFamily>
+  <sys:Double x:Key="MacOS.ControlContentThemeFontSize">13</sys:Double>
 
   <SolidColorBrush x:Key="MacOS.SystemControlTransparentBrush" Color="Transparent" />
   <x:Boolean x:Key="MacOS.UseSystemFocusVisuals">True</x:Boolean>
   <Thickness x:Key="MacOS.TextControlBorderThemeThickness">1</Thickness>
-  <Thickness x:Key="MacOS.TextControlBorderThemeThicknessFocused">2</Thickness>
-  <Thickness x:Key="MacOS.TextControlThemePadding">10,6,6,5</Thickness>
+  <Thickness x:Key="MacOS.TextControlBorderThemeThicknessFocused">1</Thickness>
+  <Thickness x:Key="MacOS.TextControlThemePadding">9,5</Thickness>
   <sys:Double x:Key="MacOS.IconElementThemeHeight">20</sys:Double>
   <sys:Double x:Key="MacOS.IconElementThemeWidth">20</sys:Double>
   <sys:Double x:Key="MacOS.RefreshVisualizerIndicatorSize">24</sys:Double>
-  <Thickness x:Key="MacOS.ButtonPadding">8,5,8,6</Thickness>
+  <Thickness x:Key="MacOS.ButtonPadding">14,5</Thickness>
   <Thickness x:Key="MacOS.CheckBoxPadding">8,0,0,0</Thickness>
   <Thickness x:Key="MacOS.RadioButtonPadding">8,0,0,0</Thickness>
   <Thickness x:Key="MacOS.ButtonSpinnerPadding">10,0</Thickness>
@@ -39,15 +39,15 @@
   <x:Double x:Key="MacOS.CalendarDatePickerDropDownButtonWidth">20</x:Double>
 
   <!-- CommandBar dimensions -->
-  <x:Double x:Key="MacOS.CommandBarButtonWidth">68</x:Double>
-  <x:Double x:Key="MacOS.CommandBarButtonCompactWidth">40</x:Double>
+  <x:Double x:Key="MacOS.CommandBarButtonWidth">56</x:Double>
+  <x:Double x:Key="MacOS.CommandBarButtonCompactWidth">32</x:Double>
   <x:Double x:Key="MacOS.CommandBarButtonLabelRightMinWidth">40</x:Double>
-  <x:Double x:Key="MacOS.CommandBarButtonMinHeight">40</x:Double>
-  <x:Double x:Key="MacOS.CommandBarButtonIsInOverflowMinHeight">36</x:Double>
+  <x:Double x:Key="MacOS.CommandBarButtonMinHeight">30</x:Double>
+  <x:Double x:Key="MacOS.CommandBarButtonIsInOverflowMinHeight">28</x:Double>
   <x:Double x:Key="MacOS.CommandBarSeparatorWidth">1</x:Double>
   <x:Double x:Key="MacOS.CommandBarSeparatorOverflowHeight">1</x:Double>
   <x:Double x:Key="MacOS.CommandBarSeparatorMinHeight">24</x:Double>
-  <x:Double x:Key="MacOS.CommandBarMinHeight">48</x:Double>
+  <x:Double x:Key="MacOS.CommandBarMinHeight">44</x:Double>
 
   <!-- DatePicker / TimePicker -->
   <Thickness x:Key="MacOS.DatePickerBorderThickness">1</Thickness>
@@ -80,8 +80,8 @@
   <x:Double x:Key="MacOS.TextControlInnerButtonMinWidth">34</x:Double>
 
   <!-- Override system shape defaults -->
-  <CornerRadius x:Key="MacOS.ControlCornerRadius">3</CornerRadius>
-  <CornerRadius x:Key="MacOS.OverlayCornerRadius">5</CornerRadius>
+  <CornerRadius x:Key="MacOS.ControlCornerRadius">8</CornerRadius>
+  <CornerRadius x:Key="MacOS.OverlayCornerRadius">14</CornerRadius>
 
   <!-- ScrollBar animation -->
   <TransformOperations x:Key="MacOS.VerticalSmallScrollThumbScaleTransform">scaleX(0.125) translateX(-2px)</TransformOperations>
@@ -96,7 +96,7 @@
   <Thickness x:Key="MacOS.AutoCompleteListMargin">0,2,0,2</Thickness>
   <Thickness x:Key="MacOS.AutoCompleteListBorderThemeThickness">1</Thickness>
   <Thickness x:Key="MacOS.AutoCompleteListPadding">-1,0,-1,0</Thickness>
-  <x:Double x:Key="MacOS.TextControlThemeMinHeight">32</x:Double>
+  <x:Double x:Key="MacOS.TextControlThemeMinHeight">28</x:Double>
   <x:Double x:Key="MacOS.TextControlThemeMinWidth">64</x:Double>
   <x:Double x:Key="MacOS.FlyoutThemeMaxWidth">456</x:Double>
   <Thickness x:Key="MacOS.DateTimeFlyoutButtonBorderThickness">0</Thickness>
@@ -112,7 +112,7 @@
   <Thickness x:Key="MacOS.FlyoutBorderThemePadding">0</Thickness>
 
   <!-- Moved from MenuItem.xaml -->
-  <Thickness x:Key="MacOS.MenuFlyoutScrollerMargin">0,4,0,4</Thickness>
+  <Thickness x:Key="MacOS.MenuFlyoutScrollerMargin">0</Thickness>
 
   <!-- Moved from Menu.xaml -->
   <Thickness x:Key="MacOS.MenuBarItemPadding">12,0,12,0</Thickness>
@@ -162,8 +162,8 @@
                        Color="{DynamicResource MacOS.SystemChromeMediumLowColor}" />
       <SolidColorBrush x:Key="MacOS.SystemControlDisabledListMediumBrush" Color="{DynamicResource MacOS.SystemListMediumColor}" />
       <SolidColorBrush x:Key="MacOS.SystemControlDisabledTransparentBrush" Color="Transparent" />
-      <SolidColorBrush x:Key="MacOS.SystemControlFocusVisualPrimaryBrush" Color="{DynamicResource MacOS.SystemBaseHighColor}" />
-      <SolidColorBrush x:Key="MacOS.SystemControlFocusVisualSecondaryBrush" Color="{DynamicResource MacOS.SystemAltMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlFocusVisualPrimaryBrush" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlFocusVisualSecondaryBrush" Color="{DynamicResource MacOS.Color.Transparent}" />
       <SolidColorBrush x:Key="MacOS.SystemControlRevealFocusVisualBrush" Color="{DynamicResource MacOS.SystemAccentColor}" />
       <SolidColorBrush x:Key="MacOS.SystemControlForegroundAccentBrush" Color="{DynamicResource MacOS.SystemAccentColor}" />
       <SolidColorBrush x:Key="MacOS.SystemControlForegroundAltHighBrush" Color="{DynamicResource MacOS.SystemAltHighColor}" />
@@ -323,8 +323,8 @@
                        Color="{DynamicResource MacOS.SystemChromeMediumLowColor}" />
       <SolidColorBrush x:Key="MacOS.SystemControlDisabledListMediumBrush" Color="{DynamicResource MacOS.SystemListMediumColor}" />
       <SolidColorBrush x:Key="MacOS.SystemControlDisabledTransparentBrush" Color="Transparent" />
-      <SolidColorBrush x:Key="MacOS.SystemControlFocusVisualPrimaryBrush" Color="{DynamicResource MacOS.SystemBaseHighColor}" />
-      <SolidColorBrush x:Key="MacOS.SystemControlFocusVisualSecondaryBrush" Color="{DynamicResource MacOS.SystemAltMediumColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlFocusVisualPrimaryBrush" Color="{DynamicResource MacOS.SystemAccentColor}" />
+      <SolidColorBrush x:Key="MacOS.SystemControlFocusVisualSecondaryBrush" Color="{DynamicResource MacOS.Color.Transparent}" />
       <SolidColorBrush x:Key="MacOS.SystemControlRevealFocusVisualBrush" Color="{DynamicResource MacOS.SystemAccentColor}" />
       <SolidColorBrush x:Key="MacOS.SystemControlForegroundAccentBrush" Color="{DynamicResource MacOS.SystemAccentColor}" />
       <SolidColorBrush x:Key="MacOS.SystemControlForegroundAltHighBrush" Color="{DynamicResource MacOS.SystemAltHighColor}" />
