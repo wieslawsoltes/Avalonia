@@ -25543,5 +25543,29 @@
       "type": "WindowNotificationManager",
       "source": "Controls/WindowNotificationManager.xaml"
     }
-  ]
+  ],
+  "optionalControls": {
+    "Avalonia.Controls.ColorPicker": [
+      {
+        "type": "ColorPicker",
+        "source": "src/Avalonia.Controls.ColorPicker/Themes/MacOS/ColorPicker.xaml"
+      },
+      {
+        "type": "ColorPreviewer",
+        "source": "src/Avalonia.Controls.ColorPicker/Themes/MacOS/ColorPreviewer.xaml"
+      },
+      {
+        "type": "ColorSlider",
+        "source": "src/Avalonia.Controls.ColorPicker/Themes/MacOS/ColorSlider.xaml"
+      },
+      {
+        "type": "ColorSpectrum",
+        "source": "src/Avalonia.Controls.ColorPicker/Themes/MacOS/ColorSpectrum.xaml"
+      },
+      {
+        "type": "ColorView",
+        "source": "src/Avalonia.Controls.ColorPicker/Themes/MacOS/ColorView.xaml"
+      }
+    ]
+  }
 }

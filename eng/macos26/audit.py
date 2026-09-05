@@ -4,6 +4,8 @@ from pathlib import Path
 from xml.etree import ElementTree as ET
 import json
 import re
+import subprocess
+import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / 'src/Avalonia.Themes.Fluent'
@@ -12,6 +14,7 @@ X = '{http://schemas.microsoft.com/winfx/2006/xaml}'
 
 
 def main():
+    subprocess.run([sys.executable, str(ROOT / 'eng/macos26/update-tokens.py'), '--check'], check=True)
     errors = []
     manifest = json.loads((THEME / 'Tokens/token-manifest.json').read_text())
     tokens = {entry['key'] for entry in manifest['tokens']}

@@ -36,3 +36,7 @@ The package contains `design-tokens/token-manifest.json`. The repository guide
 is `docs/themes/macos26/README.md`, with control coverage and validation status.
 Material brushes are a portable approximation, **not Apple's Liquid Glass renderer**.
 Apple fonts and SF Symbols assets are not included.
+
+Direct `dotnet pack` output is an intermediate package requiring a matching
+framework feed. Production publishing uses the repository's existing Numerge
+pipeline. See the repository guide for the isolated package-consumer test.
