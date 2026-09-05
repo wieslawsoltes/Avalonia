@@ -10,6 +10,7 @@ using Avalonia.Headless.XUnit;
 using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using Xunit;
@@ -224,7 +225,7 @@ public sealed class ThemeTests
         using var frame = host.Window.CaptureRenderedFrame();
         Assert.NotNull(frame);
         using var output = new MemoryStream();
-        frame.Save(output);
+        frame.Save(output, PngBitmapEncoderOptions.Default);
         Assert.True(output.Length > 100);
     }
 

@@ -18,7 +18,6 @@ using Avalonia.Styling;
 using Avalonia.Themes.MacOS;
 using Avalonia.Threading;
 using ControlCatalog.Pages;
-using ControlCatalog.ViewModels;
 
 namespace ControlCatalog.MacOS;
 
@@ -100,7 +99,7 @@ internal static class Program
                 "CommandBar", "Expander", "TabControl", "SplitView", "DatePicker", "TimePicker",
                 "DateTimePicker", "CalendarDatePicker", "AutoCompleteBox", "ScrollViewer"
             };
-            foreach (var item in new MainWindowViewModel().Pages.Where(p => requested.Contains(p.Header)))
+            foreach (var item in MacOSCatalogPages.Create().Where(p => requested.Contains(p.Header)))
             {
                 foreach (var variant in new[] { ThemeVariant.Light, ThemeVariant.Dark })
                 {
@@ -151,7 +150,7 @@ internal static class Program
         using var bitmap = new RenderTargetBitmap(size, new Vector(96, 96));
         bitmap.Render(window);
         var path = Path.Combine(s_output, name + ".png");
-        bitmap.Save(path);
+        bitmap.Save(path, PngBitmapEncoderOptions.Default);
         var theme = ((ControlCatalog.App)Application.Current!).MacOSTheme;
         s_evidence.Add(new
         {
