@@ -2392,6 +2392,33 @@
       ]
     },
     {
+      "key": "MacOS.CheckBox.GlyphSize",
+      "legacyKey": null,
+      "type": "Double",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.CheckBox.Radius",
+      "legacyKey": null,
+      "type": "CornerRadius",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.CheckBox.Size",
+      "legacyKey": null,
+      "type": "Double",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
       "key": "MacOS.CheckBoxBackgroundChecked",
       "legacyKey": "CheckBoxBackgroundChecked",
       "type": "SolidColorBrush",
@@ -11618,6 +11645,24 @@
       ]
     },
     {
+      "key": "MacOS.RadioButton.GlyphSize",
+      "legacyKey": null,
+      "type": "Double",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.RadioButton.Size",
+      "legacyKey": null,
+      "type": "Double",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
       "key": "MacOS.RadioButtonBackground",
       "legacyKey": "RadioButtonBackground",
       "type": "SolidColorBrush",
@@ -13765,9 +13810,27 @@
       ]
     },
     {
+      "key": "MacOS.Selection.Margin",
+      "legacyKey": null,
+      "type": "Thickness",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
       "key": "MacOS.Selection.Radius",
       "legacyKey": null,
       "type": "CornerRadius",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Slider.ThumbStroke",
+      "legacyKey": null,
+      "type": "Thickness",
       "sources": [
         "Tokens/Semantic.xaml"
       ],
@@ -15350,6 +15413,15 @@
     },
     {
       "key": "MacOS.Switch.TrackWidth",
+      "legacyKey": null,
+      "type": "Double",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Switch.Travel",
       "legacyKey": null,
       "type": "Double",
       "sources": [

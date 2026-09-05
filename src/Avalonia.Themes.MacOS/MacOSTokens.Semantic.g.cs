@@ -48,6 +48,12 @@ public static partial class MacOSTokens
     public static readonly MacOSToken<global::Avalonia.Media.IBrush> Brush_Warning = new("MacOS.Brush.Warning");
     /// <summary>Gets the MacOS.Brush.Window token.</summary>
     public static readonly MacOSToken<global::Avalonia.Media.IBrush> Brush_Window = new("MacOS.Brush.Window");
+    /// <summary>Gets the MacOS.CheckBox.GlyphSize token.</summary>
+    public static readonly MacOSToken<double> CheckBox_GlyphSize = new("MacOS.CheckBox.GlyphSize");
+    /// <summary>Gets the MacOS.CheckBox.Radius token.</summary>
+    public static readonly MacOSToken<global::Avalonia.CornerRadius> CheckBox_Radius = new("MacOS.CheckBox.Radius");
+    /// <summary>Gets the MacOS.CheckBox.Size token.</summary>
+    public static readonly MacOSToken<double> CheckBox_Size = new("MacOS.CheckBox.Size");
     /// <summary>Gets the MacOS.Color.Control token.</summary>
     public static readonly MacOSToken<global::Avalonia.Media.Color> Color_Control = new("MacOS.Color.Control");
     /// <summary>Gets the MacOS.Color.ControlDisabled token.</summary>
@@ -98,8 +104,16 @@ public static partial class MacOSTokens
     public static readonly MacOSToken<global::System.TimeSpan> Motion_Interaction = new("MacOS.Motion.Interaction");
     /// <summary>Gets the MacOS.Motion.Switch token.</summary>
     public static readonly MacOSToken<global::System.TimeSpan> Motion_Switch = new("MacOS.Motion.Switch");
+    /// <summary>Gets the MacOS.RadioButton.GlyphSize token.</summary>
+    public static readonly MacOSToken<double> RadioButton_GlyphSize = new("MacOS.RadioButton.GlyphSize");
+    /// <summary>Gets the MacOS.RadioButton.Size token.</summary>
+    public static readonly MacOSToken<double> RadioButton_Size = new("MacOS.RadioButton.Size");
+    /// <summary>Gets the MacOS.Selection.Margin token.</summary>
+    public static readonly MacOSToken<global::Avalonia.Thickness> Selection_Margin = new("MacOS.Selection.Margin");
     /// <summary>Gets the MacOS.Selection.Radius token.</summary>
     public static readonly MacOSToken<global::Avalonia.CornerRadius> Selection_Radius = new("MacOS.Selection.Radius");
+    /// <summary>Gets the MacOS.Slider.ThumbStroke token.</summary>
+    public static readonly MacOSToken<global::Avalonia.Thickness> Slider_ThumbStroke = new("MacOS.Slider.ThumbStroke");
     /// <summary>Gets the MacOS.Switch.KnobSize token.</summary>
     public static readonly MacOSToken<double> Switch_KnobSize = new("MacOS.Switch.KnobSize");
     /// <summary>Gets the MacOS.Switch.Radius token.</summary>
@@ -108,4 +122,6 @@ public static partial class MacOSTokens
     public static readonly MacOSToken<double> Switch_TrackHeight = new("MacOS.Switch.TrackHeight");
     /// <summary>Gets the MacOS.Switch.TrackWidth token.</summary>
     public static readonly MacOSToken<double> Switch_TrackWidth = new("MacOS.Switch.TrackWidth");
+    /// <summary>Gets the MacOS.Switch.Travel token.</summary>
+    public static readonly MacOSToken<double> Switch_Travel = new("MacOS.Switch.Travel");
 }
