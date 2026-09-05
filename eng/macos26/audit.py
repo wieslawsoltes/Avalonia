@@ -35,6 +35,14 @@ def main():
             keys = [node.get(X + 'Key') for node in dictionary if node.get(X + 'Key')]
             if len(keys) != len(set(keys)):
                 errors.append('Duplicate keys in resource dictionary: ' + str(path.relative_to(ROOT)))
+    for path in THEME.rglob('*.xaml'):
+        for node in ET.parse(path).iter():
+            if node.tag.rsplit('}', 1)[-1] not in ('Style', 'ControlTheme'):
+                continue
+            properties = [child.get('Property') for child in node
+                          if child.tag.rsplit('}', 1)[-1] == 'Setter']
+            if len(properties) != len(set(properties)):
+                errors.append('Duplicate direct setters: ' + str(path.relative_to(ROOT)) + ' ' + str(node.attrib))
     for key in references - tokens:
         errors.append('Referenced visual token missing from public inventory: ' + key)
     runtime = {'MacOS.SystemAccentColor' + suffix for suffix in ('', 'Dark1', 'Dark2', 'Dark3', 'Light1', 'Light2', 'Light3')}

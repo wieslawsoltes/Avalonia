@@ -229,6 +229,36 @@ public sealed class ThemeTests
         Assert.True(output.Length > 100);
     }
 
+    [AvaloniaTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Representative_Control_Families_Apply_Their_Templates(bool dark)
+    {
+        var tree = new TreeView();
+        var root = new TreeViewItem { Header = "Root", IsExpanded = true };
+        root.Items.Add(new TreeViewItem { Header = "Selected", IsSelected = true });
+        tree.Items.Add(root);
+        var list = new ListBox { SelectedIndex = 0 };
+        list.Items.Add("Document");
+        var tabs = new TabControl();
+        tabs.Items.Add(new TabItem { Header = "Overview", Content = "Content" });
+        var controls = new StackPanel
+        {
+            Children =
+            {
+                tree, list, tabs, new ToggleSwitch { IsChecked = true },
+                new RadioButton { Content = "Automatic", IsChecked = true },
+                new Slider { Value = 50 }, new Expander { Header = "Options", IsExpanded = true, Content = "Settings" }
+            }
+        };
+        using var host = new Host(controls);
+        host.Window.RequestedThemeVariant = dark ? ThemeVariant.Dark : ThemeVariant.Light;
+        host.Window.UpdateLayout();
+        Dispatcher.UIThread.RunJobs();
+        Assert.True(root.Bounds.Height > 0);
+        Assert.True(tabs.Bounds.Height > 0);
+    }
+
     private sealed class Host : IDisposable
     {
         public Window Window { get; }
