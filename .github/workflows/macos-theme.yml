@@ -1,0 +1,48 @@
+name: macOS theme
+
+on:
+  push:
+    branches: [feature/macos26-theme]
+  pull_request:
+    paths:
+      - 'src/Avalonia.Themes.MacOS/**'
+      - 'samples/ControlCatalog/**'
+      - 'tests/Avalonia.Themes.MacOS.UnitTests/**'
+      - 'docs/themes/macos26/**'
+      - '.github/workflows/macos-theme.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: macos-theme-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - name: Archive source for implementation inspection
+        run: |
+          tar -czf "$RUNNER_TEMP/macos-theme-source.tar.gz" \
+            --exclude='*/bin' --exclude='*/obj' \
+            src/Avalonia.Themes.Fluent src/Avalonia.Themes.MacOS \
+            src/Avalonia.Base/Properties src/Avalonia.Controls/Properties \
+            src/Avalonia.Dialogs samples/ControlCatalog samples/ControlCatalog.Desktop \
+            tests build Directory.* global.json .github/workflows
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-theme-source-${{ github.sha }}
+          path: ${{ runner.temp }}/macos-theme-source.tar.gz
+          retention-days: 7
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Build theme
+        run: dotnet build src/Avalonia.Themes.MacOS/Avalonia.Themes.MacOS.csproj --configuration Release
