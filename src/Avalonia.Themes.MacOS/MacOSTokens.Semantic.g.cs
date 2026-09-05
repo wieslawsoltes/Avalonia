@@ -154,6 +154,16 @@ public static partial class MacOSTokens
     public static readonly MacOSToken<global::Avalonia.CornerRadius> Selection_Radius = new("MacOS.Selection.Radius");
     /// <summary>Gets the MacOS.Slider.ThumbStroke token.</summary>
     public static readonly MacOSToken<global::Avalonia.Thickness> Slider_ThumbStroke = new("MacOS.Slider.ThumbStroke");
+    /// <summary>Gets the MacOS.Stepper.ButtonHeight token.</summary>
+    public static readonly MacOSToken<double> Stepper_ButtonHeight = new("MacOS.Stepper.ButtonHeight");
+    /// <summary>Gets the MacOS.Stepper.IconHeight token.</summary>
+    public static readonly MacOSToken<double> Stepper_IconHeight = new("MacOS.Stepper.IconHeight");
+    /// <summary>Gets the MacOS.Stepper.IconWidth token.</summary>
+    public static readonly MacOSToken<double> Stepper_IconWidth = new("MacOS.Stepper.IconWidth");
+    /// <summary>Gets the MacOS.Stepper.Margin token.</summary>
+    public static readonly MacOSToken<global::Avalonia.Thickness> Stepper_Margin = new("MacOS.Stepper.Margin");
+    /// <summary>Gets the MacOS.Stepper.Width token.</summary>
+    public static readonly MacOSToken<double> Stepper_Width = new("MacOS.Stepper.Width");
     /// <summary>Gets the MacOS.Switch.KnobSize token.</summary>
     public static readonly MacOSToken<double> Switch_KnobSize = new("MacOS.Switch.KnobSize");
     /// <summary>Gets the MacOS.Switch.Radius token.</summary>

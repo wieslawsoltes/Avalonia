@@ -15566,6 +15566,51 @@
       ]
     },
     {
+      "key": "MacOS.Stepper.ButtonHeight",
+      "legacyKey": null,
+      "type": "Double",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Stepper.IconHeight",
+      "legacyKey": null,
+      "type": "Double",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Stepper.IconWidth",
+      "legacyKey": null,
+      "type": "Double",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Stepper.Margin",
+      "legacyKey": null,
+      "type": "Thickness",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Stepper.Width",
+      "legacyKey": null,
+      "type": "Double",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
       "key": "MacOS.Switch.KnobSize",
       "legacyKey": null,
       "type": "Double",
