@@ -3,7 +3,7 @@
 namespace Avalonia.Themes.MacOS;
 
 /// <summary>Strongly typed keys for every theme visual resource.</summary>
-public static class MacOSTokens
+public static partial class MacOSTokens
 {
     /// <summary>Overrides AccentButtonBackground.</summary>
     public static readonly MacOSToken<global::Avalonia.Media.IBrush> AccentButtonBackground = new("MacOS.AccentButtonBackground");

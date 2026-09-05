@@ -434,6 +434,204 @@
       ]
     },
     {
+      "key": "MacOS.Brush.Control",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Brush.ControlDisabled",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Brush.ControlHover",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Brush.ControlPressed",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Brush.ControlStroke",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Brush.Destructive",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Brush.DisabledLabel",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Brush.Hover",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Brush.Knob",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Brush.Label",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Brush.Material",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Brush.MaterialOpaque",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Brush.OnAccent",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Brush.SecondaryLabel",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Brush.SelectionInactive",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Brush.Separator",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Brush.Success",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Brush.Surface",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Brush.Track",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Brush.Transparent",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Brush.Warning",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Brush.Window",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
       "key": "MacOS.ButtonBackground",
       "legacyKey": "ButtonBackground",
       "type": "SolidColorBrush",
@@ -4112,6 +4310,204 @@
           }
         }
       ]
+    },
+    {
+      "key": "MacOS.Color.Control",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Color.ControlDisabled",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Color.ControlHover",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Color.ControlPressed",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Color.ControlStroke",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Color.Destructive",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Color.DisabledLabel",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Color.Hover",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Color.Knob",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Color.Label",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Color.Material",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Color.MaterialOpaque",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Color.OnAccent",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Color.SecondaryLabel",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Color.SelectionInactive",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Color.Separator",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Color.Success",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Color.Surface",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Color.Track",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Color.Transparent",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Color.Warning",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Color.Window",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
     },
     {
       "key": "MacOS.ComboBoxBackground",
@@ -8007,6 +8403,15 @@
       ]
     },
     {
+      "key": "MacOS.Focus.Radius",
+      "legacyKey": null,
+      "type": "CornerRadius",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
       "key": "MacOS.GridSplitterThickness",
       "legacyKey": "GridSplitterThickness",
       "type": "Double",
@@ -9792,6 +10197,24 @@
           }
         }
       ]
+    },
+    {
+      "key": "MacOS.Motion.Interaction",
+      "legacyKey": null,
+      "type": "TimeSpan",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Motion.Switch",
+      "legacyKey": null,
+      "type": "TimeSpan",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
     },
     {
       "key": "MacOS.NavigationBarBackground",
@@ -13342,6 +13765,15 @@
       ]
     },
     {
+      "key": "MacOS.Selection.Radius",
+      "legacyKey": null,
+      "type": "CornerRadius",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
       "key": "MacOS.SliderBorderThemeThickness",
       "legacyKey": "SliderBorderThemeThickness",
       "type": "Thickness",
@@ -14888,6 +15320,42 @@
           }
         }
       ]
+    },
+    {
+      "key": "MacOS.Switch.KnobSize",
+      "legacyKey": null,
+      "type": "Double",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Switch.Radius",
+      "legacyKey": null,
+      "type": "CornerRadius",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Switch.TrackHeight",
+      "legacyKey": null,
+      "type": "Double",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.Switch.TrackWidth",
+      "legacyKey": null,
+      "type": "Double",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
     },
     {
       "key": "MacOS.SystemAccentColor",

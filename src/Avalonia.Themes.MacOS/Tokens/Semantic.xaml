@@ -1,4 +1,4 @@
-<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<ResourceDictionary xmlns:sys="clr-namespace:System;assembly=System.Runtime" xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <ResourceDictionary.ThemeDictionaries>
     <ResourceDictionary x:Key="Default">
       <Color x:Key="MacOS.Color.Window">#F5F5F7</Color>
@@ -99,6 +99,6 @@
   <CornerRadius x:Key="MacOS.Switch.Radius">11</CornerRadius>
   <CornerRadius x:Key="MacOS.Focus.Radius">10</CornerRadius>
   <CornerRadius x:Key="MacOS.Selection.Radius">6</CornerRadius>
-  <TimeSpan x:Key="MacOS.Motion.Interaction">0:0:0.12</TimeSpan>
-  <TimeSpan x:Key="MacOS.Motion.Switch">0:0:0.18</TimeSpan>
+  <sys:TimeSpan x:Key="MacOS.Motion.Interaction">0:0:0.12</sys:TimeSpan>
+  <sys:TimeSpan x:Key="MacOS.Motion.Switch">0:0:0.18</sys:TimeSpan>
 </ResourceDictionary>
