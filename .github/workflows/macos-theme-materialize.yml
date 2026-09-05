@@ -11,24 +11,25 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: materialize-macos-theme
-  cancel-in-progress: false
-
 jobs:
   materialize:
     if: github.repository == 'wieslawsoltes/Avalonia' && github.ref == 'refs/heads/feature/macos26-theme'
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 10
+    concurrency:
+      group: materialize-macos-theme-source
+      cancel-in-progress: false
     permissions:
       contents: write
+    outputs:
+      commit: ${{ steps.source.outputs.commit }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: feature/macos26-theme
           fetch-depth: 0
-          submodules: recursive
       - name: Apply explicit source migrations and preserve incremental commits
+        id: source
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -36,15 +37,14 @@ jobs:
           for generator in eng/macos26/generate_*.py; do
             test ! -f "$generator" || python3 "$generator"
           done
+          git pull --rebase origin feature/macos26-theme
           git push origin HEAD:feature/macos26-theme
-      - uses: actions/setup-dotnet@v4
-        with:
-          global-json-file: global.json
-      - name: Build materialized theme
-        run: dotnet build src/Avalonia.Themes.MacOS/Avalonia.Themes.MacOS.csproj --configuration Release
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: materialized-macos-theme-${{ github.run_id }}
-          path: src/Avalonia.Themes.MacOS
-          retention-days: 7
+          echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  validation:
+    needs: materialize
+    uses: ./.github/workflows/macos-theme.yml
+    with:
+      source_ref: ${{ needs.materialize.outputs.commit }}
+    permissions:
+      contents: read
