@@ -21,7 +21,7 @@
     <Setter Property="VerticalAlignment" Value="Center" />
     <Setter Property="HorizontalContentAlignment" Value="Left" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
-    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.ControlCornerRadius}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.CheckBox.Radius}" />
     <Setter Property="MinHeight" Value="{DynamicResource MacOS.CheckBoxMinHeight}" />
     <Setter Property="Foreground" Value="{DynamicResource MacOS.CheckBoxForegroundUnchecked}" />
     <Setter Property="Background" Value="{DynamicResource MacOS.CheckBoxBackgroundUnchecked}" />
@@ -43,10 +43,10 @@
                     BorderThickness="{DynamicResource MacOS.CheckBoxBorderThemeThickness}"
                     CornerRadius="{TemplateBinding CornerRadius}"
                     UseLayoutRounding="False"
-                    Height="20"
-                    Width="20" />
+                    Height="{DynamicResource MacOS.CheckBox.Size}"
+                    Width="{DynamicResource MacOS.CheckBox.Size}" />
 
-            <Viewbox UseLayoutRounding="False">
+            <Viewbox Width="{DynamicResource MacOS.CheckBox.GlyphSize}" Height="{DynamicResource MacOS.CheckBox.GlyphSize}" UseLayoutRounding="False">
               <Panel>
                 <Panel Height="16" Width="16" />
                 <Path x:Name="CheckGlyph"

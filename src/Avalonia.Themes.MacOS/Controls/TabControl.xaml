@@ -32,9 +32,11 @@
                 HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
                 VerticalAlignment="{TemplateBinding VerticalAlignment}">
           <DockPanel>
-            <ItemsPresenter Name="PART_ItemsPresenter"
-                            ItemsPanel="{TemplateBinding ItemsPanel}"
-                            DockPanel.Dock="{TemplateBinding TabStripPlacement}" />
+            <Border DockPanel.Dock="{TemplateBinding TabStripPlacement}"
+                    Background="{DynamicResource MacOS.Brush.ControlDisabled}"
+                    CornerRadius="{DynamicResource MacOS.ControlCornerRadius}" Padding="2">
+              <ItemsPresenter Name="PART_ItemsPresenter" ItemsPanel="{TemplateBinding ItemsPanel}" />
+            </Border>
             <Panel ClipToBounds="True">
               <ContentPresenter Name="PART_SelectedContentHost2"
                                 Margin="{TemplateBinding Padding}"

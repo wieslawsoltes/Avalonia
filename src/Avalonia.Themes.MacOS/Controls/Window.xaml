@@ -2,9 +2,9 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     x:ClassModifier="internal">
   <ControlTheme x:Key="{x:Type Window}" TargetType="Window">
-    <Setter Property="Background" Value="{DynamicResource MacOS.SystemRegionBrush}"/>
-    <Setter Property="TransparencyBackgroundFallback" Value="{DynamicResource MacOS.SystemControlBackgroundAltHighBrush}" />
-    <Setter Property="TopLevel.SystemBarColor" Value="{DynamicResource MacOS.SystemControlBackgroundAltHighBrush}"/>
+    <Setter Property="Background" Value="{DynamicResource MacOS.Brush.Window}"/>
+    <Setter Property="TransparencyBackgroundFallback" Value="{DynamicResource MacOS.Brush.Window}" />
+    <Setter Property="TopLevel.SystemBarColor" Value="{DynamicResource MacOS.Brush.Window}"/>
     <Setter Property="Foreground" Value="{DynamicResource MacOS.SystemControlForegroundBaseHighBrush}"/>
     <Setter Property="FontSize" Value="{DynamicResource MacOS.ControlContentThemeFontSize}"/>
     <Setter Property="FontFamily" Value="{DynamicResource MacOS.ContentControlThemeFontFamily}" />

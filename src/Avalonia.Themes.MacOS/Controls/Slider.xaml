@@ -35,15 +35,15 @@
   </Design.PreviewWith>
   
   <Thickness x:Key="MacOS.SliderTopHeaderMargin">0,0,0,4</Thickness>
-  <GridLength x:Key="MacOS.SliderPreContentMargin">15</GridLength>
-  <GridLength x:Key="MacOS.SliderPostContentMargin">15</GridLength>
+  <GridLength x:Key="MacOS.SliderPreContentMargin">4</GridLength>
+  <GridLength x:Key="MacOS.SliderPostContentMargin">4</GridLength>
   <x:Double x:Key="MacOS.SliderHorizontalHeight">28</x:Double>
   <x:Double x:Key="MacOS.SliderVerticalWidth">32</x:Double>
   <CornerRadius x:Key="MacOS.SliderThumbCornerRadius">10</CornerRadius>
-  <x:Double x:Key="MacOS.SliderHorizontalThumbWidth">20</x:Double>
-  <x:Double x:Key="MacOS.SliderHorizontalThumbHeight">20</x:Double>
-  <x:Double x:Key="MacOS.SliderVerticalThumbWidth">20</x:Double>
-  <x:Double x:Key="MacOS.SliderVerticalThumbHeight">20</x:Double>
+  <x:Double x:Key="MacOS.SliderHorizontalThumbWidth">18</x:Double>
+  <x:Double x:Key="MacOS.SliderHorizontalThumbHeight">18</x:Double>
+  <x:Double x:Key="MacOS.SliderVerticalThumbWidth">18</x:Double>
+  <x:Double x:Key="MacOS.SliderVerticalThumbHeight">18</x:Double>
 
   <ControlTheme x:Key="MacOSSliderHorizontalRepeatButton" TargetType="RepeatButton">
     <Setter Property="Template">
@@ -177,7 +177,7 @@
                           Margin="0"
                           Padding="0"
                           Background="{DynamicResource MacOS.SliderThumbBackground}"
-                          BorderThickness="0"
+                          BorderThickness="{DynamicResource MacOS.Slider.ThumbStroke}" BorderBrush="{DynamicResource MacOS.Brush.ControlStroke}"
                           Theme="{StaticResource MacOSSliderThumbTheme}"
                           DataContext="{TemplateBinding Value}"/>
                     </Track>
@@ -276,7 +276,7 @@
                           Margin="0"
                           Padding="0"
                           Background="{DynamicResource MacOS.SliderThumbBackground}"
-                          BorderThickness="0"
+                          BorderThickness="{DynamicResource MacOS.Slider.ThumbStroke}" BorderBrush="{DynamicResource MacOS.Brush.ControlStroke}"
                           Theme="{StaticResource MacOSSliderThumbTheme}"
                           DataContext="{TemplateBinding Value}" />
                     </Track>

@@ -15,6 +15,6 @@ public sealed class TestApplication : Application
     public override void Initialize() => Styles.Add(Theme);
 
     public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure<TestApplication>()
-        .UseHarfBuzz().UseSkia()
+        .UseHarfBuzz().UseSkia().WithInterFont()
         .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false, OverlayPopups = true });
 }

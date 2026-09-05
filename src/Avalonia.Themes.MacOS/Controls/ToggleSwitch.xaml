@@ -114,7 +114,7 @@
             <Canvas
                 x:Name="PART_SwitchKnob"
                 Grid.Row="1"
-                Width="{DynamicResource MacOS.Switch.TrackHeight}"
+                Width="{DynamicResource MacOS.Switch.Travel}"
                 Height="{DynamicResource MacOS.Switch.TrackHeight}"
                 HorizontalAlignment="Left">
 

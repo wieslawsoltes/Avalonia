@@ -46,6 +46,8 @@ internal static class Program
         builder = s_headless
             ? builder.UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false, OverlayPopups = true })
             : builder.UsePlatformDetect();
+        if (s_headless)
+            builder = builder.WithInterFont();
         return builder.AfterSetup(_ => DispatcherTimer.RunOnce(Capture, TimeSpan.FromMilliseconds(350)))
             .StartWithClassicDesktopLifetime(args, ShutdownMode.OnExplicitShutdown);
     }

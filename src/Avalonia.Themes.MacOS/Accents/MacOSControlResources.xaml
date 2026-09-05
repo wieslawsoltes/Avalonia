@@ -168,7 +168,7 @@
       <StaticResource x:Key="MacOS.ComboBoxDropDownGlyphForegroundFocusedPressed"
                       ResourceKey="MacOS.SystemControlHighlightAltBaseMediumHighBrush" />
       <SolidColorBrush x:Key="MacOS.ComboBoxDropDownBackground" Color="{DynamicResource MacOS.Color.Material}" />
-      <SolidColorBrush x:Key="MacOS.ComboBoxDropDownBorderBrush" Color="{DynamicResource MacOS.Color.Separator}" />
+      <SolidColorBrush x:Key="MacOS.ComboBoxDropDownBorderBrush" Color="{DynamicResource MacOS.Color.ControlStroke}" />
       <Thickness x:Key="MacOS.ComboBoxDropdownBorderPadding">0</Thickness>
       <Thickness x:Key="MacOS.ComboBoxDropdownContentMargin">0,4,0,4</Thickness>
 
@@ -370,19 +370,18 @@
       <StaticResource x:Key="MacOS.ExpanderHeaderBorderBrushPressed" ResourceKey="MacOS.SystemBaseLowColor" />
       <StaticResource x:Key="MacOS.ExpanderHeaderBorderBrushDisabled" ResourceKey="MacOS.SystemControlDisabledBaseLowBrush" />
 
-      <SolidColorBrush x:Key="MacOS.ExpanderChevronBackground" Color="Transparent" />
-      <SolidColorBrush x:Key="MacOS.ExpanderChevronBackgroundPointerOver" Color="{DynamicResource MacOS.SystemBaseHighColor}"
-                       Opacity="0.1" />
-      <SolidColorBrush x:Key="MacOS.ExpanderChevronBackgroundPressed" Color="Transparent" />
-      <SolidColorBrush x:Key="MacOS.ExpanderChevronBackgroundDisabled" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.ExpanderChevronBackground" Color="{DynamicResource MacOS.Color.Transparent}" />
+      <SolidColorBrush x:Key="MacOS.ExpanderChevronBackgroundPointerOver" Color="{DynamicResource MacOS.Color.Hover}" />
+      <SolidColorBrush x:Key="MacOS.ExpanderChevronBackgroundPressed" Color="{DynamicResource MacOS.Color.Hover}" />
+      <SolidColorBrush x:Key="MacOS.ExpanderChevronBackgroundDisabled" Color="{DynamicResource MacOS.Color.Transparent}" />
       <StaticResource x:Key="MacOS.ExpanderChevronForeground" ResourceKey="MacOS.SystemBaseHighColor" />
       <StaticResource x:Key="MacOS.ExpanderChevronForegroundPointerOver" ResourceKey="MacOS.SystemBaseHighColor" />
       <StaticResource x:Key="MacOS.ExpanderChevronForegroundPressed" ResourceKey="MacOS.SystemBaseHighColor" />
       <StaticResource x:Key="MacOS.ExpanderChevronForegroundDisabled" ResourceKey="MacOS.SystemControlDisabledBaseMediumLowBrush" />
-      <SolidColorBrush x:Key="MacOS.ExpanderChevronBorderBrush" Color="Transparent" />
-      <SolidColorBrush x:Key="MacOS.ExpanderChevronBorderBrushPointerOver" Color="Transparent" />
-      <SolidColorBrush x:Key="MacOS.ExpanderChevronBorderBrushPressed" Color="Transparent" />
-      <SolidColorBrush x:Key="MacOS.ExpanderChevronBorderBrushDisabled" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.ExpanderChevronBorderBrush" Color="{DynamicResource MacOS.Color.Separator}" />
+      <SolidColorBrush x:Key="MacOS.ExpanderChevronBorderBrushPointerOver" Color="{DynamicResource MacOS.Color.Separator}" />
+      <SolidColorBrush x:Key="MacOS.ExpanderChevronBorderBrushPressed" Color="{DynamicResource MacOS.Color.Separator}" />
+      <SolidColorBrush x:Key="MacOS.ExpanderChevronBorderBrushDisabled" Color="{DynamicResource MacOS.Color.Separator}" />
 
       <!-- Expander:Content -->
       <StaticResource x:Key="MacOS.ExpanderContentBackground" ResourceKey="MacOS.SystemChromeMediumLowColor" />
@@ -518,7 +517,7 @@
       <StaticResource x:Key="MacOS.DatePickerButtonForegroundPressed" ResourceKey="MacOS.SystemControlHighlightBaseHighBrush" />
       <StaticResource x:Key="MacOS.DatePickerButtonForegroundDisabled" ResourceKey="MacOS.SystemControlDisabledBaseMediumLowBrush" />
       <StaticResource x:Key="MacOS.DatePickerFlyoutPresenterBackground" ResourceKey="MacOS.SystemControlTransientBackgroundBrush" />
-      <SolidColorBrush x:Key="MacOS.DatePickerFlyoutPresenterBorderBrush" Color="{DynamicResource MacOS.Color.Separator}" />
+      <SolidColorBrush x:Key="MacOS.DatePickerFlyoutPresenterBorderBrush" Color="{DynamicResource MacOS.Color.ControlStroke}" />
       <StaticResource x:Key="MacOS.DatePickerFlyoutPresenterSpacerFill" ResourceKey="MacOS.SystemControlForegroundBaseLowBrush" />
       <StaticResource x:Key="MacOS.DatePickerFlyoutPresenterHighlightFill"
                       ResourceKey="MacOS.SystemControlHighlightListAccentLowBrush" />
@@ -557,7 +556,7 @@
       <StaticResource x:Key="MacOS.TimePickerButtonForegroundPressed" ResourceKey="MacOS.SystemControlHighlightBaseHighBrush" />
       <StaticResource x:Key="MacOS.TimePickerButtonForegroundDisabled" ResourceKey="MacOS.SystemControlDisabledBaseMediumLowBrush" />
       <StaticResource x:Key="MacOS.TimePickerFlyoutPresenterBackground" ResourceKey="MacOS.SystemControlTransientBackgroundBrush" />
-      <SolidColorBrush x:Key="MacOS.TimePickerFlyoutPresenterBorderBrush" Color="{DynamicResource MacOS.Color.Separator}" />
+      <SolidColorBrush x:Key="MacOS.TimePickerFlyoutPresenterBorderBrush" Color="{DynamicResource MacOS.Color.ControlStroke}" />
       <StaticResource x:Key="MacOS.TimePickerFlyoutPresenterSpacerFill" ResourceKey="MacOS.SystemControlForegroundBaseLowBrush" />
       <StaticResource x:Key="MacOS.TimePickerFlyoutPresenterHighlightFill"
                       ResourceKey="MacOS.SystemControlHighlightListAccentLowBrush" />
@@ -907,7 +906,7 @@
       <StaticResource x:Key="MacOS.ComboBoxDropDownGlyphForegroundFocusedPressed"
                       ResourceKey="MacOS.SystemControlHighlightAltBaseMediumHighBrush" />
       <SolidColorBrush x:Key="MacOS.ComboBoxDropDownBackground" Color="{DynamicResource MacOS.Color.Material}" />
-      <SolidColorBrush x:Key="MacOS.ComboBoxDropDownBorderBrush" Color="{DynamicResource MacOS.Color.Separator}" />
+      <SolidColorBrush x:Key="MacOS.ComboBoxDropDownBorderBrush" Color="{DynamicResource MacOS.Color.ControlStroke}" />
       <Thickness x:Key="MacOS.ComboBoxDropdownBorderPadding">0</Thickness>
       <Thickness x:Key="MacOS.ComboBoxDropdownContentMargin">0,4,0,4</Thickness>
 
@@ -1110,19 +1109,18 @@
       <StaticResource x:Key="MacOS.ExpanderHeaderBorderBrushPressed" ResourceKey="MacOS.SystemBaseLowColor" />
       <StaticResource x:Key="MacOS.ExpanderHeaderBorderBrushDisabled" ResourceKey="MacOS.SystemControlDisabledBaseLowBrush" />
 
-      <SolidColorBrush x:Key="MacOS.ExpanderChevronBackground" Color="Transparent" />
-      <SolidColorBrush x:Key="MacOS.ExpanderChevronBackgroundPointerOver" Color="{DynamicResource MacOS.SystemBaseHighColor}"
-                       Opacity="0.1" />
-      <SolidColorBrush x:Key="MacOS.ExpanderChevronBackgroundPressed" Color="Transparent" />
-      <SolidColorBrush x:Key="MacOS.ExpanderChevronBackgroundDisabled" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.ExpanderChevronBackground" Color="{DynamicResource MacOS.Color.Transparent}" />
+      <SolidColorBrush x:Key="MacOS.ExpanderChevronBackgroundPointerOver" Color="{DynamicResource MacOS.Color.Hover}" />
+      <SolidColorBrush x:Key="MacOS.ExpanderChevronBackgroundPressed" Color="{DynamicResource MacOS.Color.Hover}" />
+      <SolidColorBrush x:Key="MacOS.ExpanderChevronBackgroundDisabled" Color="{DynamicResource MacOS.Color.Transparent}" />
       <StaticResource x:Key="MacOS.ExpanderChevronForeground" ResourceKey="MacOS.SystemBaseHighColor" />
       <StaticResource x:Key="MacOS.ExpanderChevronForegroundPointerOver" ResourceKey="MacOS.SystemBaseHighColor" />
       <StaticResource x:Key="MacOS.ExpanderChevronForegroundPressed" ResourceKey="MacOS.SystemBaseHighColor" />
       <StaticResource x:Key="MacOS.ExpanderChevronForegroundDisabled" ResourceKey="MacOS.SystemControlDisabledBaseMediumLowBrush" />
-      <SolidColorBrush x:Key="MacOS.ExpanderChevronBorderBrush" Color="Transparent" />
-      <SolidColorBrush x:Key="MacOS.ExpanderChevronBorderBrushPointerOver" Color="Transparent" />
-      <SolidColorBrush x:Key="MacOS.ExpanderChevronBorderBrushPressed" Color="Transparent" />
-      <SolidColorBrush x:Key="MacOS.ExpanderChevronBorderBrushDisabled" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.ExpanderChevronBorderBrush" Color="{DynamicResource MacOS.Color.Separator}" />
+      <SolidColorBrush x:Key="MacOS.ExpanderChevronBorderBrushPointerOver" Color="{DynamicResource MacOS.Color.Separator}" />
+      <SolidColorBrush x:Key="MacOS.ExpanderChevronBorderBrushPressed" Color="{DynamicResource MacOS.Color.Separator}" />
+      <SolidColorBrush x:Key="MacOS.ExpanderChevronBorderBrushDisabled" Color="{DynamicResource MacOS.Color.Separator}" />
 
       <!-- Expander:Content -->
       <StaticResource x:Key="MacOS.ExpanderContentBackground" ResourceKey="MacOS.SystemChromeMediumLowColor" />
@@ -1258,7 +1256,7 @@
       <StaticResource x:Key="MacOS.DatePickerButtonForegroundPressed" ResourceKey="MacOS.SystemControlHighlightBaseHighBrush" />
       <StaticResource x:Key="MacOS.DatePickerButtonForegroundDisabled" ResourceKey="MacOS.SystemControlDisabledBaseMediumLowBrush" />
       <StaticResource x:Key="MacOS.DatePickerFlyoutPresenterBackground" ResourceKey="MacOS.SystemControlTransientBackgroundBrush" />
-      <SolidColorBrush x:Key="MacOS.DatePickerFlyoutPresenterBorderBrush" Color="{DynamicResource MacOS.Color.Separator}" />
+      <SolidColorBrush x:Key="MacOS.DatePickerFlyoutPresenterBorderBrush" Color="{DynamicResource MacOS.Color.ControlStroke}" />
       <StaticResource x:Key="MacOS.DatePickerFlyoutPresenterSpacerFill" ResourceKey="MacOS.SystemControlForegroundBaseLowBrush" />
       <StaticResource x:Key="MacOS.DatePickerFlyoutPresenterHighlightFill"
                       ResourceKey="MacOS.SystemControlHighlightListAccentLowBrush" />
@@ -1298,7 +1296,7 @@
       <StaticResource x:Key="MacOS.TimePickerButtonForegroundPressed" ResourceKey="MacOS.SystemControlHighlightBaseHighBrush" />
       <StaticResource x:Key="MacOS.TimePickerButtonForegroundDisabled" ResourceKey="MacOS.SystemControlDisabledBaseMediumLowBrush" />
       <StaticResource x:Key="MacOS.TimePickerFlyoutPresenterBackground" ResourceKey="MacOS.SystemControlTransientBackgroundBrush" />
-      <SolidColorBrush x:Key="MacOS.TimePickerFlyoutPresenterBorderBrush" Color="{DynamicResource MacOS.Color.Separator}" />
+      <SolidColorBrush x:Key="MacOS.TimePickerFlyoutPresenterBorderBrush" Color="{DynamicResource MacOS.Color.ControlStroke}" />
       <StaticResource x:Key="MacOS.TimePickerFlyoutPresenterSpacerFill" ResourceKey="MacOS.SystemControlForegroundBaseLowBrush" />
       <StaticResource x:Key="MacOS.TimePickerFlyoutPresenterHighlightFill"
                       ResourceKey="MacOS.SystemControlHighlightListAccentLowBrush" />

@@ -30,6 +30,8 @@
     <Setter Property="Margin" Value="0" />
     <Setter Property="Width" Value="{DynamicResource MacOS.TreeViewItemExpandCollapseChevronSize}" />
     <Setter Property="Height" Value="{DynamicResource MacOS.TreeViewItemExpandCollapseChevronSize}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.Selection.Radius}" />
+    <Setter Property="Margin" Value="{DynamicResource MacOS.Selection.Margin}" />
     <Setter Property="Template">
       <ControlTemplate>
         <Border Background="Transparent"

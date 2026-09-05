@@ -36,8 +36,8 @@
 
               <Ellipse
                   Name="OuterEllipse"
-                  Width="20"
-                  Height="20"
+                  Width="{DynamicResource MacOS.RadioButton.Size}"
+                  Height="{DynamicResource MacOS.RadioButton.Size}"
                   Fill="{DynamicResource MacOS.RadioButtonOuterEllipseFill}"
                   Stroke="{DynamicResource MacOS.RadioButtonOuterEllipseStroke}"
                   StrokeThickness="{DynamicResource MacOS.RadioButtonBorderThemeThickness}"
@@ -45,8 +45,8 @@
 
               <Ellipse
                   Name="CheckOuterEllipse"
-                  Width="20"
-                  Height="20"
+                  Width="{DynamicResource MacOS.RadioButton.Size}"
+                  Height="{DynamicResource MacOS.RadioButton.Size}"
                   Fill="{DynamicResource MacOS.RadioButtonOuterEllipseCheckedFill}"
                   Opacity="0"
                   Stroke="{DynamicResource MacOS.RadioButtonOuterEllipseCheckedStroke}"
@@ -55,8 +55,8 @@
 
               <Ellipse
                   Name="CheckGlyph"
-                  Width="8"
-                  Height="8"
+                  Width="{DynamicResource MacOS.RadioButton.GlyphSize}"
+                  Height="{DynamicResource MacOS.RadioButton.GlyphSize}"
                   Fill="{DynamicResource MacOS.RadioButtonCheckGlyphFill}"
                   Opacity="0"
                   Stroke="{DynamicResource MacOS.RadioButtonCheckGlyphStroke}"

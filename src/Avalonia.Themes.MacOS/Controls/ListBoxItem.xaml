@@ -17,6 +17,8 @@
   <ControlTheme x:Key="{x:Type ListBoxItem}" TargetType="ListBoxItem">
     <Setter Property="Background" Value="Transparent" />
     <Setter Property="Padding" Value="{DynamicResource MacOS.ListBoxItemPadding}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.Selection.Radius}" />
+    <Setter Property="Margin" Value="{DynamicResource MacOS.Selection.Margin}" />
     <Setter Property="Template">
       <ControlTemplate>
         <ContentPresenter Name="PART_ContentPresenter"
@@ -33,45 +35,45 @@
     </Setter>
 
     <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Foreground" Value="{DynamicResource MacOS.SystemControlDisabledBaseMediumLowBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.Brush.DisabledLabel}" />
     </Style>
 
     <!--  PointerOver State  -->
     <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlHighlightListLowBrush}" />
-      <Setter Property="Foreground" Value="{DynamicResource MacOS.SystemControlHighlightAltBaseHighBrush}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.Brush.Hover}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.Brush.Label}" />
     </Style>
 
     <!--  Pressed State  -->
     <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlHighlightListMediumBrush}" />
-      <Setter Property="Foreground" Value="{DynamicResource MacOS.SystemControlHighlightAltBaseHighBrush}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.Brush.Hover}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.Brush.Label}" />
     </Style>
 
     <!--  Selected State  -->
     <Style Selector="^:selected">
 
       <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlHighlightListAccentLowBrush}" />
-        <Setter Property="Foreground" Value="{DynamicResource MacOS.SystemControlHighlightAltBaseHighBrush}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.AccentButtonBackground}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.Brush.OnAccent}" />
       </Style>
 
       <!--  Selected Unfocused State  -->
       <Style Selector="^:not(:focus) /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlHighlightListAccentLowBrush}" />
-        <Setter Property="Foreground" Value="{DynamicResource MacOS.SystemControlHighlightAltBaseHighBrush}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.AccentButtonBackground}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.Brush.OnAccent}" />
       </Style>
 
       <!--  Selected PointerOver State  -->
       <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlHighlightListAccentMediumBrush}" />
-        <Setter Property="Foreground" Value="{DynamicResource MacOS.SystemControlHighlightAltBaseHighBrush}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.AccentButtonBackground}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.Brush.OnAccent}" />
       </Style>
 
       <!--  Selected Pressed State  -->
       <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlHighlightListAccentHighBrush}" />
-        <Setter Property="Foreground" Value="{DynamicResource MacOS.SystemControlHighlightAltBaseHighBrush}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.AccentButtonBackground}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.Brush.OnAccent}" />
       </Style>
     </Style>
   </ControlTheme>
