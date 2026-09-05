@@ -15,6 +15,7 @@ partial class MainWindowViewModel
         Section("", s =>
         {
             s.Add<HomePage>("Home", Icons.Home, "Overview of everything in the catalog");
+            s.Add<MacOSThemePage>("macOS 26", Icons.Palette, "Design tokens, materials and control-state overview");
         }),
         Section("Basic Input", s =>
         {

@@ -128,6 +128,7 @@
             <ComboBox.Items>
               <models:CatalogTheme>Fluent</models:CatalogTheme>
               <models:CatalogTheme>Simple</models:CatalogTheme>
+              <models:CatalogTheme>MacOS</models:CatalogTheme>
             </ComboBox.Items>
           </ComboBox>
           <ComboBox HorizontalAlignment="Stretch"

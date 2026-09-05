@@ -17,6 +17,10 @@ namespace ControlCatalog
         private readonly Styles _themeStylesContainer = new();
         private FluentTheme? _fluentTheme;
         private SimpleTheme? _simpleTheme;
+        private Avalonia.Themes.MacOS.MacOSTheme? _macOSTheme;
+        private IStyle? _colorPickerMacOS;
+
+        public Avalonia.Themes.MacOS.MacOSTheme MacOSTheme => _macOSTheme!;
         private IStyle? _colorPickerFluent, _colorPickerSimple;
 
         public App()
@@ -32,10 +36,14 @@ namespace ControlCatalog
 
             _fluentTheme = (FluentTheme)Resources["FluentTheme"]!;
             _simpleTheme = (SimpleTheme)Resources["SimpleTheme"]!;
+            _macOSTheme = (Avalonia.Themes.MacOS.MacOSTheme)Resources["MacOSTheme"]!;
+            _colorPickerMacOS = (IStyle)Resources["ColorPickerMacOS"]!;
             _colorPickerFluent = (IStyle)Resources["ColorPickerFluent"]!;
             _colorPickerSimple = (IStyle)Resources["ColorPickerSimple"]!;
 
-            SetCatalogThemes(CatalogTheme.Fluent);
+            _prevTheme = string.Equals(Environment.GetEnvironmentVariable("AVALONIA_CATALOG_THEME"), "MacOS", StringComparison.OrdinalIgnoreCase)
+                ? CatalogTheme.MacOS : CatalogTheme.Fluent;
+            SetCatalogThemes(_prevTheme);
         }
 
         public override void OnFrameworkInitializationCompleted()
@@ -124,6 +132,11 @@ namespace ControlCatalog
             {
                 app._themeStylesContainer[0] = app._fluentTheme!;
                 app._themeStylesContainer[1] = app._colorPickerFluent!;
+            }
+            else if (theme == CatalogTheme.MacOS)
+            {
+                app._themeStylesContainer[0] = app._macOSTheme!;
+                app._themeStylesContainer[1] = app._colorPickerMacOS!;
             }
             else if (theme == CatalogTheme.Simple)
             {

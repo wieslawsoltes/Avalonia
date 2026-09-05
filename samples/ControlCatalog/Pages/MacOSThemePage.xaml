@@ -1,0 +1,125 @@
+<ContentPage xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ControlCatalog.Pages.MacOSThemePage"
+             Header="macOS 26">
+  <ContentPage.Styles>
+    <Style Selector="Border.card">
+      <Setter Property="Background" Value="{DynamicResource MacOS.Brush.Surface}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.Brush.Separator}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="14" />
+      <Setter Property="Padding" Value="20" />
+      <Setter Property="Margin" Value="6" />
+    </Style>
+    <Style Selector="TextBlock.section">
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="FontSize" Value="14" />
+      <Setter Property="Margin" Value="0,0,0,6" />
+    </Style>
+    <Style Selector="TextBlock.secondary">
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.Brush.SecondaryLabel}" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+  </ContentPage.Styles>
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+    <StackPanel Margin="24" Spacing="16">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Spacing="5">
+          <TextBlock Text="Designed to feel at home." FontSize="28" FontWeight="SemiBold" />
+          <TextBlock Classes="secondary" Text="macOS 26 · Avalonia controls · Live design tokens" />
+        </StackPanel>
+        <Button Grid.Column="1" Content="Customize appearance" VerticalAlignment="Center" />
+      </Grid>
+      <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto">
+        <Border Classes="card" Grid.Column="0" Grid.Row="0">
+          <StackPanel Spacing="12">
+            <TextBlock Classes="section" Text="Actions" />
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <Button x:Name="PrimaryAction" Classes="accent" Content="Continue" IsDefault="True" />
+              <Button Content="Cancel" />
+              <Button Content="Disabled" IsEnabled="False" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <ToggleButton Content="Selected" IsChecked="True" />
+              <ToggleButton Content="Option" />
+              <DropDownButton Content="More">
+                <DropDownButton.Flyout>
+                  <MenuFlyout><MenuItem Header="Duplicate"/><MenuItem Header="Rename"/><Separator/><MenuItem Header="Move to Trash"/></MenuFlyout>
+                </DropDownButton.Flyout>
+              </DropDownButton>
+            </StackPanel>
+            <Button x:Name="PopupAction" Content="Open popover">
+              <Button.Flyout><Flyout><StackPanel Spacing="12"><TextBlock Text="A focused surface" FontWeight="SemiBold"/><TextBlock Text="Real Avalonia popup content."/><Button Content="Done" Classes="accent"/></StackPanel></Flyout></Button.Flyout>
+            </Button>
+          </StackPanel>
+        </Border>
+        <Border Classes="card" Grid.Column="1" Grid.Row="0">
+          <StackPanel Spacing="10">
+            <TextBlock Classes="section" Text="Selection &amp; switches" />
+            <StackPanel Orientation="Horizontal" Spacing="20">
+              <CheckBox Content="Enabled" IsChecked="True" />
+              <CheckBox Content="Mixed" IsThreeState="True" IsChecked="{x:Null}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="20">
+              <RadioButton Content="Automatic" GroupName="appearance" IsChecked="True" />
+              <RadioButton Content="Manual" GroupName="appearance" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="16">
+              <ToggleSwitch IsChecked="True" OnContent="On" OffContent="Off" />
+              <ToggleSwitch IsChecked="False" OnContent="On" OffContent="Off" />
+              <ToggleSwitch IsChecked="True" IsEnabled="False" OnContent="" OffContent="" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+        <Border Classes="card" Grid.Column="2" Grid.Row="0">
+          <StackPanel Spacing="10">
+            <TextBlock Classes="section" Text="Text &amp; forms" />
+            <TextBox x:Name="SearchField" Watermark="Search your library" />
+            <TextBox Text="A thoughtfully crafted interface" />
+            <TextBox Text="Read-only value" IsReadOnly="True" />
+          </StackPanel>
+        </Border>
+        <Border Classes="card" Grid.Column="0" Grid.Row="1">
+          <StackPanel Spacing="12">
+            <TextBlock Classes="section" Text="Values &amp; progress" />
+            <Slider Value="62" Maximum="100" />
+            <ProgressBar Value="62" Maximum="100" />
+            <Grid ColumnDefinitions="*,*">
+              <NumericUpDown Value="24" Minimum="0" Maximum="100" Margin="0,0,6,0" />
+              <ComboBox Grid.Column="1" SelectedIndex="0" HorizontalAlignment="Stretch" Margin="6,0,0,0"><ComboBoxItem>Balanced</ComboBoxItem><ComboBoxItem>Performance</ComboBoxItem><ComboBoxItem>Quiet</ComboBoxItem></ComboBox>
+            </Grid>
+            <CalendarDatePicker SelectedDate="2026-09-05" HorizontalAlignment="Stretch" />
+          </StackPanel>
+        </Border>
+        <Border Classes="card" Grid.Column="1" Grid.Row="1">
+          <StackPanel Spacing="10">
+            <TextBlock Classes="section" Text="Lists &amp; navigation" />
+            <ListBox SelectedIndex="1" Height="158">
+              <ListBoxItem>All documents</ListBoxItem><ListBoxItem>Recently opened</ListBoxItem><ListBoxItem>Shared with you</ListBoxItem><ListBoxItem IsEnabled="False">Archived documents</ListBoxItem>
+            </ListBox>
+          </StackPanel>
+        </Border>
+        <Border Classes="card" Grid.Column="2" Grid.Row="1">
+          <StackPanel Spacing="10">
+            <TextBlock Classes="section" Text="Tabs &amp; disclosure" />
+            <TabControl SelectedIndex="0">
+              <TabItem Header="Overview"><TextBlock Classes="secondary" Margin="0,12" Text="A calm hierarchy. Familiar controls. One coherent token system." /></TabItem>
+              <TabItem Header="Details"><TextBlock Margin="0,12" Text="Content follows the selected tab."/></TabItem>
+              <TabItem Header="History"><TextBlock Margin="0,12" Text="Nothing to show yet."/></TabItem>
+            </TabControl>
+            <Expander Header="Advanced options" HorizontalAlignment="Stretch"><TextBlock Text="Keyboard and focus behavior are retained." TextWrapping="Wrap" /></Expander>
+          </StackPanel>
+        </Border>
+        <Border Classes="card" Grid.Column="0" Grid.Row="2">
+          <StackPanel Spacing="10"><TextBlock Classes="section" Text="Menus"/><Menu><MenuItem Header="File"><MenuItem Header="New document"/><MenuItem Header="Open…"/><Separator/><MenuItem Header="Close"/></MenuItem><MenuItem Header="Edit"><MenuItem Header="Undo"/><MenuItem Header="Redo"/></MenuItem><MenuItem Header="View"><MenuItem Header="Show sidebar" ToggleType="CheckBox" IsChecked="True"/></MenuItem></Menu><TextBlock Classes="secondary" Text="Keyboard navigation, submenus and popup placement remain native Avalonia behavior."/></StackPanel>
+        </Border>
+        <Border Classes="card" Grid.Column="1" Grid.Row="2">
+          <StackPanel Spacing="10"><TextBlock Classes="section" Text="Hierarchy"/><TreeView Height="128"><TreeViewItem Header="Workspace" IsExpanded="True"><TreeViewItem Header="Design library"/><TreeViewItem Header="Project files" IsSelected="True"/><TreeViewItem Header="Shared assets"/></TreeViewItem></TreeView></StackPanel>
+        </Border>
+        <Border Classes="card" Grid.Column="2" Grid.Row="2">
+          <StackPanel Spacing="10"><TextBlock Classes="section" Text="Built for adaptation"/><TextBlock Classes="secondary" Text="Light and dark appearance. Compact density. Increased contrast. Reduced motion. Opaque material fallback."/><Separator/><TextBlock Text="No bundled Apple fonts or symbol assets." FontSize="11" Classes="secondary"/></StackPanel>
+        </Border>
+      </Grid>
+    </StackPanel>
+  </ScrollViewer>
+</ContentPage>
