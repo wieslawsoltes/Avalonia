@@ -197,7 +197,7 @@
 
     <Style Selector="^:disabled /template/ Border#OuterBorder">
       <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleSwitchStrokeOffDisabled}" />
-      <Setter Property="Background" Value="{DynamicResource ToggleSwitchFillOffDisabled}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.Brush.ControlDisabled}" />
     </Style>
 
     <Style Selector="^:disabled /template/ Ellipse#SwitchKnobOff">

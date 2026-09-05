@@ -21,6 +21,8 @@ TYPES = {
     'CornerRadius': 'global::Avalonia.CornerRadius',
     'FontFamily': 'global::Avalonia.Media.FontFamily',
     'FontWeight': 'global::Avalonia.Media.FontWeight',
+    'VisualBrush': 'global::Avalonia.Media.IBrush',
+    'PlacementMode': 'global::Avalonia.Controls.PlacementMode',
     'GridLength': 'global::Avalonia.Controls.GridLength',
     'TimeSpan': 'global::System.TimeSpan',
     'TransformOperations': 'global::Avalonia.Media.Transformation.TransformOperations',

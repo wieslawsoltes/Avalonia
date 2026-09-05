@@ -1,0 +1,40 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<VisualBrush x:Key="MacOS.ColorPicker.ColorControlCheckeredBackgroundBrush"
+                   TileMode="Tile"
+                   Stretch="Uniform"
+                   DestinationRect="0,0,8,8">
+        <VisualBrush.Visual>
+          <Image Width="8" Height="8">
+            <Image.Source>
+              <DrawingImage>
+                <DrawingImage.Drawing>
+                    <DrawingGroup>
+                      <GeometryDrawing Geometry="M0,0 L2,0 2,2, 0,2Z"
+                                       Brush="Transparent" />
+                      <GeometryDrawing Geometry="M0,1 L2,1 2,2, 1,2 1,0 0,0Z"
+                                       Brush="#19808080" />
+                    </DrawingGroup>
+                </DrawingImage.Drawing>
+              </DrawingImage>
+            </Image.Source>
+          </Image>
+        </VisualBrush.Visual>
+      </VisualBrush>
+<SolidColorBrush x:Key="MacOS.ColorPicker.ColorControlDarkSelectorBrush" Color="#E4000000" />
+<SolidColorBrush x:Key="MacOS.ColorPicker.ColorControlLightSelectorBrush" Color="#FFFFFFFF" />
+<PlacementMode x:Key="MacOS.ColorPicker.ColorPickerFlyoutPlacement">Top</PlacementMode>
+<x:Double x:Key="MacOS.ColorPicker.ColorPreviewerAccentSectionHeight">40</x:Double>
+<x:Double x:Key="MacOS.ColorPicker.ColorPreviewerAccentSectionWidth">80</x:Double>
+<CornerRadius x:Key="MacOS.ColorPicker.ColorSliderCornerRadius">10</CornerRadius>
+<x:Double x:Key="MacOS.ColorPicker.ColorSliderSize">20</x:Double>
+<CornerRadius x:Key="MacOS.ColorPicker.ColorSliderTrackCornerRadius">10</CornerRadius>
+<x:Double x:Key="MacOS.ColorPicker.ColorSliderTrackSize">20</x:Double>
+<x:Double x:Key="MacOS.ColorPicker.ColorViewComponentLabelWidth">30</x:Double>
+<x:Double x:Key="MacOS.ColorPicker.ColorViewComponentTextInputWidth">80</x:Double>
+<SolidColorBrush x:Key="MacOS.ColorPicker.ColorViewContentBackgroundBrush" Color="Transparent" />
+<SolidColorBrush x:Key="MacOS.ColorPicker.ColorViewContentBorderBrush" Color="Transparent" />
+<CornerRadius x:Key="MacOS.ColorPicker.ColorViewTabBackgroundCornerRadius">3</CornerRadius>
+<SolidColorBrush x:Key="MacOS.ColorPicker.ColorViewTabBorderBrush" Color="Transparent" />
+<x:Double x:Key="MacOS.ColorPicker.ColorViewTabStripHeight">48</x:Double>
+<CornerRadius x:Key="MacOS.ColorPicker.FlyoutTabBackgroundCornerRadius">5,5,0,0</CornerRadius>
+</ResourceDictionary>

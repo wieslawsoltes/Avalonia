@@ -4,7 +4,7 @@
                     xmlns:primitives="using:Avalonia.Controls.Primitives"
                     x:ClassModifier="internal">
 
-  <PlacementMode x:Key="ColorPickerFlyoutPlacement">Top</PlacementMode>
+  
   
   <ControlTheme x:Key="{x:Type ColorPicker}"
                 TargetType="ColorPicker">
@@ -19,7 +19,7 @@
     <Setter Property="Content">
       <Template>
         <Panel>
-          <Border Background="{StaticResource ColorControlCheckeredBackgroundBrush}"
+          <Border Background="{DynamicResource MacOS.ColorPicker.ColorControlCheckeredBackgroundBrush}"
                   CornerRadius="{TemplateBinding CornerRadius, Converter={StaticResource LeftCornerRadiusFilterConverter}}"
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
@@ -53,7 +53,7 @@
           </DropDownButton.Styles>
           <DropDownButton.Flyout>
             <Flyout FlyoutPresenterClasses="nopadding"
-                    Placement="{DynamicResource ColorPickerFlyoutPlacement}">
+                    Placement="{DynamicResource MacOS.ColorPicker.ColorPickerFlyoutPlacement}">
 
               <!-- The following is copy-pasted from the ColorView's control template.
                    It MUST always be kept in sync with the ColorView (which is master).
@@ -62,7 +62,7 @@
 
                 <Grid.Resources>
                   <!-- This radius must follow OverlayCornerRadius -->
-                  <CornerRadius x:Key="ColorViewTabBackgroundCornerRadius">5,5,0,0</CornerRadius>
+                  
                 </Grid.Resources>
 
                 <!-- Backgrounds -->
@@ -74,8 +74,8 @@
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Top"
                         Background="{DynamicResource MacOS.SystemControlBackgroundBaseLowBrush}"
-                        BorderBrush="{DynamicResource ColorViewTabBorderBrush}"
-                        CornerRadius="{DynamicResource ColorViewTabBackgroundCornerRadius}" />
+                        BorderBrush="{DynamicResource MacOS.ColorPicker.ColorViewTabBorderBrush}"
+                        CornerRadius="{DynamicResource MacOS.ColorPicker.FlyoutTabBackgroundCornerRadius}" />
                 <Border x:Name="ContentBackgroundBorder"
                         Grid.Row="0"
                         Grid.RowSpan="2"
@@ -83,8 +83,8 @@
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
                         CornerRadius="{TemplateBinding CornerRadius, Converter={StaticResource BottomCornerRadiusFilterConverter}}"
-                        Background="{DynamicResource ColorViewContentBackgroundBrush}"
-                        BorderBrush="{DynamicResource ColorViewContentBorderBrush}"
+                        Background="{DynamicResource MacOS.ColorPicker.ColorViewContentBackgroundBrush}"
+                        BorderBrush="{DynamicResource MacOS.ColorPicker.ColorViewContentBorderBrush}"
                         BorderThickness="0,1,0,0" />
 
                 <TabControl x:Name="PART_TabControl"
@@ -103,7 +103,7 @@
                   <TabItem Theme="{StaticResource ColorViewTabItemTheme}"
                            IsVisible="{TemplateBinding IsColorSpectrumVisible}">
                     <TabItem.Header>
-                      <Border Height="{DynamicResource ColorViewTabStripHeight}">
+                      <Border Height="{DynamicResource MacOS.ColorPicker.ColorViewTabStripHeight}">
                         <PathIcon Width="20"
                                   Height="20"
                                   Data="{DynamicResource ColorViewSpectrumIconGeometry}" />
@@ -168,7 +168,7 @@
                   <TabItem Theme="{StaticResource ColorViewTabItemTheme}"
                            IsVisible="{TemplateBinding IsColorPaletteVisible}">
                     <TabItem.Header>
-                      <Border Height="{DynamicResource ColorViewTabStripHeight}">
+                      <Border Height="{DynamicResource MacOS.ColorPicker.ColorViewTabStripHeight}">
                         <PathIcon Width="20"
                                   Height="20"
                                   Data="{DynamicResource ColorViewPaletteIconGeometry}" />
@@ -186,7 +186,7 @@
                                  ToolTip.Tip="{Binding Converter={StaticResource ColorToDisplayNameConverter}}"
                                  HorizontalAlignment="Stretch"
                                  VerticalAlignment="Stretch">
-                            <Border Background="{StaticResource ColorControlCheckeredBackgroundBrush}" />
+                            <Border Background="{DynamicResource MacOS.ColorPicker.ColorControlCheckeredBackgroundBrush}" />
                             <Border HorizontalAlignment="Stretch"
                                     VerticalAlignment="Stretch">
                               <Border.Background>
@@ -207,7 +207,7 @@
                   <TabItem Theme="{StaticResource ColorViewTabItemTheme}"
                            IsVisible="{TemplateBinding IsColorComponentsVisible}">
                     <TabItem.Header>
-                      <Border Height="{DynamicResource ColorViewTabStripHeight}">
+                      <Border Height="{DynamicResource MacOS.ColorPicker.ColorViewTabStripHeight}">
                         <PathIcon Width="20"
                                   Height="20"
                                   Data="{DynamicResource ColorViewComponentsIconGeometry}" />
@@ -277,7 +277,7 @@
                       <Border Grid.Column="0"
                               Grid.Row="2"
                               Height="{Binding ElementName=Component1NumericUpDown, Path=Bounds.Height}"
-                              Width="{DynamicResource ColorViewComponentLabelWidth}"
+                              Width="{DynamicResource MacOS.ColorPicker.ColorViewComponentLabelWidth}"
                               Background="{DynamicResource MacOS.TextControlBackgroundDisabled}"
                               BorderBrush="{DynamicResource MacOS.TextControlBorderBrush}"
                               BorderThickness="1,1,0,1"
@@ -302,7 +302,7 @@
                                      AllowSpin="True"
                                      ShowButtonSpinner="False"
                                      Height="32"
-                                     Width="{DynamicResource ColorViewComponentTextInputWidth}"
+                                     Width="{DynamicResource MacOS.ColorPicker.ColorViewComponentTextInputWidth}"
                                      CornerRadius="0,4,4,0"
                                      Margin="0,0,12,0"
                                      VerticalAlignment="Center"
@@ -327,7 +327,7 @@
                       <!-- Component 2 RGB:Green HSV:Saturation -->
                       <Border Grid.Column="0"
                               Grid.Row="3"
-                              Width="{DynamicResource ColorViewComponentLabelWidth}"
+                              Width="{DynamicResource MacOS.ColorPicker.ColorViewComponentLabelWidth}"
                               Height="{Binding ElementName=Component2NumericUpDown, Path=Bounds.Height}"
                               Background="{DynamicResource MacOS.TextControlBackgroundDisabled}"
                               BorderBrush="{DynamicResource MacOS.TextControlBorderBrush}"
@@ -353,7 +353,7 @@
                                      AllowSpin="True"
                                      ShowButtonSpinner="False"
                                      Height="32"
-                                     Width="{DynamicResource ColorViewComponentTextInputWidth}"
+                                     Width="{DynamicResource MacOS.ColorPicker.ColorViewComponentTextInputWidth}"
                                      CornerRadius="0,4,4,0"
                                      Margin="0,0,12,0"
                                      VerticalAlignment="Center"
@@ -378,7 +378,7 @@
                       <!-- Component 3 RGB:Blue HSV:Value -->
                       <Border Grid.Column="0"
                               Grid.Row="4"
-                              Width="{DynamicResource ColorViewComponentLabelWidth}"
+                              Width="{DynamicResource MacOS.ColorPicker.ColorViewComponentLabelWidth}"
                               Height="{Binding ElementName=Component3NumericUpDown, Path=Bounds.Height}"
                               Background="{DynamicResource MacOS.TextControlBackgroundDisabled}"
                               BorderBrush="{DynamicResource MacOS.TextControlBorderBrush}"
@@ -404,7 +404,7 @@
                                      AllowSpin="True"
                                      ShowButtonSpinner="False"
                                      Height="32"
-                                     Width="{DynamicResource ColorViewComponentTextInputWidth}"
+                                     Width="{DynamicResource MacOS.ColorPicker.ColorViewComponentTextInputWidth}"
                                      CornerRadius="0,4,4,0"
                                      Margin="0,0,12,0"
                                      VerticalAlignment="Center"
@@ -429,7 +429,7 @@
                       <!-- Alpha Component -->
                       <Border Grid.Column="0"
                               Grid.Row="5"
-                              Width="{DynamicResource ColorViewComponentLabelWidth}"
+                              Width="{DynamicResource MacOS.ColorPicker.ColorViewComponentLabelWidth}"
                               Height="{Binding ElementName=AlphaComponentNumericUpDown, Path=Bounds.Height}"
                               Background="{DynamicResource MacOS.TextControlBackgroundDisabled}"
                               BorderBrush="{DynamicResource MacOS.TextControlBorderBrush}"
@@ -458,7 +458,7 @@
                                      AllowSpin="True"
                                      ShowButtonSpinner="False"
                                      Height="32"
-                                     Width="{DynamicResource ColorViewComponentTextInputWidth}"
+                                     Width="{DynamicResource MacOS.ColorPicker.ColorViewComponentTextInputWidth}"
                                      CornerRadius="0,4,4,0"
                                      Margin="0,0,12,0"
                                      VerticalAlignment="Center"

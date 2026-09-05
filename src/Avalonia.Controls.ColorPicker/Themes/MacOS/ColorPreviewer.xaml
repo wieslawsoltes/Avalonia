@@ -4,8 +4,8 @@
                     x:ClassModifier="internal">
 
   <pc:AccentColorConverter x:Key="AccentColorConverter" />
-  <x:Double x:Key="ColorPreviewerAccentSectionWidth">80</x:Double>
-  <x:Double x:Key="ColorPreviewerAccentSectionHeight">40</x:Double>
+  
+  
 
   <ControlTheme x:Key="{x:Type ColorPreviewer}"
                 TargetType="ColorPreviewer">
@@ -21,15 +21,15 @@
                 IsVisible="{TemplateBinding IsAccentColorsVisible}">
             <!-- Left accent colors -->
             <Grid Grid.Column="0"
-                  Height="{StaticResource ColorPreviewerAccentSectionHeight}"
-                  Width="{StaticResource ColorPreviewerAccentSectionWidth}"
+                  Height="{DynamicResource MacOS.ColorPicker.ColorPreviewerAccentSectionHeight}"
+                  Width="{DynamicResource MacOS.ColorPicker.ColorPreviewerAccentSectionWidth}"
                   ColumnDefinitions="*,*"
                   VerticalAlignment="Center">
               <Border Grid.Column="0"
                       Grid.ColumnSpan="2"
                       HorizontalAlignment="Stretch"
                       VerticalAlignment="Stretch"
-                      Background="{StaticResource ColorControlCheckeredBackgroundBrush}" />
+                      Background="{DynamicResource MacOS.ColorPicker.ColorControlCheckeredBackgroundBrush}" />
               <Border x:Name="PART_AccentDecrement2Border"
                       Grid.Column="0"
                       CornerRadius="{TemplateBinding CornerRadius, Converter={StaticResource LeftCornerRadiusFilterConverter}}"
@@ -42,15 +42,15 @@
             </Grid>
             <!-- Right accent colors -->
             <Grid Grid.Column="2"
-                  Height="{StaticResource ColorPreviewerAccentSectionHeight}"
-                  Width="{StaticResource ColorPreviewerAccentSectionWidth}"
+                  Height="{DynamicResource MacOS.ColorPicker.ColorPreviewerAccentSectionHeight}"
+                  Width="{DynamicResource MacOS.ColorPicker.ColorPreviewerAccentSectionWidth}"
                   ColumnDefinitions="*,*"
                   VerticalAlignment="Center">
               <Border Grid.Column="0"
                       Grid.ColumnSpan="2"
                       HorizontalAlignment="Stretch"
                       VerticalAlignment="Stretch"
-                      Background="{StaticResource ColorControlCheckeredBackgroundBrush}" />
+                      Background="{DynamicResource MacOS.ColorPicker.ColorControlCheckeredBackgroundBrush}" />
               <Border x:Name="PART_AccentIncrement1Border"
                       Grid.Column="0"
                       Tag="1"
@@ -68,7 +68,7 @@
                     BoxShadow="0 0 10 2 #BF000000"
                     CornerRadius="{TemplateBinding CornerRadius}">
               <Panel>
-                <Border Background="{StaticResource ColorControlCheckeredBackgroundBrush}"
+                <Border Background="{DynamicResource MacOS.ColorPicker.ColorControlCheckeredBackgroundBrush}"
                         CornerRadius="{TemplateBinding CornerRadius}" />
                 <Border CornerRadius="{TemplateBinding CornerRadius}"
                         Background="{TemplateBinding HsvColor, Converter={StaticResource ToBrushConverter}}"
@@ -83,7 +83,7 @@
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch">
             <Panel>
-              <Border Background="{StaticResource ColorControlCheckeredBackgroundBrush}"
+              <Border Background="{DynamicResource MacOS.ColorPicker.ColorControlCheckeredBackgroundBrush}"
                       CornerRadius="{TemplateBinding CornerRadius}" />
               <Border CornerRadius="{TemplateBinding CornerRadius}"
                       Background="{TemplateBinding HsvColor, Converter={StaticResource ToBrushConverter}}"

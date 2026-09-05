@@ -123,7 +123,7 @@
       <Setter Property="TextElement.Foreground" Value="{DynamicResource MacOS.ScrollBarButtonArrowForegroundDisabled}"/>
 
       <Style Selector="^ /template/ ContentPresenter" >
-        <Setter Property="Background" Value="{DynamicResource ScrollBarButtonBackgroundDisabled}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.Brush.Transparent}" />
         <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ScrollBarButtonBorderBrushDisabled}" />
       </Style>
     </Style>

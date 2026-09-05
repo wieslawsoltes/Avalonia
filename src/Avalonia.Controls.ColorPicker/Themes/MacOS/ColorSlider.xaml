@@ -4,10 +4,10 @@
 
   <!-- Note that the Slider thumb should generally follow the overall Slider dimensions.
        Therefore, there are not currently separate resources to control it. -->
-  <x:Double x:Key="ColorSliderSize">20</x:Double>
-  <x:Double x:Key="ColorSliderTrackSize">20</x:Double>
-  <CornerRadius x:Key="ColorSliderCornerRadius">10</CornerRadius>
-  <CornerRadius x:Key="ColorSliderTrackCornerRadius">10</CornerRadius>
+  
+  
+  
+  
 
   <ControlTheme x:Key="ColorSliderThumbTheme"
                 TargetType="Thumb">
@@ -15,7 +15,7 @@
     <Setter Property="BorderBrush" Value="{DynamicResource MacOS.SystemControlForegroundBaseHighBrush}" />
     <!--TODO: <Setter Property="BorderBrush" Value="{DynamicResource ColorControlDefaultSelectorBrush}" />-->
     <Setter Property="BorderThickness" Value="3" />
-    <Setter Property="CornerRadius" Value="{DynamicResource ColorSliderCornerRadius}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.ColorPicker.ColorSliderCornerRadius}" />
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
@@ -33,8 +33,8 @@
 
     <Style Selector="^:horizontal">
       <Setter Property="BorderThickness" Value="0" />
-      <Setter Property="CornerRadius" Value="{DynamicResource ColorSliderCornerRadius}" />
-      <Setter Property="Height" Value="{DynamicResource ColorSliderSize}" />
+      <Setter Property="CornerRadius" Value="{DynamicResource MacOS.ColorPicker.ColorSliderCornerRadius}" />
+      <Setter Property="Height" Value="{DynamicResource MacOS.ColorPicker.ColorSliderSize}" />
       <Setter Property="Template">
         <ControlTemplate TargetType="{x:Type ColorSlider}">
           <Border BorderThickness="{TemplateBinding BorderThickness}"
@@ -44,15 +44,15 @@
               <Border HorizontalAlignment="Stretch"
                       VerticalAlignment="Center"
                       Height="{Binding ElementName=PART_Track, Path=Bounds.Height}"
-                      Background="{StaticResource ColorControlCheckeredBackgroundBrush}"
-                      CornerRadius="{DynamicResource ColorSliderTrackCornerRadius}" />
+                      Background="{DynamicResource MacOS.ColorPicker.ColorControlCheckeredBackgroundBrush}"
+                      CornerRadius="{DynamicResource MacOS.ColorPicker.ColorSliderTrackCornerRadius}" />
               <Border HorizontalAlignment="Stretch"
                       VerticalAlignment="Center"
                       Height="{Binding ElementName=PART_Track, Path=Bounds.Height}"
                       Background="{TemplateBinding Background}"
-                      CornerRadius="{DynamicResource ColorSliderTrackCornerRadius}" />
+                      CornerRadius="{DynamicResource MacOS.ColorPicker.ColorSliderTrackCornerRadius}" />
               <Track Name="PART_Track"
-                     Height="{DynamicResource ColorSliderTrackSize}"
+                     Height="{DynamicResource MacOS.ColorPicker.ColorSliderTrackSize}"
                      HorizontalAlignment="Stretch"
                      VerticalAlignment="Center"
                      Minimum="{TemplateBinding Minimum}"
@@ -106,8 +106,8 @@
 
     <Style Selector="^:vertical">
       <Setter Property="BorderThickness" Value="0" />
-      <Setter Property="CornerRadius" Value="{DynamicResource ColorSliderCornerRadius}" />
-      <Setter Property="Width" Value="{DynamicResource ColorSliderSize}" />
+      <Setter Property="CornerRadius" Value="{DynamicResource MacOS.ColorPicker.ColorSliderCornerRadius}" />
+      <Setter Property="Width" Value="{DynamicResource MacOS.ColorPicker.ColorSliderSize}" />
       <Setter Property="Template">
         <ControlTemplate TargetType="{x:Type ColorSlider}">
           <Border BorderThickness="{TemplateBinding BorderThickness}"
@@ -117,15 +117,15 @@
               <Border HorizontalAlignment="Center"
                       VerticalAlignment="Stretch"
                       Width="{Binding ElementName=PART_Track, Path=Bounds.Width}"
-                      Background="{StaticResource ColorControlCheckeredBackgroundBrush}"
-                      CornerRadius="{DynamicResource ColorSliderTrackCornerRadius}" />
+                      Background="{DynamicResource MacOS.ColorPicker.ColorControlCheckeredBackgroundBrush}"
+                      CornerRadius="{DynamicResource MacOS.ColorPicker.ColorSliderTrackCornerRadius}" />
               <Border HorizontalAlignment="Center"
                       VerticalAlignment="Stretch"
                       Width="{Binding ElementName=PART_Track, Path=Bounds.Width}"
                       Background="{TemplateBinding Background}"
-                      CornerRadius="{DynamicResource ColorSliderTrackCornerRadius}" />
+                      CornerRadius="{DynamicResource MacOS.ColorPicker.ColorSliderTrackCornerRadius}" />
               <Track Name="PART_Track"
-                     Width="{DynamicResource ColorSliderTrackSize}"
+                     Width="{DynamicResource MacOS.ColorPicker.ColorSliderTrackSize}"
                      HorizontalAlignment="Center"
                      VerticalAlignment="Stretch"
                      Minimum="{TemplateBinding Minimum}"
@@ -189,10 +189,10 @@
     </Style>
 
     <Style Selector="^:dark-selector /template/ Thumb#ColorSliderThumb">
-      <Setter Property="BorderBrush" Value="{DynamicResource ColorControlDarkSelectorBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ColorPicker.ColorControlDarkSelectorBrush}" />
     </Style>
     <Style Selector="^:light-selector /template/ Thumb#ColorSliderThumb">
-      <Setter Property="BorderBrush" Value="{DynamicResource ColorControlLightSelectorBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ColorPicker.ColorControlLightSelectorBrush}" />
     </Style>
 
   </ControlTheme>
