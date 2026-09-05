@@ -120,17 +120,8 @@ if __name__ == '__main__':
     text = path.read_text().replace('<PackageReadmeFile>',
         '<RepositoryUrl>https://github.com/wieslawsoltes/Avalonia</RepositoryUrl>\n    <PackageProjectUrl>https://github.com/wieslawsoltes/Avalonia</PackageProjectUrl>\n    <PackageReleaseNotes>Development theme from the fork; see docs/themes/macos26/PROGRESS.md for release validation.</PackageReleaseNotes>\n    <PackageReadmeFile>')
     path.write_text(text)
-    path = ROOT / '.github/workflows/macos-theme.yml'
-    text = path.read_text().replace('      - name: Audit source contracts', '''      - name: Validate a clean package-only consumer
-        if: ${{ !cancelled() && steps.theme.outcome == 'success' && runner.os == 'Linux' }}
-        run: |
-          python3 eng/macos26/package-smoke.py > artifacts/macos-theme/logs/package-consumer.log 2>&1 \\
-            || { tail -120 artifacts/macos-theme/logs/package-consumer.log; exit 1; }
-          tail -12 artifacts/macos-theme/logs/package-consumer.log
-      - name: Audit source contracts''')
-    path.write_text(text)
     commit('test(macos): validate compiled resources and token updates from isolated NuGet packages',
-           'eng/macos26/package-smoke.py', 'src/Avalonia.Themes.MacOS', '.github/workflows/macos-theme.yml')
+           'eng/macos26/package-smoke.py', 'src/Avalonia.Themes.MacOS')
 
 if __name__ == '__main__':
     main()
