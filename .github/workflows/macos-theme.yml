@@ -1,32 +1,26 @@
 name: macOS theme
 
 on:
-  push:
-    branches: [feature/macos26-theme]
-  pull_request:
-    paths:
-      - 'src/Avalonia.Themes.MacOS/**'
-      - 'src/Avalonia.Controls.ColorPicker/Themes/MacOS/**'
-      - 'samples/ControlCatalog/**'
-      - 'samples/ControlCatalog.MacOS/**'
-      - 'tests/Avalonia.Themes.MacOS.UnitTests/**'
-      - 'docs/themes/macos26/**'
-      - '.github/workflows/macos-theme.yml'
+  workflow_call:
+    inputs:
+      source_ref:
+        required: true
+        type: string
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: macos-theme-${{ github.ref }}
-  cancel-in-progress: true
+  group: macos-theme-${{ github.ref }}-${{ inputs.source_ref || github.sha }}
+  cancel-in-progress: false
 
 jobs:
   validate:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-26]
+        os: [ubuntu-latest, macos-26, macos-26-intel]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
     defaults:
@@ -35,6 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.source_ref || github.sha }}
           submodules: recursive
           persist-credentials: false
       - uses: actions/setup-dotnet@v4
@@ -48,7 +43,7 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           xcodebuild -project native/Avalonia.Native/src/OSX/Avalonia.Native.OSX.xcodeproj \
-            -configuration Release -arch arm64 \
+            -configuration Release -arch "$(uname -m)" \
             SYMROOT="$GITHUB_WORKSPACE/Build/Products" CODE_SIGNING_ALLOWED=NO \
             > artifacts/macos-theme/logs/native-build.log 2>&1 \
             || { tail -100 artifacts/macos-theme/logs/native-build.log; exit 1; }
@@ -100,7 +95,7 @@ jobs:
           tar -czf artifacts/macos-theme/source.tar.gz --exclude='*/bin' --exclude='*/obj' \
             src/Avalonia.Themes.MacOS src/Avalonia.Controls.ColorPicker/Themes/MacOS \
             samples/ControlCatalog.MacOS samples/ControlCatalog/Pages/MacOSThemePage* \
-            eng/macos26 .github/workflows/macos-theme.yml
+            tests/Avalonia.Themes.MacOS.UnitTests eng/macos26 .github/workflows/macos-theme.yml
       - uses: actions/upload-artifact@v4
         if: always()
         with:
