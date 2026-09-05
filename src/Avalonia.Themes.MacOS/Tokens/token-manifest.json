@@ -4555,6 +4555,168 @@
       "baselineDefinitions": []
     },
     {
+      "key": "MacOS.ColorPicker.ColorControlCheckeredBackgroundBrush",
+      "legacyKey": null,
+      "type": "VisualBrush",
+      "sources": [
+        "Tokens/ColorPicker.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.ColorPicker.ColorControlDarkSelectorBrush",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/ColorPicker.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.ColorPicker.ColorControlLightSelectorBrush",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/ColorPicker.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.ColorPicker.ColorPickerFlyoutPlacement",
+      "legacyKey": null,
+      "type": "PlacementMode",
+      "sources": [
+        "Tokens/ColorPicker.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.ColorPicker.ColorPreviewerAccentSectionHeight",
+      "legacyKey": null,
+      "type": "Double",
+      "sources": [
+        "Tokens/ColorPicker.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.ColorPicker.ColorPreviewerAccentSectionWidth",
+      "legacyKey": null,
+      "type": "Double",
+      "sources": [
+        "Tokens/ColorPicker.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.ColorPicker.ColorSliderCornerRadius",
+      "legacyKey": null,
+      "type": "CornerRadius",
+      "sources": [
+        "Tokens/ColorPicker.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.ColorPicker.ColorSliderSize",
+      "legacyKey": null,
+      "type": "Double",
+      "sources": [
+        "Tokens/ColorPicker.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.ColorPicker.ColorSliderTrackCornerRadius",
+      "legacyKey": null,
+      "type": "CornerRadius",
+      "sources": [
+        "Tokens/ColorPicker.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.ColorPicker.ColorSliderTrackSize",
+      "legacyKey": null,
+      "type": "Double",
+      "sources": [
+        "Tokens/ColorPicker.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.ColorPicker.ColorViewComponentLabelWidth",
+      "legacyKey": null,
+      "type": "Double",
+      "sources": [
+        "Tokens/ColorPicker.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.ColorPicker.ColorViewComponentTextInputWidth",
+      "legacyKey": null,
+      "type": "Double",
+      "sources": [
+        "Tokens/ColorPicker.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.ColorPicker.ColorViewContentBackgroundBrush",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/ColorPicker.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.ColorPicker.ColorViewContentBorderBrush",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/ColorPicker.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.ColorPicker.ColorViewTabBackgroundCornerRadius",
+      "legacyKey": null,
+      "type": "CornerRadius",
+      "sources": [
+        "Tokens/ColorPicker.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.ColorPicker.ColorViewTabBorderBrush",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/ColorPicker.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.ColorPicker.ColorViewTabStripHeight",
+      "legacyKey": null,
+      "type": "Double",
+      "sources": [
+        "Tokens/ColorPicker.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
+      "key": "MacOS.ColorPicker.FlyoutTabBackgroundCornerRadius",
+      "legacyKey": null,
+      "type": "CornerRadius",
+      "sources": [
+        "Tokens/ColorPicker.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
       "key": "MacOS.ComboBoxBackground",
       "legacyKey": "ComboBoxBackground",
       "type": "SolidColorBrush",

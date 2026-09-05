@@ -102,6 +102,42 @@ public static partial class MacOSTokens
     public static readonly MacOSToken<global::Avalonia.Media.Color> Color_Warning = new("MacOS.Color.Warning");
     /// <summary>Gets the MacOS.Color.Window token.</summary>
     public static readonly MacOSToken<global::Avalonia.Media.Color> Color_Window = new("MacOS.Color.Window");
+    /// <summary>Gets the MacOS.ColorPicker.ColorControlCheckeredBackgroundBrush token.</summary>
+    public static readonly MacOSToken<global::Avalonia.Media.IBrush> ColorPicker_ColorControlCheckeredBackgroundBrush = new("MacOS.ColorPicker.ColorControlCheckeredBackgroundBrush");
+    /// <summary>Gets the MacOS.ColorPicker.ColorControlDarkSelectorBrush token.</summary>
+    public static readonly MacOSToken<global::Avalonia.Media.IBrush> ColorPicker_ColorControlDarkSelectorBrush = new("MacOS.ColorPicker.ColorControlDarkSelectorBrush");
+    /// <summary>Gets the MacOS.ColorPicker.ColorControlLightSelectorBrush token.</summary>
+    public static readonly MacOSToken<global::Avalonia.Media.IBrush> ColorPicker_ColorControlLightSelectorBrush = new("MacOS.ColorPicker.ColorControlLightSelectorBrush");
+    /// <summary>Gets the MacOS.ColorPicker.ColorPickerFlyoutPlacement token.</summary>
+    public static readonly MacOSToken<global::Avalonia.Controls.PlacementMode> ColorPicker_ColorPickerFlyoutPlacement = new("MacOS.ColorPicker.ColorPickerFlyoutPlacement");
+    /// <summary>Gets the MacOS.ColorPicker.ColorPreviewerAccentSectionHeight token.</summary>
+    public static readonly MacOSToken<double> ColorPicker_ColorPreviewerAccentSectionHeight = new("MacOS.ColorPicker.ColorPreviewerAccentSectionHeight");
+    /// <summary>Gets the MacOS.ColorPicker.ColorPreviewerAccentSectionWidth token.</summary>
+    public static readonly MacOSToken<double> ColorPicker_ColorPreviewerAccentSectionWidth = new("MacOS.ColorPicker.ColorPreviewerAccentSectionWidth");
+    /// <summary>Gets the MacOS.ColorPicker.ColorSliderCornerRadius token.</summary>
+    public static readonly MacOSToken<global::Avalonia.CornerRadius> ColorPicker_ColorSliderCornerRadius = new("MacOS.ColorPicker.ColorSliderCornerRadius");
+    /// <summary>Gets the MacOS.ColorPicker.ColorSliderSize token.</summary>
+    public static readonly MacOSToken<double> ColorPicker_ColorSliderSize = new("MacOS.ColorPicker.ColorSliderSize");
+    /// <summary>Gets the MacOS.ColorPicker.ColorSliderTrackCornerRadius token.</summary>
+    public static readonly MacOSToken<global::Avalonia.CornerRadius> ColorPicker_ColorSliderTrackCornerRadius = new("MacOS.ColorPicker.ColorSliderTrackCornerRadius");
+    /// <summary>Gets the MacOS.ColorPicker.ColorSliderTrackSize token.</summary>
+    public static readonly MacOSToken<double> ColorPicker_ColorSliderTrackSize = new("MacOS.ColorPicker.ColorSliderTrackSize");
+    /// <summary>Gets the MacOS.ColorPicker.ColorViewComponentLabelWidth token.</summary>
+    public static readonly MacOSToken<double> ColorPicker_ColorViewComponentLabelWidth = new("MacOS.ColorPicker.ColorViewComponentLabelWidth");
+    /// <summary>Gets the MacOS.ColorPicker.ColorViewComponentTextInputWidth token.</summary>
+    public static readonly MacOSToken<double> ColorPicker_ColorViewComponentTextInputWidth = new("MacOS.ColorPicker.ColorViewComponentTextInputWidth");
+    /// <summary>Gets the MacOS.ColorPicker.ColorViewContentBackgroundBrush token.</summary>
+    public static readonly MacOSToken<global::Avalonia.Media.IBrush> ColorPicker_ColorViewContentBackgroundBrush = new("MacOS.ColorPicker.ColorViewContentBackgroundBrush");
+    /// <summary>Gets the MacOS.ColorPicker.ColorViewContentBorderBrush token.</summary>
+    public static readonly MacOSToken<global::Avalonia.Media.IBrush> ColorPicker_ColorViewContentBorderBrush = new("MacOS.ColorPicker.ColorViewContentBorderBrush");
+    /// <summary>Gets the MacOS.ColorPicker.ColorViewTabBackgroundCornerRadius token.</summary>
+    public static readonly MacOSToken<global::Avalonia.CornerRadius> ColorPicker_ColorViewTabBackgroundCornerRadius = new("MacOS.ColorPicker.ColorViewTabBackgroundCornerRadius");
+    /// <summary>Gets the MacOS.ColorPicker.ColorViewTabBorderBrush token.</summary>
+    public static readonly MacOSToken<global::Avalonia.Media.IBrush> ColorPicker_ColorViewTabBorderBrush = new("MacOS.ColorPicker.ColorViewTabBorderBrush");
+    /// <summary>Gets the MacOS.ColorPicker.ColorViewTabStripHeight token.</summary>
+    public static readonly MacOSToken<double> ColorPicker_ColorViewTabStripHeight = new("MacOS.ColorPicker.ColorViewTabStripHeight");
+    /// <summary>Gets the MacOS.ColorPicker.FlyoutTabBackgroundCornerRadius token.</summary>
+    public static readonly MacOSToken<global::Avalonia.CornerRadius> ColorPicker_FlyoutTabBackgroundCornerRadius = new("MacOS.ColorPicker.FlyoutTabBackgroundCornerRadius");
     /// <summary>Gets the MacOS.Focus.Radius token.</summary>
     public static readonly MacOSToken<global::Avalonia.CornerRadius> Focus_Radius = new("MacOS.Focus.Radius");
     /// <summary>Gets the MacOS.Motion.Interaction token.</summary>
