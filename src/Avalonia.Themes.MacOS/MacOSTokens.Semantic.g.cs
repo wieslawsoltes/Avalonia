@@ -4,6 +4,8 @@ namespace Avalonia.Themes.MacOS;
 
 public static partial class MacOSTokens
 {
+    /// <summary>Gets the MacOS.Brush.Accent token.</summary>
+    public static readonly MacOSToken<global::Avalonia.Media.IBrush> Brush_Accent = new("MacOS.Brush.Accent");
     /// <summary>Gets the MacOS.Brush.Control token.</summary>
     public static readonly MacOSToken<global::Avalonia.Media.IBrush> Brush_Control = new("MacOS.Brush.Control");
     /// <summary>Gets the MacOS.Brush.ControlDisabled token.</summary>
@@ -54,6 +56,8 @@ public static partial class MacOSTokens
     public static readonly MacOSToken<global::Avalonia.CornerRadius> CheckBox_Radius = new("MacOS.CheckBox.Radius");
     /// <summary>Gets the MacOS.CheckBox.Size token.</summary>
     public static readonly MacOSToken<double> CheckBox_Size = new("MacOS.CheckBox.Size");
+    /// <summary>Gets the MacOS.Color.Accent token.</summary>
+    public static readonly MacOSToken<global::Avalonia.Media.Color> Color_Accent = new("MacOS.Color.Accent");
     /// <summary>Gets the MacOS.Color.Control token.</summary>
     public static readonly MacOSToken<global::Avalonia.Media.Color> Color_Control = new("MacOS.Color.Control");
     /// <summary>Gets the MacOS.Color.ControlDisabled token.</summary>

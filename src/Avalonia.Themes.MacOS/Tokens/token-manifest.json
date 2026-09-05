@@ -434,6 +434,15 @@
       ]
     },
     {
+      "key": "MacOS.Brush.Accent",
+      "legacyKey": null,
+      "type": "SolidColorBrush",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
+    },
+    {
       "key": "MacOS.Brush.Control",
       "legacyKey": null,
       "type": "SolidColorBrush",
@@ -4337,6 +4346,15 @@
           }
         }
       ]
+    },
+    {
+      "key": "MacOS.Color.Accent",
+      "legacyKey": null,
+      "type": "Color",
+      "sources": [
+        "Tokens/Semantic.xaml"
+      ],
+      "baselineDefinitions": []
     },
     {
       "key": "MacOS.Color.Control",
@@ -10336,7 +10354,8 @@
       "legacyKey": "NavigationViewItemOnLeftMinHeight",
       "type": "Double",
       "sources": [
-        "DensityStyles/Compact.xaml"
+        "DensityStyles/Compact.xaml",
+        "Tokens/Semantic.xaml"
       ],
       "baselineDefinitions": [
         {
