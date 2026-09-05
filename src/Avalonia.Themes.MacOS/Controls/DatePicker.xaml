@@ -28,16 +28,16 @@
     </Border>
   </Design.PreviewWith>
 
-  <x:Double x:Key="DatePickerFlyoutPresenterHighlightHeight">40</x:Double>
-  <x:Double x:Key="DatePickerFlyoutPresenterItemHeight">40</x:Double>
-  <x:Double x:Key="DatePickerFlyoutPresenterAcceptDismissHostGridHeight">41</x:Double>
-  <x:Double x:Key="DatePickerThemeMinWidth">296</x:Double>
-  <x:Double x:Key="DatePickerThemeMaxWidth">456</x:Double>
-  <Thickness x:Key="DatePickerFlyoutPresenterItemPadding">0,3,0,6</Thickness>
-  <Thickness x:Key="DatePickerFlyoutPresenterMonthPadding">9,3,0,6</Thickness>
-  <Thickness x:Key="DatePickerHostPadding">0,3,0,6</Thickness>
-  <Thickness x:Key="DatePickerHostMonthPadding">9,3,0,6</Thickness>
-  <x:Double x:Key="DatePickerSpacerThemeWidth">1</x:Double>
+  <x:Double x:Key="MacOS.DatePickerFlyoutPresenterHighlightHeight">40</x:Double>
+  <x:Double x:Key="MacOS.DatePickerFlyoutPresenterItemHeight">40</x:Double>
+  <x:Double x:Key="MacOS.DatePickerFlyoutPresenterAcceptDismissHostGridHeight">41</x:Double>
+  <x:Double x:Key="MacOS.DatePickerThemeMinWidth">296</x:Double>
+  <x:Double x:Key="MacOS.DatePickerThemeMaxWidth">456</x:Double>
+  <Thickness x:Key="MacOS.DatePickerFlyoutPresenterItemPadding">0,3,0,6</Thickness>
+  <Thickness x:Key="MacOS.DatePickerFlyoutPresenterMonthPadding">9,3,0,6</Thickness>
+  <Thickness x:Key="MacOS.DatePickerHostPadding">0,3,0,6</Thickness>
+  <Thickness x:Key="MacOS.DatePickerHostMonthPadding">9,3,0,6</Thickness>
+  <x:Double x:Key="MacOS.DatePickerSpacerThemeWidth">1</x:Double>
 
   <ControlTheme x:Key="MacOSDatePickerFlyoutButton" TargetType="Button">
     <Setter Property="RenderTransform" Value="none" />
@@ -60,27 +60,27 @@
     </Style>
     
     <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource DatePickerButtonBackgroundPressed}"/>
-      <Setter Property="Foreground" Value="{DynamicResource DatePickerButtonForegroundPressed}"/>
+      <Setter Property="Background" Value="{DynamicResource MacOS.DatePickerButtonBackgroundPressed}"/>
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.DatePickerButtonForegroundPressed}"/>
     </Style>
 
     <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="BorderBrush" Value="{DynamicResource DatePickerButtonBorderBrushDisabled}"/>
-      <Setter Property="Background" Value="{DynamicResource DatePickerButtonBackgroundDisabled}"/>
-      <Setter Property="Foreground" Value="{DynamicResource DatePickerButtonForegroundDisabled}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.DatePickerButtonBorderBrushDisabled}"/>
+      <Setter Property="Background" Value="{DynamicResource MacOS.DatePickerButtonBackgroundDisabled}"/>
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.DatePickerButtonForegroundDisabled}"/>
     </Style>
   </ControlTheme>
   
   <ControlTheme x:Key="{x:Type DatePicker}" TargetType="DatePicker">
-    <Setter Property="Foreground" Value="{DynamicResource DatePickerButtonForeground}" />
-    <Setter Property="Background" Value="{DynamicResource DatePickerButtonBackground}"/>
-    <Setter Property="BorderBrush" Value="{DynamicResource DatePickerButtonBorderBrush}"/>
-    <Setter Property="BorderThickness" Value="{DynamicResource DatePickerBorderThickness}"/>
-    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+    <Setter Property="Foreground" Value="{DynamicResource MacOS.DatePickerButtonForeground}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.DatePickerButtonBackground}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource MacOS.DatePickerButtonBorderBrush}"/>
+    <Setter Property="BorderThickness" Value="{DynamicResource MacOS.DatePickerBorderThickness}"/>
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.ControlCornerRadius}" />
     <Setter Property="HorizontalAlignment" Value="Left" />
     <Setter Property="VerticalAlignment" Value="Center" />
-    <Setter Property="MinWidth" Value="{DynamicResource DatePickerThemeMinWidth}" />
-    <Setter Property="MaxWidth" Value="{DynamicResource DatePickerThemeMaxWidth}" />
+    <Setter Property="MinWidth" Value="{DynamicResource MacOS.DatePickerThemeMinWidth}" />
+    <Setter Property="MaxWidth" Value="{DynamicResource MacOS.DatePickerThemeMaxWidth}" />
     <Setter Property="Template">
       <ControlTemplate>
         <DataValidationErrors>
@@ -100,18 +100,18 @@
                     TemplatedControl.IsTemplateFocusTarget="True">
               <Grid Name="PART_ButtonContentGrid" ColumnDefinitions="78*,Auto,132*,Auto,78*">
                 <TextBlock Name="PART_DayTextBlock" Text="{DynamicResource StringDatePickerDayText}" HorizontalAlignment="Center"
-                           Padding="{DynamicResource DatePickerHostPadding}" />
+                           Padding="{DynamicResource MacOS.DatePickerHostPadding}" />
                 <TextBlock Name="PART_MonthTextBlock" Text="{DynamicResource StringDatePickerMonthText}" TextAlignment="Left"
-                           Padding="{DynamicResource DatePickerHostMonthPadding}" />
+                           Padding="{DynamicResource MacOS.DatePickerHostMonthPadding}" />
                 <TextBlock Name="PART_YearTextBlock" Text="{DynamicResource StringDatePickerYearText}" HorizontalAlignment="Center"
-                           Padding="{DynamicResource DatePickerHostPadding}" />
+                           Padding="{DynamicResource MacOS.DatePickerHostPadding}" />
                 <Rectangle x:Name="PART_FirstSpacer"
-                      Fill="{DynamicResource DatePickerSpacerFill}"
+                      Fill="{DynamicResource MacOS.DatePickerSpacerFill}"
                       HorizontalAlignment="Center"
                       Width="1"
                       Grid.Column="1" />
                 <Rectangle x:Name="PART_SecondSpacer"
-                      Fill="{DynamicResource DatePickerSpacerFill}"
+                      Fill="{DynamicResource MacOS.DatePickerSpacerFill}"
                       HorizontalAlignment="Center"
                       Width="1"
                       Grid.Column="3" />
@@ -130,7 +130,7 @@
     </Setter>
 
     <Style Selector="^:disabled /template/ Rectangle">
-      <Setter Property="Fill" Value="{DynamicResource DatePickerSpacerFillDisabled}"/>
+      <Setter Property="Fill" Value="{DynamicResource MacOS.DatePickerSpacerFillDisabled}"/>
     </Style>
 
     <Style Selector="^ /template/ Button#PART_FlyoutButton TextBlock">
@@ -139,29 +139,29 @@
 
     <!-- Changes foreground for watermark text when SelectedDate is null-->
     <Style Selector="^:hasnodate /template/ Button#PART_FlyoutButton TextBlock">
-      <Setter Property="Foreground" Value="{DynamicResource TextControlPlaceholderForeground}"/>
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.TextControlPlaceholderForeground}"/>
     </Style>
 
     <Style Selector="^:error /template/ Button#PART_FlyoutButton">
-      <Setter Property="BorderBrush" Value="{DynamicResource SystemControlErrorTextForegroundBrush}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.SystemControlErrorTextForegroundBrush}"/>
     </Style>
   </ControlTheme>
 
   <!--WinUI: DatePickerFlyoutPresenter-->
   <ControlTheme x:Key="{x:Type DatePickerPresenter}" TargetType="DatePickerPresenter">
-    <Setter Property="Width" Value="{DynamicResource DatePickerPresenterWidth}" />
-    <Setter Property="MinWidth" Value="{DynamicResource DatePickerPresenterWidth}" />
+    <Setter Property="Width" Value="{DynamicResource MacOS.DatePickerPresenterWidth}" />
+    <Setter Property="MinWidth" Value="{DynamicResource MacOS.DatePickerPresenterWidth}" />
     <Setter Property="MaxHeight" Value="398" />
-    <Setter Property="Background" Value="{DynamicResource DatePickerFlyoutPresenterBackground}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource DatePickerFlyoutPresenterBorderBrush}" />
-    <Setter Property="BorderThickness" Value="{DynamicResource DateTimeFlyoutBorderThickness}" />
-    <Setter Property="CornerRadius" Value="{DynamicResource OverlayCornerRadius}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.DatePickerFlyoutPresenterBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MacOS.DatePickerFlyoutPresenterBorderBrush}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource MacOS.DateTimeFlyoutBorderThickness}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.OverlayCornerRadius}" />
     <Setter Property="Template">
       <ControlTemplate>
         <Border Name="Background" Background="{TemplateBinding Background}"
                 BorderBrush="{TemplateBinding BorderBrush}"
                 BorderThickness="{TemplateBinding BorderThickness}"
-                Padding="{DynamicResource DateTimeFlyoutBorderPadding}"
+                Padding="{DynamicResource MacOS.DateTimeFlyoutBorderPadding}"
                 MaxHeight="398" CornerRadius="{TemplateBinding CornerRadius}">
           <Grid Name="ContentRoot" RowDefinitions="*,Auto">
             <Grid Name="PART_PickerContainer">
@@ -176,7 +176,7 @@
                               VerticalScrollBarVisibility="Hidden">
                   <DateTimePickerPanel Name="PART_MonthSelector"
                                        PanelType="Month"
-                                       ItemHeight="{DynamicResource DatePickerFlyoutPresenterItemHeight}"
+                                       ItemHeight="{DynamicResource MacOS.DatePickerFlyoutPresenterItemHeight}"
                                        ShouldLoop="True" />
                 </ScrollViewer>
                 <RepeatButton Name="PART_MonthUpButton" Theme="{StaticResource MacOSDateTimePickerUpButton}"/>
@@ -187,7 +187,7 @@
                               VerticalScrollBarVisibility="Hidden">
                   <DateTimePickerPanel Name="PART_DaySelector"
                                        PanelType="Day"
-                                       ItemHeight="{DynamicResource DatePickerFlyoutPresenterItemHeight}"
+                                       ItemHeight="{DynamicResource MacOS.DatePickerFlyoutPresenterItemHeight}"
                                        ShouldLoop="True" />
                 </ScrollViewer>
                 <RepeatButton Name="PART_DayUpButton" Theme="{StaticResource MacOSDateTimePickerUpButton}"/>
@@ -198,39 +198,39 @@
                               VerticalScrollBarVisibility="Hidden">
                   <DateTimePickerPanel Name="PART_YearSelector"
                                        PanelType="Year"
-                                       ItemHeight="{DynamicResource DatePickerFlyoutPresenterItemHeight}"
+                                       ItemHeight="{DynamicResource MacOS.DatePickerFlyoutPresenterItemHeight}"
                                        ShouldLoop="False" />
                 </ScrollViewer>
                 <RepeatButton Name="PART_YearUpButton" Theme="{StaticResource MacOSDateTimePickerUpButton}"/>
                 <RepeatButton Name="PART_YearDownButton" Theme="{StaticResource MacOSDateTimePickerDownButton}"/>
               </Panel>
               <Rectangle Name="HighlightRect" IsHitTestVisible="False" ZIndex="-1"
-                         Fill="{DynamicResource DatePickerFlyoutPresenterHighlightFill}"
+                         Fill="{DynamicResource MacOS.DatePickerFlyoutPresenterHighlightFill}"
                          Grid.Column="0" Grid.ColumnSpan="5" VerticalAlignment="Center"
-                         Height="{DynamicResource DatePickerFlyoutPresenterHighlightHeight}" />
+                         Height="{DynamicResource MacOS.DatePickerFlyoutPresenterHighlightHeight}" />
               <Rectangle Name="PART_FirstSpacer"
-                         Fill="{DynamicResource DatePickerFlyoutPresenterSpacerFill}"
+                         Fill="{DynamicResource MacOS.DatePickerFlyoutPresenterSpacerFill}"
                          HorizontalAlignment="Center"
-                         Width="{DynamicResource DatePickerSpacerThemeWidth}"
+                         Width="{DynamicResource MacOS.DatePickerSpacerThemeWidth}"
                          Grid.Column="1" />
               <Rectangle Name="PART_SecondSpacer"
-                         Fill="{DynamicResource DatePickerFlyoutPresenterSpacerFill}"
+                         Fill="{DynamicResource MacOS.DatePickerFlyoutPresenterSpacerFill}"
                          HorizontalAlignment="Center"
-                         Width="{DynamicResource DatePickerSpacerThemeWidth}"
+                         Width="{DynamicResource MacOS.DatePickerSpacerThemeWidth}"
                          Grid.Column="3" />
             </Grid>
 
             <Grid Name="AcceptDismissGrid"
                   Grid.Row="1"
                   ColumnDefinitions="*,*">
-              <Rectangle Height="{DynamicResource DatePickerSpacerThemeWidth}" 
+              <Rectangle Height="{DynamicResource MacOS.DatePickerSpacerThemeWidth}" 
                          VerticalAlignment="Top"
-                         Fill="{DynamicResource DatePickerFlyoutPresenterSpacerFill}"
+                         Fill="{DynamicResource MacOS.DatePickerFlyoutPresenterSpacerFill}"
                          Grid.ColumnSpan="2"/>
               <Button Name="PART_AcceptButton"
                       Grid.Column="0"
                       Theme="{StaticResource MacOSDateTimePickerButton}"
-                      Height="{DynamicResource DatePickerFlyoutPresenterAcceptDismissHostGridHeight}"
+                      Height="{DynamicResource MacOS.DatePickerFlyoutPresenterAcceptDismissHostGridHeight}"
                       HorizontalAlignment="Stretch"
                       VerticalAlignment="Stretch">
                 <Path Stroke="{Binding $parent[Button].Foreground}"
@@ -241,7 +241,7 @@
               <Button Name="PART_DismissButton"
                       Grid.Column="1"
                       Theme="{StaticResource MacOSDateTimePickerButton}"
-                      Height="{DynamicResource DatePickerFlyoutPresenterAcceptDismissHostGridHeight}"
+                      Height="{DynamicResource MacOS.DatePickerFlyoutPresenterAcceptDismissHostGridHeight}"
                       HorizontalAlignment="Stretch" 
                       VerticalAlignment="Stretch">
                 <Path Stroke="{Binding $parent[Button].Foreground}" 

@@ -17,50 +17,50 @@
   </Design.PreviewWith>
 
   <!-- Backgrounds -->
-  <SolidColorBrush x:Key="TabbedPageTabItemHeaderBackgroundUnselected" Color="Transparent" />
-  <SolidColorBrush x:Key="TabbedPageTabItemHeaderBackgroundSelected" Color="Transparent" />
-  <SolidColorBrush x:Key="TabbedPageTabItemHeaderBackgroundUnselectedPointerOver" Color="{DynamicResource SystemListLowColor}" />
-  <SolidColorBrush x:Key="TabbedPageTabItemHeaderBackgroundSelectedPointerOver" Color="Transparent" />
-  <SolidColorBrush x:Key="TabbedPageTabItemHeaderBackgroundUnselectedPressed" Color="{DynamicResource SystemListMediumColor}" />
-  <SolidColorBrush x:Key="TabbedPageTabItemHeaderBackgroundSelectedPressed" Color="Transparent" />
-  <SolidColorBrush x:Key="TabbedPageTabItemHeaderBackgroundDisabled" Color="Transparent" />
+  <SolidColorBrush x:Key="MacOS.TabbedPageTabItemHeaderBackgroundUnselected" Color="Transparent" />
+  <SolidColorBrush x:Key="MacOS.TabbedPageTabItemHeaderBackgroundSelected" Color="Transparent" />
+  <SolidColorBrush x:Key="MacOS.TabbedPageTabItemHeaderBackgroundUnselectedPointerOver" Color="{DynamicResource MacOS.SystemListLowColor}" />
+  <SolidColorBrush x:Key="MacOS.TabbedPageTabItemHeaderBackgroundSelectedPointerOver" Color="Transparent" />
+  <SolidColorBrush x:Key="MacOS.TabbedPageTabItemHeaderBackgroundUnselectedPressed" Color="{DynamicResource MacOS.SystemListMediumColor}" />
+  <SolidColorBrush x:Key="MacOS.TabbedPageTabItemHeaderBackgroundSelectedPressed" Color="Transparent" />
+  <SolidColorBrush x:Key="MacOS.TabbedPageTabItemHeaderBackgroundDisabled" Color="Transparent" />
 
   <!-- Foregrounds (override via TabbedPageTabItemHeaderForegroundSelected / TabbedPageTabItemHeaderForegroundUnselected resources) -->
-  <SolidColorBrush x:Key="TabbedPageTabItemHeaderForegroundUnselected" Color="{DynamicResource SystemBaseMediumColor}" />
-  <SolidColorBrush x:Key="TabbedPageTabItemHeaderForegroundSelected" Color="{DynamicResource SystemAccentColor}" />
-  <SolidColorBrush x:Key="TabbedPageTabItemHeaderForegroundDisabled" Color="{DynamicResource SystemBaseLowColor}" />
-  <x:Double x:Key="TabbedPageTabItemHeaderPipeThickness">2</x:Double>
-  <x:Double x:Key="TabbedPageTabItemHeaderVerticalPipeHeight">18</x:Double>
+  <SolidColorBrush x:Key="MacOS.TabbedPageTabItemHeaderForegroundUnselected" Color="{DynamicResource MacOS.SystemBaseMediumColor}" />
+  <SolidColorBrush x:Key="MacOS.TabbedPageTabItemHeaderForegroundSelected" Color="{DynamicResource MacOS.SystemAccentColor}" />
+  <SolidColorBrush x:Key="MacOS.TabbedPageTabItemHeaderForegroundDisabled" Color="{DynamicResource MacOS.SystemBaseLowColor}" />
+  <x:Double x:Key="MacOS.TabbedPageTabItemHeaderPipeThickness">2</x:Double>
+  <x:Double x:Key="MacOS.TabbedPageTabItemHeaderVerticalPipeHeight">18</x:Double>
 
-  <CornerRadius x:Key="TabbedPageTabItemHeaderIndicatorCornerRadius">0</CornerRadius>
-  <Thickness x:Key="TabbedPageTabItemHeaderIndicatorMargin">0</Thickness>
+  <CornerRadius x:Key="MacOS.TabbedPageTabItemHeaderIndicatorCornerRadius">0</CornerRadius>
+  <Thickness x:Key="MacOS.TabbedPageTabItemHeaderIndicatorMargin">0</Thickness>
 
   <!-- Tab item sizing & shape -->
-  <x:Double x:Key="TabbedPageTabItemHeaderMinHeight">48</x:Double>
-  <CornerRadius x:Key="TabbedPageTabItemHeaderCornerRadius">0</CornerRadius>
-  <Thickness x:Key="TabbedPageTabItemHeaderPadding">8,4</Thickness>
-  <Thickness x:Key="TabbedPageTabItemHeaderMargin">0</Thickness>
+  <x:Double x:Key="MacOS.TabbedPageTabItemHeaderMinHeight">48</x:Double>
+  <CornerRadius x:Key="MacOS.TabbedPageTabItemHeaderCornerRadius">0</CornerRadius>
+  <Thickness x:Key="MacOS.TabbedPageTabItemHeaderPadding">8,4</Thickness>
+  <Thickness x:Key="MacOS.TabbedPageTabItemHeaderMargin">0</Thickness>
 
   <!-- Icon + text header layout -->
-  <x:Double x:Key="TabbedPageTabItemHeaderIconSize">20</x:Double>
-  <x:Double x:Key="TabbedPageTabItemHeaderFontSize">12</x:Double>
-  <x:Double x:Key="TabbedPageTabItemHeaderSpacing">4</x:Double>
+  <x:Double x:Key="MacOS.TabbedPageTabItemHeaderIconSize">20</x:Double>
+  <x:Double x:Key="MacOS.TabbedPageTabItemHeaderFontSize">12</x:Double>
+  <x:Double x:Key="MacOS.TabbedPageTabItemHeaderSpacing">4</x:Double>
 
   <!-- Tab strip (bar) styling -->
-  <SolidColorBrush x:Key="TabbedPageTabStripBackground" Color="Transparent" />
-  <CornerRadius x:Key="TabbedPageTabStripCornerRadius">0</CornerRadius>
-  <Thickness x:Key="TabbedPageTabStripBorderThickness">0</Thickness>
-  <SolidColorBrush x:Key="TabbedPageTabStripBorderBrush" Color="Transparent" />
-  <Thickness x:Key="TabbedPageTabStripMargin">0</Thickness>
-  <Thickness x:Key="TabbedPageTabStripPadding">0</Thickness>
+  <SolidColorBrush x:Key="MacOS.TabbedPageTabStripBackground" Color="Transparent" />
+  <CornerRadius x:Key="MacOS.TabbedPageTabStripCornerRadius">0</CornerRadius>
+  <Thickness x:Key="MacOS.TabbedPageTabStripBorderThickness">0</Thickness>
+  <SolidColorBrush x:Key="MacOS.TabbedPageTabStripBorderBrush" Color="Transparent" />
+  <Thickness x:Key="MacOS.TabbedPageTabStripMargin">0</Thickness>
+  <Thickness x:Key="MacOS.TabbedPageTabStripPadding">0</Thickness>
 
   <!-- TabbedPage TabControl theme -->
   <ControlTheme x:Key="TabbedPageTabControlTheme" TargetType="TabControl">
-    <Setter Property="Background" Value="{DynamicResource TabbedPageTabStripBackground}" />
-    <Setter Property="CornerRadius" Value="{DynamicResource TabbedPageTabStripCornerRadius}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource TabbedPageTabStripBorderBrush}" />
-    <Setter Property="BorderThickness" Value="{DynamicResource TabbedPageTabStripBorderThickness}" />
-    <Setter Property="Padding" Value="{DynamicResource TabbedPageTabStripPadding}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.TabbedPageTabStripBackground}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.TabbedPageTabStripCornerRadius}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MacOS.TabbedPageTabStripBorderBrush}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource MacOS.TabbedPageTabStripBorderThickness}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.TabbedPageTabStripPadding}" />
     <Setter Property="Template">
       <ControlTemplate>
         <DockPanel>
@@ -69,7 +69,7 @@
                   CornerRadius="{TemplateBinding CornerRadius}"
                   BorderBrush="{TemplateBinding BorderBrush}"
                   BorderThickness="{TemplateBinding BorderThickness}"
-                  Margin="{DynamicResource TabbedPageTabStripMargin}"
+                  Margin="{DynamicResource MacOS.TabbedPageTabStripMargin}"
                   Padding="{TemplateBinding Padding}"
                   DockPanel.Dock="{TemplateBinding TabStripPlacement}">
             <ItemsPresenter Name="PART_ItemsPresenter">
@@ -102,21 +102,21 @@
 
   <!-- TabbedPage TabItem theme -->
   <ControlTheme x:Key="TabbedPageTabItemTheme" TargetType="TabItem">
-    <Setter Property="FontSize" Value="{DynamicResource TabItemHeaderFontSize}" />
-    <Setter Property="FontWeight" Value="{DynamicResource TabItemHeaderThemeFontWeight}" />
-    <Setter Property="Background" Value="{DynamicResource TabbedPageTabItemHeaderBackgroundUnselected}" />
-    <Setter Property="Foreground" Value="{DynamicResource TabbedPageTabItemHeaderForegroundUnselected}" />
-    <Setter Property="Padding" Value="{DynamicResource TabbedPageTabItemHeaderPadding}" />
-    <Setter Property="Margin" Value="{DynamicResource TabbedPageTabItemHeaderMargin}" />
-    <Setter Property="MinHeight" Value="{DynamicResource TabbedPageTabItemHeaderMinHeight}" />
-    <Setter Property="CornerRadius" Value="{DynamicResource TabbedPageTabItemHeaderCornerRadius}" />
+    <Setter Property="FontSize" Value="{DynamicResource MacOS.TabItemHeaderFontSize}" />
+    <Setter Property="FontWeight" Value="{DynamicResource MacOS.TabItemHeaderThemeFontWeight}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.TabbedPageTabItemHeaderBackgroundUnselected}" />
+    <Setter Property="Foreground" Value="{DynamicResource MacOS.TabbedPageTabItemHeaderForegroundUnselected}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.TabbedPageTabItemHeaderPadding}" />
+    <Setter Property="Margin" Value="{DynamicResource MacOS.TabbedPageTabItemHeaderMargin}" />
+    <Setter Property="MinHeight" Value="{DynamicResource MacOS.TabbedPageTabItemHeaderMinHeight}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.TabbedPageTabItemHeaderCornerRadius}" />
     <Setter Property="HorizontalContentAlignment" Value="Center" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="IndicatorTemplate">
       <DataTemplate>
         <Border Background="{Binding $parent[TabItem].Foreground}"
-                CornerRadius="{DynamicResource TabbedPageTabItemHeaderIndicatorCornerRadius}"
-                Margin="{DynamicResource TabbedPageTabItemHeaderIndicatorMargin}"
+                CornerRadius="{DynamicResource MacOS.TabbedPageTabItemHeaderIndicatorCornerRadius}"
+                Margin="{DynamicResource MacOS.TabbedPageTabItemHeaderIndicatorMargin}"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch" />
       </DataTemplate>
@@ -131,7 +131,7 @@
                   CornerRadius="{TemplateBinding CornerRadius}"
                   Padding="{TemplateBinding Padding}">
             <StackPanel Name="PART_HeaderPanel"
-                        Spacing="{DynamicResource TabbedPageTabItemHeaderSpacing}"
+                        Spacing="{DynamicResource MacOS.TabbedPageTabItemHeaderSpacing}"
                         HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                         VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
               <ContentPresenter Name="PART_IconPresenter"
@@ -139,15 +139,15 @@
                                 ContentTemplate="{TemplateBinding IconTemplate}"
                                 HorizontalAlignment="Center"
                                 IsVisible="{TemplateBinding Icon, Converter={x:Static ObjectConverters.IsNotNull}}"
-                                Width="{DynamicResource TabbedPageTabItemHeaderIconSize}"
-                                Height="{DynamicResource TabbedPageTabItemHeaderIconSize}" />
+                                Width="{DynamicResource MacOS.TabbedPageTabItemHeaderIconSize}"
+                                Height="{DynamicResource MacOS.TabbedPageTabItemHeaderIconSize}" />
               <ContentPresenter Name="PART_ContentPresenter"
                                 HorizontalAlignment="Center"
                                 HorizontalContentAlignment="Center"
                                 Content="{TemplateBinding Header}"
                                 ContentTemplate="{TemplateBinding HeaderTemplate}"
                                 FontFamily="{TemplateBinding FontFamily}"
-                                FontSize="{DynamicResource TabbedPageTabItemHeaderFontSize}"
+                                FontSize="{DynamicResource MacOS.TabbedPageTabItemHeaderFontSize}"
                                 FontWeight="{TemplateBinding FontWeight}" />
             </StackPanel>
           </Border>
@@ -165,8 +165,8 @@
 
     <!-- Selected state -->
     <Style Selector="^:selected">
-      <Setter Property="Background" Value="{DynamicResource TabbedPageTabItemHeaderBackgroundSelected}" />
-      <Setter Property="Foreground" Value="{DynamicResource TabbedPageTabItemHeaderForegroundSelected}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.TabbedPageTabItemHeaderBackgroundSelected}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.TabbedPageTabItemHeaderForegroundSelected}" />
     </Style>
     <Style Selector="^:selected /template/ ContentPresenter#PART_SelectedPipe">
       <Setter Property="IsVisible" Value="True" />
@@ -175,20 +175,20 @@
     <!-- Placement-specific pipe positioning -->
     <Style Selector="^[TabStripPlacement=Top] /template/ ContentPresenter#PART_SelectedPipe">
       <Setter Property="VerticalAlignment" Value="Bottom" />
-      <Setter Property="Height" Value="{DynamicResource TabbedPageTabItemHeaderPipeThickness}" />
+      <Setter Property="Height" Value="{DynamicResource MacOS.TabbedPageTabItemHeaderPipeThickness}" />
     </Style>
     <Style Selector="^[TabStripPlacement=Bottom] /template/ ContentPresenter#PART_SelectedPipe">
       <Setter Property="VerticalAlignment" Value="Top" />
-      <Setter Property="Height" Value="{DynamicResource TabbedPageTabItemHeaderPipeThickness}" />
+      <Setter Property="Height" Value="{DynamicResource MacOS.TabbedPageTabItemHeaderPipeThickness}" />
     </Style>
     <Style Selector="^[TabStripPlacement=Right]">
       <Setter Property="IndicatorTemplate">
         <DataTemplate>
           <Border Background="{Binding $parent[TabItem].Foreground}"
-                  CornerRadius="{DynamicResource TabbedPageTabItemHeaderIndicatorCornerRadius}"
-                  Margin="{DynamicResource TabbedPageTabItemHeaderIndicatorMargin}"
-                  Width="{DynamicResource TabbedPageTabItemHeaderPipeThickness}"
-                  Height="{DynamicResource TabbedPageTabItemHeaderVerticalPipeHeight}" />
+                  CornerRadius="{DynamicResource MacOS.TabbedPageTabItemHeaderIndicatorCornerRadius}"
+                  Margin="{DynamicResource MacOS.TabbedPageTabItemHeaderIndicatorMargin}"
+                  Width="{DynamicResource MacOS.TabbedPageTabItemHeaderPipeThickness}"
+                  Height="{DynamicResource MacOS.TabbedPageTabItemHeaderVerticalPipeHeight}" />
         </DataTemplate>
       </Setter>
     </Style>
@@ -200,10 +200,10 @@
       <Setter Property="IndicatorTemplate">
         <DataTemplate>
           <Border Background="{Binding $parent[TabItem].Foreground}"
-                  CornerRadius="{DynamicResource TabbedPageTabItemHeaderIndicatorCornerRadius}"
-                  Margin="{DynamicResource TabbedPageTabItemHeaderIndicatorMargin}"
-                  Width="{DynamicResource TabbedPageTabItemHeaderPipeThickness}"
-                  Height="{DynamicResource TabbedPageTabItemHeaderVerticalPipeHeight}" />
+                  CornerRadius="{DynamicResource MacOS.TabbedPageTabItemHeaderIndicatorCornerRadius}"
+                  Margin="{DynamicResource MacOS.TabbedPageTabItemHeaderIndicatorMargin}"
+                  Width="{DynamicResource MacOS.TabbedPageTabItemHeaderPipeThickness}"
+                  Height="{DynamicResource MacOS.TabbedPageTabItemHeaderVerticalPipeHeight}" />
         </DataTemplate>
       </Setter>
     </Style>
@@ -214,39 +214,39 @@
 
     <!-- Pointer-over -->
     <Style Selector="^:pointerover /template/ Border#PART_LayoutRoot">
-      <Setter Property="Background" Value="{DynamicResource TabbedPageTabItemHeaderBackgroundUnselectedPointerOver}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.TabbedPageTabItemHeaderBackgroundUnselectedPointerOver}" />
     </Style>
 
     <!-- Selected + pointer-over -->
     <Style Selector="^:selected:pointerover /template/ Border#PART_LayoutRoot">
-      <Setter Property="Background" Value="{DynamicResource TabbedPageTabItemHeaderBackgroundSelectedPointerOver}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.TabbedPageTabItemHeaderBackgroundSelectedPointerOver}" />
     </Style>
 
     <!-- Pressed -->
     <Style Selector="^:pressed /template/ Border#PART_LayoutRoot">
-      <Setter Property="Background" Value="{DynamicResource TabbedPageTabItemHeaderBackgroundUnselectedPressed}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.TabbedPageTabItemHeaderBackgroundUnselectedPressed}" />
     </Style>
 
     <!-- Selected + pressed -->
     <Style Selector="^:selected:pressed /template/ Border#PART_LayoutRoot">
-      <Setter Property="Background" Value="{DynamicResource TabbedPageTabItemHeaderBackgroundSelectedPressed}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.TabbedPageTabItemHeaderBackgroundSelectedPressed}" />
     </Style>
 
     <!-- Disabled -->
     <Style Selector="^:disabled /template/ Border#PART_LayoutRoot">
-      <Setter Property="Background" Value="{DynamicResource TabbedPageTabItemHeaderBackgroundDisabled}" />
-      <Setter Property="TextElement.Foreground" Value="{DynamicResource TabbedPageTabItemHeaderForegroundDisabled}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.TabbedPageTabItemHeaderBackgroundDisabled}" />
+      <Setter Property="TextElement.Foreground" Value="{DynamicResource MacOS.TabbedPageTabItemHeaderForegroundDisabled}" />
     </Style>
 
     <!-- Focus visible -->
     <Style Selector="^:focus-visible /template/ Border#PART_LayoutRoot">
-      <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.SystemControlForegroundBaseHighBrush}" />
       <Setter Property="BorderThickness" Value="2" />
     </Style>
   </ControlTheme>
 
   <ControlTheme x:Key="{x:Type TabbedPage}" TargetType="TabbedPage">
-    <Setter Property="Background" Value="{DynamicResource SystemControlPageBackgroundAltHighBrush}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlPageBackgroundAltHighBrush}" />
     <Setter Property="Template">
       <ControlTemplate>
         <Panel Background="{TemplateBinding Background}">

@@ -31,9 +31,9 @@
     <Setter Property="Background" Value="Transparent" />
     <Setter Property="BorderBrush" Value="Transparent" />
     <Setter Property="BorderThickness" Value="0" />
-    <Setter Property="Padding" Value="{DynamicResource CommandBarButtonPadding}" />
-    <Setter Property="Width" Value="{DynamicResource CommandBarButtonWidth}" />
-    <Setter Property="MinHeight" Value="{DynamicResource CommandBarButtonMinHeight}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.CommandBarButtonPadding}" />
+    <Setter Property="Width" Value="{DynamicResource MacOS.CommandBarButtonWidth}" />
+    <Setter Property="MinHeight" Value="{DynamicResource MacOS.CommandBarButtonMinHeight}" />
     <Setter Property="HorizontalContentAlignment" Value="Center" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="Template">
@@ -65,17 +65,17 @@
 
     <!-- Hover -->
     <Style Selector="^:pointerover /template/ Border#PART_Border">
-      <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListLowBrush}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlHighlightListLowBrush}" />
     </Style>
 
     <!-- Pressed -->
     <Style Selector="^:pressed /template/ Border#PART_Border">
-      <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListMediumBrush}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlHighlightListMediumBrush}" />
     </Style>
 
     <!-- Compact: hide label, reduce width -->
     <Style Selector="^[IsCompact=True]">
-      <Setter Property="Width" Value="{DynamicResource CommandBarButtonCompactWidth}" />
+      <Setter Property="Width" Value="{DynamicResource MacOS.CommandBarButtonCompactWidth}" />
     </Style>
     <Style Selector="^[IsCompact=True] /template/ TextBlock#PART_Label">
       <Setter Property="IsVisible" Value="False" />
@@ -84,7 +84,7 @@
     <!-- LabelPosition=Right: horizontal layout, auto-width -->
     <Style Selector="^[LabelPosition=Right]">
       <Setter Property="Width" Value="NaN" />
-      <Setter Property="MinWidth" Value="{DynamicResource CommandBarButtonLabelRightMinWidth}" />
+      <Setter Property="MinWidth" Value="{DynamicResource MacOS.CommandBarButtonLabelRightMinWidth}" />
     </Style>
     <Style Selector="^[LabelPosition=Right] /template/ StackPanel#PART_LayoutRoot">
       <Setter Property="Orientation" Value="Horizontal" />
@@ -101,7 +101,7 @@
       <Setter Property="HorizontalAlignment" Value="Stretch" />
       <Setter Property="HorizontalContentAlignment" Value="Left" />
       <Setter Property="Width" Value="NaN" />
-      <Setter Property="MinHeight" Value="{DynamicResource CommandBarButtonIsInOverflowMinHeight}" />
+      <Setter Property="MinHeight" Value="{DynamicResource MacOS.CommandBarButtonIsInOverflowMinHeight}" />
     </Style>
     <Style Selector="^[IsInOverflow=True] /template/ StackPanel#PART_LayoutRoot">
       <Setter Property="HorizontalAlignment" Value="Left" />
@@ -127,9 +127,9 @@
     <Setter Property="Background" Value="Transparent" />
     <Setter Property="BorderBrush" Value="Transparent" />
     <Setter Property="BorderThickness" Value="0" />
-    <Setter Property="Padding" Value="{DynamicResource CommandBarToggleButtonPadding}" />
-    <Setter Property="Width" Value="{DynamicResource CommandBarButtonWidth}" />
-    <Setter Property="MinHeight" Value="{DynamicResource CommandBarButtonMinHeight}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.CommandBarToggleButtonPadding}" />
+    <Setter Property="Width" Value="{DynamicResource MacOS.CommandBarButtonWidth}" />
+    <Setter Property="MinHeight" Value="{DynamicResource MacOS.CommandBarButtonMinHeight}" />
     <Setter Property="HorizontalContentAlignment" Value="Center" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="Template">
@@ -161,22 +161,22 @@
 
     <!-- Hover -->
     <Style Selector="^:pointerover /template/ Border#PART_Border">
-      <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListLowBrush}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlHighlightListLowBrush}" />
     </Style>
 
     <!-- Pressed -->
     <Style Selector="^:pressed /template/ Border#PART_Border">
-      <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListMediumBrush}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlHighlightListMediumBrush}" />
     </Style>
 
     <!-- Checked -->
     <Style Selector="^:checked /template/ Border#PART_Border">
-      <Setter Property="Background" Value="{DynamicResource SystemControlHighlightAccentBrush}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlHighlightAccentBrush}" />
     </Style>
 
     <!-- Compact: hide label, reduce width -->
     <Style Selector="^[IsCompact=True]">
-      <Setter Property="Width" Value="{DynamicResource CommandBarButtonCompactWidth}" />
+      <Setter Property="Width" Value="{DynamicResource MacOS.CommandBarButtonCompactWidth}" />
     </Style>
     <Style Selector="^[IsCompact=True] /template/ TextBlock#PART_Label">
       <Setter Property="IsVisible" Value="False" />
@@ -185,7 +185,7 @@
     <!-- LabelPosition=Right: horizontal layout, auto-width -->
     <Style Selector="^[LabelPosition=Right]">
       <Setter Property="Width" Value="NaN" />
-      <Setter Property="MinWidth" Value="{DynamicResource CommandBarButtonLabelRightMinWidth}" />
+      <Setter Property="MinWidth" Value="{DynamicResource MacOS.CommandBarButtonLabelRightMinWidth}" />
     </Style>
     <Style Selector="^[LabelPosition=Right] /template/ StackPanel#PART_LayoutRoot">
       <Setter Property="Orientation" Value="Horizontal" />
@@ -202,7 +202,7 @@
       <Setter Property="HorizontalAlignment" Value="Stretch" />
       <Setter Property="HorizontalContentAlignment" Value="Left" />
       <Setter Property="Width" Value="NaN" />
-      <Setter Property="MinHeight" Value="{DynamicResource CommandBarButtonIsInOverflowMinHeight}" />
+      <Setter Property="MinHeight" Value="{DynamicResource MacOS.CommandBarButtonIsInOverflowMinHeight}" />
     </Style>
     <Style Selector="^[IsInOverflow=True] /template/ StackPanel#PART_LayoutRoot">
       <Setter Property="HorizontalAlignment" Value="Left" />
@@ -225,12 +225,12 @@
 
   <!-- CommandBarSeparator ControlTheme -->
   <ControlTheme x:Key="{x:Type CommandBarSeparator}" TargetType="CommandBarSeparator">
-    <Setter Property="Width" Value="{DynamicResource CommandBarSeparatorWidth}" />
-    <Setter Property="MinHeight" Value="{DynamicResource CommandBarSeparatorMinHeight}" />
-    <Setter Property="Margin" Value="{DynamicResource CommandBarSeparatorMargin}" />
+    <Setter Property="Width" Value="{DynamicResource MacOS.CommandBarSeparatorWidth}" />
+    <Setter Property="MinHeight" Value="{DynamicResource MacOS.CommandBarSeparatorMinHeight}" />
+    <Setter Property="Margin" Value="{DynamicResource MacOS.CommandBarSeparatorMargin}" />
     <Setter Property="Template">
       <ControlTemplate>
-        <Border Background="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+        <Border Background="{DynamicResource MacOS.SystemControlForegroundBaseMediumLowBrush}"
                 Width="{TemplateBinding Width}"
                 Height="{TemplateBinding Height}"
                 MinHeight="{TemplateBinding MinHeight}" />
@@ -241,18 +241,18 @@
     <Style Selector="^[IsInOverflow=True]">
       <Setter Property="HorizontalAlignment" Value="Stretch" />
       <Setter Property="Width" Value="NaN" />
-      <Setter Property="Height" Value="{DynamicResource CommandBarSeparatorOverflowHeight}" />
+      <Setter Property="Height" Value="{DynamicResource MacOS.CommandBarSeparatorOverflowHeight}" />
       <Setter Property="MinHeight" Value="0" />
-      <Setter Property="Margin" Value="{DynamicResource CommandBarSeparatorOverflowMargin}" />
+      <Setter Property="Margin" Value="{DynamicResource MacOS.CommandBarSeparatorOverflowMargin}" />
     </Style>
   </ControlTheme>
 
   <!-- CommandBar ControlTheme -->
   <ControlTheme x:Key="{x:Type CommandBar}" TargetType="CommandBar">
     <Setter Property="HorizontalAlignment" Value="Stretch" />
-    <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumBrush}" />
-    <Setter Property="MinHeight" Value="{DynamicResource CommandBarMinHeight}" />
-    <Setter Property="Padding" Value="{DynamicResource CommandBarPadding}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlBackgroundChromeMediumBrush}" />
+    <Setter Property="MinHeight" Value="{DynamicResource MacOS.CommandBarMinHeight}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.CommandBarPadding}" />
     <Setter Property="ItemWidthBottom" Value="70" />
     <Setter Property="ItemWidthRight" Value="102" />
     <Setter Property="ItemWidthCollapsed" Value="42" />
@@ -271,7 +271,7 @@
                       DockPanel.Dock="Right"
                       Background="Transparent"
                       BorderThickness="0"
-                      Padding="{DynamicResource CommandBarOverflowButtonPadding}"
+                      Padding="{DynamicResource MacOS.CommandBarOverflowButtonPadding}"
                       MinWidth="40"
                       VerticalAlignment="Stretch"
                       FontSize="16"
@@ -308,10 +308,10 @@
                    Placement="Bottom"
                    IsLightDismissEnabled="True"
                    WindowManagerAddShadowHint="True">
-              <Border Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
-                      BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+              <Border Background="{DynamicResource MacOS.SystemControlBackgroundChromeMediumLowBrush}"
+                      BorderBrush="{DynamicResource MacOS.SystemControlForegroundBaseMediumLowBrush}"
                       BorderThickness="1"
-                      CornerRadius="{DynamicResource OverlayCornerRadius}"
+                      CornerRadius="{DynamicResource MacOS.OverlayCornerRadius}"
                       Padding="4"
                       MinWidth="160">
                 <ItemsControl x:Name="PART_OverflowPresenter"

@@ -17,17 +17,17 @@
     </Border>
   </Design.PreviewWith>
 
-  <sys:Double x:Key="ToolTipContentMaxWidth">320</sys:Double>
+  <sys:Double x:Key="MacOS.ToolTipContentMaxWidth">320</sys:Double>
 
   <ControlTheme x:Key="{x:Type ToolTip}" TargetType="ToolTip">
-    <Setter Property="Foreground" Value="{DynamicResource ToolTipForeground}" />
-    <Setter Property="Background" Value="{DynamicResource ToolTipBackground}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource ToolTipBorderBrush}" />
-    <Setter Property="BorderThickness" Value="{DynamicResource ToolTipBorderThemeThickness}" />
-    <Setter Property="FontSize" Value="{DynamicResource ToolTipContentThemeFontSize}" />
-    <Setter Property="Padding" Value="{DynamicResource ToolTipBorderThemePadding}" />
-    <Setter Property="MaxWidth" Value="{DynamicResource ToolTipContentMaxWidth}" />
-    <Setter Property="CornerRadius" Value="{DynamicResource OverlayCornerRadius}" />
+    <Setter Property="Foreground" Value="{DynamicResource MacOS.ToolTipForeground}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.ToolTipBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToolTipBorderBrush}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource MacOS.ToolTipBorderThemeThickness}" />
+    <Setter Property="FontSize" Value="{DynamicResource MacOS.ToolTipContentThemeFontSize}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.ToolTipBorderThemePadding}" />
+    <Setter Property="MaxWidth" Value="{DynamicResource MacOS.ToolTipContentMaxWidth}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.OverlayCornerRadius}" />
     <Setter Property="Opacity" Value="0" />
     <Setter Property="Transitions">
       <Transitions>

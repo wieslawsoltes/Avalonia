@@ -9,8 +9,8 @@
   </Design.PreviewWith>
 
   <ControlTheme x:Key="{x:Type ContentPage}" TargetType="ContentPage">
-    <Setter Property="Background" Value="{DynamicResource SystemControlPageBackgroundAltHighBrush}" />
-    <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlPageBackgroundAltHighBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource MacOS.SystemControlForegroundBaseHighBrush}" />
     <Setter Property="Template">
       <ControlTemplate>
         <DockPanel>

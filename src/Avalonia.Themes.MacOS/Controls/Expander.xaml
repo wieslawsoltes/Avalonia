@@ -46,30 +46,30 @@
   </Design.PreviewWith>
 
   <!-- Shared header/content -->
-  <x:Double x:Key="ExpanderMinHeight">48</x:Double>
+  <x:Double x:Key="MacOS.ExpanderMinHeight">48</x:Double>
 
   <!-- Header -->
   <HorizontalAlignment x:Key="ExpanderHeaderHorizontalContentAlignment">Stretch</HorizontalAlignment>
   <VerticalAlignment x:Key="ExpanderHeaderVerticalContentAlignment">Center</VerticalAlignment>
-  <Thickness x:Key="ExpanderHeaderPadding">16,0,0,0</Thickness>
-  <Thickness x:Key="ExpanderHeaderBorderThickness">1</Thickness>
-  <Thickness x:Key="ExpanderChevronBorderThickness">0</Thickness>
-  <Thickness x:Key="ExpanderChevronMargin">20,0,8,0</Thickness>
-  <x:Double x:Key="ExpanderChevronButtonSize">32</x:Double>
+  <Thickness x:Key="MacOS.ExpanderHeaderPadding">16,0,0,0</Thickness>
+  <Thickness x:Key="MacOS.ExpanderHeaderBorderThickness">1</Thickness>
+  <Thickness x:Key="MacOS.ExpanderChevronBorderThickness">0</Thickness>
+  <Thickness x:Key="MacOS.ExpanderChevronMargin">20,0,8,0</Thickness>
+  <x:Double x:Key="MacOS.ExpanderChevronButtonSize">32</x:Double>
 
   <!-- Content -->
-  <Thickness x:Key="ExpanderContentPadding">16</Thickness>
-  <Thickness x:Key="ExpanderContentLeftBorderThickness">1,1,0,1</Thickness>
-  <Thickness x:Key="ExpanderContentUpBorderThickness">1,1,1,0</Thickness>
-  <Thickness x:Key="ExpanderContentRightBorderThickness">0,1,1,1</Thickness>
-  <Thickness x:Key="ExpanderContentDownBorderThickness">1,0,1,1</Thickness>
+  <Thickness x:Key="MacOS.ExpanderContentPadding">16</Thickness>
+  <Thickness x:Key="MacOS.ExpanderContentLeftBorderThickness">1,1,0,1</Thickness>
+  <Thickness x:Key="MacOS.ExpanderContentUpBorderThickness">1,1,1,0</Thickness>
+  <Thickness x:Key="MacOS.ExpanderContentRightBorderThickness">0,1,1,1</Thickness>
+  <Thickness x:Key="MacOS.ExpanderContentDownBorderThickness">1,0,1,1</Thickness>
 
   <ControlTheme x:Key="MacOSExpanderToggleButtonTheme" TargetType="ToggleButton">
-    <Setter Property="Background" Value="{DynamicResource ExpanderHeaderBackground}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource ExpanderHeaderBorderBrush}" />
-    <Setter Property="BorderThickness" Value="{DynamicResource ExpanderHeaderBorderThickness}" />
-    <Setter Property="Foreground" Value="{DynamicResource ExpanderHeaderForeground}" />
-    <Setter Property="Padding" Value="{DynamicResource ExpanderHeaderPadding}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.ExpanderHeaderBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ExpanderHeaderBorderBrush}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource MacOS.ExpanderHeaderBorderThickness}" />
+    <Setter Property="Foreground" Value="{DynamicResource MacOS.ExpanderHeaderForeground}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.ExpanderHeaderPadding}" />
     <Setter Property="HorizontalAlignment" Value="Stretch" />
     <Setter Property="HorizontalContentAlignment" Value="{DynamicResource ExpanderHeaderHorizontalContentAlignment}" />
     <Setter Property="VerticalContentAlignment" Value="{DynamicResource ExpanderHeaderVerticalContentAlignment}" />
@@ -91,19 +91,19 @@
                               Margin="{TemplateBinding Padding}"/>
             <Border x:Name="ExpandCollapseChevronBorder"
                     Grid.Column="1"
-                    Width="{DynamicResource ExpanderChevronButtonSize}"
-                    Height="{DynamicResource ExpanderChevronButtonSize}"
-                    Margin="{DynamicResource ExpanderChevronMargin}"
-                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                    BorderBrush="{DynamicResource ExpanderChevronBorderBrush}"
-                    BorderThickness="{DynamicResource ExpanderChevronBorderThickness}"
-                    Background="{DynamicResource ExpanderChevronBackground}">
+                    Width="{DynamicResource MacOS.ExpanderChevronButtonSize}"
+                    Height="{DynamicResource MacOS.ExpanderChevronButtonSize}"
+                    Margin="{DynamicResource MacOS.ExpanderChevronMargin}"
+                    CornerRadius="{DynamicResource MacOS.ControlCornerRadius}"
+                    BorderBrush="{DynamicResource MacOS.ExpanderChevronBorderBrush}"
+                    BorderThickness="{DynamicResource MacOS.ExpanderChevronBorderThickness}"
+                    Background="{DynamicResource MacOS.ExpanderChevronBackground}">
               <Path x:Name="ExpandCollapseChevron"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     RenderTransformOrigin="50%,50%"
                     Stretch="None"
-                    Stroke="{DynamicResource ExpanderChevronForeground}"
+                    Stroke="{DynamicResource MacOS.ExpanderChevronForeground}"
                     StrokeThickness="1">
                 <Path.RenderTransform>
                   <RotateTransform />
@@ -140,50 +140,50 @@
 
     <!-- PointerOver -->
     <Style Selector="^:pointerover /template/ Border#ToggleButtonBackground">
-      <Setter Property="Background" Value="{DynamicResource ExpanderHeaderBackgroundPointerOver}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ExpanderHeaderBorderBrushPointerOver}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ExpanderHeaderBackgroundPointerOver}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ExpanderHeaderBorderBrushPointerOver}" />
     </Style>
     <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Foreground" Value="{DynamicResource ExpanderHeaderForegroundPointerOver}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.ExpanderHeaderForegroundPointerOver}" />
     </Style>
     <Style Selector="^:pointerover /template/ Border#ExpandCollapseChevronBorder">
-      <Setter Property="Background" Value="{DynamicResource ExpanderChevronBackgroundPointerOver}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ExpanderChevronBorderBrushPointerOver}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ExpanderChevronBackgroundPointerOver}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ExpanderChevronBorderBrushPointerOver}" />
     </Style>
     <Style Selector="^:pointerover /template/ Path#ExpandCollapseChevron">
-      <Setter Property="Stroke" Value="{DynamicResource ExpanderChevronForegroundPointerOver}" />
+      <Setter Property="Stroke" Value="{DynamicResource MacOS.ExpanderChevronForegroundPointerOver}" />
     </Style>
 
     <!-- Pressed -->
     <Style Selector="^:pressed /template/ Border#ToggleButtonBackground">
-      <Setter Property="Background" Value="{DynamicResource ExpanderHeaderBackgroundPressed}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ExpanderHeaderBorderBrushPressed}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ExpanderHeaderBackgroundPressed}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ExpanderHeaderBorderBrushPressed}" />
     </Style>
     <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Foreground" Value="{DynamicResource ExpanderHeaderForegroundPressed}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.ExpanderHeaderForegroundPressed}" />
     </Style>
     <Style Selector="^:pressed /template/ Border#ExpandCollapseChevronBorder">
-      <Setter Property="Background" Value="{DynamicResource ExpanderChevronBackgroundPressed}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ExpanderChevronBorderBrushPressed}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ExpanderChevronBackgroundPressed}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ExpanderChevronBorderBrushPressed}" />
     </Style>
     <Style Selector="^:pressed /template/ Path#ExpandCollapseChevron">
-      <Setter Property="Stroke" Value="{DynamicResource ExpanderChevronForegroundPressed}" />
+      <Setter Property="Stroke" Value="{DynamicResource MacOS.ExpanderChevronForegroundPressed}" />
     </Style>
 
     <!-- Disabled -->
     <Style Selector="^:disabled /template/ Border#ToggleButtonBackground">
-      <Setter Property="Background" Value="{DynamicResource ExpanderHeaderBackgroundDisabled}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ExpanderHeaderBorderBrushDisabled}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ExpanderHeaderBackgroundDisabled}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ExpanderHeaderBorderBrushDisabled}" />
     </Style>
     <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Foreground" Value="{DynamicResource ExpanderHeaderForegroundDisabled}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.ExpanderHeaderForegroundDisabled}" />
     </Style>
     <Style Selector="^:disabled /template/ Border#ExpandCollapseChevronBorder">
-      <Setter Property="Background" Value="{DynamicResource ExpanderChevronBackgroundDisabled}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ExpanderChevronBorderBrushDisabled}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ExpanderChevronBackgroundDisabled}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ExpanderChevronBorderBrushDisabled}" />
     </Style>
     <Style Selector="^:disabled /template/ Path#ExpandCollapseChevron">
-      <Setter Property="Stroke" Value="{DynamicResource ExpanderChevronForegroundDisabled}" />
+      <Setter Property="Stroke" Value="{DynamicResource MacOS.ExpanderChevronForegroundDisabled}" />
     </Style>
 
   </ControlTheme>
@@ -214,15 +214,15 @@
 
   <ControlTheme x:Key="{x:Type Expander}" TargetType="Expander">
     <Setter Property="IsTabStop" Value="False"/>
-    <Setter Property="MinWidth" Value="{DynamicResource FlyoutThemeMinWidth}" />
-    <Setter Property="MinHeight" Value="{DynamicResource ExpanderMinHeight}" />
-    <Setter Property="Background" Value="{DynamicResource ExpanderContentBackground}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource ExpanderContentBorderBrush}" />
-    <Setter Property="BorderThickness" Value="{DynamicResource ExpanderContentDownBorderThickness}" />
-    <Setter Property="Padding" Value="{DynamicResource ExpanderContentPadding}" />
+    <Setter Property="MinWidth" Value="{DynamicResource MacOS.FlyoutThemeMinWidth}" />
+    <Setter Property="MinHeight" Value="{DynamicResource MacOS.ExpanderMinHeight}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.ExpanderContentBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ExpanderContentBorderBrush}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource MacOS.ExpanderContentDownBorderThickness}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.ExpanderContentPadding}" />
     <Setter Property="HorizontalAlignment" Value="Left" />
     <Setter Property="VerticalAlignment" Value="Center" />
-    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.ControlCornerRadius}" />
     <Setter Property="Template">
       <ControlTemplate>
         <DockPanel MinWidth="{TemplateBinding MinWidth}"
@@ -322,16 +322,16 @@
     </Style>
 
     <Style Selector="^:left /template/ Border#ExpanderContent">
-      <Setter Property="BorderThickness" Value="{DynamicResource ExpanderContentLeftBorderThickness}" />
+      <Setter Property="BorderThickness" Value="{DynamicResource MacOS.ExpanderContentLeftBorderThickness}" />
     </Style>
     <Style Selector="^:up /template/ Border#ExpanderContent">
-      <Setter Property="BorderThickness" Value="{DynamicResource ExpanderContentUpBorderThickness}" />
+      <Setter Property="BorderThickness" Value="{DynamicResource MacOS.ExpanderContentUpBorderThickness}" />
     </Style>
     <Style Selector="^:right /template/ Border#ExpanderContent">
-      <Setter Property="BorderThickness" Value="{DynamicResource ExpanderContentRightBorderThickness}" />
+      <Setter Property="BorderThickness" Value="{DynamicResource MacOS.ExpanderContentRightBorderThickness}" />
     </Style>
     <Style Selector="^:down /template/ Border#ExpanderContent">
-      <Setter Property="BorderThickness" Value="{DynamicResource ExpanderContentDownBorderThickness}" />
+      <Setter Property="BorderThickness" Value="{DynamicResource MacOS.ExpanderContentDownBorderThickness}" />
     </Style>
   </ControlTheme>
 </ResourceDictionary>

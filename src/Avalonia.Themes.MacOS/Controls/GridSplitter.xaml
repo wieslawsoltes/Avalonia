@@ -3,12 +3,12 @@
                     x:ClassModifier="internal">
     <ControlTheme x:Key="{x:Type GridSplitter}" TargetType="GridSplitter">
       <Setter Property="Focusable" Value="True" />
-      <Setter Property="MinWidth" Value="{DynamicResource GridSplitterThickness}" />
-      <Setter Property="MinHeight" Value="{DynamicResource GridSplitterThickness}" />
-      <Setter Property="Background" Value="{DynamicResource SystemAltMediumLowColor}" />
+      <Setter Property="MinWidth" Value="{DynamicResource MacOS.GridSplitterThickness}" />
+      <Setter Property="MinHeight" Value="{DynamicResource MacOS.GridSplitterThickness}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.SystemAltMediumLowColor}" />
       <Setter Property="PreviewContent">
         <Template>
-          <Rectangle Fill="{DynamicResource SystemAccentColor}" />
+          <Rectangle Fill="{DynamicResource MacOS.SystemAccentColor}" />
         </Template>
       </Setter>
       <Setter Property="Template">

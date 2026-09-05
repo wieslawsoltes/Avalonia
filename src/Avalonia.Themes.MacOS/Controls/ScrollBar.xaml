@@ -45,7 +45,7 @@
   </MenuFlyout>
 
   <ControlTheme x:Key="MacOSScrollBarThumb" TargetType="Thumb">
-    <Setter Property="Background" Value="{DynamicResource ScrollBarPanningThumbBackground}"/>
+    <Setter Property="Background" Value="{DynamicResource MacOS.ScrollBarPanningThumbBackground}"/>
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
@@ -62,13 +62,13 @@
     </Setter>
 
     <Style Selector="^:pointerover /template/ Border">
-      <Setter Property="Background" Value="{DynamicResource ScrollBarThumbFillPointerOver}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ScrollBarThumbFillPointerOver}" />
     </Style>
     <Style Selector="^:pressed  /template/ Border">
-      <Setter Property="Background" Value="{DynamicResource ScrollBarThumbFillPressed}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ScrollBarThumbFillPressed}" />
     </Style>
     <Style Selector="^:disabled  /template/ Border">
-      <Setter Property="Background" Value="{DynamicResource ScrollBarThumbFillDisabled}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ScrollBarThumbFillDisabled}" />
     </Style>
   </ControlTheme>
 
@@ -86,12 +86,12 @@
 
   <ControlTheme x:Key="MacOSScrollBarLineButton" TargetType="RepeatButton">
     <Setter Property="Opacity" Value="0" />
-    <Setter Property="TextElement.Foreground" Value="{DynamicResource ScrollBarButtonArrowForeground}"/>
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource MacOS.ScrollBarButtonArrowForeground}"/>
     <Setter Property="Template">
       <ControlTemplate>
         <ContentPresenter x:Name="PART_ContentPresenter"
-                          Background="{DynamicResource ScrollBarButtonBackground}"
-                          BorderBrush="{DynamicResource ScrollBarButtonBorderBrush}"
+                          Background="{DynamicResource MacOS.ScrollBarButtonBackground}"
+                          BorderBrush="{DynamicResource MacOS.ScrollBarButtonBorderBrush}"
                           Content="{TemplateBinding Content}"/>
       </ControlTemplate>
     </Setter>
@@ -102,39 +102,39 @@
     </Setter>
 
     <Style Selector="^:pointerover">
-      <Setter Property="TextElement.Foreground" Value="{DynamicResource ScrollBarButtonArrowForegroundPointerOver}"/>
+      <Setter Property="TextElement.Foreground" Value="{DynamicResource MacOS.ScrollBarButtonArrowForegroundPointerOver}"/>
 
       <Style Selector="^ /template/ ContentPresenter" >
-        <Setter Property="Background" Value="{DynamicResource ScrollBarButtonBackgroundPointerOver}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ScrollBarButtonBorderBrushPointerOver}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.ScrollBarButtonBackgroundPointerOver}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ScrollBarButtonBorderBrushPointerOver}" />
       </Style>
     </Style>
 
     <Style Selector="^:pressed">
-      <Setter Property="TextElement.Foreground" Value="{DynamicResource ScrollBarButtonArrowForegroundPressed}"/>
+      <Setter Property="TextElement.Foreground" Value="{DynamicResource MacOS.ScrollBarButtonArrowForegroundPressed}"/>
 
       <Style Selector="^ /template/ ContentPresenter" >
-        <Setter Property="Background" Value="{DynamicResource ScrollBarButtonBackgroundPressed}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ScrollBarButtonBorderBrushPressed}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.ScrollBarButtonBackgroundPressed}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ScrollBarButtonBorderBrushPressed}" />
       </Style>
     </Style>
 
     <Style Selector="^:disabled">
-      <Setter Property="TextElement.Foreground" Value="{DynamicResource ScrollBarButtonArrowForegroundDisabled}"/>
+      <Setter Property="TextElement.Foreground" Value="{DynamicResource MacOS.ScrollBarButtonArrowForegroundDisabled}"/>
 
       <Style Selector="^ /template/ ContentPresenter" >
         <Setter Property="Background" Value="{DynamicResource ScrollBarButtonBackgroundDisabled}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ScrollBarButtonBorderBrushDisabled}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ScrollBarButtonBorderBrushDisabled}" />
       </Style>
     </Style>
   </ControlTheme>
 
   <ControlTheme x:Key="{x:Type ScrollBar}" TargetType="ScrollBar">
-    <Setter Property="MinWidth" Value="{DynamicResource ScrollBarSize}" />
-    <Setter Property="MinHeight" Value="{DynamicResource ScrollBarSize}" />
-    <Setter Property="Background" Value="{DynamicResource ScrollBarBackground}" />
-    <Setter Property="Foreground" Value="{DynamicResource ScrollBarForeground}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource ScrollBarBorderBrush}" />
+    <Setter Property="MinWidth" Value="{DynamicResource MacOS.ScrollBarSize}" />
+    <Setter Property="MinHeight" Value="{DynamicResource MacOS.ScrollBarSize}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.ScrollBarBackground}" />
+    <Setter Property="Foreground" Value="{DynamicResource MacOS.ScrollBarForeground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ScrollBarBorderBrush}" />
 
     <Style Selector="^:vertical">
       <Setter Property="ContextFlyout" Value="{StaticResource VerticalScrollBarContextFlyout}" />
@@ -146,9 +146,9 @@
                     BorderBrush="{TemplateBinding BorderBrush}">
               <Grid RowDefinitions="Auto,*,Auto">
                 <Rectangle x:Name="TrackRect"
-                           Fill="{DynamicResource ScrollBarTrackFill}"
-                           Stroke="{DynamicResource ScrollBarTrackStroke}"
-                           StrokeThickness="{DynamicResource ScrollBarTrackBorderThemeThickness}"
+                           Fill="{DynamicResource MacOS.ScrollBarTrackFill}"
+                           Stroke="{DynamicResource MacOS.ScrollBarTrackStroke}"
+                           StrokeThickness="{DynamicResource MacOS.ScrollBarTrackBorderThemeThickness}"
                            Opacity="0"
                            Grid.RowSpan="3">
                   <Rectangle.Transitions>
@@ -163,12 +163,12 @@
                               Theme="{StaticResource MacOSScrollBarLineButton}"
                               Grid.Row="0"
                               Focusable="False"
-                              MinWidth="{DynamicResource ScrollBarSize}"
-                              Height="{DynamicResource ScrollBarSize}"
+                              MinWidth="{DynamicResource MacOS.ScrollBarSize}"
+                              Height="{DynamicResource MacOS.ScrollBarSize}"
                               AutomationProperties.Name="Line up">
                   <PathIcon Data="M 19.091797 14.970703 L 10 5.888672 L 0.908203 14.970703 L 0.029297 14.091797 L 10 4.111328 L 19.970703 14.091797 Z"
-                            Width="{DynamicResource ScrollBarButtonArrowIconFontSize}"
-                            Height="{DynamicResource ScrollBarButtonArrowIconFontSize}"/>
+                            Width="{DynamicResource MacOS.ScrollBarButtonArrowIconFontSize}"
+                            Height="{DynamicResource MacOS.ScrollBarButtonArrowIconFontSize}"/>
                 </RepeatButton>
 
                 <Track Grid.Row="1"
@@ -194,9 +194,9 @@
                                   AutomationProperties.Name="Page down"/>
                   </Track.IncreaseButton>
                   <Thumb Theme="{StaticResource MacOSScrollBarThumb}"
-                         Width="{DynamicResource ScrollBarSize}"
-                         MinHeight="{DynamicResource ScrollBarSize}"
-                         RenderTransform="{DynamicResource VerticalSmallScrollThumbScaleTransform}"
+                         Width="{DynamicResource MacOS.ScrollBarSize}"
+                         MinHeight="{DynamicResource MacOS.ScrollBarSize}"
+                         RenderTransform="{DynamicResource MacOS.VerticalSmallScrollThumbScaleTransform}"
                          RenderTransformOrigin="100%,50%"
                          AutomationProperties.Name="Position"/>
                 </Track>
@@ -206,12 +206,12 @@
                               Theme="{StaticResource MacOSScrollBarLineButton}"
                               Grid.Row="2"
                               Focusable="False"
-                              MinWidth="{DynamicResource ScrollBarSize}"
-                              Height="{DynamicResource ScrollBarSize}"
+                              MinWidth="{DynamicResource MacOS.ScrollBarSize}"
+                              Height="{DynamicResource MacOS.ScrollBarSize}"
                               AutomationProperties.Name="Line down">
                   <PathIcon Data="M 18.935547 4.560547 L 19.814453 5.439453 L 10 15.253906 L 0.185547 5.439453 L 1.064453 4.560547 L 10 13.496094 Z"
-                            Width="{DynamicResource ScrollBarButtonArrowIconFontSize}"
-                            Height="{DynamicResource ScrollBarButtonArrowIconFontSize}"/>
+                            Width="{DynamicResource MacOS.ScrollBarButtonArrowIconFontSize}"
+                            Height="{DynamicResource MacOS.ScrollBarButtonArrowIconFontSize}"/>
                 </RepeatButton>
               </Grid>
             </Border>
@@ -230,9 +230,9 @@
                     BorderBrush="{TemplateBinding BorderBrush}">
               <Grid ColumnDefinitions="Auto,*,Auto">
                 <Rectangle x:Name="TrackRect"
-                           Fill="{DynamicResource ScrollBarTrackFill}"
-                           Stroke="{DynamicResource ScrollBarTrackStroke}"
-                           StrokeThickness="{DynamicResource ScrollBarTrackBorderThemeThickness}"
+                           Fill="{DynamicResource MacOS.ScrollBarTrackFill}"
+                           Stroke="{DynamicResource MacOS.ScrollBarTrackStroke}"
+                           StrokeThickness="{DynamicResource MacOS.ScrollBarTrackBorderThemeThickness}"
                            Opacity="0"
                            Grid.ColumnSpan="3">
                   <Rectangle.Transitions>
@@ -247,12 +247,12 @@
                               VerticalAlignment="Center"
                               Grid.Column="0"
                               Focusable="False"
-                              MinHeight="{DynamicResource ScrollBarSize}"
-                              Width="{DynamicResource ScrollBarSize}"
+                              MinHeight="{DynamicResource MacOS.ScrollBarSize}"
+                              Width="{DynamicResource MacOS.ScrollBarSize}"
                               AutomationProperties.Name="Column left">
                   <PathIcon Data="M 14.091797 19.970703 L 4.111328 10 L 14.091797 0.029297 L 14.970703 0.908203 L 5.888672 10 L 14.970703 19.091797 Z"
-                            Width="{DynamicResource ScrollBarButtonArrowIconFontSize}"
-                            Height="{DynamicResource ScrollBarButtonArrowIconFontSize}"/>
+                            Width="{DynamicResource MacOS.ScrollBarButtonArrowIconFontSize}"
+                            Height="{DynamicResource MacOS.ScrollBarButtonArrowIconFontSize}"/>
                 </RepeatButton>
 
                 <Track Grid.Column="1"
@@ -277,9 +277,9 @@
                                   AutomationProperties.Name="Page right"/>
                   </Track.IncreaseButton>
                   <Thumb Theme="{StaticResource MacOSScrollBarThumb}"
-                         Height="{DynamicResource ScrollBarSize}"
-                         MinWidth="{DynamicResource ScrollBarSize}"
-                         RenderTransform="{DynamicResource HorizontalSmallScrollThumbScaleTransform}"
+                         Height="{DynamicResource MacOS.ScrollBarSize}"
+                         MinWidth="{DynamicResource MacOS.ScrollBarSize}"
+                         RenderTransform="{DynamicResource MacOS.HorizontalSmallScrollThumbScaleTransform}"
                          RenderTransformOrigin="50%,100%"
                          AutomationProperties.Name="Position"/>
                 </Track>
@@ -289,12 +289,12 @@
                               VerticalAlignment="Center"
                               Grid.Column="2"
                               Focusable="False"
-                              MinHeight="{DynamicResource ScrollBarSize}"
-                              Width="{DynamicResource ScrollBarSize}"
+                              MinHeight="{DynamicResource MacOS.ScrollBarSize}"
+                              Width="{DynamicResource MacOS.ScrollBarSize}"
                               AutomationProperties.Name="Column right">
                   <PathIcon Data="M 5.029297 19.091797 L 14.111328 10 L 5.029297 0.908203 L 5.908203 0.029297 L 15.888672 10 L 5.908203 19.970703 Z"
-                            Width="{DynamicResource ScrollBarButtonArrowIconFontSize}"
-                            Height="{DynamicResource ScrollBarButtonArrowIconFontSize}"/>
+                            Width="{DynamicResource MacOS.ScrollBarButtonArrowIconFontSize}"
+                            Height="{DynamicResource MacOS.ScrollBarButtonArrowIconFontSize}"/>
                 </RepeatButton>
               </Grid>
             </Border>
@@ -305,15 +305,15 @@
 
     <Style Selector="^[IsExpanded=true]">
       <Style Selector="^ /template/ Grid#Root">
-        <Setter Property="Background" Value="{DynamicResource ScrollBarBackgroundPointerOver}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.ScrollBarBackgroundPointerOver}" />
       </Style>
       <Style Selector="^ /template/ Rectangle#TrackRect">
-        <Setter Property="Fill" Value="{DynamicResource ScrollBarTrackFillPointerOver}" />
-        <Setter Property="Stroke" Value="{DynamicResource ScrollBarTrackStrokePointerOver}" />
+        <Setter Property="Fill" Value="{DynamicResource MacOS.ScrollBarTrackFillPointerOver}" />
+        <Setter Property="Stroke" Value="{DynamicResource MacOS.ScrollBarTrackStrokePointerOver}" />
         <Setter Property="Opacity" Value="1" />
       </Style>
       <Style Selector="^ /template/ Thumb">
-        <Setter Property="Background" Value="{DynamicResource ScrollBarThumbBackgroundColor}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.ScrollBarThumbBackgroundColor}" />
         <Setter Property="RenderTransform" Value="none" />
       </Style>
       <Style Selector="^ /template/ RepeatButton">

@@ -11,12 +11,12 @@
   </Design.PreviewWith>
 
   <ControlTheme x:Key="{x:Type Button}" TargetType="Button">
-    <Setter Property="Background" Value="{DynamicResource ButtonBackground}" />
-    <Setter Property="Foreground" Value="{DynamicResource ButtonForeground}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrush}" />
-    <Setter Property="BorderThickness" Value="{DynamicResource ButtonBorderThemeThickness}" />
-    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
-    <Setter Property="Padding" Value="{DynamicResource ButtonPadding}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.ButtonBackground}" />
+    <Setter Property="Foreground" Value="{DynamicResource MacOS.ButtonForeground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ButtonBorderBrush}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource MacOS.ButtonBorderThemeThickness}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.ControlCornerRadius}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.ButtonPadding}" />
     <Setter Property="HorizontalAlignment" Value="Left" />
     <Setter Property="VerticalAlignment" Value="Center" />
     <Setter Property="RenderTransform" Value="none" />
@@ -46,9 +46,9 @@
     </Style>
 
     <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource ButtonBackgroundPointerOver}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrushPointerOver}" />
-      <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundPointerOver}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ButtonBackgroundPointerOver}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ButtonBorderBrushPointerOver}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.ButtonForegroundPointerOver}" />
     </Style>
 
     <Style Selector="^:pressed">
@@ -56,40 +56,40 @@
     </Style>
 
     <Style Selector="^:pressed  /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource ButtonBackgroundPressed}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrushPressed}" />
-      <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundPressed}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ButtonBackgroundPressed}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ButtonBorderBrushPressed}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.ButtonForegroundPressed}" />
     </Style>
 
     <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource ButtonBackgroundDisabled}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrushDisabled}" />
-      <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundDisabled}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ButtonBackgroundDisabled}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ButtonBorderBrushDisabled}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.ButtonForegroundDisabled}" />
     </Style>
 
     <Style Selector="^.accent">
       <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource AccentButtonBackground}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource AccentButtonBorderBrush}" />
-        <Setter Property="Foreground" Value="{DynamicResource AccentButtonForeground}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.AccentButtonBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.AccentButtonBorderBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.AccentButtonForeground}" />
       </Style>
 
       <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource AccentButtonBackgroundPointerOver}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource AccentButtonBorderBrushPointerOver}" />
-        <Setter Property="Foreground" Value="{DynamicResource AccentButtonForegroundPointerOver}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.AccentButtonBackgroundPointerOver}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.AccentButtonBorderBrushPointerOver}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.AccentButtonForegroundPointerOver}" />
       </Style>
 
       <Style Selector="^:pressed  /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource AccentButtonBackgroundPressed}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource AccentButtonBorderBrushPressed}" />
-        <Setter Property="Foreground" Value="{DynamicResource AccentButtonForegroundPressed}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.AccentButtonBackgroundPressed}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.AccentButtonBorderBrushPressed}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.AccentButtonForegroundPressed}" />
       </Style>
 
       <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource AccentButtonBackgroundDisabled}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource AccentButtonBorderBrushDisabled}" />
-        <Setter Property="Foreground" Value="{DynamicResource AccentButtonForegroundDisabled}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.AccentButtonBackgroundDisabled}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.AccentButtonBorderBrushDisabled}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.AccentButtonForegroundDisabled}" />
       </Style>
     </Style>
   </ControlTheme>

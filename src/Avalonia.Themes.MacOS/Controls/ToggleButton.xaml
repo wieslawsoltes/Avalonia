@@ -12,12 +12,12 @@
   </Design.PreviewWith>
 
   <ControlTheme x:Key="{x:Type ToggleButton}" TargetType="ToggleButton">
-    <Setter Property="Background" Value="{DynamicResource ToggleButtonBackground}" />
-    <Setter Property="Foreground" Value="{DynamicResource ToggleButtonForeground}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource ToggleButtonBorderBrush}" />
-    <Setter Property="BorderThickness" Value="{DynamicResource ToggleButtonBorderThemeThickness}" />
-    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
-    <Setter Property="Padding" Value="{DynamicResource ButtonPadding}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackground}" />
+    <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForeground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrush}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource MacOS.ToggleButtonBorderThemeThickness}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.ControlCornerRadius}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.ButtonPadding}" />
     <Setter Property="HorizontalAlignment" Value="Left" />
     <Setter Property="VerticalAlignment" Value="Center" />
     <Setter Property="RenderTransform" Value="none" />
@@ -47,9 +47,9 @@
     </Style>
 
     <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource ToggleButtonBackgroundPointerOver}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ToggleButtonBorderBrushPointerOver}" />
-      <Setter Property="Foreground" Value="{DynamicResource ToggleButtonForegroundPointerOver}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackgroundPointerOver}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrushPointerOver}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForegroundPointerOver}" />
     </Style>
 
     <Style Selector="^:pressed">
@@ -57,66 +57,66 @@
     </Style>
 
     <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource ToggleButtonBackgroundPressed}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ToggleButtonBorderBrushPressed}" />
-      <Setter Property="Foreground" Value="{DynamicResource ToggleButtonForegroundPressed}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackgroundPressed}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrushPressed}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForegroundPressed}" />
     </Style>
 
     <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource ToggleButtonBackgroundDisabled}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ToggleButtonBorderBrushDisabled}" />
-      <Setter Property="Foreground" Value="{DynamicResource ToggleButtonForegroundDisabled}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackgroundDisabled}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrushDisabled}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForegroundDisabled}" />
     </Style>
 
     <Style Selector="^:indeterminate">
       <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource ToggleButtonBackgroundIndeterminate}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ToggleButtonBorderBrushIndeterminate}" />
-        <Setter Property="Foreground" Value="{DynamicResource ToggleButtonForegroundIndeterminate}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackgroundIndeterminate}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrushIndeterminate}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForegroundIndeterminate}" />
       </Style>
 
       <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource ToggleButtonBackgroundIndeterminatePointerOver}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ToggleButtonBorderBrushIndeterminatePointerOver}" />
-        <Setter Property="Foreground" Value="{DynamicResource ToggleButtonForegroundIndeterminatePointerOver}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackgroundIndeterminatePointerOver}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrushIndeterminatePointerOver}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForegroundIndeterminatePointerOver}" />
       </Style>
 
       <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource ToggleButtonBackgroundIndeterminatePressed}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ToggleButtonBorderBrushIndeterminatePressed}" />
-        <Setter Property="Foreground" Value="{DynamicResource ToggleButtonForegroundIndeterminatePressed}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackgroundIndeterminatePressed}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrushIndeterminatePressed}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForegroundIndeterminatePressed}" />
       </Style>
 
       <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource ToggleButtonBackgroundIndeterminateDisabled}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ToggleButtonBorderBrushIndeterminateDisabled}" />
-        <Setter Property="Foreground" Value="{DynamicResource ToggleButtonForegroundIndeterminateDisabled}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackgroundIndeterminateDisabled}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrushIndeterminateDisabled}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForegroundIndeterminateDisabled}" />
       </Style>
     </Style>
 
     <Style Selector="^:checked">
       <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource ToggleButtonBackgroundChecked}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ToggleButtonBorderBrushChecked}" />
-        <Setter Property="Foreground" Value="{DynamicResource ToggleButtonForegroundChecked}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackgroundChecked}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrushChecked}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForegroundChecked}" />
       </Style>
 
       <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource ToggleButtonBackgroundCheckedPointerOver}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ToggleButtonBorderBrushCheckedPointerOver}" />
-        <Setter Property="Foreground" Value="{DynamicResource ToggleButtonForegroundCheckedPointerOver}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackgroundCheckedPointerOver}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrushCheckedPointerOver}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForegroundCheckedPointerOver}" />
       </Style>
 
       <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource ToggleButtonBackgroundCheckedPressed}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ToggleButtonBorderBrushCheckedPressed}" />
-        <Setter Property="Foreground" Value="{DynamicResource ToggleButtonForegroundCheckedPressed}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackgroundCheckedPressed}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrushCheckedPressed}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForegroundCheckedPressed}" />
       </Style>
 
       <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource ToggleButtonBackgroundCheckedDisabled}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ToggleButtonBorderBrushCheckedDisabled}" />
-        <Setter Property="Foreground" Value="{DynamicResource ToggleButtonForegroundCheckedDisabled}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.ToggleButtonBackgroundCheckedDisabled}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleButtonBorderBrushCheckedDisabled}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleButtonForegroundCheckedDisabled}" />
       </Style>
     </Style>
   </ControlTheme>

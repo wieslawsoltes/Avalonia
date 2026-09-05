@@ -8,12 +8,12 @@
   </Design.PreviewWith>
   <ControlTheme x:Key="{x:Type NotificationCard}" TargetType="NotificationCard">
     <Setter Property="UseLayoutRounding" Value="True"/>
-    <Setter Property="Width" Value="{DynamicResource NotificationCardWidth}"/>
-    <Setter Property="Foreground" Value="{DynamicResource NotificationCardForegroundBrush}"/>
+    <Setter Property="Width" Value="{DynamicResource MacOS.NotificationCardWidth}"/>
+    <Setter Property="Foreground" Value="{DynamicResource MacOS.NotificationCardForegroundBrush}"/>
     <Setter Property="RenderTransformOrigin" Value="50%,75%"/>
     <Setter Property="BorderThickness" Value="0" />
-    <Setter Property="Background" Value="{DynamicResource NotificationCardBackgroundBrush}" />
-    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.NotificationCardBackgroundBrush}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.ControlCornerRadius}" />
     <Setter Property="Template">
       <ControlTemplate>
         <LayoutTransformControl Name="PART_LayoutTransformControl" UseRenderTransform="True">
@@ -24,7 +24,7 @@
                     CornerRadius="{TemplateBinding CornerRadius}"
                     ClipToBounds="True">
               <DockPanel>
-                <Panel x:Name="PART_HeaderBar" Height="4" Background="{DynamicResource NotificationCardProgressBackgroundBrush}" DockPanel.Dock="Top" />
+                <Panel x:Name="PART_HeaderBar" Height="4" Background="{DynamicResource MacOS.NotificationCardProgressBackgroundBrush}" DockPanel.Dock="Top" />
                 <ContentPresenter Name="PART_ContentPresenter" MinHeight="64" Content="{TemplateBinding Content}" />
               </DockPanel>
             </Border>
@@ -84,16 +84,16 @@
     </Style>
 
     <Style Selector="^:information /template/ Panel#PART_HeaderBar">
-      <Setter Property="Background" Value="{DynamicResource NotificationCardInformationBackgroundBrush}"/>
+      <Setter Property="Background" Value="{DynamicResource MacOS.NotificationCardInformationBackgroundBrush}"/>
     </Style>
     <Style Selector="^:success /template/ Panel#PART_HeaderBar">
-      <Setter Property="Background" Value="{DynamicResource NotificationCardSuccessBackgroundBrush}"/>
+      <Setter Property="Background" Value="{DynamicResource MacOS.NotificationCardSuccessBackgroundBrush}"/>
     </Style>
     <Style Selector="^:warning /template/ Panel#PART_HeaderBar">
-      <Setter Property="Background" Value="{DynamicResource NotificationCardWarningBackgroundBrush}"/>
+      <Setter Property="Background" Value="{DynamicResource MacOS.NotificationCardWarningBackgroundBrush}"/>
     </Style>
     <Style Selector="^:error /template/ Panel#PART_HeaderBar">
-      <Setter Property="Background" Value="{DynamicResource NotificationCardErrorBackgroundBrush}"/>
+      <Setter Property="Background" Value="{DynamicResource MacOS.NotificationCardErrorBackgroundBrush}"/>
     </Style>
   </ControlTheme>
 </ResourceDictionary>

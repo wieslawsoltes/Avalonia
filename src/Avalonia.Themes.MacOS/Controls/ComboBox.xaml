@@ -49,31 +49,31 @@
     </Border>
   </Design.PreviewWith>
 
-  <Thickness x:Key="ComboBoxTopHeaderMargin">0,0,0,4</Thickness>
-  <x:Int32 x:Key="ComboBoxPopupMaxNumberOfItems">15</x:Int32>
-  <x:Int32 x:Key="ComboBoxPopupMaxNumberOfItemsThatCanBeShownOnOneSide">7</x:Int32>
+  <Thickness x:Key="MacOS.ComboBoxTopHeaderMargin">0,0,0,4</Thickness>
+  <x:Int32 x:Key="MacOS.ComboBoxPopupMaxNumberOfItems">15</x:Int32>
+  <x:Int32 x:Key="MacOS.ComboBoxPopupMaxNumberOfItemsThatCanBeShownOnOneSide">7</x:Int32>
 
-  <Thickness x:Key="ComboBoxPadding">12,5,0,7</Thickness>
-  <Thickness x:Key="ComboBoxEditableTextPadding">11,5,32,6</Thickness>
-  <x:Double x:Key="ComboBoxMinHeight">32</x:Double>
+  <Thickness x:Key="MacOS.ComboBoxPadding">12,5,0,7</Thickness>
+  <Thickness x:Key="MacOS.ComboBoxEditableTextPadding">11,5,32,6</Thickness>
+  <x:Double x:Key="MacOS.ComboBoxMinHeight">32</x:Double>
 
   <ControlTheme x:Key="{x:Type ComboBox}" TargetType="ComboBox">
-    <Setter Property="Padding" Value="{DynamicResource ComboBoxPadding}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.ComboBoxPadding}" />
     <Setter Property="FocusAdorner" Value="{x:Null}" />
     <Setter Property="MaxDropDownHeight" Value="504" />
-    <Setter Property="Foreground" Value="{DynamicResource ComboBoxForeground}" />
-    <Setter Property="Background" Value="{DynamicResource ComboBoxBackground}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource ComboBoxBorderBrush}" />
-    <Setter Property="BorderThickness" Value="{DynamicResource ComboBoxBorderThemeThickness}" />
-    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+    <Setter Property="Foreground" Value="{DynamicResource MacOS.ComboBoxForeground}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.ComboBoxBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ComboBoxBorderBrush}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource MacOS.ComboBoxBorderThemeThickness}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.ControlCornerRadius}" />
     <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
     <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
-    <Setter Property="MinHeight" Value="{DynamicResource ComboBoxMinHeight}" />
+    <Setter Property="MinHeight" Value="{DynamicResource MacOS.ComboBoxMinHeight}" />
     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="HorizontalAlignment" Value="Left" />
     <Setter Property="VerticalAlignment" Value="Top" />
-    <Setter Property="PlaceholderForeground" Value="{DynamicResource ComboBoxPlaceHolderForeground}" />
+    <Setter Property="PlaceholderForeground" Value="{DynamicResource MacOS.ComboBoxPlaceHolderForeground}" />
     <Setter Property="Template">
       <ControlTemplate>
         <DataValidationErrors>
@@ -85,12 +85,12 @@
                     BorderBrush="{TemplateBinding BorderBrush}"
                     BorderThickness="{TemplateBinding BorderThickness}"
                     CornerRadius="{TemplateBinding CornerRadius}"
-                    MinWidth="{DynamicResource ComboBoxThemeMinWidth}" />
+                    MinWidth="{DynamicResource MacOS.ComboBoxThemeMinWidth}" />
             <Border x:Name="HighlightBackground"
                     Grid.Column="0"
                     Grid.ColumnSpan="2"
-                    Background="{DynamicResource ComboBoxBackgroundUnfocused}"
-                    BorderBrush="{DynamicResource ComboBoxBackgroundBorderBrushUnfocused}"
+                    Background="{DynamicResource MacOS.ComboBoxBackgroundUnfocused}"
+                    BorderBrush="{DynamicResource MacOS.ComboBoxBackgroundBorderBrushUnfocused}"
                     BorderThickness="{TemplateBinding BorderThickness}"
                     CornerRadius="{TemplateBinding CornerRadius}"
                     IsVisible="False"/>
@@ -98,7 +98,7 @@
                        Grid.Column="0"
                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                       Opacity="{DynamicResource TextControlPlaceholderOpacity}"
+                       Opacity="{DynamicResource MacOS.TextControlPlaceholderOpacity}"
                        Margin="{TemplateBinding Padding}"
                        Text="{TemplateBinding PlaceholderText}"
                        Foreground="{TemplateBinding PlaceholderForeground}">
@@ -131,9 +131,9 @@
                      BorderThickness="0"
                      IsVisible="{TemplateBinding IsEditable}">
               <TextBox.Resources>
-                <SolidColorBrush x:Key="TextControlBackgroundFocused">Transparent</SolidColorBrush>
-                <SolidColorBrush x:Key="TextControlBackgroundPointerOver">Transparent</SolidColorBrush>
-                <Thickness x:Key="TextControlBorderThemeThicknessFocused">0</Thickness>
+                <SolidColorBrush x:Key="MacOS.TextControlBackgroundFocused">Transparent</SolidColorBrush>
+                <SolidColorBrush x:Key="MacOS.TextControlBackgroundPointerOver">Transparent</SolidColorBrush>
+                <Thickness x:Key="MacOS.TextControlBorderThemeThicknessFocused">0</Thickness>
               </TextBox.Resources>
             </TextBox>
 
@@ -154,7 +154,7 @@
                       Margin="0,0,10,0"
                       HorizontalAlignment="Right"
                       VerticalAlignment="Center"
-                      Foreground="{DynamicResource ComboBoxDropDownGlyphForeground}"
+                      Foreground="{DynamicResource MacOS.ComboBoxDropDownGlyphForeground}"
                       Data="M1939 486L2029 576L1024 1581L19 576L109 486L1024 1401L1939 486Z"/>
 
             <Popup Name="PART_Popup"
@@ -166,18 +166,18 @@
                    IsLightDismissEnabled="True"
                    InheritsTransform="True">
               <Border x:Name="PopupBorder"
-                      Background="{DynamicResource ComboBoxDropDownBackground}"
-                      BorderBrush="{DynamicResource ComboBoxDropDownBorderBrush}"
-                      BorderThickness="{DynamicResource ComboBoxDropdownBorderThickness}"
-                      Padding="{DynamicResource ComboBoxDropdownBorderPadding}"
+                      Background="{DynamicResource MacOS.ComboBoxDropDownBackground}"
+                      BorderBrush="{DynamicResource MacOS.ComboBoxDropDownBorderBrush}"
+                      BorderThickness="{DynamicResource MacOS.ComboBoxDropdownBorderThickness}"
+                      Padding="{DynamicResource MacOS.ComboBoxDropdownBorderPadding}"
                       HorizontalAlignment="Stretch"
-                      CornerRadius="{DynamicResource OverlayCornerRadius}">
+                      CornerRadius="{DynamicResource MacOS.OverlayCornerRadius}">
                 <ScrollViewer HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
                               IsScrollChainingEnabled="False"
                               VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
                               IsDeferredScrollingEnabled="{TemplateBinding (ScrollViewer.IsDeferredScrollingEnabled)}">
                   <ItemsPresenter Name="PART_ItemsPresenter"
-                                  Margin="{DynamicResource ComboBoxDropdownContentMargin}"
+                                  Margin="{DynamicResource MacOS.ComboBoxDropdownContentMargin}"
                                   ItemsPanel="{TemplateBinding ItemsPanel}" />
                 </ScrollViewer>
               </Border>
@@ -189,31 +189,31 @@
 
     <!--  PointerOver State  -->
     <Style Selector="^:pointerover /template/ Border#Background">
-      <Setter Property="Background" Value="{DynamicResource ComboBoxBackgroundPointerOver}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ComboBoxBorderBrushPointerOver}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ComboBoxBackgroundPointerOver}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ComboBoxBorderBrushPointerOver}" />
     </Style>
 
     <!--  Pressed State  -->
     <Style Selector="^:pressed /template/ Border#Background">
-      <Setter Property="Background" Value="{DynamicResource ComboBoxBackgroundPressed}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ComboBoxBorderBrushPressed}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ComboBoxBackgroundPressed}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ComboBoxBorderBrushPressed}" />
     </Style>
 
     <!-- Error State -->
     <Style Selector="^:error /template/ Border#Background">
-      <Setter Property="BorderBrush" Value="{DynamicResource SystemControlErrorTextForegroundBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.SystemControlErrorTextForegroundBrush}" />
     </Style>
 
     <!--  Focus Pressed State  -->
     <Style Selector="^:focus:pressed">
       <Style Selector="^ /template/ ContentControl#ContentPresenter">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxForegroundFocusedPressed}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ComboBoxForegroundFocusedPressed}" />
       </Style>
       <Style Selector="^ /template/ TextBlock#PlaceholderTextBlock">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxPlaceHolderForegroundFocusedPressed}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ComboBoxPlaceHolderForegroundFocusedPressed}" />
       </Style>
       <Style Selector="^ /template/ PathIcon#DropDownGlyph">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxDropDownGlyphForegroundFocusedPressed}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ComboBoxDropDownGlyphForegroundFocusedPressed}" />
       </Style>
     </Style>
 
@@ -221,33 +221,33 @@
     <Style Selector="^:focus-visible">
       <Style Selector="^ /template/ Border#HighlightBackground">
         <Setter Property="IsVisible" Value="True" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ComboBoxBackgroundBorderBrushFocused}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ComboBoxBackgroundBorderBrushFocused}" />
       </Style>
       <Style Selector="^ /template/ ContentControl#ContentPresenter">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxForegroundFocused}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ComboBoxForegroundFocused}" />
       </Style>
       <Style Selector="^ /template/ TextBlock#PlaceholderTextBlock">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxForegroundFocused}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ComboBoxForegroundFocused}" />
       </Style>
       <Style Selector="^ /template/ PathIcon#DropDownGlyph">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxDropDownGlyphForegroundFocused}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ComboBoxDropDownGlyphForegroundFocused}" />
       </Style>
     </Style>
 
     <!--  Disabled State  -->
     <Style Selector="^:disabled">
       <Style Selector="^ /template/ Border#Background">
-        <Setter Property="Background" Value="{DynamicResource ComboBoxBackgroundDisabled}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ComboBoxBorderBrushDisabled}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.ComboBoxBackgroundDisabled}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ComboBoxBorderBrushDisabled}" />
       </Style>
       <Style Selector="^ /template/ ContentControl#ContentPresenter">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxForegroundDisabled}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ComboBoxForegroundDisabled}" />
       </Style>
       <Style Selector="^ /template/ TextBlock#PlaceholderTextBlock">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxForegroundDisabled}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ComboBoxForegroundDisabled}" />
       </Style>
       <Style Selector="^ /template/ PathIcon#DropDownGlyph">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxDropDownGlyphForegroundDisabled}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ComboBoxDropDownGlyphForegroundDisabled}" />
       </Style>
     </Style>
 

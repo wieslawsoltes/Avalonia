@@ -12,12 +12,12 @@
   </Design.PreviewWith>
 
   <ControlTheme x:Key="{x:Type RepeatButton}" TargetType="RepeatButton">
-    <Setter Property="Background" Value="{DynamicResource RepeatButtonBackground}" />
-    <Setter Property="Foreground" Value="{DynamicResource RepeatButtonForeground}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource RepeatButtonBorderBrush}" />
-    <Setter Property="BorderThickness" Value="{DynamicResource ButtonBorderThemeThickness}" />
-    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
-    <Setter Property="Padding" Value="{StaticResource ButtonPadding}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.RepeatButtonBackground}" />
+    <Setter Property="Foreground" Value="{DynamicResource MacOS.RepeatButtonForeground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MacOS.RepeatButtonBorderBrush}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource MacOS.ButtonBorderThemeThickness}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.ControlCornerRadius}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.ButtonPadding}" />
     <Setter Property="HorizontalAlignment" Value="Left" />
     <Setter Property="VerticalAlignment" Value="Center" />
     <Setter Property="RenderTransform" Value="none" />
@@ -37,9 +37,9 @@
     </Setter>
 
     <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource RepeatButtonBackgroundPointerOver}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource RepeatButtonBorderBrushPointerOver}" />
-      <Setter Property="Foreground" Value="{DynamicResource RepeatButtonForegroundPointerOver}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.RepeatButtonBackgroundPointerOver}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.RepeatButtonBorderBrushPointerOver}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.RepeatButtonForegroundPointerOver}" />
     </Style>
 
     <Style Selector="^:pressed">
@@ -47,15 +47,15 @@
     </Style>
 
     <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource RepeatButtonBackgroundPressed}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource RepeatButtonBorderBrushPressed}" />
-      <Setter Property="Foreground" Value="{DynamicResource RepeatButtonForegroundPressed}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.RepeatButtonBackgroundPressed}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.RepeatButtonBorderBrushPressed}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.RepeatButtonForegroundPressed}" />
     </Style>
 
     <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource RepeatButtonBackgroundDisabled}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource RepeatButtonBorderBrushDisabled}" />
-      <Setter Property="Foreground" Value="{DynamicResource RepeatButtonForegroundDisabled}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.RepeatButtonBackgroundDisabled}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.RepeatButtonBorderBrushDisabled}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.RepeatButtonForegroundDisabled}" />
     </Style>
   </ControlTheme>
 </ResourceDictionary>

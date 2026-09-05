@@ -42,7 +42,7 @@
   <StreamGeometry x:Key="ButtonSpinnerDecreaseButtonIcon">M0,1 L10,10 20,1 19,0 10,8 1,0 z</StreamGeometry>
 
   <ControlTheme x:Key="MacOSButtonSpinnerRepeatButton" TargetType="RepeatButton">
-    <Setter Property="MinWidth" Value="{DynamicResource TextControlInnerButtonMinWidth}" />
+    <Setter Property="MinWidth" Value="{DynamicResource MacOS.TextControlInnerButtonMinWidth}" />
     <Setter Property="Template">
       <ControlTemplate>
         <ContentPresenter x:Name="PART_ContentPresenter"
@@ -57,28 +57,28 @@
       </ControlTemplate>
     </Setter>
     <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource RepeatButtonBackgroundPointerOver}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.RepeatButtonBackgroundPointerOver}" />
     </Style>
 
     <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource RepeatButtonBackgroundPressed}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.RepeatButtonBackgroundPressed}" />
     </Style>
 
     <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource RepeatButtonBackgroundDisabled}" />
-      <Setter Property="Foreground" Value="{DynamicResource RepeatButtonForegroundDisabled}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.RepeatButtonBackgroundDisabled}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.RepeatButtonForegroundDisabled}" />
     </Style>
   </ControlTheme>
 
   <ControlTheme x:Key="{x:Type ButtonSpinner}" TargetType="ButtonSpinner">
-    <Setter Property="Foreground" Value="{DynamicResource TextControlForeground}" />
-    <Setter Property="Padding" Value="{DynamicResource ButtonSpinnerPadding}" />
-    <Setter Property="Background" Value="{DynamicResource TextControlBackground}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource TextControlBorderBrush}" />
-    <Setter Property="BorderThickness" Value="{DynamicResource TextControlBorderThemeThickness}" />
-    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
-    <Setter Property="MinHeight" Value="{DynamicResource TextControlThemeMinHeight}" />
-    <Setter Property="MinWidth" Value="{DynamicResource TextControlThemeMinWidth}" />
+    <Setter Property="Foreground" Value="{DynamicResource MacOS.TextControlForeground}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.ButtonSpinnerPadding}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.TextControlBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MacOS.TextControlBorderBrush}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource MacOS.TextControlBorderThemeThickness}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.ControlCornerRadius}" />
+    <Setter Property="MinHeight" Value="{DynamicResource MacOS.TextControlThemeMinHeight}" />
+    <Setter Property="MinWidth" Value="{DynamicResource MacOS.TextControlThemeMinWidth}" />
     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="Focusable" Value="True"/>
@@ -149,7 +149,7 @@
       </Style>
     </Style>
     <Style Selector="^:error">
-      <Setter Property="BorderBrush" Value="{DynamicResource SystemErrorTextColor}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.SystemErrorTextColor}" />
     </Style>
   </ControlTheme>
 

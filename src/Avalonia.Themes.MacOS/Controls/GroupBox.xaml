@@ -11,11 +11,11 @@
 
   <ControlTheme x:Key="{x:Type GroupBox}"
                 TargetType="GroupBox">
-    <Setter Property="BorderThickness" Value="{DynamicResource GroupBoxBorderThickness}" />
-    <Setter Property="Background" Value="{DynamicResource GroupBoxBackground}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource GroupBoxBorderBrush}" />
-    <Setter Property="Padding" Value="{DynamicResource GroupBoxPadding}" />
-    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource MacOS.GroupBoxBorderThickness}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.GroupBoxBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MacOS.GroupBoxBorderBrush}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.GroupBoxPadding}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.ControlCornerRadius}" />
     <Setter Property="Template">
       <ControlTemplate>
         <Grid x:Name="RootGrid" UseLayoutRounding="true" ColumnDefinitions="6,Auto,*,6" RowDefinitions="Auto,Auto,*,6">
@@ -56,8 +56,8 @@
                   Grid.Column="1">
             <ContentPresenter Name="PART_HeaderPresenter"
                               Content="{TemplateBinding Header}"
-                              FontSize="{DynamicResource GroupBoxHeaderFontSize}"
-                              Foreground="{DynamicResource GroupBoxHeaderForeground}"
+                              FontSize="{DynamicResource MacOS.GroupBoxHeaderFontSize}"
+                              Foreground="{DynamicResource MacOS.GroupBoxHeaderForeground}"
                               ContentTemplate="{TemplateBinding HeaderTemplate}"
                               HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
                               VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"

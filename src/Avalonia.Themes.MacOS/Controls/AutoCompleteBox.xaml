@@ -23,14 +23,14 @@
 
     <ControlTheme x:Key="{x:Type AutoCompleteBox}" TargetType="AutoCompleteBox">
       <Setter Property="VerticalAlignment" Value="Top" />
-      <Setter Property="Foreground" Value="{DynamicResource TextControlForeground}" />
-      <Setter Property="Background" Value="{DynamicResource TextControlBackground}" />
-      <Setter Property="PlaceholderForeground" Value="{DynamicResource TextControlPlaceholderForeground}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource TextControlBorderBrush}" />
-      <Setter Property="BorderThickness" Value="{DynamicResource TextControlBorderThemeThickness}" />
-      <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
-      <Setter Property="Padding" Value="{DynamicResource TextControlThemePadding}" />
-      <Setter Property="MaxDropDownHeight" Value="{DynamicResource AutoCompleteListMaxHeight}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.TextControlForeground}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.TextControlBackground}" />
+      <Setter Property="PlaceholderForeground" Value="{DynamicResource MacOS.TextControlPlaceholderForeground}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.TextControlBorderBrush}" />
+      <Setter Property="BorderThickness" Value="{DynamicResource MacOS.TextControlBorderThemeThickness}" />
+      <Setter Property="CornerRadius" Value="{DynamicResource MacOS.ControlCornerRadius}" />
+      <Setter Property="Padding" Value="{DynamicResource MacOS.TextControlThemePadding}" />
+      <Setter Property="MaxDropDownHeight" Value="{DynamicResource MacOS.AutoCompleteListMaxHeight}" />
       <Setter Property="Template">
         <ControlTemplate>
           <Grid Name="PART_LayoutRoot">
@@ -59,16 +59,16 @@
                    IsLightDismissEnabled="True"
                    PlacementTarget="{TemplateBinding}">
               <Border Name="PART_SuggestionsContainer"
-                      Padding="{DynamicResource AutoCompleteListMargin}"
-                      BorderThickness="{DynamicResource AutoCompleteListBorderThemeThickness}"
-                      BorderBrush="{DynamicResource AutoCompleteBoxSuggestionsListBorderBrush}"
-                      Background="{DynamicResource AutoCompleteBoxSuggestionsListBackground}"
-                      CornerRadius="{DynamicResource OverlayCornerRadius}">
+                      Padding="{DynamicResource MacOS.AutoCompleteListMargin}"
+                      BorderThickness="{DynamicResource MacOS.AutoCompleteListBorderThemeThickness}"
+                      BorderBrush="{DynamicResource MacOS.AutoCompleteBoxSuggestionsListBorderBrush}"
+                      Background="{DynamicResource MacOS.AutoCompleteBoxSuggestionsListBackground}"
+                      CornerRadius="{DynamicResource MacOS.OverlayCornerRadius}">
                 <ListBox Name="PART_SelectingItemsControl"
                          BorderThickness="0"
                          Background="Transparent"
                          ItemTemplate="{TemplateBinding ItemTemplate}"
-                         Margin="{DynamicResource AutoCompleteListPadding}"
+                         Margin="{DynamicResource MacOS.AutoCompleteListPadding}"
                          ScrollViewer.IsScrollChainingEnabled="False" />
               </Border>
             </Popup>

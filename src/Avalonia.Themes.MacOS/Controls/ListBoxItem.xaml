@@ -13,10 +13,10 @@
       </ListBox>
     </Border>
   </Design.PreviewWith>
-  <Thickness x:Key="ListBoxItemPadding">12,9,12,12</Thickness>
+  <Thickness x:Key="MacOS.ListBoxItemPadding">12,9,12,12</Thickness>
   <ControlTheme x:Key="{x:Type ListBoxItem}" TargetType="ListBoxItem">
     <Setter Property="Background" Value="Transparent" />
-    <Setter Property="Padding" Value="{DynamicResource ListBoxItemPadding}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.ListBoxItemPadding}" />
     <Setter Property="Template">
       <ControlTemplate>
         <ContentPresenter Name="PART_ContentPresenter"
@@ -33,45 +33,45 @@
     </Setter>
 
     <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Foreground" Value="{DynamicResource SystemControlDisabledBaseMediumLowBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.SystemControlDisabledBaseMediumLowBrush}" />
     </Style>
 
     <!--  PointerOver State  -->
     <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListLowBrush}" />
-      <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlHighlightListLowBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.SystemControlHighlightAltBaseHighBrush}" />
     </Style>
 
     <!--  Pressed State  -->
     <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListMediumBrush}" />
-      <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlHighlightListMediumBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.SystemControlHighlightAltBaseHighBrush}" />
     </Style>
 
     <!--  Selected State  -->
     <Style Selector="^:selected">
 
       <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListAccentLowBrush}" />
-        <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlHighlightListAccentLowBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.SystemControlHighlightAltBaseHighBrush}" />
       </Style>
 
       <!--  Selected Unfocused State  -->
       <Style Selector="^:not(:focus) /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListAccentLowBrush}" />
-        <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlHighlightListAccentLowBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.SystemControlHighlightAltBaseHighBrush}" />
       </Style>
 
       <!--  Selected PointerOver State  -->
       <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListAccentMediumBrush}" />
-        <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlHighlightListAccentMediumBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.SystemControlHighlightAltBaseHighBrush}" />
       </Style>
 
       <!--  Selected Pressed State  -->
       <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListAccentHighBrush}" />
-        <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlHighlightListAccentHighBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.SystemControlHighlightAltBaseHighBrush}" />
       </Style>
     </Style>
   </ControlTheme>

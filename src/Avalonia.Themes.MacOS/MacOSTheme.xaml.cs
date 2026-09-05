@@ -16,7 +16,7 @@ namespace Avalonia.Themes.MacOS
     /// <summary>
     /// Includes the macOS theme in an application.
     /// </summary>
-    public class MacOSTheme : Styles, IResourceNode
+    public partial class MacOSTheme : Styles, IResourceNode
     {
         private readonly ResourceDictionary _compactStyles;
         private DensityStyle _densityStyle;
@@ -28,6 +28,7 @@ namespace Avalonia.Themes.MacOS
         public MacOSTheme(IServiceProvider? sp = null)
         {
             AvaloniaXamlLoader.Load(sp, this);
+            Resources.MergedDictionaries.Add(Tokens);
             
             _compactStyles = (ResourceDictionary)GetAndRemove("CompactStyles");
 
@@ -69,6 +70,10 @@ namespace Avalonia.Themes.MacOS
 
         bool IResourceNode.TryGetResource(object key, ThemeVariant? theme, out object? value)
         {
+            key = MacOSTokenAliases.Normalize(key);
+            if (Tokens.TryGetResource(key, theme, out value))
+                return true;
+
             // DensityStyle dictionary should be checked first
             if (_densityStyle == DensityStyle.Compact
                 && _compactStyles.TryGetResource(key, theme, out value))

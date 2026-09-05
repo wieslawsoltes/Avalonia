@@ -50,15 +50,15 @@
   </Design.PreviewWith>
 
   <ControlTheme x:Key="{x:Type NumericUpDown}" TargetType="NumericUpDown">
-    <Setter Property="Foreground" Value="{DynamicResource TextControlForeground}" />
-    <Setter Property="Background" Value="{DynamicResource TextControlBackground}" />
-    <Setter Property="PlaceholderForeground" Value="{DynamicResource TextControlPlaceholderForeground}" />
-    <Setter Property="BorderThickness" Value="{DynamicResource TextControlBorderThemeThickness}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource TextControlBorderBrush}" />
-    <Setter Property="MinHeight" Value="{DynamicResource TextControlThemeMinHeight}" />
-    <Setter Property="MinWidth" Value="{DynamicResource TextControlThemeMinWidth}" />
-    <Setter Property="Padding" Value="{DynamicResource TextControlThemePadding}" />
-    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+    <Setter Property="Foreground" Value="{DynamicResource MacOS.TextControlForeground}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.TextControlBackground}" />
+    <Setter Property="PlaceholderForeground" Value="{DynamicResource MacOS.TextControlPlaceholderForeground}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource MacOS.TextControlBorderThemeThickness}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MacOS.TextControlBorderBrush}" />
+    <Setter Property="MinHeight" Value="{DynamicResource MacOS.TextControlThemeMinHeight}" />
+    <Setter Property="MinWidth" Value="{DynamicResource MacOS.TextControlThemeMinWidth}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.TextControlThemePadding}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.ControlCornerRadius}" />
     <Setter Property="Template">
       <ControlTemplate>
         <DataValidationErrors>

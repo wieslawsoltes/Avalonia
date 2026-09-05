@@ -16,13 +16,13 @@
     </StackPanel>
   </Design.PreviewWith>
 
-  <Thickness x:Key="ToggleSwitchTopHeaderMargin">0,0,0,6</Thickness>
-  <GridLength x:Key="ToggleSwitchPreContentMargin">6</GridLength>
-  <GridLength x:Key="ToggleSwitchPostContentMargin">6</GridLength>
-  <x:Double x:Key="ToggleSwitchThemeMinWidth">0</x:Double>
+  <Thickness x:Key="MacOS.ToggleSwitchTopHeaderMargin">0,0,0,6</Thickness>
+  <GridLength x:Key="MacOS.ToggleSwitchPreContentMargin">6</GridLength>
+  <GridLength x:Key="MacOS.ToggleSwitchPostContentMargin">6</GridLength>
+  <x:Double x:Key="MacOS.ToggleSwitchThemeMinWidth">0</x:Double>
 
   <ControlTheme x:Key="{x:Type ToggleSwitch}" TargetType="ToggleSwitch">
-    <Setter Property="Foreground" Value="{DynamicResource ToggleSwitchContentForeground}" />
+    <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleSwitchContentForeground}" />
     <Setter Property="HorizontalAlignment" Value="Left" />
     <Setter Property="VerticalAlignment" Value="Center" />
     <Setter Property="HorizontalContentAlignment" Value="Left" />
@@ -45,18 +45,18 @@
               VerticalAlignment="Top"
               Content="{TemplateBinding Content}"
               ContentTemplate="{TemplateBinding ContentTemplate}"
-              Margin="{DynamicResource ToggleSwitchTopHeaderMargin}" />
+              Margin="{DynamicResource MacOS.ToggleSwitchTopHeaderMargin}" />
 
           <Grid
               Grid.Row="1"
-              MinWidth="{DynamicResource ToggleSwitchThemeMinWidth}"
+              MinWidth="{DynamicResource MacOS.ToggleSwitchThemeMinWidth}"
               HorizontalAlignment="Left"
               VerticalAlignment="Top">
 
             <Grid.RowDefinitions>
-              <RowDefinition Height="{DynamicResource ToggleSwitchPreContentMargin}" />
+              <RowDefinition Height="{DynamicResource MacOS.ToggleSwitchPreContentMargin}" />
               <RowDefinition Height="Auto" />
-              <RowDefinition Height="{DynamicResource ToggleSwitchPostContentMargin}" />
+              <RowDefinition Height="{DynamicResource MacOS.ToggleSwitchPostContentMargin}" />
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
@@ -69,7 +69,7 @@
                 x:Name="SwitchAreaGrid"
                 Grid.RowSpan="3"
                 Grid.ColumnSpan="3"
-                Background="{DynamicResource ToggleSwitchContainerBackground}"
+                Background="{DynamicResource MacOS.ToggleSwitchContainerBackground}"
                 Margin="0,5"
                 TemplatedControl.IsTemplateFocusTarget="True" />
 
@@ -96,9 +96,9 @@
                 Grid.Row="1"
                 Width="40"
                 Height="20"
-                Background="{DynamicResource ToggleSwitchFillOff}"
-                BorderBrush="{DynamicResource ToggleSwitchStrokeOff}"
-                BorderThickness="{DynamicResource ToggleSwitchOuterBorderStrokeThickness}"
+                Background="{DynamicResource MacOS.ToggleSwitchFillOff}"
+                BorderBrush="{DynamicResource MacOS.ToggleSwitchStrokeOff}"
+                BorderThickness="{DynamicResource MacOS.ToggleSwitchOuterBorderStrokeThickness}"
                 CornerRadius="10" />
 
             <Border
@@ -106,9 +106,9 @@
                 Grid.Row="1"
                 Width="40"
                 Height="20"
-                Background="{DynamicResource ToggleSwitchFillOn}"
-                BorderBrush="{DynamicResource ToggleSwitchStrokeOn}"
-                BorderThickness="{DynamicResource ToggleSwitchOnStrokeThickness}"
+                Background="{DynamicResource MacOS.ToggleSwitchFillOn}"
+                BorderBrush="{DynamicResource MacOS.ToggleSwitchStrokeOn}"
+                BorderThickness="{DynamicResource MacOS.ToggleSwitchOnStrokeThickness}"
                 CornerRadius="10" />
 
             <Canvas
@@ -121,12 +121,12 @@
               <Grid x:Name="PART_MovingKnobs" Width="20" Height="20">
                 <Ellipse
                   x:Name="SwitchKnobOn"
-                  Fill="{DynamicResource ToggleSwitchKnobFillOn}"
+                  Fill="{DynamicResource MacOS.ToggleSwitchKnobFillOn}"
                   Width="10"
                   Height="10" />
                 <Ellipse
                   x:Name="SwitchKnobOff"
-                  Fill="{DynamicResource ToggleSwitchKnobFillOff}"
+                  Fill="{DynamicResource MacOS.ToggleSwitchKnobFillOff}"
                   Width="10"
                   Height="10" />
               </Grid>
@@ -146,71 +146,71 @@
 
     <!--  PointerOverState  -->
     <Style Selector="^:pointerover /template/ Border#OuterBorder">
-      <Setter Property="BorderBrush" Value="{DynamicResource ToggleSwitchStrokeOffPointerOver}" />
-      <Setter Property="Background" Value="{DynamicResource ToggleSwitchFillOffPointerOver}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleSwitchStrokeOffPointerOver}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ToggleSwitchFillOffPointerOver}" />
     </Style>
 
     <Style Selector="^:pointerover /template/ Ellipse#SwitchKnobOff">
-      <Setter Property="Fill" Value="{DynamicResource ToggleSwitchKnobFillOffPointerOver}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.ToggleSwitchKnobFillOffPointerOver}" />
     </Style>
 
     <Style Selector="^:pointerover /template/ Ellipse#SwitchKnobOn">
-      <Setter Property="Fill" Value="{DynamicResource ToggleSwitchKnobFillOnPointerOver}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.ToggleSwitchKnobFillOnPointerOver}" />
     </Style>
 
     <Style Selector="^:pointerover /template/ Border#SwitchKnobBounds">
-      <Setter Property="Background" Value="{DynamicResource ToggleSwitchFillOnPointerOver}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ToggleSwitchStrokeOnPointerOver}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ToggleSwitchFillOnPointerOver}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleSwitchStrokeOnPointerOver}" />
     </Style>
 
     <Style Selector="^:pointerover /template/ Grid#SwitchAreaGrid">
-      <Setter Property="Background" Value="{DynamicResource ToggleSwitchContainerBackgroundPointerOver}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ToggleSwitchContainerBackgroundPointerOver}" />
     </Style>
 
     <!--  PressedState  -->
     <Style Selector="^:pressed /template/ Border#OuterBorder">
-      <Setter Property="BorderBrush" Value="{DynamicResource ToggleSwitchStrokeOffPressed}" />
-      <Setter Property="Background" Value="{DynamicResource ToggleSwitchFillOffPressed}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleSwitchStrokeOffPressed}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ToggleSwitchFillOffPressed}" />
     </Style>
 
     <Style Selector="^:pressed /template/ Border#SwitchKnobBounds">
-      <Setter Property="Background" Value="{DynamicResource ToggleSwitchFillOnPressed}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ToggleSwitchStrokeOnPressed}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ToggleSwitchFillOnPressed}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleSwitchStrokeOnPressed}" />
     </Style>
 
     <Style Selector="^:pressed /template/ Ellipse#SwitchKnobOff">
-      <Setter Property="Fill" Value="{DynamicResource ToggleSwitchKnobFillOffPressed}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.ToggleSwitchKnobFillOffPressed}" />
     </Style>
 
     <Style Selector="^:pressed /template/ Ellipse#SwitchKnobOn">
-      <Setter Property="Fill" Value="{DynamicResource ToggleSwitchKnobFillOnPressed}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.ToggleSwitchKnobFillOnPressed}" />
     </Style>
 
     <Style Selector="^:pressed /template/ Grid#SwitchAreaGrid">
-      <Setter Property="Background" Value="{DynamicResource ToggleSwitchContainerBackgroundPressed}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ToggleSwitchContainerBackgroundPressed}" />
     </Style>
 
     <!--  DisabledState  -->
     <Style Selector="^:disabled">
-      <Setter Property="Foreground" Value="{DynamicResource ToggleSwitchHeaderForegroundDisabled}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.ToggleSwitchHeaderForegroundDisabled}" />
     </Style>
 
     <Style Selector="^:disabled /template/ Border#OuterBorder">
-      <Setter Property="BorderBrush" Value="{DynamicResource ToggleSwitchStrokeOffDisabled}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleSwitchStrokeOffDisabled}" />
       <Setter Property="Background" Value="{DynamicResource ToggleSwitchFillOffDisabled}" />
     </Style>
 
     <Style Selector="^:disabled /template/ Ellipse#SwitchKnobOff">
-      <Setter Property="Fill" Value="{DynamicResource ToggleSwitchKnobFillOffDisabled}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.ToggleSwitchKnobFillOffDisabled}" />
     </Style>
 
     <Style Selector="^:disabled /template/ Ellipse#SwitchKnobOn">
-      <Setter Property="Fill" Value="{DynamicResource ToggleSwitchKnobFillOnDisabled}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.ToggleSwitchKnobFillOnDisabled}" />
     </Style>
 
     <Style Selector="^:disabled /template/ Border#SwitchKnobBounds">
-      <Setter Property="Background" Value="{DynamicResource ToggleSwitchFillOnDisabled}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ToggleSwitchStrokeOnDisabled}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ToggleSwitchFillOnDisabled}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ToggleSwitchStrokeOnDisabled}" />
     </Style>
 
     <!--  CheckedState  -->

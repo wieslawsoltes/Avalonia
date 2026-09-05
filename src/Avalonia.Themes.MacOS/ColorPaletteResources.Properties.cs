@@ -24,135 +24,135 @@ public partial class ColorPaletteResources
     /// <summary>
     /// Gets or sets the AltHigh color value.
     /// </summary>
-    public Color AltHigh { get => GetColor("SystemAltHighColor"); set => SetColor("SystemAltHighColor", value); }
+    public Color AltHigh { get => GetColor("MacOS.SystemAltHighColor"); set => SetColor("MacOS.SystemAltHighColor", value); }
 
     /// <summary>
     /// Gets or sets the AltLow color value.
     /// </summary>
-    public Color AltLow { get => GetColor("SystemAltLowColor"); set => SetColor("SystemAltLowColor", value); }
+    public Color AltLow { get => GetColor("MacOS.SystemAltLowColor"); set => SetColor("MacOS.SystemAltLowColor", value); }
 
     /// <summary>
     /// Gets or sets the AltMedium color value.
     /// </summary>
-    public Color AltMedium { get => GetColor("SystemAltMediumColor"); set => SetColor("SystemAltMediumColor", value); }
+    public Color AltMedium { get => GetColor("MacOS.SystemAltMediumColor"); set => SetColor("MacOS.SystemAltMediumColor", value); }
 
     /// <summary>
     /// Gets or sets the AltMediumHigh color value.
     /// </summary>
-    public Color AltMediumHigh { get => GetColor("SystemAltMediumHighColor"); set => SetColor("SystemAltMediumHighColor", value); }
+    public Color AltMediumHigh { get => GetColor("MacOS.SystemAltMediumHighColor"); set => SetColor("MacOS.SystemAltMediumHighColor", value); }
 
     /// <summary>
     /// Gets or sets the AltMediumLow color value.
     /// </summary>
-    public Color AltMediumLow { get => GetColor("SystemAltMediumLowColor"); set => SetColor("SystemAltMediumLowColor", value); }
+    public Color AltMediumLow { get => GetColor("MacOS.SystemAltMediumLowColor"); set => SetColor("MacOS.SystemAltMediumLowColor", value); }
 
     /// <summary>
     /// Gets or sets the BaseHigh color value.
     /// </summary>
-    public Color BaseHigh { get => GetColor("SystemBaseHighColor"); set => SetColor("SystemBaseHighColor", value); }
+    public Color BaseHigh { get => GetColor("MacOS.SystemBaseHighColor"); set => SetColor("MacOS.SystemBaseHighColor", value); }
 
     /// <summary>
     /// Gets or sets the BaseLow color value.
     /// </summary>
-    public Color BaseLow { get => GetColor("SystemBaseLowColor"); set => SetColor("SystemBaseLowColor", value); }
+    public Color BaseLow { get => GetColor("MacOS.SystemBaseLowColor"); set => SetColor("MacOS.SystemBaseLowColor", value); }
 
     /// <summary>
     /// Gets or sets the BaseMedium color value.
     /// </summary>
-    public Color BaseMedium { get => GetColor("SystemBaseMediumColor"); set => SetColor("SystemBaseMediumColor", value); }
+    public Color BaseMedium { get => GetColor("MacOS.SystemBaseMediumColor"); set => SetColor("MacOS.SystemBaseMediumColor", value); }
 
     /// <summary>
     /// Gets or sets the BaseMediumHigh color value.
     /// </summary>
-    public Color BaseMediumHigh { get => GetColor("SystemBaseMediumHighColor"); set => SetColor("SystemBaseMediumHighColor", value); }
+    public Color BaseMediumHigh { get => GetColor("MacOS.SystemBaseMediumHighColor"); set => SetColor("MacOS.SystemBaseMediumHighColor", value); }
 
     /// <summary>
     /// Gets or sets the BaseMediumLow color value.
     /// </summary>
-    public Color BaseMediumLow { get => GetColor("SystemBaseMediumLowColor"); set => SetColor("SystemBaseMediumLowColor", value); }
+    public Color BaseMediumLow { get => GetColor("MacOS.SystemBaseMediumLowColor"); set => SetColor("MacOS.SystemBaseMediumLowColor", value); }
 
     /// <summary>
     /// Gets or sets the ChromeAltLow color value.
     /// </summary>
-    public Color ChromeAltLow { get => GetColor("SystemChromeAltLowColor"); set => SetColor("SystemChromeAltLowColor", value); }
+    public Color ChromeAltLow { get => GetColor("MacOS.SystemChromeAltLowColor"); set => SetColor("MacOS.SystemChromeAltLowColor", value); }
 
     /// <summary>
     /// Gets or sets the ChromeBlackHigh color value.
     /// </summary>
-    public Color ChromeBlackHigh { get => GetColor("SystemChromeBlackHighColor"); set => SetColor("SystemChromeBlackHighColor", value); }
+    public Color ChromeBlackHigh { get => GetColor("MacOS.SystemChromeBlackHighColor"); set => SetColor("MacOS.SystemChromeBlackHighColor", value); }
 
     /// <summary>
     /// Gets or sets the ChromeBlackLow color value.
     /// </summary>
-    public Color ChromeBlackLow { get => GetColor("SystemChromeBlackLowColor"); set => SetColor("SystemChromeBlackLowColor", value); }
+    public Color ChromeBlackLow { get => GetColor("MacOS.SystemChromeBlackLowColor"); set => SetColor("MacOS.SystemChromeBlackLowColor", value); }
 
     /// <summary>
     /// Gets or sets the ChromeBlackMedium color value.
     /// </summary>
-    public Color ChromeBlackMedium { get => GetColor("SystemChromeBlackMediumColor"); set => SetColor("SystemChromeBlackMediumColor", value); }
+    public Color ChromeBlackMedium { get => GetColor("MacOS.SystemChromeBlackMediumColor"); set => SetColor("MacOS.SystemChromeBlackMediumColor", value); }
 
     /// <summary>
     /// Gets or sets the ChromeBlackMediumLow color value.
     /// </summary>
-    public Color ChromeBlackMediumLow { get => GetColor("SystemChromeBlackMediumLowColor"); set => SetColor("SystemChromeBlackMediumLowColor", value); }
+    public Color ChromeBlackMediumLow { get => GetColor("MacOS.SystemChromeBlackMediumLowColor"); set => SetColor("MacOS.SystemChromeBlackMediumLowColor", value); }
 
     /// <summary>
     /// Gets or sets the ChromeDisabledHigh color value.
     /// </summary>
-    public Color ChromeDisabledHigh { get => GetColor("SystemChromeDisabledHighColor"); set => SetColor("SystemChromeDisabledHighColor", value); }
+    public Color ChromeDisabledHigh { get => GetColor("MacOS.SystemChromeDisabledHighColor"); set => SetColor("MacOS.SystemChromeDisabledHighColor", value); }
 
     /// <summary>
     /// Gets or sets the ChromeDisabledLow color value.
     /// </summary>
-    public Color ChromeDisabledLow { get => GetColor("SystemChromeDisabledLowColor"); set => SetColor("SystemChromeDisabledLowColor", value); }
+    public Color ChromeDisabledLow { get => GetColor("MacOS.SystemChromeDisabledLowColor"); set => SetColor("MacOS.SystemChromeDisabledLowColor", value); }
 
     /// <summary>
     /// Gets or sets the ChromeGray color value.
     /// </summary>
-    public Color ChromeGray { get => GetColor("SystemChromeGrayColor"); set => SetColor("SystemChromeGrayColor", value); }
+    public Color ChromeGray { get => GetColor("MacOS.SystemChromeGrayColor"); set => SetColor("MacOS.SystemChromeGrayColor", value); }
 
     /// <summary>
     /// Gets or sets the ChromeHigh color value.
     /// </summary>
-    public Color ChromeHigh { get => GetColor("SystemChromeHighColor"); set => SetColor("SystemChromeHighColor", value); }
+    public Color ChromeHigh { get => GetColor("MacOS.SystemChromeHighColor"); set => SetColor("MacOS.SystemChromeHighColor", value); }
 
     /// <summary>
     /// Gets or sets the ChromeLow color value.
     /// </summary>
-    public Color ChromeLow { get => GetColor("SystemChromeLowColor"); set => SetColor("SystemChromeLowColor", value); }
+    public Color ChromeLow { get => GetColor("MacOS.SystemChromeLowColor"); set => SetColor("MacOS.SystemChromeLowColor", value); }
 
     /// <summary>
     /// Gets or sets the ChromeMedium color value.
     /// </summary>
-    public Color ChromeMedium { get => GetColor("SystemChromeMediumColor"); set => SetColor("SystemChromeMediumColor", value); }
+    public Color ChromeMedium { get => GetColor("MacOS.SystemChromeMediumColor"); set => SetColor("MacOS.SystemChromeMediumColor", value); }
 
     /// <summary>
     /// Gets or sets the ChromeMediumLow color value.
     /// </summary>
-    public Color ChromeMediumLow { get => GetColor("SystemChromeMediumLowColor"); set => SetColor("SystemChromeMediumLowColor", value); }
+    public Color ChromeMediumLow { get => GetColor("MacOS.SystemChromeMediumLowColor"); set => SetColor("MacOS.SystemChromeMediumLowColor", value); }
 
     /// <summary>
     /// Gets or sets the ChromeWhite color value.
     /// </summary>
-    public Color ChromeWhite { get => GetColor("SystemChromeWhiteColor"); set => SetColor("SystemChromeWhiteColor", value); }
+    public Color ChromeWhite { get => GetColor("MacOS.SystemChromeWhiteColor"); set => SetColor("MacOS.SystemChromeWhiteColor", value); }
 
     /// <summary>
     /// Gets or sets the ErrorText color value.
     /// </summary>
-    public Color ErrorText { get => GetColor("SystemErrorTextColor"); set => SetColor("SystemErrorTextColor", value); }
+    public Color ErrorText { get => GetColor("MacOS.SystemErrorTextColor"); set => SetColor("MacOS.SystemErrorTextColor", value); }
 
     /// <summary>
     /// Gets or sets the ListLow color value.
     /// </summary>
-    public Color ListLow { get => GetColor("SystemListLowColor"); set => SetColor("SystemListLowColor", value); }
+    public Color ListLow { get => GetColor("MacOS.SystemListLowColor"); set => SetColor("MacOS.SystemListLowColor", value); }
 
     /// <summary>
     /// Gets or sets the ListMedium color value.
     /// </summary>
-    public Color ListMedium { get => GetColor("SystemListMediumColor"); set => SetColor("SystemListMediumColor", value); }
+    public Color ListMedium { get => GetColor("MacOS.SystemListMediumColor"); set => SetColor("MacOS.SystemListMediumColor", value); }
     
     /// <summary>
     /// Gets or sets the RegionColor color value.
     /// </summary>
-    public Color RegionColor { get => GetColor("SystemRegionColor"); set => SetColor("SystemRegionColor", value); }
+    public Color RegionColor { get => GetColor("MacOS.SystemRegionColor"); set => SetColor("MacOS.SystemRegionColor", value); }
 }

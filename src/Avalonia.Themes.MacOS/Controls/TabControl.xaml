@@ -17,12 +17,12 @@
     </Border>
   </Design.PreviewWith>
 
-  <Thickness x:Key="TabControlTopPlacementItemMargin">0 0 0 2</Thickness>
+  <Thickness x:Key="MacOS.TabControlTopPlacementItemMargin">0 0 0 2</Thickness>
 
   <ControlTheme x:Key="{x:Type TabControl}" TargetType="TabControl">
     <Setter Property="Margin" Value="0" />
-    <Setter Property="Padding" Value="{DynamicResource TabItemMargin}" />
-    <Setter Property="Background" Value="{DynamicResource TabControlBackground}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.TabItemMargin}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.TabControlBackground}" />
     <Setter Property="Template">
       <ControlTemplate>
         <Border BorderBrush="{TemplateBinding BorderBrush}"
@@ -58,7 +58,7 @@
       <Setter Property="Orientation" Value="Vertical" />
     </Style>
     <Style Selector="^[TabStripPlacement=Top] /template/ ItemsPresenter#PART_ItemsPresenter">
-      <Setter Property="Margin" Value="{DynamicResource TabControlTopPlacementItemMargin}" />
+      <Setter Property="Margin" Value="{DynamicResource MacOS.TabControlTopPlacementItemMargin}" />
     </Style>
   </ControlTheme>
 </ResourceDictionary>

@@ -9,13 +9,13 @@ namespace Avalonia.Themes.MacOS.Accents;
 
 internal sealed class SystemAccentColors : ResourceProvider
 {
-    public const string AccentKey = "SystemAccentColor";
-    public const string AccentDark1Key = "SystemAccentColorDark1";
-    public const string AccentDark2Key = "SystemAccentColorDark2";
-    public const string AccentDark3Key = "SystemAccentColorDark3";
-    public const string AccentLight1Key = "SystemAccentColorLight1";
-    public const string AccentLight2Key = "SystemAccentColorLight2";
-    public const string AccentLight3Key = "SystemAccentColorLight3";
+    public const string AccentKey = "MacOS.SystemAccentColor";
+    public const string AccentDark1Key = "MacOS.SystemAccentColorDark1";
+    public const string AccentDark2Key = "MacOS.SystemAccentColorDark2";
+    public const string AccentDark3Key = "MacOS.SystemAccentColorDark3";
+    public const string AccentLight1Key = "MacOS.SystemAccentColorLight1";
+    public const string AccentLight2Key = "MacOS.SystemAccentColorLight2";
+    public const string AccentLight3Key = "MacOS.SystemAccentColorLight3";
     
     private static readonly Color s_defaultSystemAccentColor = Color.FromRgb(0, 122, 255);
     private bool _invalidateColors = true;

@@ -10,20 +10,20 @@
       </Border>
     </Design.PreviewWith>
   
-    <x:Double x:Key="DropDownButtonMinHeight">32</x:Double>
+    <x:Double x:Key="MacOS.DropDownButtonMinHeight">32</x:Double>
     
     <ControlTheme x:Key="{x:Type DropDownButton}" TargetType="DropDownButton">
-      <Setter Property="Background" Value="{DynamicResource ButtonBackground}" />
-      <Setter Property="Foreground" Value="{DynamicResource ButtonForeground}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrush}" />
-      <Setter Property="BorderThickness" Value="{DynamicResource ButtonBorderThemeThickness}" />
-      <Setter Property="Padding" Value="{DynamicResource ButtonPadding}" />
-      <Setter Property="MinHeight" Value="{DynamicResource DropDownButtonMinHeight}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.ButtonBackground}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.ButtonForeground}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ButtonBorderBrush}" />
+      <Setter Property="BorderThickness" Value="{DynamicResource MacOS.ButtonBorderThemeThickness}" />
+      <Setter Property="Padding" Value="{DynamicResource MacOS.ButtonPadding}" />
+      <Setter Property="MinHeight" Value="{DynamicResource MacOS.DropDownButtonMinHeight}" />
       <Setter Property="HorizontalAlignment" Value="Left" />
       <Setter Property="VerticalAlignment" Value="Center" />
       <Setter Property="HorizontalContentAlignment" Value="Stretch" />
       <Setter Property="VerticalContentAlignment" Value="Center" />
-      <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+      <Setter Property="CornerRadius" Value="{DynamicResource MacOS.ControlCornerRadius}" />
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate>
@@ -57,7 +57,7 @@
                           Data="M1939 486L2029 576L1024 1581L19 576L109 486L1024 1401L1939 486Z"
                           HorizontalAlignment="Right"
                           VerticalAlignment="Center"
-                          Foreground="{DynamicResource ComboBoxDropDownGlyphForeground}"/>
+                          Foreground="{DynamicResource MacOS.ComboBoxDropDownGlyphForeground}"/>
               </Grid>
             </Border>
           </ControlTemplate>
@@ -70,12 +70,12 @@
 
       <!--  PointerOver State  -->
       <Style Selector="^:pointerover /template/ Border#RootBorder">
-        <Setter Property="Background" Value="{DynamicResource ButtonBackgroundPointerOver}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrushPointerOver}" />
-        <Setter Property="TextElement.Foreground" Value="{DynamicResource ButtonForegroundPointerOver}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.ButtonBackgroundPointerOver}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ButtonBorderBrushPointerOver}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource MacOS.ButtonForegroundPointerOver}" />
       </Style>
       <Style Selector="^:pointerover /template/ PathIcon#DropDownGlyph">
-        <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundPointerOver}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ButtonForegroundPointerOver}" />
       </Style>
 
       <!--  Pressed State  -->
@@ -84,22 +84,22 @@
       </Style>
 
       <Style Selector="^:pressed /template/ Border#RootBorder">
-        <Setter Property="Background" Value="{DynamicResource ButtonBackgroundPressed}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrushPressed}" />
-        <Setter Property="TextElement.Foreground" Value="{DynamicResource ButtonForegroundPressed}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.ButtonBackgroundPressed}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ButtonBorderBrushPressed}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource MacOS.ButtonForegroundPressed}" />
       </Style>
       <Style Selector="^:pressed /template/ PathIcon#DropDownGlyph">
-        <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundPressed}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ButtonForegroundPressed}" />
       </Style>
 
       <!--  Disabled State  -->
       <Style Selector="^:disabled /template/ Border#RootBorder">
-        <Setter Property="Background" Value="{DynamicResource ButtonBackgroundDisabled}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrushDisabled}" />
-        <Setter Property="TextElement.Foreground" Value="{DynamicResource ButtonForegroundDisabled}" />
+        <Setter Property="Background" Value="{DynamicResource MacOS.ButtonBackgroundDisabled}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MacOS.ButtonBorderBrushDisabled}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource MacOS.ButtonForegroundDisabled}" />
       </Style>
       <Style Selector="^:disabled /template/ PathIcon#DropDownGlyph">
-        <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundDisabled}" />
+        <Setter Property="Foreground" Value="{DynamicResource MacOS.ButtonForegroundDisabled}" />
       </Style>
     </ControlTheme>
   

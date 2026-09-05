@@ -21,8 +21,8 @@
         <Grid ColumnDefinitions="*,Auto"
               RowDefinitions="*,Auto">
             <DockPanel Name="ContentPanel">
-              <Border Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}"
-                      Padding="{DynamicResource TableViewRowPadding}"
+              <Border Background="{DynamicResource MacOS.SystemControlBackgroundChromeMediumBrush}"
+                      Padding="{DynamicResource MacOS.TableViewRowPadding}"
                       DockPanel.Dock="Top">
                 <TableViewColumnHeadersPresenter />
               </Border>
@@ -52,7 +52,7 @@
           <Panel x:Name="PART_ScrollBarsSeparator"
                  Grid.Row="1"
                  Grid.Column="1"
-                 Background="{DynamicResource ScrollViewerScrollBarsSeparatorBackground}"
+                 Background="{DynamicResource MacOS.ScrollViewerScrollBarsSeparatorBackground}"
                  Opacity="0">
             <Panel.Transitions>
               <Transitions>
@@ -77,10 +77,10 @@
 
   <!-- TableView theme -->
   <ControlTheme x:Key="{x:Type TableView}" TargetType="TableView">
-    <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
-    <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
-    <Setter Property="BorderThickness" Value="{DynamicResource ListBoxBorderThemeThickness}" />
+    <Setter Property="Foreground" Value="{DynamicResource MacOS.SystemControlForegroundBaseHighBrush}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.SystemControlBackgroundChromeMediumLowBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MacOS.SystemControlForegroundBaseHighBrush}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource MacOS.ListBoxBorderThemeThickness}" />
     <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
     <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
     <Setter Property="ScrollViewer.IsScrollChainingEnabled" Value="True" />

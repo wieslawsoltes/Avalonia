@@ -8,20 +8,20 @@
     </Border>
   </Design.PreviewWith>
 
-  <x:Double x:Key="TableViewColumnResizerWidth">12</x:Double>
-  <Thickness x:Key="TableViewColumnResizerMargin">0,-9,-6,-12</Thickness>
+  <x:Double x:Key="MacOS.TableViewColumnResizerWidth">12</x:Double>
+  <Thickness x:Key="MacOS.TableViewColumnResizerMargin">0,-9,-6,-12</Thickness>
 
   <ControlTemplate x:Key="TableViewColumnHeaderResizerTemplate" TargetType="Thumb">
     <Border Background="Transparent">
       <Rectangle Width="1"
-                 Fill="{DynamicResource TableViewColumnHeaderSeparatorBackground}"
+                 Fill="{DynamicResource MacOS.TableViewColumnHeaderSeparatorBackground}"
                  HorizontalAlignment="Center" />
     </Border>
   </ControlTemplate>
 
   <ControlTheme x:Key="{x:Type TableViewColumnHeader}" TargetType="TableViewColumnHeader">
     <Setter Property="FontWeight" Value="SemiBold" />
-    <Setter Property="Padding" Value="{DynamicResource TableViewCellPadding}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.TableViewCellPadding}" />
     <Setter Property="HorizontalContentAlignment" Value="Left" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="ClipToBounds" Value="False" />
@@ -40,10 +40,10 @@
                             HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" />
           <Thumb Name="PART_Resizer"
                  Template="{StaticResource TableViewColumnHeaderResizerTemplate}"
-                 Width="{DynamicResource TableViewColumnResizerWidth}"
+                 Width="{DynamicResource MacOS.TableViewColumnResizerWidth}"
                  HorizontalAlignment="Right"
                  Cursor="SizeWestEast"
-                 Margin="{DynamicResource TableViewColumnResizerMargin}"
+                 Margin="{DynamicResource MacOS.TableViewColumnResizerMargin}"
                  IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Column?.CanUserEffectivelyResize, FallbackValue=False}">
           </Thumb>
         </Panel>

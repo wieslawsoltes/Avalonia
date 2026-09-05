@@ -15,16 +15,16 @@
 
   <!-- Base navigation button theme (for custom button themes to inherit from) -->
   <ControlTheme x:Key="PipsPagerNavigationButtonTheme" TargetType="Button">
-    <Setter Property="Background" Value="{DynamicResource PipsPagerNavigationButtonBackground}" />
-    <Setter Property="Foreground" Value="{DynamicResource PipsPagerNavigationButtonForeground}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource PipsPagerNavigationButtonBorderBrush}" />
-    <Setter Property="BorderThickness" Value="{DynamicResource PipsPagerNavigationButtonBorderThickness}" />
-    <Setter Property="Width" Value="{DynamicResource PipsPagerNavigationButtonSize}" />
-    <Setter Property="Height" Value="{DynamicResource PipsPagerNavigationButtonSize}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.PipsPagerNavigationButtonBackground}" />
+    <Setter Property="Foreground" Value="{DynamicResource MacOS.PipsPagerNavigationButtonForeground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MacOS.PipsPagerNavigationButtonBorderBrush}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource MacOS.PipsPagerNavigationButtonBorderThickness}" />
+    <Setter Property="Width" Value="{DynamicResource MacOS.PipsPagerNavigationButtonSize}" />
+    <Setter Property="Height" Value="{DynamicResource MacOS.PipsPagerNavigationButtonSize}" />
     <Setter Property="Padding" Value="0" />
     <Setter Property="HorizontalContentAlignment" Value="Center" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
-    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.ControlCornerRadius}" />
     <Setter Property="Template">
       <ControlTemplate>
         <ContentPresenter Name="PART_ContentPresenter"
@@ -41,21 +41,21 @@
     </Setter>
 
     <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource PipsPagerNavigationButtonBackgroundPointerOver}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource PipsPagerNavigationButtonBorderBrushPointerOver}" />
-      <Setter Property="Foreground" Value="{DynamicResource PipsPagerNavigationButtonForegroundPointerOver}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.PipsPagerNavigationButtonBackgroundPointerOver}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.PipsPagerNavigationButtonBorderBrushPointerOver}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.PipsPagerNavigationButtonForegroundPointerOver}" />
     </Style>
 
     <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource PipsPagerNavigationButtonBackgroundPressed}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource PipsPagerNavigationButtonBorderBrushPressed}" />
-      <Setter Property="Foreground" Value="{DynamicResource PipsPagerNavigationButtonForegroundPressed}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.PipsPagerNavigationButtonBackgroundPressed}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.PipsPagerNavigationButtonBorderBrushPressed}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.PipsPagerNavigationButtonForegroundPressed}" />
     </Style>
 
     <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource PipsPagerNavigationButtonBackgroundDisabled}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource PipsPagerNavigationButtonBorderBrushDisabled}" />
-      <Setter Property="Foreground" Value="{DynamicResource PipsPagerNavigationButtonForegroundDisabled}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.PipsPagerNavigationButtonBackgroundDisabled}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.PipsPagerNavigationButtonBorderBrushDisabled}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.PipsPagerNavigationButtonForegroundDisabled}" />
     </Style>
   </ControlTheme>
 
@@ -66,8 +66,8 @@
   <ControlTheme x:Key="PipsPagerNextButtonTheme" TargetType="Button" BasedOn="{StaticResource PipsPagerNavigationButtonTheme}" />
 
   <ControlTheme x:Key="PipsPagerItemTheme" TargetType="ListBoxItem">
-    <Setter Property="Width" Value="{DynamicResource PipsPagerItemWidth}" />
-    <Setter Property="Height" Value="{DynamicResource PipsPagerItemHeight}" />
+    <Setter Property="Width" Value="{DynamicResource MacOS.PipsPagerItemWidth}" />
+    <Setter Property="Height" Value="{DynamicResource MacOS.PipsPagerItemHeight}" />
     <Setter Property="Padding" Value="0" />
     <Setter Property="Margin" Value="0" />
     <Setter Property="MinWidth" Value="0" />
@@ -82,8 +82,8 @@
                    Height="10"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
-                   Fill="{DynamicResource PipsPagerSelectionIndicatorBackground}"
-                   Stroke="{DynamicResource PipsPagerSelectionIndicatorBorderBrush}"
+                   Fill="{DynamicResource MacOS.PipsPagerSelectionIndicatorBackground}"
+                   Stroke="{DynamicResource MacOS.PipsPagerSelectionIndicatorBorderBrush}"
                    StrokeThickness="1">
             <Ellipse.Transitions>
               <Transitions>
@@ -97,7 +97,7 @@
                    Height="4"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
-                   Fill="{DynamicResource PipsPagerSelectionIndicatorForeground}">
+                   Fill="{DynamicResource MacOS.PipsPagerSelectionIndicatorForeground}">
             <Ellipse.Transitions>
               <Transitions>
                 <DoubleTransition Property="Width" Duration="0:0:0.167" />
@@ -111,48 +111,48 @@
     </Setter>
 
     <Style Selector="^:pointerover /template/ Ellipse#Pip">
-      <Setter Property="Width" Value="{DynamicResource PipsPagerItemDotSizeActive}" />
-      <Setter Property="Height" Value="{DynamicResource PipsPagerItemDotSizeActive}" />
-      <Setter Property="Fill" Value="{DynamicResource PipsPagerSelectionIndicatorForegroundPointerOver}" />
+      <Setter Property="Width" Value="{DynamicResource MacOS.PipsPagerItemDotSizeActive}" />
+      <Setter Property="Height" Value="{DynamicResource MacOS.PipsPagerItemDotSizeActive}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.PipsPagerSelectionIndicatorForegroundPointerOver}" />
     </Style>
     <Style Selector="^:pointerover /template/ Ellipse#PipBackground">
-      <Setter Property="Fill" Value="{DynamicResource PipsPagerSelectionIndicatorBackgroundPointerOver}" />
-      <Setter Property="Stroke" Value="{DynamicResource PipsPagerSelectionIndicatorBorderBrushPointerOver}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.PipsPagerSelectionIndicatorBackgroundPointerOver}" />
+      <Setter Property="Stroke" Value="{DynamicResource MacOS.PipsPagerSelectionIndicatorBorderBrushPointerOver}" />
     </Style>
     <Style Selector="^:pressed /template/ Ellipse#Pip">
-      <Setter Property="Width" Value="{DynamicResource PipsPagerItemDotSize}" />
-      <Setter Property="Height" Value="{DynamicResource PipsPagerItemDotSize}" />
-      <Setter Property="Fill" Value="{DynamicResource PipsPagerSelectionIndicatorForegroundPressed}" />
+      <Setter Property="Width" Value="{DynamicResource MacOS.PipsPagerItemDotSize}" />
+      <Setter Property="Height" Value="{DynamicResource MacOS.PipsPagerItemDotSize}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.PipsPagerSelectionIndicatorForegroundPressed}" />
     </Style>
     <Style Selector="^:pressed /template/ Ellipse#PipBackground">
-      <Setter Property="Fill" Value="{DynamicResource PipsPagerSelectionIndicatorBackgroundPressed}" />
-      <Setter Property="Stroke" Value="{DynamicResource PipsPagerSelectionIndicatorBorderBrushPressed}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.PipsPagerSelectionIndicatorBackgroundPressed}" />
+      <Setter Property="Stroke" Value="{DynamicResource MacOS.PipsPagerSelectionIndicatorBorderBrushPressed}" />
     </Style>
 
     <Style Selector="^:selected /template/ Ellipse#Pip">
-      <Setter Property="Width" Value="{DynamicResource PipsPagerItemDotSizeActive}" />
-      <Setter Property="Height" Value="{DynamicResource PipsPagerItemDotSizeActive}" />
-      <Setter Property="Fill" Value="{DynamicResource PipsPagerSelectionIndicatorForegroundSelected}" />
+      <Setter Property="Width" Value="{DynamicResource MacOS.PipsPagerItemDotSizeActive}" />
+      <Setter Property="Height" Value="{DynamicResource MacOS.PipsPagerItemDotSizeActive}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.PipsPagerSelectionIndicatorForegroundSelected}" />
     </Style>
     <Style Selector="^:selected /template/ Ellipse#PipBackground">
-      <Setter Property="Fill" Value="{DynamicResource PipsPagerSelectionIndicatorBackgroundSelected}" />
-      <Setter Property="Stroke" Value="{DynamicResource PipsPagerSelectionIndicatorBorderBrushSelected}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.PipsPagerSelectionIndicatorBackgroundSelected}" />
+      <Setter Property="Stroke" Value="{DynamicResource MacOS.PipsPagerSelectionIndicatorBorderBrushSelected}" />
     </Style>
     <Style Selector="^:selected:pointerover /template/ Ellipse#Pip">
-      <Setter Property="Width" Value="{DynamicResource PipsPagerItemDotSizeActive}" />
-      <Setter Property="Height" Value="{DynamicResource PipsPagerItemDotSizeActive}" />
-      <Setter Property="Fill" Value="{DynamicResource PipsPagerSelectionIndicatorForegroundPointerOver}" />
+      <Setter Property="Width" Value="{DynamicResource MacOS.PipsPagerItemDotSizeActive}" />
+      <Setter Property="Height" Value="{DynamicResource MacOS.PipsPagerItemDotSizeActive}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.PipsPagerSelectionIndicatorForegroundPointerOver}" />
     </Style>
     <Style Selector="^:selected:pointerover /template/ Ellipse#PipBackground">
-      <Setter Property="Fill" Value="{DynamicResource PipsPagerSelectionIndicatorBackgroundPointerOver}" />
-      <Setter Property="Stroke" Value="{DynamicResource PipsPagerSelectionIndicatorBorderBrushPointerOver}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.PipsPagerSelectionIndicatorBackgroundPointerOver}" />
+      <Setter Property="Stroke" Value="{DynamicResource MacOS.PipsPagerSelectionIndicatorBorderBrushPointerOver}" />
     </Style>
     <Style Selector="^:disabled /template/ Ellipse#Pip">
-      <Setter Property="Fill" Value="{DynamicResource PipsPagerSelectionIndicatorForegroundDisabled}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.PipsPagerSelectionIndicatorForegroundDisabled}" />
     </Style>
     <Style Selector="^:disabled /template/ Ellipse#PipBackground">
-      <Setter Property="Fill" Value="{DynamicResource PipsPagerSelectionIndicatorBackgroundDisabled}" />
-      <Setter Property="Stroke" Value="{DynamicResource PipsPagerSelectionIndicatorBorderBrushDisabled}" />
+      <Setter Property="Fill" Value="{DynamicResource MacOS.PipsPagerSelectionIndicatorBackgroundDisabled}" />
+      <Setter Property="Stroke" Value="{DynamicResource MacOS.PipsPagerSelectionIndicatorBorderBrushDisabled}" />
     </Style>
   </ControlTheme>
 
@@ -223,8 +223,8 @@
     </Style>
 
     <Style Selector="^:vertical /template/ ListBox ListBoxItem">
-      <Setter Property="Width" Value="{DynamicResource PipsPagerItemHeight}" />
-      <Setter Property="Height" Value="{DynamicResource PipsPagerItemWidth}" />
+      <Setter Property="Width" Value="{DynamicResource MacOS.PipsPagerItemHeight}" />
+      <Setter Property="Height" Value="{DynamicResource MacOS.PipsPagerItemWidth}" />
     </Style>
 
     <Style Selector="^:vertical /template/ StackPanel#PART_RootPanel">
@@ -261,91 +261,91 @@
 
   <ResourceDictionary.ThemeDictionaries>
     <ResourceDictionary x:Key="Light">
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBackground" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBackgroundPointerOver" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBackgroundPressed" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBackgroundSelected" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBackgroundDisabled" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBorderBrush" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBorderBrushPointerOver" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBorderBrushPressed" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBorderBrushSelected" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBorderBrushDisabled" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorForeground" Color="#72000000" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorForegroundPointerOver" Color="#9E000000" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorForegroundPressed" Color="#9E000000" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorForegroundSelected" Color="#FF000000" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorForegroundDisabled" Color="#51000000" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBackground" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBackgroundPointerOver" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBackgroundPressed" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBackgroundDisabled" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBorderBrush" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBorderBrushPointerOver" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBorderBrushPressed" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBorderBrushDisabled" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonForeground" Color="#72000000" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonForegroundPointerOver" Color="#9E000000" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonForegroundPressed" Color="#9E000000" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonForegroundDisabled" Color="#51000000" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBackground" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBackgroundPointerOver" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBackgroundPressed" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBackgroundSelected" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBackgroundDisabled" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBorderBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBorderBrushPointerOver" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBorderBrushPressed" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBorderBrushSelected" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBorderBrushDisabled" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorForeground" Color="#72000000" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorForegroundPointerOver" Color="#9E000000" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorForegroundPressed" Color="#9E000000" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorForegroundSelected" Color="#FF000000" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorForegroundDisabled" Color="#51000000" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBackground" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBackgroundPointerOver" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBackgroundPressed" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBackgroundDisabled" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBorderBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBorderBrushPointerOver" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBorderBrushPressed" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBorderBrushDisabled" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonForeground" Color="#72000000" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonForegroundPointerOver" Color="#9E000000" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonForegroundPressed" Color="#9E000000" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonForegroundDisabled" Color="#51000000" />
     </ResourceDictionary>
     <ResourceDictionary x:Key="Default">
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBackground" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBackgroundPointerOver" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBackgroundPressed" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBackgroundSelected" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBackgroundDisabled" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBorderBrush" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBorderBrushPointerOver" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBorderBrushPressed" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBorderBrushSelected" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBorderBrushDisabled" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorForeground" Color="#72000000" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorForegroundPointerOver" Color="#9E000000" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorForegroundPressed" Color="#9E000000" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorForegroundSelected" Color="#FF000000" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorForegroundDisabled" Color="#51000000" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBackground" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBackgroundPointerOver" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBackgroundPressed" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBackgroundDisabled" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBorderBrush" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBorderBrushPointerOver" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBorderBrushPressed" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBorderBrushDisabled" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonForeground" Color="#72000000" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonForegroundPointerOver" Color="#9E000000" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonForegroundPressed" Color="#9E000000" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonForegroundDisabled" Color="#51000000" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBackground" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBackgroundPointerOver" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBackgroundPressed" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBackgroundSelected" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBackgroundDisabled" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBorderBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBorderBrushPointerOver" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBorderBrushPressed" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBorderBrushSelected" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBorderBrushDisabled" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorForeground" Color="#72000000" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorForegroundPointerOver" Color="#9E000000" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorForegroundPressed" Color="#9E000000" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorForegroundSelected" Color="#FF000000" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorForegroundDisabled" Color="#51000000" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBackground" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBackgroundPointerOver" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBackgroundPressed" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBackgroundDisabled" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBorderBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBorderBrushPointerOver" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBorderBrushPressed" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBorderBrushDisabled" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonForeground" Color="#72000000" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonForegroundPointerOver" Color="#9E000000" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonForegroundPressed" Color="#9E000000" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonForegroundDisabled" Color="#51000000" />
     </ResourceDictionary>
     <ResourceDictionary x:Key="Dark">
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBackground" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBackgroundPointerOver" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBackgroundPressed" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBackgroundSelected" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBackgroundDisabled" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBorderBrush" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBorderBrushPointerOver" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBorderBrushPressed" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBorderBrushSelected" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorBorderBrushDisabled" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorForeground" Color="#8BFFFFFF" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorForegroundPointerOver" Color="#C5FFFFFF" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorForegroundPressed" Color="#C5FFFFFF" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorForegroundSelected" Color="#FFFFFFFF" />
-      <SolidColorBrush x:Key="PipsPagerSelectionIndicatorForegroundDisabled" Color="#3FFFFFFF" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBackground" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBackgroundPointerOver" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBackgroundPressed" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBackgroundDisabled" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBorderBrush" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBorderBrushPointerOver" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBorderBrushPressed" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonBorderBrushDisabled" Color="Transparent" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonForeground" Color="#8BFFFFFF" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonForegroundPointerOver" Color="#C5FFFFFF" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonForegroundPressed" Color="#C5FFFFFF" />
-      <SolidColorBrush x:Key="PipsPagerNavigationButtonForegroundDisabled" Color="#3FFFFFFF" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBackground" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBackgroundPointerOver" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBackgroundPressed" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBackgroundSelected" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBackgroundDisabled" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBorderBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBorderBrushPointerOver" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBorderBrushPressed" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBorderBrushSelected" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorBorderBrushDisabled" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorForeground" Color="#8BFFFFFF" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorForegroundPointerOver" Color="#C5FFFFFF" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorForegroundPressed" Color="#C5FFFFFF" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorForegroundSelected" Color="#FFFFFFFF" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerSelectionIndicatorForegroundDisabled" Color="#3FFFFFFF" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBackground" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBackgroundPointerOver" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBackgroundPressed" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBackgroundDisabled" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBorderBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBorderBrushPointerOver" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBorderBrushPressed" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonBorderBrushDisabled" Color="Transparent" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonForeground" Color="#8BFFFFFF" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonForegroundPointerOver" Color="#C5FFFFFF" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonForegroundPressed" Color="#C5FFFFFF" />
+      <SolidColorBrush x:Key="MacOS.PipsPagerNavigationButtonForegroundDisabled" Color="#3FFFFFFF" />
     </ResourceDictionary>
   </ResourceDictionary.ThemeDictionaries>
 </ResourceDictionary>

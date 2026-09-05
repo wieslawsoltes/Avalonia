@@ -28,12 +28,12 @@
     <Setter Property="HorizontalAlignment" Value="Stretch" />
     <Setter Property="VerticalAlignment" Value="Stretch" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
-    <Setter Property="Background" Value="{DynamicResource CalendarViewNavigationButtonBackground}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.CalendarViewNavigationButtonBackground}" />
     <Setter Property="Template">
       <ControlTemplate>
         <!-- HCA was changed here to ensure nav arrows display correctly -->
         <ContentPresenter Name="PART_ContentPresenter" Background="{TemplateBinding Background}"
-                          BorderBrush="{DynamicResource CalendarViewNavigationButtonBorderBrush}"
+                          BorderBrush="{DynamicResource MacOS.CalendarViewNavigationButtonBorderBrush}"
                           BorderThickness="{TemplateBinding BorderThickness}"
                           Content="{TemplateBinding Content}"
                           Margin="{TemplateBinding Padding}"
@@ -43,25 +43,25 @@
     </Setter>
 
     <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="BorderBrush" Value="{DynamicResource CalendarViewNavigationButtonBorderBrushPointerOver}" />
-      <Setter Property="Foreground" Value="{DynamicResource CalendarViewNavigationButtonForegroundPointerOver}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MacOS.CalendarViewNavigationButtonBorderBrushPointerOver}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.CalendarViewNavigationButtonForegroundPointerOver}" />
     </Style>
     <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Foreground" Value="{DynamicResource CalendarViewNavigationButtonForegroundPressed}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.CalendarViewNavigationButtonForegroundPressed}" />
     </Style>
     <Style Selector="^:disabled /template/ ContentPresenter">
-      <Setter Property="Foreground" Value="{DynamicResource CalendarViewWeekDayForegroundDisabled}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.CalendarViewWeekDayForegroundDisabled}" />
     </Style>
   </ControlTheme>
 
   <ControlTheme x:Key="{x:Type CalendarItem}" TargetType="CalendarItem">
-    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MacOS.ControlCornerRadius}" />
     <Setter Property="DayTitleTemplate">
       <Template x:DataType="x:String">
         <TextBlock Text="{Binding}"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
-                   FontSize="{DynamicResource CalendarDayButtonFontSize}" />
+                   FontSize="{DynamicResource MacOS.CalendarDayButtonFontSize}" />
       </Template>
     </Setter>
 
@@ -96,7 +96,7 @@
                       Padding="1"
                       HorizontalContentAlignment="Left">
                 <!--Path mimics Segoe MDL2 Assets font glyph used in WinUI-->
-                <Path Stroke="{DynamicResource CalendarViewForeground}"
+                <Path Stroke="{DynamicResource MacOS.CalendarViewForeground}"
                       StrokeThickness="1.5" 
                       Data="M 0,9 L 9,0 L 18,9" 
                       HorizontalAlignment="Center" 
@@ -109,7 +109,7 @@
                       Padding="1"
                       HorizontalContentAlignment="Left">
                 <!--Path mimics Segoe MDL2 Assets font glyph used in WinUI-->
-                <Path Stroke="{DynamicResource CalendarViewForeground}"
+                <Path Stroke="{DynamicResource MacOS.CalendarViewForeground}"
                       StrokeThickness="1.5" 
                       Data="M 0,0 L 9,9 L 18,0" 
                       HorizontalAlignment="Center" 
@@ -142,7 +142,7 @@
               <ContentControl Name="WeekNumberHeader" 
                               Grid.Row="0"
                               Content="{DynamicResource StringCalendarWeekNumberHeader}"
-                              FontSize="{DynamicResource CalendarWeekNumberFontSize}"
+                              FontSize="{DynamicResource MacOS.CalendarWeekNumberFontSize}"
                               VerticalContentAlignment="Center"
                               HorizontalContentAlignment="Center" />
             </Grid>
@@ -194,16 +194,16 @@
       </ControlTemplate>
     </Setter>
     <Style Selector="^ /template/ Button:pointerover > Path">
-      <Setter Property="Stroke" Value="{DynamicResource CalendarViewNavigationButtonForegroundPointerOver}" />
+      <Setter Property="Stroke" Value="{DynamicResource MacOS.CalendarViewNavigationButtonForegroundPointerOver}" />
     </Style>
     <Style Selector="^ /template/ Button:pressed > Path">
-      <Setter Property="Stroke" Value="{DynamicResource CalendarViewNavigationButtonForegroundPressed}" />
+      <Setter Property="Stroke" Value="{DynamicResource MacOS.CalendarViewNavigationButtonForegroundPressed}" />
     </Style>
     <Style Selector="^:hasweeknumbers">
       <Setter Property="MinWidth" Value="332" />
       <Style Selector="^ /template/ Grid#PART_ElementWeekNumberLabels">
         <Style Selector="^ ContentControl">
-          <Setter Property="FontSize" Value="{DynamicResource CalendarWeekNumberFontSize}" />
+          <Setter Property="FontSize" Value="{DynamicResource MacOS.CalendarWeekNumberFontSize}" />
           <Setter Property="HorizontalContentAlignment" Value="Center" />
           <Setter Property="VerticalContentAlignment" Value="Center" />
         </Style>

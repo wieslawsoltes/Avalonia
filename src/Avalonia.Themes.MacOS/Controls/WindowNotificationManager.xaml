@@ -12,7 +12,7 @@
               <StackPanel
                   Margin="12"
                   Spacing="8"
-                  TextElement.Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}">
+                  TextElement.Foreground="{DynamicResource MacOS.SystemControlForegroundBaseHighBrush}">
                 <TextBlock FontWeight="Medium" Text="{Binding Title}" />
                 <TextBlock
                     MaxHeight="80"
@@ -24,7 +24,7 @@
             <DataTemplate DataType="x:String">
               <TextBlock
                   Margin="12"
-                  Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
+                  Foreground="{DynamicResource MacOS.SystemControlForegroundBaseHighBrush}"
                   Text="{Binding}" />
             </DataTemplate>
           </ReversibleStackPanel.DataTemplates>

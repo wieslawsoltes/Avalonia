@@ -12,17 +12,17 @@
     </Border>
   </Design.PreviewWith>
 
-  <x:Double x:Key="TabStripItemMinHeight">48</x:Double>
-  <x:Double x:Key="TabStripItemPipeThickness">2</x:Double>
+  <x:Double x:Key="MacOS.TabStripItemMinHeight">48</x:Double>
+  <x:Double x:Key="MacOS.TabStripItemPipeThickness">2</x:Double>
 
   <ControlTheme x:Key="{x:Type TabStripItem}" TargetType="TabStripItem">
-    <Setter Property="FontSize" Value="{DynamicResource TabItemHeaderFontSize}" />
-    <Setter Property="FontWeight" Value="{DynamicResource TabItemHeaderThemeFontWeight}" />
-    <Setter Property="Background" Value="{DynamicResource TabItemHeaderBackgroundUnselected}" />
-    <Setter Property="Foreground" Value="{DynamicResource TabItemHeaderForegroundUnselected}" />
-    <Setter Property="Padding" Value="{DynamicResource TabItemHeaderMargin}" />
+    <Setter Property="FontSize" Value="{DynamicResource MacOS.TabItemHeaderFontSize}" />
+    <Setter Property="FontWeight" Value="{DynamicResource MacOS.TabItemHeaderThemeFontWeight}" />
+    <Setter Property="Background" Value="{DynamicResource MacOS.TabItemHeaderBackgroundUnselected}" />
+    <Setter Property="Foreground" Value="{DynamicResource MacOS.TabItemHeaderForegroundUnselected}" />
+    <Setter Property="Padding" Value="{DynamicResource MacOS.TabItemHeaderMargin}" />
     <Setter Property="Margin" Value="0" />
-    <Setter Property="MinHeight" Value="{DynamicResource TabStripItemMinHeight}" />
+    <Setter Property="MinHeight" Value="{DynamicResource MacOS.TabStripItemMinHeight}" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="Template">
       <ControlTemplate>
@@ -41,9 +41,9 @@
                 Content="{TemplateBinding Content}"
                 ContentTemplate="{TemplateBinding ContentTemplate}" />
             <Border Name="PART_SelectedPipe"
-                    Background="{DynamicResource TabItemHeaderSelectedPipeFill}"
-                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                    Height="{DynamicResource TabStripItemPipeThickness}"
+                    Background="{DynamicResource MacOS.TabItemHeaderSelectedPipeFill}"
+                    CornerRadius="{DynamicResource MacOS.ControlCornerRadius}"
+                    Height="{DynamicResource MacOS.TabStripItemPipeThickness}"
                     IsVisible="False"
                     Margin="0,0,0,2"
                     VerticalAlignment="Bottom"/>
@@ -55,8 +55,8 @@
     <!--  Selected state  -->
     <!--  We don't use selector to PART_LayoutRoot, so developer can override selected item background with TabStripItem.Background  -->
     <Style Selector="^:selected">
-      <Setter Property="Background" Value="{DynamicResource TabItemHeaderBackgroundSelected}" />
-      <Setter Property="Foreground" Value="{DynamicResource TabItemHeaderForegroundSelected}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.TabItemHeaderBackgroundSelected}" />
+      <Setter Property="Foreground" Value="{DynamicResource MacOS.TabItemHeaderForegroundSelected}" />
     </Style>
     <Style Selector="^:selected /template/ Border#PART_SelectedPipe">
       <Setter Property="IsVisible" Value="True" />
@@ -64,32 +64,32 @@
 
     <!--  PointerOver state  -->
     <Style Selector="^:pointerover /template/ Border#PART_LayoutRoot">
-      <Setter Property="Background" Value="{DynamicResource TabItemHeaderBackgroundUnselectedPointerOver}" />
-      <Setter Property="TextElement.Foreground" Value="{DynamicResource TabItemHeaderForegroundUnselectedPointerOver}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.TabItemHeaderBackgroundUnselectedPointerOver}" />
+      <Setter Property="TextElement.Foreground" Value="{DynamicResource MacOS.TabItemHeaderForegroundUnselectedPointerOver}" />
     </Style>
 
     <!--  Selected PointerOver state  -->
     <Style Selector="^:selected:pointerover /template/ Border#PART_LayoutRoot">
-      <Setter Property="Background" Value="{DynamicResource TabItemHeaderBackgroundSelectedPointerOver}" />
-      <Setter Property="TextElement.Foreground" Value="{DynamicResource TabItemHeaderForegroundSelectedPointerOver}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.TabItemHeaderBackgroundSelectedPointerOver}" />
+      <Setter Property="TextElement.Foreground" Value="{DynamicResource MacOS.TabItemHeaderForegroundSelectedPointerOver}" />
     </Style>
 
     <!--  Pressed state  -->
     <Style Selector="^:pressed /template/ Border#PART_LayoutRoot">
-      <Setter Property="Background" Value="{DynamicResource TabItemHeaderBackgroundUnselectedPressed}" />
-      <Setter Property="TextElement.Foreground" Value="{DynamicResource TabItemHeaderForegroundUnselectedPressed}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.TabItemHeaderBackgroundUnselectedPressed}" />
+      <Setter Property="TextElement.Foreground" Value="{DynamicResource MacOS.TabItemHeaderForegroundUnselectedPressed}" />
     </Style>
 
     <!--  Selected Pressed state  -->
     <Style Selector="^:selected:pressed /template/ Border#PART_LayoutRoot">
-      <Setter Property="Background" Value="{DynamicResource TabItemHeaderBackgroundSelectedPressed}" />
-      <Setter Property="TextElement.Foreground" Value="{DynamicResource TabItemHeaderForegroundSelectedPressed}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.TabItemHeaderBackgroundSelectedPressed}" />
+      <Setter Property="TextElement.Foreground" Value="{DynamicResource MacOS.TabItemHeaderForegroundSelectedPressed}" />
     </Style>
 
     <!--  Disabled state  -->
     <Style Selector="^:disabled /template/ Border#PART_LayoutRoot">
-      <Setter Property="Background" Value="{DynamicResource TabItemHeaderBackgroundDisabled}" />
-      <Setter Property="TextElement.Foreground" Value="{DynamicResource TabItemHeaderForegroundDisabled}" />
+      <Setter Property="Background" Value="{DynamicResource MacOS.TabItemHeaderBackgroundDisabled}" />
+      <Setter Property="TextElement.Foreground" Value="{DynamicResource MacOS.TabItemHeaderForegroundDisabled}" />
     </Style>
   </ControlTheme>
 </ResourceDictionary>
