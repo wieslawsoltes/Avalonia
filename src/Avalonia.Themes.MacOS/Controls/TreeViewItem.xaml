@@ -112,7 +112,7 @@
       <Setter Property="Background" Value="{DynamicResource MacOS.TreeViewItemBackgroundPointerOver}" />
       <Setter Property="BorderBrush" Value="{DynamicResource MacOS.TreeViewItemBorderBrushPointerOver}" />
     </Style>
-    <Style Selector="^ /template/ Border#PART_LayoutRoot:pointerover > ContentPresenter#PART_HeaderPresenter">
+    <Style Selector="^ /template/ Border#PART_LayoutRoot:pointerover > Grid#PART_Header > ContentPresenter#PART_HeaderPresenter">
       <Setter Property="Foreground" Value="{DynamicResource MacOS.TreeViewItemForegroundPointerOver}" />
     </Style>
 
@@ -121,7 +121,7 @@
       <Setter Property="Background" Value="{DynamicResource MacOS.TreeViewItemBackgroundPressed}" />
       <Setter Property="BorderBrush" Value="{DynamicResource MacOS.TreeViewItemBorderBrushPressed}" />
     </Style>
-    <Style Selector="^:pressed /template/ Border#PART_LayoutRoot:pointerover > ContentPresenter#PART_HeaderPresenter">
+    <Style Selector="^:pressed /template/ Border#PART_LayoutRoot:pointerover > Grid#PART_Header > ContentPresenter#PART_HeaderPresenter">
       <Setter Property="Foreground" Value="{DynamicResource MacOS.TreeViewItemForegroundPressed}" />
     </Style>
 
@@ -139,7 +139,7 @@
       <Setter Property="Background" Value="{DynamicResource MacOS.TreeViewItemBackgroundSelected}" />
       <Setter Property="BorderBrush" Value="{DynamicResource MacOS.TreeViewItemBorderBrushSelected}" />
     </Style>
-    <Style Selector="^:selected /template/ Border#PART_LayoutRoot > ContentPresenter#PART_HeaderPresenter">
+    <Style Selector="^:selected /template/ Border#PART_LayoutRoot > Grid#PART_Header > ContentPresenter#PART_HeaderPresenter">
       <Setter Property="Foreground" Value="{DynamicResource MacOS.TreeViewItemForegroundSelected}" />
     </Style>
 
@@ -148,7 +148,7 @@
       <Setter Property="Background" Value="{DynamicResource MacOS.TreeViewItemBackgroundSelectedPointerOver}" />
       <Setter Property="BorderBrush" Value="{DynamicResource MacOS.TreeViewItemBorderBrushSelectedPointerOver}" />
     </Style>
-    <Style Selector="^:selected /template/ Border#PART_LayoutRoot:pointerover > ContentPresenter#PART_HeaderPresenter">
+    <Style Selector="^:selected /template/ Border#PART_LayoutRoot:pointerover > Grid#PART_Header > ContentPresenter#PART_HeaderPresenter">
       <Setter Property="Foreground" Value="{DynamicResource MacOS.TreeViewItemForegroundSelectedPointerOver}" />
     </Style>
 
@@ -157,7 +157,7 @@
       <Setter Property="Background" Value="{DynamicResource MacOS.TreeViewItemBackgroundSelectedPressed}" />
       <Setter Property="BorderBrush" Value="{DynamicResource MacOS.TreeViewItemBorderBrushSelectedPressed}" />
     </Style>
-    <Style Selector="^:pressed:selected /template/ Border#PART_LayoutRoot:pointerover > ContentPresenter#PART_HeaderPresenter">
+    <Style Selector="^:pressed:selected /template/ Border#PART_LayoutRoot:pointerover > Grid#PART_Header > ContentPresenter#PART_HeaderPresenter">
       <Setter Property="Foreground" Value="{DynamicResource MacOS.TreeViewItemForegroundSelectedPressed}" />
     </Style>
 
@@ -166,7 +166,7 @@
       <Setter Property="Background" Value="{DynamicResource MacOS.TreeViewItemBackgroundSelectedDisabled}" />
       <Setter Property="BorderBrush" Value="{DynamicResource MacOS.TreeViewItemBorderBrushSelectedDisabled}" />
     </Style>
-    <Style Selector="^:disabled:selected /template/ Border#PART_LayoutRoot > ContentPresenter#PART_HeaderPresenter">
+    <Style Selector="^:disabled:selected /template/ Border#PART_LayoutRoot > Grid#PART_Header > ContentPresenter#PART_HeaderPresenter">
       <Setter Property="Foreground" Value="{DynamicResource MacOS.TreeViewItemForegroundSelectedDisabled}" />
     </Style>
 

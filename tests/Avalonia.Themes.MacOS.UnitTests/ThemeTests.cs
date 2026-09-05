@@ -270,7 +270,7 @@ public sealed class ThemeTests
         using var host = new Host(control);
         Theme.SetToken(MacOSTokens.ColorPicker_ColorSliderSize, 34d);
         Dispatcher.UIThread.RunJobs();
-        Assert.Equal(34d, control.MinHeight);
+        Assert.Equal(34d, control.Height);
     }
 
     [AvaloniaTheory]
@@ -293,6 +293,20 @@ public sealed class ThemeTests
         var b = Luminance(foreground);
         var ratio = (Math.Max(a, b) + 0.05) / (Math.Min(a, b) + 0.05);
         Assert.True(ratio >= 4.5, $"{value}: contrast was {ratio:F3}:1");
+    }
+
+    [AvaloniaFact]
+    public void Selected_Tree_Header_Uses_Contrasting_Accent_Text()
+    {
+        var item = new TreeViewItem { Header = "Selected document", IsSelected = true };
+        var tree = new TreeView();
+        tree.Items.Add(item);
+        using var host = new Host(tree);
+        var presenter = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(item)
+            .OfType<Avalonia.Controls.Presenters.ContentPresenter>()
+            .Single(p => p.Name == "PART_HeaderPresenter");
+        Assert.Equal(Resolve<Color>(MacOSSemanticTokens.OnAccent.Key),
+            Assert.IsAssignableFrom<ISolidColorBrush>(presenter.Foreground).Color);
     }
 
     private sealed class Host : IDisposable

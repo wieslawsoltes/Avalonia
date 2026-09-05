@@ -114,4 +114,9 @@
   <x:Double x:Key="MacOS.NavigationViewItemOnLeftMinHeight">36</x:Double>
   <Color x:Key="MacOS.Color.Accent">#006ADC</Color>
   <SolidColorBrush x:Key="MacOS.Brush.Accent" Color="{DynamicResource MacOS.Color.Accent}" />
+  <x:Double x:Key="MacOS.Stepper.Width">22</x:Double>
+  <x:Double x:Key="MacOS.Stepper.ButtonHeight">12</x:Double>
+  <x:Double x:Key="MacOS.Stepper.IconWidth">8</x:Double>
+  <x:Double x:Key="MacOS.Stepper.IconHeight">4</x:Double>
+  <Thickness x:Key="MacOS.Stepper.Margin">2</Thickness>
 </ResourceDictionary>

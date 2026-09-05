@@ -63,6 +63,8 @@ internal static class Program
             window.Height = 1040;
             var theme = app.MacOSTheme;
             theme.ReduceMotion = true;
+            if (s_headless)
+                theme.SetToken(MacOSTokens.ContentControlThemeFontFamily, new FontFamily("fonts:Inter#Inter"));
             foreach (var variant in new[] { ThemeVariant.Light, ThemeVariant.Dark })
             {
                 window.RequestedThemeVariant = variant;
@@ -146,17 +148,19 @@ internal static class Program
     {
         await Task.Delay(180);
         window.UpdateLayout();
-        var size = new PixelSize((int)Math.Ceiling(window.Bounds.Width), (int)Math.Ceiling(window.Bounds.Height));
+        const double renderScale = 2;
+        var size = new PixelSize((int)Math.Ceiling(window.Bounds.Width * renderScale), (int)Math.Ceiling(window.Bounds.Height * renderScale));
         if (size.Width <= 0 || size.Height <= 0)
             throw new InvalidOperationException("Cannot capture an unarranged window.");
-        using var bitmap = new RenderTargetBitmap(size, new Vector(96, 96));
+        using var bitmap = new RenderTargetBitmap(size, new Vector(96 * renderScale, 96 * renderScale));
         bitmap.Render(window);
         var path = Path.Combine(s_output, name + ".png");
         bitmap.Save(path, PngBitmapEncoderOptions.Default);
         var theme = ((ControlCatalog.App)Application.Current!).MacOSTheme;
         s_evidence.Add(new
         {
-            file = Path.GetFileName(path), width = size.Width, height = size.Height,
+            file = Path.GetFileName(path), width = size.Width, height = size.Height, renderScale, dpi = 96 * renderScale,
+            font = s_headless ? "Inter (explicit headless fallback)" : "platform default",
             variant = window.ActualThemeVariant.Key.ToString(), density = theme.DensityStyle.ToString(),
             increaseContrast = theme.IncreaseContrast, reduceMotion = theme.ReduceMotion,
             reduceTransparency = theme.ReduceTransparency, flowDirection = window.FlowDirection.ToString(),

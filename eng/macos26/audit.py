@@ -60,6 +60,11 @@ def main():
         if expected_parts - actual_parts:
             errors.append(f'{relative}: removed template parts {expected_parts - actual_parts}')
         expected_selectors = set(re.findall(r'Selector="([^"]+)"', before))
+        # Intentional upstream selector correction: the header presenter is
+        # inside PART_Header, not a direct child of PART_LayoutRoot.
+        if str(relative) == 'Controls/TreeViewItem.xaml':
+            expected_selectors = {s.replace(' > ContentPresenter#PART_HeaderPresenter',
+                ' > Grid#PART_Header > ContentPresenter#PART_HeaderPresenter') for s in expected_selectors}
         actual_selectors = set(re.findall(r'Selector="([^"]+)"', after))
         if expected_selectors - actual_selectors:
             errors.append(f'{relative}: removed pseudo-class/style selectors {expected_selectors - actual_selectors}')

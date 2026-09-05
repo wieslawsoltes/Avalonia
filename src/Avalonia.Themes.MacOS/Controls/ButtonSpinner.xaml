@@ -94,7 +94,7 @@
               <StackPanel Name="PART_SpinnerPanel"
                           TabIndex="2"
                           DockPanel.Dock="Right"
-                          Orientation="Horizontal"
+                          Orientation="Vertical" VerticalAlignment="Center" Margin="{DynamicResource MacOS.Stepper.Margin}"
                           IsVisible="{TemplateBinding ShowButtonSpinner}">
                 <RepeatButton Name="PART_IncreaseButton"
                               IsTabStop="{TemplateBinding IsTabStop}"
@@ -105,9 +105,9 @@
                               VerticalAlignment="Stretch"
                               VerticalContentAlignment="Center"
                               Foreground="{TemplateBinding Foreground}"
-                              MinWidth="34">
-                  <PathIcon Width="16"
-                            Height="8"
+                              MinWidth="{DynamicResource MacOS.Stepper.Width}" Height="{DynamicResource MacOS.Stepper.ButtonHeight}" Padding="0">
+                  <PathIcon Width="{DynamicResource MacOS.Stepper.IconWidth}"
+                            Height="{DynamicResource MacOS.Stepper.IconHeight}"
                             Data="{StaticResource ButtonSpinnerIncreaseButtonIcon}" />
                 </RepeatButton>
 
@@ -120,9 +120,9 @@
                               VerticalAlignment="Stretch"
                               VerticalContentAlignment="Center"
                               Foreground="{TemplateBinding Foreground}"
-                              MinWidth="34">
-                  <PathIcon Width="16"
-                            Height="8"
+                              MinWidth="{DynamicResource MacOS.Stepper.Width}" Height="{DynamicResource MacOS.Stepper.ButtonHeight}" Padding="0">
+                  <PathIcon Width="{DynamicResource MacOS.Stepper.IconWidth}"
+                            Height="{DynamicResource MacOS.Stepper.IconHeight}"
                             Data="{StaticResource ButtonSpinnerDecreaseButtonIcon}" />
                 </RepeatButton>
               </StackPanel>
