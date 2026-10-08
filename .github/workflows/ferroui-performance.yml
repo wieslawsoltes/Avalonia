@@ -1,0 +1,75 @@
+name: FerroUI performance
+
+on:
+  push:
+    branches: ['perf/ferroui-runtime-optimizations']
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'docs/performance/ferroui/**'
+      - '.github/workflows/ferroui-performance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ferroui-performance-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_NOLOGO: 1
+
+jobs:
+  source:
+    if: github.repository == 'wieslawsoltes/Avalonia'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - name: Archive exact benchmark sources
+        run: |
+          git rev-parse HEAD > PERFORMANCE-SOURCE-REVISION.txt
+          git submodule status --recursive >> PERFORMANCE-SOURCE-REVISION.txt
+          tar --exclude-vcs -czf "$RUNNER_TEMP/avalonia-performance-source.tar.gz" .
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ferroui-performance-source
+          path: ${{ runner.temp }}/avalonia-performance-source.tar.gz
+          retention-days: 3
+          if-no-files-found: error
+
+  unit-tests:
+    if: github.repository == 'wieslawsoltes/Avalonia'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        project:
+          - Avalonia.Base.UnitTests
+          - Avalonia.Controls.UnitTests
+          - Avalonia.Markup.UnitTests
+          - Avalonia.Markup.Xaml.UnitTests
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+          dotnet-version: 8.0.x
+      - name: Test Release
+        env:
+          TEST_PROJECT: ${{ matrix.project }}
+        run: dotnet run --project "tests/$TEST_PROJECT/$TEST_PROJECT.csproj" -c Release -- --report-trx --results-directory "$RUNNER_TEMP/test-results"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ferroui-tests-${{ matrix.project }}
+          path: ${{ runner.temp }}/test-results
+          retention-days: 7
