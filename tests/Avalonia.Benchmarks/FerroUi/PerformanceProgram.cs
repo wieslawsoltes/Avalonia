@@ -193,12 +193,12 @@ internal static class PerformanceProgram
         public int Prepared { get; private set; }
         public int Cleared { get; private set; }
         protected override Type StyleKeyOverride => typeof(ListBox);
-        protected internal override void PrepareContainerForItemOverride(Control container, object? item, int index)
+        protected override void PrepareContainerForItemOverride(Control container, object? item, int index)
         {
             ++Prepared;
             base.PrepareContainerForItemOverride(container, item, index);
         }
-        protected internal override void ClearContainerForItemOverride(Control container)
+        protected override void ClearContainerForItemOverride(Control container)
         {
             ++Cleared;
             base.ClearContainerForItemOverride(container);
