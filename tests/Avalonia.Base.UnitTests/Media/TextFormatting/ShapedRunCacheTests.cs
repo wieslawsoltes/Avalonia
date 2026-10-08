@@ -7,6 +7,7 @@ using Avalonia.Harfbuzz;
 using Avalonia.Media;
 using Avalonia.Media.TextFormatting;
 using Avalonia.Platform;
+using Avalonia.Reactive;
 using Avalonia.UnitTests;
 using Xunit;
 
@@ -24,7 +25,8 @@ public class ShapedRunCacheTests
     {
         var shaper = new HarfBuzzTextShaper();
         using var app = Start(shaper);
-        using var font = CreateFont();
+        var font = CreateFont();
+        using var fontLifetime = Disposable.Create(font.Dispose);
         var options = new TextShaperOptions(font, 16, (sbyte)bidi);
         // Full mutable memory has the same context but is deliberately not cache eligible.
         using var reference = shaper.ShapeText(text.ToCharArray().AsMemory(), options);
@@ -41,7 +43,8 @@ public class ShapedRunCacheTests
     {
         var shaper = new HarfBuzzTextShaper();
         using var app = Start(shaper);
-        using var font = CreateFont();
+        var font = CreateFont();
+        using var fontLifetime = Disposable.Create(font.Dispose);
         var options = new TextShaperOptions(font, 16);
         var first = shaper.ShapeText("cached".AsMemory(), options);
         var expected = Snapshot(first);
@@ -58,8 +61,10 @@ public class ShapedRunCacheTests
     {
         var shaper = new HarfBuzzTextShaper();
         using var app = Start(shaper);
-        using var font = CreateFont();
-        using var otherFont = CreateFont();
+        var font = CreateFont();
+        using var fontLifetime = Disposable.Create(font.Dispose);
+        var otherFont = CreateFont();
+        using var otherFontLifetime = Disposable.Create(otherFont.Dispose);
         var options = new[]
         {
             new TextShaperOptions(font, 16),
@@ -85,7 +90,8 @@ public class ShapedRunCacheTests
     {
         var shaper = new HarfBuzzTextShaper();
         using var app = Start(shaper);
-        using var font = CreateFont();
+        var font = CreateFont();
+        using var fontLifetime = Disposable.Create(font.Dispose);
         var original = CultureInfo.CurrentCulture;
         try
         {
@@ -104,7 +110,8 @@ public class ShapedRunCacheTests
     {
         var shaper = new HarfBuzzTextShaper();
         using var app = Start(shaper);
-        using var font = CreateFont();
+        var font = CreateFont();
+        using var fontLifetime = Disposable.Create(font.Dispose);
         var options = new TextShaperOptions(font);
         using var sliced = shaper.ShapeText("before office after".AsMemory(7, 6), options);
         using var mutable = shaper.ShapeText("office".ToCharArray().AsMemory(), options);
@@ -119,7 +126,8 @@ public class ShapedRunCacheTests
     {
         var shaper = new HarfBuzzTextShaper();
         using var app = Start(shaper);
-        using var font = CreateFont();
+        var font = CreateFont();
+        using var fontLifetime = Disposable.Create(font.Dispose);
         var options = new TextShaperOptions(font);
         // Short values hit the entry limit before the byte allowance.
         for (var i = 0; i < ShapedRunCache.MaxEntries; ++i)
@@ -143,7 +151,8 @@ public class ShapedRunCacheTests
     {
         var shaper = new HarfBuzzTextShaper();
         using var app = Start(shaper);
-        using var font = CreateFont();
+        var font = CreateFont();
+        using var fontLifetime = Disposable.Create(font.Dispose);
         var options = new TextShaperOptions(font);
         using var first = shaper.ShapeText("parallel".AsMemory(), options);
         var expected = Snapshot(first);

@@ -63,9 +63,18 @@ namespace Avalonia.Harfbuzz
 
         public void Dispose()
         {
+            if (IsDisposed)
+                return;
+
             IsDisposed = true;
-            HBFont.Dispose();
-            HBFace.Dispose();
+            try
+            {
+                HBFont.Dispose();
+            }
+            finally
+            {
+                HBFace.Dispose();
+            }
         }
 
     }

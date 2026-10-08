@@ -37,10 +37,12 @@ namespace Avalonia.Harfbuzz
                 throw new NotSupportedException("The provided GlyphTypeface is not supported by this text shaper.");
             }
 
+            if (harfBuzzTypeface.IsDisposed)
+                throw new ObjectDisposedException(nameof(GlyphTypeface));
+
             var usedCulture = options.Culture ?? CultureInfo.CurrentCulture;
             var cacheKey = default(ShapedRunCache.Key);
-            var cacheable = !harfBuzzTypeface.IsDisposed &&
-                ShapedRunCache.TryCreateKey(text, options, usedCulture, harfBuzzTypeface.CacheId, out cacheKey);
+            var cacheable = ShapedRunCache.TryCreateKey(text, options, usedCulture, harfBuzzTypeface.CacheId, out cacheKey);
 
             if (cacheable && _shapedRunCache.TryGet(cacheKey, text, options, out var cached))
                 return cached;
