@@ -17,6 +17,8 @@ namespace Avalonia.Styling
         private List<string>? _classes;
         private Type? _targetType;
         private string? _selectorString;
+        private Type? _lastAssignableType;
+        private bool _lastAssignableResult;
 
         public static TypeNameAndClassSelector OfType(Selector? previous, Type targetType)
         {
@@ -104,7 +106,20 @@ namespace Avalonia.Styling
                 }
                 else
                 {
-                    if (!TargetType.IsAssignableFrom(controlType))
+                    // Only cache this selector's own immutable type constraint. A TargetType
+                    // inherited through another selector can depend on a mutable Or/nesting tree.
+                    if (_targetType is not null)
+                    {
+                        if (_lastAssignableType != controlType)
+                        {
+                            _lastAssignableResult = _targetType.IsAssignableFrom(controlType);
+                            _lastAssignableType = controlType;
+                        }
+
+                        if (!_lastAssignableResult)
+                            return SelectorMatch.NeverThisType;
+                    }
+                    else if (!TargetType.IsAssignableFrom(controlType))
                     {
                         return SelectorMatch.NeverThisType;
                     }

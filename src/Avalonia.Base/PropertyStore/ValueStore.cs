@@ -436,7 +436,6 @@ namespace Avalonia.PropertyStore
 
         public void SetInheritanceParent(AvaloniaObject? newParent)
         {
-            var values = AvaloniaPropertyDictionaryPool<OldNewValue>.Get();
             var oldAncestor = InheritanceAncestor;
             var newAncestor = newParent?.GetValueStore();
 
@@ -447,72 +446,78 @@ namespace Avalonia.PropertyStore
             if (oldAncestor == newAncestor)
                 return;
 
-            // First get the old values from the old inheritance ancestor.
-            var f = oldAncestor;
-
-            while (f is not null)
+            var values = AvaloniaPropertyDictionaryPool<OldNewValue>.Get();
+            try
             {
-                var count = f._effectiveValues.Count;
+                // First get the old values from the old inheritance ancestor.
+                var f = oldAncestor;
 
-                for (var i = 0; i < count; ++i)
+                while (f is not null)
                 {
-                    var value = f._effectiveValues.GetValue(i);
-                    if (value.Property.Inherits)
-                        values.TryAdd(value.Property, new(value));
+                    var count = f._effectiveValues.Count;
+
+                    for (var i = 0; i < count; ++i)
+                    {
+                        var value = f._effectiveValues.GetValue(i);
+                        if (value.Property.Inherits)
+                            values.TryAdd(value.Property, new(value));
+                    }
+
+                    f = f.InheritanceAncestor;
                 }
 
-                f = f.InheritanceAncestor;
-            }
+                f = newAncestor;
 
-            f = newAncestor;
-
-            // Get the new values from the new inheritance ancestor.
-            while (f is not null)
-            {
-                var count = f._effectiveValues.Count;
-
-                for (var i = 0; i < count; ++i)
+                // Get the new values from the new inheritance ancestor.
+                while (f is not null)
                 {
-                    var value = f._effectiveValues.GetValue(i);
-                    var property = value.Property;
+                    var count = f._effectiveValues.Count;
 
-                    if (!property.Inherits)
-                        continue;
+                    for (var i = 0; i < count; ++i)
+                    {
+                        var value = f._effectiveValues.GetValue(i);
+                        var property = value.Property;
 
-                    if (values.TryGetValue(property, out var existing))
-                    {
-                        if (existing.NewValue is null)
-                            values[property] = existing.WithNewValue(value);
+                        if (!property.Inherits)
+                            continue;
+
+                        if (values.TryGetValue(property, out var existing))
+                        {
+                            if (existing.NewValue is null)
+                                values[property] = existing.WithNewValue(value);
+                        }
+                        else
+                        {
+                            values.Add(property, new(null, value));
+                        }
                     }
-                    else
-                    {
-                        values.Add(property, new(null, value));
-                    }
+
+                    f = f.InheritanceAncestor;
                 }
 
-                f = f.InheritanceAncestor;
-            }
+                OnInheritanceAncestorChanged(newAncestor);
 
-            OnInheritanceAncestorChanged(newAncestor);
-
-            // Raise PropertyChanged events where necessary on this object and inheritance children.
-            {
-                var count = values.Count;
-                for (var i = 0; i < count; ++i)
+                // Raise PropertyChanged events where necessary on this object and inheritance children.
                 {
-                    var v = values.GetValue(i);
-                    var oldValue = v.OldValue;
-                    var newValue = v.NewValue;
-
-                    if (oldValue != newValue)
+                    var count = values.Count;
+                    for (var i = 0; i < count; ++i)
                     {
-                        var property = v.OldValue?.Property ?? v.NewValue!.Property;
-                        InheritedValueChanged(property, oldValue, newValue);
+                        var v = values.GetValue(i);
+                        var oldValue = v.OldValue;
+                        var newValue = v.NewValue;
+
+                        if (oldValue != newValue)
+                        {
+                            var property = v.OldValue?.Property ?? v.NewValue!.Property;
+                            InheritedValueChanged(property, oldValue, newValue);
+                        }
                     }
                 }
             }
-
-            AvaloniaPropertyDictionaryPool<OldNewValue>.Release(values);
+            finally
+            {
+                AvaloniaPropertyDictionaryPool<OldNewValue>.Release(values);
+            }
         }
 
         /// <summary>

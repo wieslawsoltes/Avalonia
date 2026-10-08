@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Runtime.InteropServices;
 using Avalonia.Media;
 using HarfBuzzSharp;
@@ -7,6 +8,12 @@ namespace Avalonia.Harfbuzz
 {
     internal class HarfBuzzTypeface : ITextShaperTypeface
     {
+        private static long s_nextCacheId;
+
+        // A scalar identity lets the shaped-run cache avoid retaining fonts or native resources.
+        internal long CacheId { get; } = Interlocked.Increment(ref s_nextCacheId);
+        internal bool IsDisposed { get; private set; }
+
         public HarfBuzzTypeface(GlyphTypeface glyphTypeface)
         {
             GlyphTypeface = glyphTypeface;
@@ -56,6 +63,7 @@ namespace Avalonia.Harfbuzz
 
         public void Dispose()
         {
+            IsDisposed = true;
             HBFont.Dispose();
             HBFace.Dispose();
         }

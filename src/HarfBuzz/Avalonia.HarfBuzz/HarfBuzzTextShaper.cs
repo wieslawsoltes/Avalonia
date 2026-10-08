@@ -19,6 +19,9 @@ namespace Avalonia.Harfbuzz
         private static Buffer? s_buffer;
 
         private static readonly ConcurrentDictionary<int, Language> s_cachedLanguage = new();
+        private readonly ShapedRunCache _shapedRunCache = new();
+
+        internal ShapedRunCache ShapedRunCache => _shapedRunCache;
 
         public ShapedBuffer ShapeText(ReadOnlyMemory<char> text, TextShaperOptions options)
         {
@@ -34,9 +37,16 @@ namespace Avalonia.Harfbuzz
                 throw new NotSupportedException("The provided GlyphTypeface is not supported by this text shaper.");
             }
 
+            var usedCulture = options.Culture ?? CultureInfo.CurrentCulture;
+            var cacheKey = default(ShapedRunCache.Key);
+            var cacheable = !harfBuzzTypeface.IsDisposed &&
+                ShapedRunCache.TryCreateKey(text, options, usedCulture, harfBuzzTypeface.CacheId, out cacheKey);
+
+            if (cacheable && _shapedRunCache.TryGet(cacheKey, text, options, out var cached))
+                return cached;
+
             var fontRenderingEmSize = options.FontRenderingEmSize;
             var bidiLevel = options.BidiLevel;
-            var culture = options.Culture;
 
             var buffer = s_buffer ??= new Buffer();
 
@@ -51,8 +61,6 @@ namespace Avalonia.Harfbuzz
             buffer.GuessSegmentProperties();
 
             buffer.Direction = (bidiLevel & 1) == 0 ? Direction.LeftToRight : Direction.RightToLeft;
-
-            var usedCulture = culture ?? CultureInfo.CurrentCulture;
 
             buffer.Language = s_cachedLanguage.GetOrAdd(
                 usedCulture.LCID,
@@ -112,6 +120,9 @@ namespace Avalonia.Harfbuzz
 
                 shapedBuffer[i] = new Media.TextFormatting.GlyphInfo(glyphIndex, glyphCluster, glyphAdvance, glyphOffset);
             }
+
+            if (cacheable)
+                _shapedRunCache.Add(cacheKey, shapedBuffer);
 
             return shapedBuffer;
         }
