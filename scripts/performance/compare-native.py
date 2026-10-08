@@ -91,11 +91,15 @@ def main() -> None:
     env = dict(os.environ, DOTNET_CLI_TELEMETRY_OPTOUT="1", DOTNET_NOLOGO="1", DOTNET_TieredCompilation="0")
     project = "tests/Avalonia.Benchmarks/Avalonia.Benchmarks.csproj"
     harness = "tests/Avalonia.Benchmarks/FerroUi/PerformanceProgram.cs"
-    if subprocess.run(["git", "cat-file", "-e", f"{args.base}^{{commit}}"], cwd=root, stderr=subprocess.DEVNULL).returncode:
-        run(["git", "fetch", "--depth=1", "origin", args.base], root)
+    remote = subprocess.check_output(["git", "remote", "get-url", "origin"], cwd=root, text=True).strip()
     with tempfile.TemporaryDirectory(prefix="avalonia-ferroui-") as temporary:
         base = Path(temporary) / "base"
-        run(["git", "clone", "--shared", "--no-checkout", str(root), str(base)], root)
+        base.mkdir()
+        run(["git", "init", "--quiet"], base)
+        run(["git", "remote", "add", "origin", remote], base)
+        # A shared clone of a shallow Actions checkout need not include an unreferenced base.
+        # Fetch the exact base into its own repository instead of depending on alternate objects.
+        run(["git", "fetch", "--depth=1", "origin", args.base], base, output / "base-checkout.log")
         run(["git", "checkout", "--detach", args.base], base)
         try:
             run(["git", "submodule", "update", "--init", "--recursive"], base, output / "base-submodules.log")

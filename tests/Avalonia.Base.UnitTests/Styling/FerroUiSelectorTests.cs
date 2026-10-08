@@ -28,7 +28,7 @@ public class FerroUiSelectorTests
     [Fact]
     public void Mutable_Or_And_Replaced_Selectors_Are_Not_Negatively_Cached()
     {
-        var alternatives = new List<Selector> { default(Selector).Is<Button>() };
+        var alternatives = new List<Selector> { default(Selector).Is<Button>(), default(Selector).Is<Border>() };
         var style = new Style { Selector = Selectors.Or(alternatives),
             Setters = { new Setter(Control.TagProperty, "hit") } };
         var target = new TextBlock();
