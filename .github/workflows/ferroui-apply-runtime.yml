@@ -1,0 +1,27 @@
+name: Apply verified FerroUI runtime changes
+on:
+  push:
+    branches: ['perf/ferroui-runtime-optimizations']
+    paths: ['.github/perf-runtime.patch.gz']
+permissions:
+  contents: write
+jobs:
+  apply:
+    if: github.repository == 'wieslawsoltes/Avalonia'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+      - name: Apply exact reviewed source delta to this branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git ls-remote origin refs/heads/perf/ferroui-runtime-optimizations | cut -f1)" = "$GITHUB_SHA"
+          gzip -dc .github/perf-runtime.patch.gz > "$RUNNER_TEMP/runtime.patch"
+          echo 'c2714d993b99108886704254f43b4841cf91340f0330f32d9ca2335fd913b0cc  '"$RUNNER_TEMP/runtime.patch" | sha256sum --check
+          git apply --check "$RUNNER_TEMP/runtime.patch"
+          git apply --index "$RUNNER_TEMP/runtime.patch"
+          git rm .github/perf-runtime.patch.gz
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'perf(runtime): implement safe FerroUI-derived hot-path optimizations with regression tests'
+          git push origin HEAD:refs/heads/perf/ferroui-runtime-optimizations
