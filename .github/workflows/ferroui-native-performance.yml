@@ -1,0 +1,38 @@
+name: FerroUI native measurements
+on:
+  push:
+    branches: ['perf/ferroui-runtime-optimizations']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ferroui-native-${{ github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  compare:
+    if: github.repository == 'wieslawsoltes/Avalonia'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+          dotnet-version: 8.0.x
+      - name: Alternate exact baseline and branch measurements
+        run: python3 scripts/performance/compare-native.py --pairs 5 --output "$RUNNER_TEMP/ferroui-native"
+      - name: Publish comparison summary
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/ferroui-native/comparison.md" ]; then
+            cat "$RUNNER_TEMP/ferroui-native/comparison.md" >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ferroui-native-measurements
+          path: ${{ runner.temp }}/ferroui-native
+          retention-days: 14
