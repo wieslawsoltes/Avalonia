@@ -3,19 +3,13 @@ name: FerroUI performance
 on:
   push:
     branches: ['perf/ferroui-runtime-optimizations']
-  pull_request:
-    paths:
-      - 'src/**'
-      - 'tests/**'
-      - 'docs/performance/ferroui/**'
-      - '.github/workflows/ferroui-performance.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: ferroui-performance-${{ github.head_ref || github.ref_name }}
+  group: ferroui-performance-${{ github.ref_name }}
   cancel-in-progress: true
 
 env:
@@ -54,6 +48,8 @@ jobs:
           - Avalonia.Controls.UnitTests
           - Avalonia.Markup.UnitTests
           - Avalonia.Markup.Xaml.UnitTests
+          - Avalonia.Skia.UnitTests
+          - Avalonia.Themes.UnitTests
     steps:
       - uses: actions/checkout@v7
         with:
@@ -73,3 +69,21 @@ jobs:
           name: ferroui-tests-${{ matrix.project }}
           path: ${{ runner.temp }}/test-results
           retention-days: 7
+
+  legacy-build:
+    if: github.repository == 'wieslawsoltes/Avalonia'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+          dotnet-version: 8.0.x
+      - name: Build affected libraries for .NET 8
+        run: |
+          dotnet build src/Avalonia.Base/Avalonia.Base.csproj -c Release -f net8.0
+          dotnet build src/HarfBuzz/Avalonia.HarfBuzz/Avalonia.HarfBuzz.csproj -c Release -f net8.0
+          dotnet build src/Skia/Avalonia.Skia/Avalonia.Skia.csproj -c Release -f net8.0
