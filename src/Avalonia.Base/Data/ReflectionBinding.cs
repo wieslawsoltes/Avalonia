@@ -20,6 +20,8 @@ namespace Avalonia.Data
     [RequiresDynamicCode(TrimmingMessages.ReflectionBindingRequiresDynamicCodeMessage)]
     public class ReflectionBinding : BindingBase
     {
+        private ParsedPath? _parsedPath;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ReflectionBinding"/> class.
         /// </summary>
@@ -136,13 +138,22 @@ namespace Avalonia.Data
             var isRooted = false;
             var enableDataValidation = targetProperty?.GetMetadata(target).EnableDataValidation ?? false;
 
-            // Build the expression nodes from the binding path.
-            if (!string.IsNullOrEmpty(Path))
+            // Only syntax belongs to the description. Source nodes, resolved types, name scopes
+            // and observer state must be rebuilt for every target, including recycled containers.
+            var path = Path;
+            if (!string.IsNullOrEmpty(path))
             {
-                var reader = new CharacterReader(Path.AsSpan());
-                var (astPool, sourceMode) = BindingExpressionGrammar.ParseToPooledList(ref reader);
+                var parsed = _parsedPath;
+                if (parsed is null || parsed.Path != path)
+                {
+                    var (ast, _) = BindingExpressionGrammar.Parse(path);
+                    _parsedPath = parsed = new ParsedPath(path, ast);
+                }
+
+                // Keep an owned snapshot across user type-resolution callbacks, which may create
+                // another binding and overwrite the grammar's shared scratch list.
                 nodes = ExpressionNodeFactory.CreateFromAst(
-                    astPool,
+                    parsed.Nodes,
                     TypeResolver,
                     GetNameScope(),
                     out isRooted);
@@ -223,6 +234,14 @@ namespace Avalonia.Data
             }
 
             return (mode, trigger);
+        }
+
+        // Published as one object so a reentrant instantiation cannot mix a path with another
+        // path's nodes. Nothing outside this description can mutate the retained syntax list.
+        private sealed class ParsedPath(string path, List<BindingExpressionGrammar.INode> nodes)
+        {
+            public string Path { get; } = path;
+            public List<BindingExpressionGrammar.INode> Nodes { get; } = nodes;
         }
     }
 }
