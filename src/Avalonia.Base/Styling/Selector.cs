@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Avalonia.Styling.Activators;
 
@@ -127,24 +128,30 @@ namespace Avalonia.Styling
             else previous.ValidateNestingSelector(inControlTheme, templateCount);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static SelectorMatch MatchUntilCombinator(StyledElement control, Selector start,
             IStyle? parent, bool subscribe, out Selector? combinator)
         {
-            combinator = null;
             var previous = start.MovePrevious();
             var single = previous is null || previous.IsCombinator;
             if (single && parent is not ContainerQuery)
             {
-                // There is no AND operation to build for one selector. Return its original
-                // match/activator directly, without a helper call and struct reconstruction.
+                // Keep the common negative match independent of the compound plan's
+                // stack frame and activator builder, including during initial JIT tiers.
 #if AVALONIA_PERF_COUNTERS
                 Diagnostics.PerformanceCounters.Increment(Diagnostics.PerformanceCounter.SelectorEvaluations);
 #endif
                 var match = start.Evaluate(control, parent, subscribe);
-                if (match.IsMatch) combinator = previous;
+                combinator = match.IsMatch ? previous : null;
                 return match;
             }
+            return MatchComplex(control, start, previous, single, parent, subscribe, out combinator);
+        }
 
+        private static SelectorMatch MatchComplex(StyledElement control, Selector start,
+            Selector? previous, bool single, IStyle? parent, bool subscribe, out Selector? combinator)
+        {
+            combinator = null;
             var activators = new AndActivatorBuilder();
             SelectorMatchResult result;
             if (single)
