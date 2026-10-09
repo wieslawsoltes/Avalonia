@@ -10,9 +10,7 @@ using Avalonia.Styling;
 
 namespace Avalonia.Controls
 {
-    /// <summary>
-    /// An indexed dictionary of resources.
-    /// </summary>
+    /// <summary>An indexed dictionary of resources.</summary>
     public class ResourceDictionary : ResourceProvider, IResourceDictionary, IThemeVariantProvider
     {
         private object? _lastDeferredItemKey;
@@ -21,17 +19,10 @@ namespace Avalonia.Controls
         private AvaloniaDictionary<ThemeVariant, IThemeVariantProvider>? _themeDictionary;
         private ResourceLookupCache? _lookupCache;
         private bool _isLookupDependency;
+        private bool _hasUnstableKeys;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ResourceDictionary"/> class.
-        /// </summary>
         public ResourceDictionary() { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ResourceDictionary"/> class.
-        /// </summary>
         public ResourceDictionary(IResourceHost owner) : base(owner) { }
-
         public int Count => _inner?.Count ?? 0;
 
         public object? this[object key]
@@ -39,14 +30,12 @@ namespace Avalonia.Controls
             get { TryGetValue(key, out var value); return value; }
             set
             {
-                if (_isLookupDependency)
-                    SetValueWithCachedLocations(key, value);
+                TrackKey(key);
+                if (_isLookupDependency) SetValueWithCachedLocations(key, value);
                 else
                 {
-                    // Keep a small, single-lookup setter for standalone/local resources.
                     Inner[key] = value;
-                    // Recheck dependency state after hashing: a key callback may have
-                    // performed the first cached traversal during the dictionary operation.
+                    // Recheck after arbitrary hashing: a callback may establish a dependency.
                     RaiseResourcesChanged();
                 }
             }
@@ -56,28 +45,21 @@ namespace Avalonia.Controls
         {
             var epoch = ResourceLookupCache.Epoch;
             bool preservesLocation;
+            var inserted = false;
 #if NET6_0_OR_GREATER
             {
-                // A single lookup preserves the setter's hash/equality call count.
-                // Do not call user code or resize the dictionary while this ref is in use.
                 ref var entry = ref CollectionsMarshal.GetValueRefOrAddDefault(Inner, key, out var exists);
                 preservesLocation = exists && entry is not IDeferredContent && value is not IDeferredContent;
+                inserted = !exists && value is not IDeferredContent;
                 entry = value;
             }
 #else
-            // Keep the original single-lookup setter on older runtimes rather than
-            // adding an extra observable lookup through arbitrary user key comparers.
             Inner[key] = value;
             preservesLocation = false;
 #endif
-            // Plain replacement changes a value, not resolution precedence. Every cache
-            // hit still reads the live value from this dictionary, including found-null.
-            // Comparer reentrancy may have changed the graph during the lookup, so only
-            // preserve locations if no location-invalidating change intervened.
-            if (preservesLocation && epoch == ResourceLookupCache.Epoch)
-                base.RaiseResourcesChanged();
-            else
-                RaiseResourcesChanged();
+            if (preservesLocation && epoch == ResourceLookupCache.Epoch) base.RaiseResourcesChanged();
+            else if (inserted) RaiseResourcesChanged(key, ResourceLookupChange.Inserted);
+            else RaiseResourcesChanged();
         }
 
         public ICollection<object> Keys => (ICollection<object>?)_inner?.Keys ?? Array.Empty<object>();
@@ -91,7 +73,6 @@ namespace Avalonia.Controls
                 {
                     _mergedDictionaries = new AvaloniaList<IResourceProvider>();
                     _mergedDictionaries.ResetBehavior = ResetBehavior.Remove;
-                    // Register before owner propagation: owner callbacks may perform lookups.
                     _mergedDictionaries.CollectionChanged += (_, _) => ResourceLookupCache.Invalidate();
                     _mergedDictionaries.ForEachItem(
                         x => { if (Owner is not null) x.AddOwner(Owner); },
@@ -120,41 +101,41 @@ namespace Avalonia.Controls
         }
 
         ThemeVariant? IThemeVariantProvider.Key { get; set; }
-
         public sealed override bool HasResources
         {
             get
             {
                 if (_inner?.Count > 0) return true;
                 if (_mergedDictionaries?.Count > 0)
-                    foreach (var i in _mergedDictionaries)
-                        if (i.HasResources) return true;
+                    foreach (var i in _mergedDictionaries) if (i.HasResources) return true;
                 return false;
             }
         }
-
         bool ICollection<KeyValuePair<object, object?>>.IsReadOnly => false;
         private Dictionary<object, object?> Inner => _inner ??= new();
 
-        public void Add(object key, object? value) { Inner.Add(key, value); RaiseResourcesChanged(); }
+        public void Add(object key, object? value)
+        {
+            TrackKey(key);
+            Inner.Add(key, value);
+            RaiseResourcesChanged(key, value is IDeferredContent ? ResourceLookupChange.None : ResourceLookupChange.Inserted);
+        }
         public void AddDeferred(object key, Func<IServiceProvider?, object?> factory) => Add(key, new DeferredItem(factory));
         public void AddDeferred(object key, IDeferredContent deferredContent) => Add(key, deferredContent);
         public void AddNotSharedDeferred(object key, IDeferredContent deferredContent) => Add(key, new NotSharedDeferredItem(deferredContent));
-
         public void SetItems(IEnumerable<KeyValuePair<object, object?>> values)
         {
             try
             {
                 foreach (var value in values)
                 {
+                    TrackKey(value.Key);
                     Inner[value.Key] = value.Value;
-                    // The iterator itself can reenter between successive assignments.
                     InvalidateLookupCache();
                 }
             }
             finally { RaiseResourcesChanged(); }
         }
-
         public void Clear()
         {
             if (_inner?.Count > 0) { _inner.Clear(); RaiseResourcesChanged(); }
@@ -162,22 +143,24 @@ namespace Avalonia.Controls
         public bool ContainsKey(object key) => _inner?.ContainsKey(key) ?? false;
         public bool Remove(object key)
         {
-            if (_inner?.Remove(key) == true) { RaiseResourcesChanged(); return true; }
+            if (_inner?.Remove(key) == true)
+            {
+                RaiseResourcesChanged(key, ResourceLookupChange.Removed);
+                return true;
+            }
             return false;
         }
 
         public sealed override bool TryGetResource(object key, ThemeVariant? theme, out object? value)
         {
-            // Local entries remain the cheapest path and always take precedence.
             if (TryGetValue(key, out value)) return true;
-            var eligible = ResourceLookupCache.DeferredDepth == 0 && ResourceLookupCache.IsEligible(key);
+            var eligible = !_hasUnstableKeys && ResourceLookupCache.DeferredDepth == 0 && ResourceLookupCache.IsEligible(key);
             var epoch = ResourceLookupCache.Epoch;
             if (eligible && _lookupCache?.TryGet(key, theme, out var location) == true)
             {
                 if (location is null) { value = null; return false; }
                 if (location.TryGetValue(key, out value)) return true;
             }
-
             var cacheable = true;
             var result = TryGetResourceCore(key, theme, out value, out var foundIn, ref cacheable, localChecked: true);
             if (eligible && cacheable && (_themeDictionary?.Count > 0 || _mergedDictionaries?.Count > 0))
@@ -191,34 +174,26 @@ namespace Avalonia.Controls
             var dictionary = this;
             while (true)
             {
-                // Keep the live traversal: a comparer, factory or custom provider may mutate
-                // the graph during a probe. No flattened snapshot may replace these reads.
                 dictionary.MarkResourceLookupDependency();
+                cacheable &= !dictionary._hasUnstableKeys;
                 foundIn = null;
-                if (!localChecked && dictionary.TryGetValue(key, out value))
-                {
-                    foundIn = dictionary;
-                    return true;
-                }
+                if (!localChecked && dictionary.TryGetValue(key, out value)) { foundIn = dictionary; return true; }
                 if (dictionary._themeDictionary is not null)
                 {
                     if (theme is not null && theme != ThemeVariant.Default)
                     {
                         if (dictionary._themeDictionary.TryGetValue(theme, out var provider) &&
-                            Probe(provider, key, theme, out value, out foundIn, ref cacheable))
-                            return true;
+                            Probe(provider, key, theme, out value, out foundIn, ref cacheable)) return true;
                         var inherited = theme.InheritVariant;
                         while (inherited is not null)
                         {
                             if (dictionary._themeDictionary.TryGetValue(inherited, out provider) &&
-                                Probe(provider, key, theme, out value, out foundIn, ref cacheable))
-                                return true;
+                                Probe(provider, key, theme, out value, out foundIn, ref cacheable)) return true;
                             inherited = inherited.InheritVariant;
                         }
                     }
                     if (dictionary._themeDictionary.TryGetValue(ThemeVariant.Default, out var fallback) &&
-                        Probe(fallback, key, theme, out value, out foundIn, ref cacheable))
-                        return true;
+                        Probe(fallback, key, theme, out value, out foundIn, ref cacheable)) return true;
                 }
                 if (dictionary._mergedDictionaries is not null)
                 {
@@ -227,14 +202,11 @@ namespace Avalonia.Controls
                         var provider = dictionary._mergedDictionaries[i];
                         if (i == 0 && provider.GetType() == typeof(ResourceDictionary))
                         {
-                            // This is a tail call: all higher-priority siblings and themes
-                            // have already missed, and this frame has no remaining work.
                             dictionary = (ResourceDictionary)provider;
                             localChecked = false;
                             goto NextDictionary;
                         }
-                        if (Probe(provider, key, theme, out value, out foundIn, ref cacheable))
-                            return true;
+                        if (Probe(provider, key, theme, out value, out foundIn, ref cacheable)) return true;
                     }
                 }
                 value = null;
@@ -252,19 +224,14 @@ namespace Avalonia.Controls
             {
                 var dictionary = (ResourceDictionary)provider;
                 dictionary.MarkResourceLookupDependency();
-                if (dictionary.TryGetValue(key, out value))
-                {
-                    foundIn = dictionary;
-                    return true;
-                }
-                // Check children after the lookup, not before: arbitrary key equality can
-                // add children while reporting a local miss. Most resource leaves stop here.
+                cacheable &= !dictionary._hasUnstableKeys;
+                if (dictionary.TryGetValue(key, out value)) { foundIn = dictionary; return true; }
+                // Comparers can add children while reporting a local miss.
                 if (dictionary._themeDictionary is not null || dictionary._mergedDictionaries is not null)
                     return dictionary.TryGetResourceCore(key, theme, out value, out foundIn, ref cacheable, localChecked: true);
                 foundIn = null;
                 return false;
             }
-            // Retain interface dispatch for subclasses, including interface reimplementations.
             foundIn = null;
             cacheable = false;
             return provider.TryGetResource(key, theme, out value);
@@ -278,7 +245,6 @@ namespace Avalonia.Controls
             value = null;
             return false;
         }
-
         private bool BuildDeferredValue(object key, IDeferredContent deferred, out object? value)
         {
             if (_lastDeferredItemKey == key) { value = null; return false; }
@@ -286,30 +252,19 @@ namespace Avalonia.Controls
             {
                 _lastDeferredItemKey = key;
                 ++ResourceLookupCache.DeferredDepth;
-                value = deferred.Build(null) switch
-                {
-                    ITemplateResult t => t.Result,
-                    { } v => v,
-                    _ => null,
-                };
+                value = deferred.Build(null) switch { ITemplateResult t => t.Result, { } v => v, _ => null };
                 if (deferred is not NotSharedDeferredItem)
                 {
+                    TrackKey(key);
                     _inner![key] = value;
                     InvalidateLookupCache();
                 }
             }
-            finally
-            {
-                --ResourceLookupCache.DeferredDepth;
-                _lastDeferredItemKey = null;
-            }
+            finally { --ResourceLookupCache.DeferredDepth; _lastDeferredItemKey = null; }
             return true;
         }
 
-        /// <summary>
-        /// Ensures that the resource dictionary can hold up to <paramref name="capacity"/> entries without
-        /// any further expansion of its backing storage.
-        /// </summary>
+        /// <summary>Ensures capacity for entries without further backing-storage expansion.</summary>
         /// <remarks>This method may have no effect when targeting .NET Standard 2.0.</remarks>
         public void EnsureCapacity(int capacity)
         {
@@ -318,10 +273,8 @@ namespace Avalonia.Controls
             Inner.EnsureCapacity(capacity);
 #endif
         }
-
         public IEnumerator<KeyValuePair<object, object?>> GetEnumerator() =>
             _inner?.GetEnumerator() ?? Enumerable.Empty<KeyValuePair<object, object?>>().GetEnumerator();
-
         void ICollection<KeyValuePair<object, object?>>.Add(KeyValuePair<object, object?> item) => Add(item.Key, item.Value);
         bool ICollection<KeyValuePair<object, object?>>.Contains(KeyValuePair<object, object?> item) =>
             (_inner as ICollection<KeyValuePair<object, object?>>)?.Contains(item) ?? false;
@@ -330,11 +283,10 @@ namespace Avalonia.Controls
         bool ICollection<KeyValuePair<object, object?>>.Remove(KeyValuePair<object, object?> item)
         {
             if ((_inner as ICollection<KeyValuePair<object, object?>>)?.Remove(item) == true)
-            { RaiseResourcesChanged(); return true; }
+            { RaiseResourcesChanged(item.Key, ResourceLookupChange.Removed); return true; }
             return false;
         }
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
         internal bool ContainsDeferredKey(object key) =>
             _inner is not null && _inner.TryGetValue(key, out var result) && result is IDeferredContent;
 
@@ -343,18 +295,35 @@ namespace Avalonia.Controls
         {
             if (!_isLookupDependency) _isLookupDependency = true;
         }
-
+        private void TrackKey(object key)
+        {
+            if (!_hasUnstableKeys && !ResourceLookupCache.IsStableStoredKey(key))
+            {
+                // Custom stored-key equality can change answers or run callbacks without a
+                // resource mutation. Such a dictionary must always be probed live.
+                _hasUnstableKeys = true;
+                InvalidateLookupCache();
+            }
+        }
         private void InvalidateLookupCache()
         {
             if (_isLookupDependency) ResourceLookupCache.Invalidate();
         }
-
         private new void RaiseResourcesChanged()
         {
             InvalidateLookupCache();
             base.RaiseResourcesChanged();
         }
-
+        private void RaiseResourcesChanged(object key, ResourceLookupChange change)
+        {
+            if (_isLookupDependency)
+            {
+                if (change != ResourceLookupChange.None && key is string { Length: <= 256 } text && !_hasUnstableKeys)
+                    ResourceLookupCache.Invalidate(this, text, change);
+                else ResourceLookupCache.Invalidate();
+            }
+            base.RaiseResourcesChanged();
+        }
         protected sealed override void OnAddOwner(IResourceHost owner)
         {
             var hasResources = _inner?.Count > 0;
@@ -364,7 +333,6 @@ namespace Avalonia.Controls
                 foreach (var i in _themeDictionary.Values) { i.AddOwner(owner); hasResources |= i.HasResources; }
             if (hasResources) owner.NotifyHostedResourcesChanged(ResourcesChangedEventArgs.Create());
         }
-
         protected sealed override void OnRemoveOwner(IResourceHost owner)
         {
             var hasResources = _inner?.Count > 0;
@@ -374,7 +342,6 @@ namespace Avalonia.Controls
                 foreach (var i in _themeDictionary.Values) { i.RemoveOwner(owner); hasResources |= i.HasResources; }
             if (hasResources) owner.NotifyHostedResourcesChanged(ResourcesChangedEventArgs.Create());
         }
-
         private sealed class DeferredItem : IDeferredContent
         {
             private readonly Func<IServiceProvider?, object?> _factory;

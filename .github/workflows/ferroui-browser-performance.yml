@@ -13,7 +13,7 @@ permissions:
   contents: read
 concurrency:
   group: ferroui-browser-${{ github.ref_name }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   browser:
     if: github.repository == 'wieslawsoltes/Avalonia'
