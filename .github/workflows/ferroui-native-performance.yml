@@ -32,10 +32,14 @@ jobs:
         with:
           global-json-file: global.json
           dotnet-version: 8.0.x
+      - name: Calibrate same-revision variation
+        env:
+          RUNTIME_MODE: ${{ matrix.runtime-mode }}
+        run: python3 scripts/performance/compare-native.py --pairs 5 --calibrate --runtime-mode "$RUNTIME_MODE" --output "$RUNNER_TEMP/ferroui-calibration"
       - name: Alternate exact baseline and branch measurements
         env:
           RUNTIME_MODE: ${{ matrix.runtime-mode }}
-        run: python3 scripts/performance/compare-native.py --pairs 5 --runtime-mode "$RUNTIME_MODE" --output "$RUNNER_TEMP/ferroui-native"
+        run: python3 scripts/performance/compare-native.py --pairs 5 --runtime-mode "$RUNTIME_MODE" --calibration-file "$RUNNER_TEMP/ferroui-calibration/comparison.json" --output "$RUNNER_TEMP/ferroui-native"
       - name: Publish comparison summary
         if: always()
         run: |
@@ -46,5 +50,7 @@ jobs:
         if: always()
         with:
           name: ferroui-native-${{ matrix.os }}-${{ matrix.runtime-mode }}
-          path: ${{ runner.temp }}/ferroui-native
+          path: |
+            ${{ runner.temp }}/ferroui-native
+            ${{ runner.temp }}/ferroui-calibration
           retention-days: 14

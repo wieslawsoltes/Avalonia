@@ -27,6 +27,10 @@ jobs:
           dotnet run --project tests/Avalonia.Base.UnitTests -c Release -p:AvaloniaPerfCounters=false -p:AvsSkipBuildingLegacyTargetFrameworks=True -- --report-trx --results-directory "$RUNNER_TEMP/counter-off"
           dotnet run --project tests/Avalonia.Base.UnitTests -c Release -p:AvaloniaPerfCounters=true -p:AvsSkipBuildingLegacyTargetFrameworks=True -- --report-trx --results-directory "$RUNNER_TEMP/counter-on"
           dotnet run --project tests/Avalonia.Skia.UnitTests -c Release -p:AvaloniaPerfCounters=true -p:AvsSkipBuildingLegacyTargetFrameworks=True -- --report-trx --results-directory "$RUNNER_TEMP/counter-skia"
+      - name: Prove the real workload exercises instrumentation
+        run: |
+          mkdir -p "$RUNNER_TEMP/counter-evidence"
+          dotnet run --project tests/Avalonia.Benchmarks -c Release -p:AvaloniaPerfCounters=true -p:FerroUiCounterHarness=true -p:AvsSkipBuildingLegacyTargetFrameworks=True -- "$RUNNER_TEMP/counter-evidence/workload.json"
       - uses: actions/upload-artifact@v7
         if: always()
         with:
