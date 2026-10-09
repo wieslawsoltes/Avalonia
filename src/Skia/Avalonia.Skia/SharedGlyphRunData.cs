@@ -18,8 +18,10 @@ internal sealed class SharedGlyphRunData
     private readonly SkiaTypeface _typeface;
     private readonly double _size;
     private readonly ushort[] _indices;
+    // This private, owned array never escapes or changes identity. It also serves as the
+    // blob monitor, avoiding a separate lock-object allocation for every cold glyph run.
+    // SetPositions copies its contents into native storage; it does not publish this array.
     private readonly SKPoint[] _positions;
-    private readonly object _blobGate = new();
     private SKTextBlob? _firstBlob;
     private int _firstBlobIndex;
     private SKTextBlob?[]? _blobs;
@@ -67,7 +69,7 @@ internal sealed class SharedGlyphRunData
     internal void Release()
     {
         if (Interlocked.Decrement(ref _references) != 0) return;
-        lock (_blobGate)
+        lock (_positions)
         {
             if (_blobs is not null)
             {
@@ -95,7 +97,7 @@ internal sealed class SharedGlyphRunData
         };
         var snap = options.BaselinePixelAlignment == BaselinePixelAlignment.Unaligned ? 0 : 1;
         var index = edging * 6 + hinting * 2 + snap;
-        lock (_blobGate)
+        lock (_positions)
         {
             // Most runs use one font state. Do not allocate an 18-element vector for a cold run.
             // On expansion the first blob is retained, never disposed while another run leases it.
