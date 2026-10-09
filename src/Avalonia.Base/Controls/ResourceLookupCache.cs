@@ -16,6 +16,13 @@ internal sealed class ResourceLookupCache
     private static long s_epoch;
     [ThreadStatic] internal static int DeferredDepth;
     private readonly Dictionary<Key, Entry> _locations = new();
+    // Mirror one string entry inline. Repeated invalidation/revalidation of that key must
+    // not hash and rewrite the secondary dictionary on every mutation. Its weak handle
+    // is shared with the dictionary, and a dirty epoch/missing state is flushed on change.
+    private string? _primaryKey;
+    private ThemeVariant? _primaryTheme;
+    private Entry _primaryEntry;
+    private bool _primaryDirty;
 
     internal static long Epoch => Volatile.Read(ref s_epoch);
     internal static void Invalidate()
@@ -33,12 +40,27 @@ internal sealed class ResourceLookupCache
 #if AVALONIA_PERF_COUNTERS
         Diagnostics.PerformanceCounters.Increment(Diagnostics.PerformanceCounter.ResourceCacheProbes);
 #endif
-        var lookup = new Key(key, theme);
-        var found = _locations.TryGetValue(lookup, out var entry) && entry.Epoch == Epoch;
+        var primary = IsPrimary(key, theme);
+        Entry entry;
+        bool found;
+        if (primary)
+        {
+            entry = _primaryEntry;
+            found = entry.Epoch == Epoch;
+        }
+        else
+            found = _locations.TryGetValue(new Key(key, theme), out entry) && entry.Epoch == Epoch;
         location = null;
         if (found && !entry.Missing && entry.Location?.TryGetTarget(out location) != true)
         {
-            _locations.Remove(lookup);
+            _locations.Remove(new Key(key, theme));
+            if (primary)
+            {
+                _primaryKey = null;
+                _primaryEntry = default;
+                _primaryTheme = null;
+                _primaryDirty = false;
+            }
             found = false;
         }
 #if AVALONIA_PERF_COUNTERS
@@ -51,9 +73,45 @@ internal sealed class ResourceLookupCache
     {
         if (epoch != Epoch) return;
         location?.MarkResourceLookupDependency();
+        if (IsPrimary(key, theme))
+        {
+            _primaryEntry = CreateEntry(_primaryEntry, location, epoch);
+            _primaryDirty = true;
+            return;
+        }
+        if (_primaryDirty)
+        {
+            _locations[new Key(_primaryKey!, _primaryTheme)] = _primaryEntry;
+            _primaryDirty = false;
+        }
         var lookup = new Key(key, theme);
         var existing = _locations.TryGetValue(lookup, out var previous);
-        if (!existing && _locations.Count >= Capacity) _locations.Clear();
+        if (!existing && _locations.Count >= Capacity)
+        {
+            _locations.Clear();
+            _primaryKey = null;
+            _primaryTheme = null;
+            _primaryEntry = default;
+        }
+        var entry = CreateEntry(previous, location, epoch);
+        _locations[lookup] = entry;
+        // The inline equality check is restricted to immutable strings: no user Type
+        // subclass equality/hash callbacks are skipped by this extra fast path.
+        if (key is string text)
+        {
+            _primaryKey = text;
+            _primaryTheme = theme;
+            _primaryEntry = entry;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsPrimary(object key, ThemeVariant? theme) =>
+        _primaryKey is not null && key is string text && ReferenceEquals(theme, _primaryTheme) &&
+        string.Equals(text, _primaryKey, StringComparison.Ordinal);
+
+    private static Entry CreateEntry(Entry previous, ResourceDictionary? location, long epoch)
+    {
         var weak = previous.Location;
         if (location is not null)
         {
@@ -61,9 +119,7 @@ internal sealed class ResourceLookupCache
             else weak.SetTarget(location);
         }
         else weak?.SetTarget(null!);
-        // Stamp each entry separately. Reuse weak handles after invalidation instead of
-        // allocating a new handle on every update/lookup pair in a mutable resource graph.
-        _locations[lookup] = new Entry(epoch, weak, location is null);
+        return new Entry(epoch, weak, location is null);
     }
 
     private readonly record struct Entry(long Epoch, WeakReference<ResourceDictionary>? Location, bool Missing);
