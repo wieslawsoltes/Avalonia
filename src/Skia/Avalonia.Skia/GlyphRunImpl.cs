@@ -13,7 +13,9 @@ namespace Avalonia.Skia
         private SharedGlyphRunData? _data;
         // Wrapper-local borrowed references preserve the existing lock-free warm lookup.
         // The shared owner, not this cache, disposes blobs after every lease is released.
-        private readonly TwoLevelCache<TextOptions, SKTextBlob> _textBlobCache = new();
+        private TextOptions _primaryOptions;
+        private SKTextBlob? _primaryBlob;
+        private (TextOptions Options, SKTextBlob? Blob)[]? _secondaryBlobs;
 
         public GlyphRunImpl(GlyphTypeface glyphTypeface, double fontRenderingEmSize,
             IReadOnlyList<GlyphInfo> glyphInfos, Point baselineOrigin)
@@ -41,14 +43,40 @@ namespace Avalonia.Skia
                     TextRenderingMode = renderOptions.EdgeMode == EdgeMode.Aliased ? TextRenderingMode.Alias : TextRenderingMode.SubpixelAntialias
                 };
             }
-            return _textBlobCache.GetOrAdd(textOptions, data, static (options, owner) => owner.GetTextBlob(options));
+            if (_primaryBlob is { } primary && _primaryOptions == textOptions) return primary;
+            return GetTextBlobSlow(data, textOptions);
+        }
+
+        private SKTextBlob GetTextBlobSlow(SharedGlyphRunData data, TextOptions options)
+        {
+            if (_primaryBlob is null)
+            {
+                var blob = data.GetTextBlob(options);
+                _primaryOptions = options;
+                return _primaryBlob = blob;
+            }
+            var secondary = _secondaryBlobs;
+            if (secondary is not null)
+                for (var i = 0; i < secondary.Length; ++i)
+                    if (secondary[i].Blob is { } existing && secondary[i].Options == options)
+                        return existing;
+
+            var result = data.GetTextBlob(options);
+            secondary ??= _secondaryBlobs = new (TextOptions, SKTextBlob?)[3];
+            // Preserve the previous cache's permanent first entry and three most recently
+            // inserted alternatives. These are borrowed blobs: eviction never disposes them.
+            secondary[2] = secondary[1];
+            secondary[1] = secondary[0];
+            secondary[0] = (options, result);
+            return result;
         }
 
         public void Dispose()
         {
             var data = Interlocked.Exchange(ref _data, null);
             if (data is null) return;
-            _textBlobCache.ClearAndDispose();
+            _primaryBlob = null;
+            _secondaryBlobs = null;
             data.Release();
         }
 

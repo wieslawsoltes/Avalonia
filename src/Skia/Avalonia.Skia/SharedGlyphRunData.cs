@@ -50,19 +50,50 @@ internal sealed class SharedGlyphRunData
         try
         {
             font.GetGlyphWidths(_indices, null, bounds.AsSpan(0, count));
-            var currentX = 0.0;
-            var runBounds = new Rect();
-            for (var i = 0; i < count; ++i)
+            if (TryGetGlyphSpan(glyphs, out var span))
+                RelativeBounds = InitializePositions(span, bounds.AsSpan(0, count));
+            else
             {
-                var glyph = glyphs[i];
-                var b = bounds[i];
-                _positions[i] = new SKPoint((float)(currentX + glyph.GlyphOffset.X), (float)glyph.GlyphOffset.Y);
-                runBounds = runBounds.Union(new Rect(currentX + b.Left, b.Top, b.Width, b.Height));
-                currentX += glyph.GlyphAdvance;
+                // Arbitrary IReadOnlyList implementations keep their ordinary indexer calls.
+                var currentX = 0.0;
+                var runBounds = new Rect();
+                for (var i = 0; i < count; ++i)
+                {
+                    var glyph = glyphs[i];
+                    var b = bounds[i];
+                    _positions[i] = new SKPoint((float)(currentX + glyph.GlyphOffset.X), (float)glyph.GlyphOffset.Y);
+                    runBounds = runBounds.Union(new Rect(currentX + b.Left, b.Top, b.Width, b.Height));
+                    currentX += glyph.GlyphAdvance;
+                }
+                RelativeBounds = runBounds;
             }
-            RelativeBounds = runBounds;
         }
         finally { ArrayPool<SKRect>.Shared.Return(bounds); }
+    }
+
+    private Rect InitializePositions(ReadOnlySpan<GlyphInfo> glyphs, ReadOnlySpan<SKRect> bounds)
+    {
+        var currentX = 0.0;
+        var runBounds = new Rect();
+        for (var i = 0; i < glyphs.Length; ++i)
+        {
+            ref readonly var glyph = ref glyphs[i];
+            var b = bounds[i];
+            _positions[i] = new SKPoint((float)(currentX + glyph.GlyphOffset.X), (float)glyph.GlyphOffset.Y);
+            runBounds = runBounds.Union(new Rect(currentX + b.Left, b.Top, b.Width, b.Height));
+            currentX += glyph.GlyphAdvance;
+        }
+        return runBounds;
+    }
+
+    internal static bool TryGetGlyphSpan(IReadOnlyList<GlyphInfo> glyphs, out ReadOnlySpan<GlyphInfo> span)
+    {
+        // Only sealed built-in storage can bypass user callbacks. The view is borrowed for
+        // this synchronous call, never retained in the native owner or cache.
+        if (glyphs is ShapedBuffer buffer) { span = buffer.GlyphInfos.Span; return true; }
+        if (glyphs is GlyphInfo[] array) { span = array; return true; }
+        span = default;
+        return false;
     }
 
     internal Rect RelativeBounds { get; }
@@ -171,14 +202,15 @@ internal static class SharedGlyphRunCache
         var admit = false;
         if (eligible && face.ShouldProbeGlyphCache())
         {
+            SharedGlyphRunData.TryGetGlyphSpan(glyphs, out var span);
             var hash = new HashCode();
             hash.Add(RuntimeHelpers.GetHashCode(face));
             hash.Add(size);
-            for (var i = 0; i < glyphs.Count; ++i) hash.Add(glyphs[i]);
-            key = new Key(face, size, glyphs.Count, hash.ToHashCode());
+            for (var i = 0; i < span.Length; ++i) hash.Add(span[i]);
+            key = new Key(face, size, span.Length, hash.ToHashCode());
             lock (s_gate)
             {
-                if (s_entries.TryGetValue(key, out var found) && Matches(found.Value.Glyphs, glyphs))
+                if (s_entries.TryGetValue(key, out var found) && Matches(found.Value.Glyphs, span))
                 {
                     face.RecordGlyphCacheBenefit();
                     s_lru.Remove(found);
@@ -203,9 +235,10 @@ internal static class SharedGlyphRunCache
         lock (s_gate)
         {
             if (face.IsDisposed) return data;
+            SharedGlyphRunData.TryGetGlyphSpan(glyphs, out var span);
             if (s_entries.TryGetValue(key, out var existing))
             {
-                if (Matches(existing.Value.Glyphs, glyphs))
+                if (Matches(existing.Value.Glyphs, span))
                 {
                     face.RecordGlyphCacheBenefit();
                     existing.Value.Data.AddReference();
@@ -216,8 +249,7 @@ internal static class SharedGlyphRunCache
             }
             var bytes = 4096 + glyphs.Count * 256;
             while (s_entries.Count >= Capacity || s_bytes + bytes > ByteAllowance) Remove(s_lru.Last!);
-            var snapshot = new GlyphInfo[glyphs.Count];
-            for (var i = 0; i < snapshot.Length; ++i) snapshot[i] = glyphs[i];
+            var snapshot = span.ToArray();
             data.AddReference();
             var node = s_lru.AddFirst(new Entry(key, snapshot, data, bytes));
             s_entries.Add(key, node);
@@ -241,7 +273,7 @@ internal static class SharedGlyphRunCache
         }
     }
 
-    private static bool Matches(GlyphInfo[] stored, IReadOnlyList<GlyphInfo> current)
+    private static bool Matches(GlyphInfo[] stored, ReadOnlySpan<GlyphInfo> current)
     {
         for (var i = 0; i < stored.Length; ++i)
             if (!stored[i].Equals(current[i])) return false;
