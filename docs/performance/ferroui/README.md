@@ -1,37 +1,41 @@
 # FerroUI performance designs applied to Avalonia
 
-All implementation is on `perf/ferroui-runtime-optimizations` in [fork PR #8](https://github.com/wieslawsoltes/Avalonia/pull/8), targeting **wieslawsoltes/Avalonia:master**, not upstream. Original baseline: `a9429a328057befa287ffb5e981f58b86a86eda0`.
+Branch: `perf/ferroui-runtime-optimizations`. [PR #8](https://github.com/wieslawsoltes/Avalonia/pull/8) targets **wieslawsoltes/Avalonia:master**, not upstream. Original baseline: `a9429a328057befa287ffb5e981f58b86a86eda0`.
 
-The [source study](https://github.com/wieslawsoltes/FerroUI/tree/main/docs/porting/performance) contains nine designs, several explicitly conditional on preserving observable behavior or establishing a measured benefit. Its Rust/WebAssembly percentages are not Avalonia forecasts. The applicable mechanisms below are implemented; existing Avalonia mechanisms and incompatible proposals are distinguished rather than relabeled as new optimizations.
-
-[Source applicability](source-applicability.md) pins the reviewed study and distinguishes FerroUI's statement-for-statement port rule from this PR's behavioral compatibility contract. Several caches were rejected for the port because upstream did not have them; the caches here are new Avalonia implementations, not claims about pre-existing upstream behavior.
+The [source study](https://github.com/wieslawsoltes/FerroUI/tree/main/docs/porting/performance) mixes transferable ideas, existing Avalonia machinery, Rust-specific mechanisms and hypotheses. Its percentages are not Avalonia forecasts. [Source applicability](source-applicability.md) pins the reviewed revision and distinguishes FerroUI's statement-for-statement port rule from the behavioral-equivalence contract for new Avalonia optimizations.
 
 ## Design coverage
 
-| Design | Avalonia implementation | Compatibility boundary |
-| --- | --- | --- |
-| 01 Virtual dispatch | Audited managed dispatch; no Rust macro forwarding chain exists. | Keep extensible virtual callbacks. No closed-world override registry or forced inline policy. |
-| 02 Notifications | Immutable name-only INPC argument reuse; exception-safe larger listener snapshots. Typed old/new values and small-listener paths already existed. | Keep sender-specific values, subscription order and reentrancy; do not suppress callbacks. |
-| 03 Inheritance | Avoid unchanged-ancestor pool rental; return comparison dictionaries on exceptions. Existing indexed matching, identity checks and local-value pruning remain. | Do not reorder property-major cross-object notifications into object-major batches. |
-| 04 Attachment, styles and resources | Shared immutable selector evaluation plans, own-type assignability cache, bounded merged/theme resource-resolution location caches with mutation-safe invalidation and location-preserving plain replacements. | Live selector/class/name/StyleKey/container/parent evaluation; dynamic custom resource providers remain probed. |
-| 05 Recycling bindings | Unboxed same-type styled template-binding route; bounded immutable reflection-path sharing; dynamic resources use dictionary-resolution caches. Compiled binding paths already share immutable descriptions. | Converters, direct/differently typed/sentinel-capable properties and validation-sensitive cases keep the general path. Observers and subscriptions are per instance. |
-| 06 Text layout | Independent-buffer shaping snapshots, expiring admission/probing with bounded cyclic recovery, generation-checked default single-run line metrics, shared native glyph geometry; ineligible runs bypass cache policy. | Context-sensitive text, mutable/exposed runs, complex paragraphs and custom backends take their existing algorithms. |
-| 07 Composed frames | Leased cross-layout Skia blobs and native bounds, inline first-blob storage, raw native run views, per-font cold-probe backoff/recovery, raster/browser parity and idle profiling. Existing dirty-subtree/dirty-rectangle algorithms stay intact. | Borrowed blobs remain alive across option changes and eviction. Do not change diagnostics defaults or equate RAF callbacks with GPU draws. |
-| 08 Build settings | Actual interpreter, AOT and symbol-retaining browser build/measurement modes; native default/non-tiered JIT comparisons. | App deployment experiments, not blanket library defaults. Cargo/Emscripten/Rust-hasher changes do not apply. |
-| 09 Measurement | Compile-time counters with absence tests and real-workload evidence; 26 native scenarios; same-head calibration plus baseline/head pairs; real wheel/drag/browser pixel tests, profiles and size/startup/idle reports. | Instrumented timing is not compared with uninstrumented timing. Optional calibrated regression screening is a heuristic, not a confidence interval. |
+| Design | Implementation | Compatibility boundary |
+|---|---|---|
+| 01 Virtual dispatch | Audit: C# has no Rust macro forwarding chain. | Keep extensible virtual callbacks; no closed-world registry or blanket inlining policy. |
+| 02 Notifications | Name-only INPC argument reuse; exception-safe listener snapshots. | Typed old/new values, listener order and reentrancy remain live. |
+| 03 Inheritance | Avoid no-op rentals and release comparison dictionaries on exceptions. | Keep property-major notification order and existing subtree pruning. |
+| 04 Styles/resources | Immutable selector plans, direct single-node/owned-constraint evaluation; weak resource locations, cheaper live traversal and guarded single-change revalidation. | StyleKey, classes, parents, container queries, arbitrary type/key/theme/provider callbacks remain live; structural changes still invalidate. |
+| 05 Bindings | Typed compatible styled template publication; bounded reflection-path syntax sharing. | Converters, direct/different/sentinel-sensitive types retain the general route; observers and scopes are per target. |
+| 06 Text layout | Independent shaped snapshots, expiring admission and cyclic recovery; optional generation-checked line metrics; unpublished-buffer initialization without redundant invalidation. | Cold buffers carry no metrics fields. Public writes still invalidate aliases; context-sensitive and complex text retains normal shaping/formatting. |
+| 07 Native/frame cost | Leased shared geometry/blobs, raw native views and exclusively leased configured fonts. Existing compositor dirty-region algorithms retained. | No concurrent sharing of mutable fonts or premature disposal of borrowed blobs; RAF is not physical presentation. |
+| 08 Build settings | Interpreter/AOT/named browser experiments; native default/non-tiered JIT measurement. | Application experiments, not changed deployment defaults. Rust flags do not apply. |
+| 09 Measurement | Compile-time counters, unchanged 26-scenario native comparisons and calibration; real browser input/pixels/profiles/startup/idle/size reports. | Preserve counterexamples and unfavorable results; report-only success is not universal performance acceptance. |
 
-The substitutions are intentional: a whole-host cached selector result cannot safely skip mutable StyleKey/Or/container behavior, and a whole-line reuse shortcut cannot safely accept arbitrary mutable paragraphs or third-party renderer behavior. Reuse the immutable work underneath those APIs, not the observable callbacks themselves.
+The managed last-type assignability memo was removed after repeat measurements exposed overhead. Current selectors use direct runtime assignability while retaining reduced single-node dispatch. Whole-host match caching or arbitrary mutable/custom-renderer line reuse would bypass observable behavior and is not substituted for safe reuse beneath those APIs.
 
-## Implementation documentation
+## Implementation and regression repairs
 
-[Core implementation](implementation.md) covers notifications, inheritance and the initial changes. [Typed template bindings](typed-template-bindings.md), [reflection syntax sharing](reflection-binding-path.md), [resource lookup](resource-lookup.md), [selector plans](selector-plans.md), [shaping admission](shaping-admission.md), [default line metrics](default-line-metrics.md), [shared native glyphs](shared-native-glyphs.md) and [cold-run refinement](cold-native-runs.md) document individual algorithms, ownership, invalidation, tests and tradeoffs.
+[Implementation notes](implementation.md) summarize current behavior. Detailed designs: [typed template bindings](typed-template-bindings.md), [reflection syntax](reflection-binding-path.md), [resource lookup](resource-lookup.md), [selector plans](selector-plans.md), [default line metrics](default-line-metrics.md), and [shared native glyphs](shared-native-glyphs.md).
 
-[Expiring shaping hints](shaping-admission-window.md), [weak-location reuse](resource-mutation-refinement.md), [location-preserving replacement](resource-location-preserving-replacement.md), [native glyph admission](native-glyph-admission-window.md) and [bounded cyclic recovery](bounded-cache-recovery.md) document refinements driven by cold/mutation-heavy regressions. [Raw native blob buffers](raw-native-blob-buffer.md) and [ineligible shaping](uncacheable-shaping.md) cover the latest cold-path changes and their allocation, raster and policy-state tests.
+| Repair | Design, invariants and tests |
+|---|---|
+| Resource mutation | [Live traversal](resource-traversal-regression.md), [inline locations](resource-inline-revalidation.md), [single-change proof](resource-single-change-proof.md), [local access](local-resource-regression.md) |
+| Cold/context shaping | [Optional metadata and initialization](shaping-allocation-regression.md), [ineligible inputs](uncacheable-shaping.md), [admission expiry](shaping-admission-window.md), [cyclic recovery](bounded-cache-recovery.md) |
+| Unique native glyphs | [Configured-font leases](native-font-setup-regression.md), [raw native views](raw-native-blob-buffer.md), [native admission](native-glyph-admission-window.md) |
+| Selector misses | [Single-node dispatch and removal of redundant memoization](single-selector-regression.md) |
+| Custom callback safety | [Opaque resource/type keys](resource-single-change-proof.md), [mutable theme keys](mutable-theme-key-safety.md) |
 
-[Native reproduction](measurement.md), [counters/calibration](counters-and-calibration.md), [browser validation](browser-validation.md) and [browser evidence/profiling](browser-evidence.md) document measurement. [The earlier validation report](validation.md) preserves historical results before the remaining-scope implementation; do not use its numbers as the current implementation's performance. The PR description identifies later exact-revision runs.
+Earlier design notes preserve the evolution; explicit later repair descriptions supersede earlier ownership/allocation details. [Final repair results](validation-regression-repairs.md) preserve all current native scenarios and completed browser evidence. [Intermediate repeats](validation-regression-checkpoint.md), [earlier cold paths](validation-cold-paths.md) and [initial results](validation.md) remain historical, not current-runtime claims.
 
-## Acceptance and interpretation
+## Reproduction and acceptance
 
-The fork-local workflows validate six Release suites, affected .NET 8 libraries, counter-off/on builds, native Linux/macOS comparisons and browser interpreter/AOT/named deployments. Read the result for the exact tested revision; a workflow definition or an older green run is not validation of newer source.
+See [native reproduction](measurement.md), [counters/calibration](counters-and-calibration.md), [browser validation](browser-validation.md) and [browser evidence](browser-evidence.md). The nine repair commits retain the original 26 benchmark scenarios and screen thresholds. Browser input/comparison steps are unchanged; superseded runs are cancelled in favor of the latest revision.
 
-No universal speedup, hardware GPU frame rate, platform-wide screenshot certification or byte-identical complete binary is claimed. Cache metadata and synchronization have costs on unique/mutation-heavy workloads; report those alongside hits. Public application API and deployment/diagnostics defaults are intentionally unchanged. No merge is performed by the validation workflows.
+Read checks for the exact runtime. All configured checks now complete at `fa8bb8c`, but positive native/browser timing observations remain; the PR is draft and unmerged. No universal speedup, physical-GPU FPS, all-platform screenshot certification or zero-cost cache retention is claimed. Public application APIs and deployment/diagnostics defaults are intentionally unchanged.
