@@ -19,6 +19,7 @@ namespace Avalonia.Skia
         private int _glyphAdmissionClock;
         private int _glyphSampledProbes;
         private int _glyphRecoveryProbesRemaining;
+        private GlyphRunFontPool? _glyphFonts;
 
         public SkiaTypeface(SKTypeface typeface, FontSimulations fontSimulations)
         {
@@ -36,6 +37,20 @@ namespace Avalonia.Skia
         public FontStyle Style { get; }
         public FontStretch Stretch { get; }
         internal bool IsDisposed => Volatile.Read(ref _disposed) != 0;
+
+        internal GlyphRunFontPool GlyphFonts
+        {
+            get
+            {
+                var existing = Volatile.Read(ref _glyphFonts);
+                if (existing is not null) return existing;
+                var created = new GlyphRunFontPool(this);
+                existing = Interlocked.CompareExchange(ref _glyphFonts, created, null);
+                if (existing is null) return created;
+                created.Dispose();
+                return existing;
+            }
+        }
 
         internal bool ShouldProbeGlyphCache()
         {
@@ -119,6 +134,7 @@ namespace Avalonia.Skia
         {
             if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
             SharedGlyphRunCache.RemoveTypeface(this);
+            Volatile.Read(ref _glyphFonts)?.Dispose();
             SKTypeface.Dispose();
         }
     }

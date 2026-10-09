@@ -44,7 +44,8 @@ internal sealed class SharedGlyphRunData
             TextHintingMode = TextHintingMode.Strong,
             BaselinePixelAlignment = BaselinePixelAlignment.Unaligned
         };
-        using var font = CreateFont(options);
+        using var rental = _typeface.GlyphFonts.Rent((float)_size, options);
+        var font = rental.Font;
         var bounds = ArrayPool<SKRect>.Shared.Rent(count);
         try
         {
@@ -122,7 +123,8 @@ internal sealed class SharedGlyphRunData
 #if AVALONIA_PERF_COUNTERS
         Avalonia.Diagnostics.PerformanceCounters.Increment(Avalonia.Diagnostics.PerformanceCounter.NativeTextBlobsCreated);
 #endif
-        using var font = CreateFont(options);
+        using var rental = _typeface.GlyphFonts.Rent((float)_size, options);
+        var font = rental.Font;
         var builder = SKTextBlobBuilderCache.Shared.Get();
         try
         {
@@ -134,28 +136,6 @@ internal sealed class SharedGlyphRunData
             return builder.Build()!;
         }
         finally { SKTextBlobBuilderCache.Shared.Return(builder); }
-    }
-
-    private SKFont CreateFont(TextOptions options)
-    {
-        var edging = options.TextRenderingMode switch
-        {
-            TextRenderingMode.Alias => SKFontEdging.Alias,
-            TextRenderingMode.Antialias => SKFontEdging.Antialias,
-            _ => SKFontEdging.SubpixelAntialias
-        };
-        var font = _typeface.CreateSKFont((float)_size);
-        font.ForceAutoHinting = options.TextHintingMode == TextHintingMode.Light;
-        font.Hinting = options.TextHintingMode switch
-        {
-            TextHintingMode.None => SKFontHinting.None,
-            TextHintingMode.Light => SKFontHinting.Slight,
-            _ => SKFontHinting.Full
-        };
-        font.Subpixel = edging != SKFontEdging.Alias;
-        font.Edging = edging;
-        font.BaselineSnap = options.BaselinePixelAlignment != BaselinePixelAlignment.Unaligned;
-        return font;
     }
 }
 
@@ -227,8 +207,6 @@ internal static class SharedGlyphRunCache
             {
                 if (Matches(existing.Value.Glyphs, glyphs))
                 {
-                    // A concurrent caller already produced reusable geometry: this really
-                    // is a benefit, unlike merely admitting a still-unused snapshot below.
                     face.RecordGlyphCacheBenefit();
                     existing.Value.Data.AddReference();
                     data.Release();
