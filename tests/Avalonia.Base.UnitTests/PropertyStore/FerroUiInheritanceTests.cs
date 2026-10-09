@@ -14,6 +14,8 @@ public class FerroUiInheritanceTests
     {
         var parent = new Node();
         parent.SetValue(Node.FirstProperty, 1);
+        // Warm the general path explicitly; a singleton no longer needs a rental.
+        parent.SetValue(Node.SecondProperty, 2);
         var child = new Node { Parent = parent };
         child.Parent = null;
         child.Parent = parent;
@@ -30,6 +32,7 @@ public class FerroUiInheritanceTests
     {
         var parent = new Node();
         parent.SetValue(Node.FirstProperty, 1);
+        parent.SetValue(Node.SecondProperty, 2);
         var warmup = new Node { Parent = parent };
         warmup.Parent = null;
         var pool = GetPool();
@@ -80,7 +83,6 @@ public class FerroUiInheritanceTests
 
     private static ICollection GetPool()
     {
-        // Inspect ownership without exposing the private OldNewValue representation in production.
         var valueType = typeof(ValueStore).GetNestedType("OldNewValue", BindingFlags.NonPublic)!;
         var poolType = typeof(AvaloniaPropertyDictionaryPool<>).MakeGenericType(valueType);
         return (ICollection)poolType.GetField("_pool", BindingFlags.NonPublic | BindingFlags.Static)!.GetValue(null)!;

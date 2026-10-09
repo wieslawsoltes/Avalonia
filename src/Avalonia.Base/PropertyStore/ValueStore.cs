@@ -14,7 +14,7 @@ using Avalonia.Utilities;
 
 namespace Avalonia.PropertyStore
 {
-    internal class ValueStore : IBindingExpressionSink
+    internal partial class ValueStore : IBindingExpressionSink
     {
         private readonly List<ValueFrame> _frames = new();
         private Dictionary<int, IDisposable>? _localValueBindings;
@@ -446,6 +446,23 @@ namespace Avalonia.PropertyStore
             if (oldAncestor == newAncestor)
                 return;
 
+            // The common one-property case needs only two effective-value references.
+            // Snapshot both before publishing the new ancestor, just like the general path.
+            if (TryGetSingleInheritedValue(oldAncestor, out var oldValue) &&
+                TryGetSingleInheritedValue(newAncestor, out var newValue) &&
+                (oldValue is null || newValue is null || oldValue.Property == newValue.Property))
+            {
+                OnInheritanceAncestorChanged(newAncestor);
+                if (oldValue != newValue)
+                    InheritedValueChanged((oldValue ?? newValue)!.Property, oldValue, newValue);
+                return;
+            }
+
+            SetInheritanceParentGeneral(oldAncestor, newAncestor);
+        }
+
+        private void SetInheritanceParentGeneral(ValueStore? oldAncestor, ValueStore? newAncestor)
+        {
             var values = AvaloniaPropertyDictionaryPool<OldNewValue>.Get();
             try
             {
@@ -608,13 +625,13 @@ namespace Avalonia.PropertyStore
 
             var children = Owner.GetInheritanceChildren();
 
-            if (children is null)
+            if (children is null || children.Count == 0)
                 return;
 
             var count = children.Count;
             
             var apArgs = new AvaloniaPropertyChangedEventArgs<T>(Owner, property, oldValue, value.Value, BindingPriority.Inherited, true);
-            var incpArgs = new PropertyChangedEventArgs(property.Name);
+            var incpArgs = property.InpcChangedEventArgs;
 
             for (var i = 0; i < count; ++i)
             {
@@ -635,12 +652,12 @@ namespace Avalonia.PropertyStore
 
             var children = Owner.GetInheritanceChildren();
 
-            if (children is not null)
+            if (children is not null && children.Count != 0)
             {
                 var count = children.Count;
 
                 var apArgs = new AvaloniaPropertyChangedEventArgs<T>(Owner, property, oldValue, newValue, BindingPriority.Inherited, true);
-                var incpArgs = new PropertyChangedEventArgs(property.Name);
+                var incpArgs = property.InpcChangedEventArgs;
 
                 for (var i = 0; i < count; ++i)
                 {
@@ -1209,11 +1226,11 @@ namespace Avalonia.PropertyStore
             if (current is null)
                 return true;
 
-            // The value's priority is higher than the current effective value's priority; or
+            // The value's priority is higher than the current value's priority; or
             if (entryPriority < current.Priority && entryPriority < current.BasePriority)
                 return true;
 
-            // - The value's priority is equal to the current effective value's priority
+            // - The value's priority is equal to the current value's priority
             // - But the effective value was set via SetCurrentValue
             // - As long as the SetCurrentValue wasn't overriding the value from the value entry under consideration
             // - Or if it was, the value entry under consideration has changed; or
@@ -1222,7 +1239,7 @@ namespace Avalonia.PropertyStore
                 (current.ValueEntry != entry || entry == changedValueEntry))
                 return true;
 
-            // The value is a non-animation value and its priority is higher than the current effective value's base
+            // The value is a non-animation value and its priority is higher than the current value's base
             // priority.
             if (entryPriority > BindingPriority.Animation && entryPriority < current.BasePriority)
                 return true;
