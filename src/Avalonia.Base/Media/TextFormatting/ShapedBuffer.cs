@@ -18,7 +18,7 @@ namespace Avalonia.Media.TextFormatting
         /// that <see cref="Split"/> and <see cref="WithBidiLevel"/> can safely alias
         /// the same backing arrays.
         /// </summary>
-        internal sealed class PooledArray<T> : IDisposable
+        internal class PooledArray<T> : IDisposable
         {
             private T[]? _array;
             private int _generation;
@@ -39,7 +39,7 @@ namespace Avalonia.Media.TextFormatting
 
             public void BumpGeneration() => Interlocked.Increment(ref _generation);
 
-            public void Dispose()
+            public virtual void Dispose()
             {
                 var arr = Interlocked.Exchange(ref _array, null);
                 if (arr is not null)
@@ -49,20 +49,15 @@ namespace Avalonia.Media.TextFormatting
             }
         }
 
-        // Ref-counted handle to the pooled GlyphInfo[] that backs _glyphInfos.
-        // Null when the buffer was constructed over caller-owned storage
-        // (e.g. an externally allocated array for the empty-line synthetic run).
-        // Split children and WithBidiLevel aliases clone this ref so the array
-        // survives until every observer has been disposed.
+        // One ref-counted PooledGlyphArray owns both parallel arrays. They always
+        // have the same lifetime, so a separate owner/counter/reference for the
+        // ushort[] would duplicate work. Split children and WithBidiLevel aliases
+        // clone this ref; neither array is returned until every alias is disposed.
+        // Null when constructed over caller-owned storage (e.g. synthetic runs).
         private IRef<PooledArray<GlyphInfo>>? _glyphRef;
 
-        // Ref-counted handle to the pooled ushort[] that backs _glyphIndices. The
-        // parallel glyph-id array exists so consumers (GlyphRunImpl, the new
-        // TryGetGlyphBounds batch path, SKFont.GetGlyphWidths) can take a
-        // ReadOnlySpan<ushort> over the run's glyph IDs without walking the
-        // GlyphInfo struct array. Lifetime mirrors _glyphRef: cloned on Split /
-        // WithBidiLevel, disposed in Dispose, null on caller-owned storage.
-        private IRef<PooledArray<ushort>>? _glyphIndicesRef;
+        // Keep direct slices for hot reads; the shared owner is needed only for
+        // lifetime and mutation generations, not for each glyph/ID access.
         private ArraySlice<GlyphInfo> _glyphInfos;
         private ArraySlice<ushort> _glyphIndices;
 
@@ -95,16 +90,6 @@ namespace Avalonia.Media.TextFormatting
         // differ by ULPs from a visual-order sum for RTL buffers. Consumers
         // comparing layout dimensions should use tolerant equality.
         //
-        // Pooling: the cache arrays are rented from ArrayPool<T>.Shared in
-        // EnsureClusterCache. Ownership follows the same pattern as
-        // _rentedBuffer for the glyph-info array: only the buffer that rented
-        // the array tracks it in _rentedClusterPrefix / _rentedClusterStartChars
-        // and returns it on Dispose. Split children copy the data-array
-        // references via _clusterPrefix / _clusterStartChars but leave the
-        // _rented* handles null, so they don't return arrays they don't own.
-        // The pool may hand back larger arrays than requested — we always read
-        // through bounded indices (_clusterStartIdx + [0.._clusterCount]) so the
-        // unused tail is harmless.
         // Pooling: the cluster-cache arrays are reached through ref-counted
         // <see cref="IRef{PooledArray}"/> handles. The hot-path read fields
         // <c>_clusterPrefix</c> and <c>_clusterStartChars</c> alias the rented
@@ -138,10 +123,10 @@ namespace Avalonia.Media.TextFormatting
         public ShapedBuffer(ReadOnlyMemory<char> text, int bufferLength, GlyphTypeface glyphTypeface, double fontRenderingEmSize, sbyte bidiLevel)
         {
             Text = text;
-            _glyphRef = RefCountable.Create(new PooledArray<GlyphInfo>(bufferLength));
-            _glyphInfos = new ArraySlice<GlyphInfo>(_glyphRef.Item.Array, 0, bufferLength);
-            _glyphIndicesRef = RefCountable.Create(new PooledArray<ushort>(bufferLength));
-            _glyphIndices = new ArraySlice<ushort>(_glyphIndicesRef.Item.Array, 0, bufferLength);
+            var storage = new PooledGlyphArray(bufferLength);
+            _glyphRef = RefCountable.Create<PooledArray<GlyphInfo>>(storage);
+            _glyphInfos = new ArraySlice<GlyphInfo>(storage.Array, 0, bufferLength);
+            _glyphIndices = new ArraySlice<ushort>(storage.Indices, 0, bufferLength);
             GlyphTypeface = glyphTypeface;
             FontRenderingEmSize = fontRenderingEmSize;
             BidiLevel = bidiLevel;
@@ -168,7 +153,6 @@ namespace Avalonia.Media.TextFormatting
             ArraySlice<GlyphInfo> glyphInfos, ArraySlice<ushort> glyphIndices,
             GlyphTypeface glyphTypeface, double fontRenderingEmSize, sbyte bidiLevel,
             IRef<PooledArray<GlyphInfo>>? sourceGlyphRef,
-            IRef<PooledArray<ushort>>? sourceGlyphIndicesRef,
             IRef<PooledArray<double>>? sourcePrefixRef,
             IRef<PooledArray<int>>? sourceStartsRef,
             int clusterStartIdx, int clusterCount, int sourceCacheGeneration)
@@ -180,7 +164,6 @@ namespace Avalonia.Media.TextFormatting
             FontRenderingEmSize = fontRenderingEmSize;
             BidiLevel = bidiLevel;
             _glyphRef = sourceGlyphRef?.Clone();
-            _glyphIndicesRef = sourceGlyphIndicesRef?.Clone();
 
             if (sourcePrefixRef is not null)
             {
@@ -255,9 +238,6 @@ namespace Avalonia.Media.TextFormatting
             _glyphRef?.Dispose();
             _glyphRef = null;
             _glyphInfos = ArraySlice<GlyphInfo>.Empty; // ensure we don't misuse a returned array
-
-            _glyphIndicesRef?.Dispose();
-            _glyphIndicesRef = null;
             _glyphIndices = ArraySlice<ushort>.Empty;
 
             ReleaseClusterCacheRefs();
@@ -420,7 +400,7 @@ namespace Avalonia.Media.TextFormatting
             // Logical index 0 trivially matches: glyphInfos[start].GlyphCluster - baseCluster == 0.
 
             {
-                var prevId = glyphInfos[start].GlyphCluster;
+                var prevId = baseCluster;
                 var logicalIndex = 1;
                 for (var j = start + step; j != end; j += step, logicalIndex++)
                 {
@@ -590,7 +570,7 @@ namespace Avalonia.Media.TextFormatting
 
             return new ShapedBuffer(
                 Text, _glyphInfos, _glyphIndices, GlyphTypeface, FontRenderingEmSize, paragraphEmbeddingLevel,
-                _glyphRef, _glyphIndicesRef, prefixRef, startsRef, startIdx, count, _cacheGeneration);
+                _glyphRef, prefixRef, startsRef, startIdx, count, _cacheGeneration);
         }
 
         /// <summary>
@@ -717,7 +697,7 @@ namespace Avalonia.Media.TextFormatting
             var leading = new ShapedBuffer(
                 firstText, firstGlyphs, firstGlyphIndices,
                 GlyphTypeface, FontRenderingEmSize, BidiLevel,
-                _glyphRef, _glyphIndicesRef, _prefixRef, _startsRef,
+                _glyphRef, _prefixRef, _startsRef,
                 _clusterStartIdx, leadingClusterCount, _cacheGeneration);
 
             if (secondText.Length == 0)
@@ -728,7 +708,7 @@ namespace Avalonia.Media.TextFormatting
             var trailing = new ShapedBuffer(
                 secondText, secondGlyphs, secondGlyphIndices,
                 GlyphTypeface, FontRenderingEmSize, BidiLevel,
-                _glyphRef, _glyphIndicesRef, _prefixRef, _startsRef,
+                _glyphRef, _prefixRef, _startsRef,
                 _clusterStartIdx + leadingClusterCount, _clusterCount - leadingClusterCount, _cacheGeneration);
 
             return new SplitResult<ShapedBuffer>(leading, trailing);
@@ -801,7 +781,7 @@ namespace Avalonia.Media.TextFormatting
             var first = new ShapedBuffer(
                 firstText, firstGlyphs, firstGlyphIndices,
                 GlyphTypeface, FontRenderingEmSize, BidiLevel,
-                _glyphRef, _glyphIndicesRef, _prefixRef, _startsRef,
+                _glyphRef, _prefixRef, _startsRef,
                 _clusterStartIdx, firstClusterCount, _cacheGeneration);
 
             if (secondText.Length == 0 || secondGlyphs.Length == 0)
@@ -812,7 +792,7 @@ namespace Avalonia.Media.TextFormatting
             var second = new ShapedBuffer(
                 secondText, secondGlyphs, secondGlyphIndices,
                 GlyphTypeface, FontRenderingEmSize, BidiLevel,
-                _glyphRef, _glyphIndicesRef, _prefixRef, _startsRef,
+                _glyphRef, _prefixRef, _startsRef,
                 _clusterStartIdx + firstClusterCount, _clusterCount - firstClusterCount, _cacheGeneration);
 
             return new SplitResult<ShapedBuffer>(first, second);
@@ -866,9 +846,8 @@ namespace Avalonia.Media.TextFormatting
         /// <summary>
         /// Binary-search the largest cluster boundary index <c>i ∈ [0, count]</c>
         /// such that <c>starts[startIdx + i] - baseChar ≤ charPos</c>. Cluster
-        /// starts are non-decreasing within the sub-buffer range, so a standard
-        /// upper-bound search works in both LTR and RTL buffers (the cache is
-        /// always built in logical order).
+        /// starts are non-decreasing within the sub-range, so a standard
+        /// upper-bound search works in both LTR and RTL cases.
         /// </summary>
         private static int FindLargestClusterAtOrBefore(int[] starts, int startIdx, int count, int baseChar, int charPos)
         {

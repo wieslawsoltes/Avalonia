@@ -8,7 +8,7 @@ namespace Avalonia.Media.TextFormatting;
 public sealed partial class ShapedBuffer
 {
     // Metadata lives on an optional stateful glyph reference, not every ShapedBuffer.
-    // Ordinary cold, sliced and feature-bearing runs retain their original object size.
+    // Ordinary cold, sliced and feature-bearing runs carry no metrics state.
     private readonly record struct MetricsState(DefaultTextLineMetricsCache Cache, int Generation);
 
     internal DefaultTextLineMetricsCache? SharedMetrics
@@ -44,10 +44,11 @@ public sealed partial class ShapedBuffer
         GlyphTypeface = glyphTypeface;
         FontRenderingEmSize = fontRenderingEmSize;
         BidiLevel = bidiLevel;
-        _glyphRef = RefCountable.Create(new PooledArray<GlyphInfo>(snapshot.Length), new MetricsState(metrics, 0));
-        _glyphInfos = new ArraySlice<GlyphInfo>(_glyphRef.Item.Array, 0, snapshot.Length);
-        _glyphIndicesRef = RefCountable.Create(new PooledArray<ushort>(snapshot.Length));
-        _glyphIndices = new ArraySlice<ushort>(_glyphIndicesRef.Item.Array, 0, snapshot.Length);
+        var storage = new PooledGlyphArray(snapshot.Length);
+        // Use the base item type explicitly: metadata replacement operates on Ref<PooledArray<GlyphInfo>>.
+        _glyphRef = RefCountable.Create<PooledArray<GlyphInfo>, MetricsState>(storage, new MetricsState(metrics, 0));
+        _glyphInfos = new ArraySlice<GlyphInfo>(storage.Array, 0, snapshot.Length);
+        _glyphIndices = new ArraySlice<ushort>(storage.Indices, 0, snapshot.Length);
         for (var i = 0; i < snapshot.Length; ++i) InitializeGlyph(i, snapshot[i]);
     }
 
