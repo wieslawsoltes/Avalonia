@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Threading;
 using Avalonia.Media.TextFormatting;
 
 namespace Avalonia.Harfbuzz;
 
 /// <summary>
-/// Bounded LRU of immutable glyph data for short, context-free strings. Returned buffers are
-/// independent: line breaking, bidi processing and disposal must never modify a cached entry.
+/// Bounded immutable glyph snapshots. A run's mutable returned buffer is never a cached value.
 /// </summary>
 internal sealed class ShapedRunCache
 {
@@ -19,27 +19,26 @@ internal sealed class ShapedRunCache
     internal const int MaxGlyphCount = 256;
     internal const int AdmissionSlots = 1024;
     internal const int AdmissionRetainedBytes = AdmissionSlots * sizeof(ulong);
-
+    internal const int ProbeInterval = 64;
     private readonly object _gate = new();
     private readonly Dictionary<Key, LinkedListNode<Entry>> _entries = new();
     private readonly LinkedList<Entry> _lru = new();
     private readonly ulong[] _recent = new ulong[AdmissionSlots];
     private int _retainedBytes;
+    private int _missesWithoutBenefit;
+    private int _probeCountdown;
 
     internal int Count { get { lock (_gate) return _entries.Count; } }
     internal int RetainedBytes { get { lock (_gate) return _retainedBytes + AdmissionRetainedBytes; } }
+    internal bool ShouldProbe() => Volatile.Read(ref _probeCountdown) <= 0 || Interlocked.Decrement(ref _probeCountdown) <= 0;
 
-    internal readonly record struct Key(
-        string Text, long Typeface, double Size, sbyte BidiLevel, string Culture,
-        int CultureLcid, double TabWidth, double LetterSpacing);
-
-    private sealed record Entry(Key Key, GlyphInfo[] Glyphs, int RetainedBytes);
+    internal readonly record struct Key(string Text, long Typeface, double Size, sbyte BidiLevel,
+        string Culture, int CultureLcid, double TabWidth, double LetterSpacing);
+    private sealed record Entry(Key Key, GlyphInfo[] Glyphs, DefaultTextLineMetricsCache Metrics, int RetainedBytes);
 
     internal static bool TryCreateKey(ReadOnlyMemory<char> text, TextShaperOptions options,
         CultureInfo culture, long typeface, out Key key)
     {
-        // Substrings need their original surrounding context. Mutable memory and feature lists
-        // stay on HarfBuzz's existing path; a content-only key would not be sufficient for them.
         if (text.Length is > 0 and <= MaxTextLength &&
             (options.FontFeatures is null || options.FontFeatures.Count == 0) &&
             MemoryMarshal.TryGetString(text, out var value, out var start, out var length) &&
@@ -47,11 +46,10 @@ internal sealed class ShapedRunCache
             !double.IsNaN(options.FontRenderingEmSize) && !double.IsNaN(options.LetterSpacing) &&
             !double.IsNaN(options.IncrementalTabWidth))
         {
-            key = new Key(value, typeface, options.FontRenderingEmSize, options.BidiLevel,
+            key = new(value, typeface, options.FontRenderingEmSize, options.BidiLevel,
                 culture.Name, culture.LCID, options.IncrementalTabWidth, options.LetterSpacing);
             return true;
         }
-
         key = default;
         return false;
     }
@@ -59,71 +57,67 @@ internal sealed class ShapedRunCache
     internal bool TryGet(Key key, ReadOnlyMemory<char> text, TextShaperOptions options,
         [NotNullWhen(true)] out ShapedBuffer? result)
     {
-        GlyphInfo[] glyphs;
+        Entry entry;
         lock (_gate)
         {
             if (!_entries.TryGetValue(key, out var node))
             {
+                if (_missesWithoutBenefit < ProbeInterval) ++_missesWithoutBenefit;
+                if (_missesWithoutBenefit >= ProbeInterval) Volatile.Write(ref _probeCountdown, ProbeInterval);
                 result = null;
                 return false;
             }
-
+            _missesWithoutBenefit = 0;
+            Volatile.Write(ref _probeCountdown, 0);
             _lru.Remove(node);
             _lru.AddFirst(node);
-            glyphs = node.Value.Glyphs;
+            entry = node.Value;
         }
-
-        // The immutable array remains valid even if another thread evicts its entry.
-        result = new ShapedBuffer(text, glyphs.Length, options.GlyphTypeface,
+#if AVALONIA_PERF_COUNTERS
+        Avalonia.Diagnostics.PerformanceCounters.Increment(Avalonia.Diagnostics.PerformanceCounter.ShapeHits);
+#endif
+        result = new ShapedBuffer(text, entry.Glyphs.Length, options.GlyphTypeface,
             options.FontRenderingEmSize, options.BidiLevel);
-        for (var i = 0; i < glyphs.Length; ++i)
-            result[i] = glyphs[i];
+        for (var i = 0; i < entry.Glyphs.Length; ++i) result[i] = entry.Glyphs[i];
+        result.AttachMetricsCache(entry.Metrics);
         return true;
     }
 
     internal void Add(Key key, ShapedBuffer buffer)
     {
-        if (buffer.Length > MaxGlyphCount)
-            return;
-
+        if (buffer.Length > MaxGlyphCount) return;
         lock (_gate)
         {
-            // A fingerprint is only an admission hint, never a glyph lookup key. A collision
-            // can admit a cold entry, but the dictionary still checks the complete key.
             var fingerprint = (ulong)(uint)key.GetHashCode() + 1;
             ref var recent = ref _recent[(int)(fingerprint & (AdmissionSlots - 1))];
-            if (recent != fingerprint)
+            if (recent != fingerprint) { recent = fingerprint; return; }
+            if (_entries.TryGetValue(key, out var existing))
             {
-                recent = fingerprint;
+                buffer.AttachMetricsCache(existing.Value.Metrics);
                 return;
             }
-
-            // Another caller may have shaped this key while the cache lock was released.
-            if (_entries.ContainsKey(key))
-                return;
-
-            // Cold, one-off strings never reach this allocation. Admission retains no strings,
-            // cultures, fonts or shaped buffers, and is included in the retained-byte allowance.
-            var bytes = 256 + (key.Text.Length + key.Culture.Length) * sizeof(char) + buffer.Length * 40;
-            if (bytes > MaxRetainedBytes - AdmissionRetainedBytes)
-                return;
-
+            // Charge for the optional line-metrics holder as well as immutable glyph snapshots.
+            var bytes = 512 + (key.Text.Length + key.Culture.Length) * sizeof(char) + buffer.Length * 40;
+            if (bytes > MaxRetainedBytes - AdmissionRetainedBytes) return;
             var glyphs = new GlyphInfo[buffer.Length];
-            for (var i = 0; i < glyphs.Length; ++i)
-                glyphs[i] = buffer[i];
-
-            while (_entries.Count >= MaxEntries ||
-                   _retainedBytes + bytes > MaxRetainedBytes - AdmissionRetainedBytes)
+            for (var i = 0; i < glyphs.Length; ++i) glyphs[i] = buffer[i];
+            while (_entries.Count >= MaxEntries || _retainedBytes + bytes > MaxRetainedBytes - AdmissionRetainedBytes)
             {
                 var last = _lru.Last!;
                 _entries.Remove(last.Value.Key);
                 _retainedBytes -= last.Value.RetainedBytes;
                 _lru.RemoveLast();
             }
-
-            var node = _lru.AddFirst(new Entry(key, glyphs, bytes));
+            var metrics = new DefaultTextLineMetricsCache();
+            var node = _lru.AddFirst(new Entry(key, glyphs, metrics, bytes));
             _entries.Add(key, node);
             _retainedBytes += bytes;
+            _missesWithoutBenefit = 0;
+            Volatile.Write(ref _probeCountdown, 0);
+            buffer.AttachMetricsCache(metrics);
+#if AVALONIA_PERF_COUNTERS
+            Avalonia.Diagnostics.PerformanceCounters.Increment(Avalonia.Diagnostics.PerformanceCounter.ShapeAdmissions);
+#endif
         }
     }
 }

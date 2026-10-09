@@ -105,6 +105,9 @@ internal sealed class SharedGlyphRunData
 
     private SKTextBlob CreateTextBlob(TextOptions options)
     {
+#if AVALONIA_PERF_COUNTERS
+        Avalonia.Diagnostics.PerformanceCounters.Increment(Avalonia.Diagnostics.PerformanceCounter.NativeTextBlobsCreated);
+#endif
         using var font = CreateFont(options);
         var builder = SKTextBlobBuilderCache.Shared.Get();
         try
@@ -155,6 +158,9 @@ internal static class SharedGlyphRunCache
 
     internal static SharedGlyphRunData Acquire(SkiaTypeface face, double size, IReadOnlyList<GlyphInfo> glyphs)
     {
+        #if AVALONIA_PERF_COUNTERS
+        Avalonia.Diagnostics.PerformanceCounters.Increment(Avalonia.Diagnostics.PerformanceCounter.NativeGlyphRequests);
+#endif
         if (face.IsDisposed)
             throw new ObjectDisposedException(nameof(GlyphTypeface));
         var eligible = glyphs.Count is > 0 and <= MaxGlyphs &&
@@ -176,6 +182,9 @@ internal static class SharedGlyphRunCache
                     s_lru.Remove(found);
                     s_lru.AddFirst(found);
                     found.Value.Data.AddReference();
+#if AVALONIA_PERF_COUNTERS
+                    Avalonia.Diagnostics.PerformanceCounters.Increment(Avalonia.Diagnostics.PerformanceCounter.NativeGlyphHits);
+#endif
                     return found.Value.Data;
                 }
                 var fingerprint = (ulong)(uint)key.Hash + 1;

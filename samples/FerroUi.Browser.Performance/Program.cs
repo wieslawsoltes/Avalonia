@@ -124,6 +124,7 @@ public sealed class PerfApplication : Application
                     {
                         var text = new TextBlock { Width = 112, Height = 24, FontSize = 14 };
                         text.Bind(TextBlock.TextProperty, new ReflectionBinding(path));
+                        text.Bind(TextBlock.ForegroundProperty, new Avalonia.Markup.Xaml.MarkupExtensions.DynamicResourceExtension("FerroUiAccent"));
                         panel.Children.Add(text);
                     }
                     return panel;

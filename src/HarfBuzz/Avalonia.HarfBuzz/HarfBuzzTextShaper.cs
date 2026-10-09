@@ -42,7 +42,13 @@ namespace Avalonia.Harfbuzz
 
             var usedCulture = options.Culture ?? CultureInfo.CurrentCulture;
             var cacheKey = default(ShapedRunCache.Key);
-            var cacheable = ShapedRunCache.TryCreateKey(text, options, usedCulture, harfBuzzTypeface.CacheId, out cacheKey);
+            var probe = _shapedRunCache.ShouldProbe();
+            var cacheable = probe && ShapedRunCache.TryCreateKey(text, options, usedCulture, harfBuzzTypeface.CacheId, out cacheKey);
+#if AVALONIA_PERF_COUNTERS
+            Avalonia.Diagnostics.PerformanceCounters.Increment(Avalonia.Diagnostics.PerformanceCounter.ShapeRequests);
+            if (!probe)
+                Avalonia.Diagnostics.PerformanceCounters.Increment(Avalonia.Diagnostics.PerformanceCounter.ShapeProbeSkips);
+#endif
 
             if (cacheable && _shapedRunCache.TryGet(cacheKey, text, options, out var cached))
                 return cached;

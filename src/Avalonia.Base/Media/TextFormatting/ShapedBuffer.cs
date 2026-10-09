@@ -9,7 +9,7 @@ using Avalonia.Utilities;
 
 namespace Avalonia.Media.TextFormatting
 {
-    public sealed class ShapedBuffer : IReadOnlyList<GlyphInfo>, IDisposable
+    public sealed partial class ShapedBuffer : IReadOnlyList<GlyphInfo>, IDisposable
     {
         /// <summary>
         /// Disposable wrapper around an <see cref="ArrayPool{T}"/>-rented array.

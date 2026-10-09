@@ -19,7 +19,7 @@ namespace Avalonia.Media.TextFormatting
     /// and <see cref="Dispose"/> to release. The underlying shaped buffer is disposed only
     /// when the last reference is released.
     /// </remarks>
-    public sealed class ShapedTextRun : DrawableTextRun, IDisposable
+    public sealed partial class ShapedTextRun : DrawableTextRun, IDisposable
     {
         private GlyphRun? _glyphRun;
         private int _refCount = 1;

@@ -29,6 +29,8 @@ internal enum PerformanceCounter
     LayoutArrangePasses,
     LayoutRenderPasses,
     LayoutInputPasses,
+    TextLinesFinalized,
+    DefaultLineMetricHits,
     ValidationProbe,
     Count
 }
