@@ -1,0 +1,79 @@
+name: FerroUI browser validation
+on:
+  push:
+    branches: ['perf/ferroui-runtime-optimizations']
+    paths:
+      - 'src/**'
+      - 'samples/FerroUi.Browser.Performance/**'
+      - 'scripts/performance/**'
+      - '.github/workflows/ferroui-browser-performance.yml'
+      - 'Directory.Build.*'
+  workflow_dispatch:
+    inputs:
+      aot:
+        description: Measure the AOT deployment tradeoff as well as interpreter mode
+        type: boolean
+        default: false
+      symbols:
+        description: Retain native symbols in the exact measured build
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: ferroui-browser-${{ github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  browser:
+    if: github.repository == 'wieslawsoltes/Avalonia'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - name: Install WebAssembly toolchain
+        run: dotnet workload install wasm-tools
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install browser test dependencies
+        working-directory: scripts/performance/browser
+        run: |
+          npm install --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Publish exact baseline and head browser apps
+        env:
+          AOT: ${{ inputs.aot || 'false' }}
+          SYMBOLS: ${{ inputs.symbols || 'false' }}
+        run: |
+          args=()
+          if [ "$AOT" = true ]; then args+=(--aot); fi
+          if [ "$SYMBOLS" = true ]; then args+=(--symbols); fi
+          python3 scripts/performance/build-browser.py --output "$RUNNER_TEMP/browser-builds" "${args[@]}"
+      - name: Real input, pixel parity, startup and idle measurements
+        run: node scripts/performance/browser/compare.mjs "$RUNNER_TEMP/browser-builds/base" "$RUNNER_TEMP/browser-builds/head" "$RUNNER_TEMP/browser-results" 3
+      - name: Publish report
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/browser-results/comparison.md" ]; then
+            cat "$RUNNER_TEMP/browser-results/comparison.md" >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ferroui-browser-results
+          path: |
+            ${{ runner.temp }}/browser-results
+            ${{ runner.temp }}/browser-builds/provenance.json
+          retention-days: 14
+      - uses: actions/upload-artifact@v7
+        if: success()
+        with:
+          name: ferroui-browser-exact-builds
+          path: ${{ runner.temp }}/browser-builds
+          retention-days: 7

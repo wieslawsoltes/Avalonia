@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+  <PropertyGroup>
+    <TargetFramework>$(AvsCurrentBrowserTargetFramework)</TargetFramework>
+    <WasmEnableThreads>false</WasmEnableThreads>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>enable</Nullable>
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+    <DebuggerSupport>false</DebuggerSupport>
+    <WasmDebugLevel>0</WasmDebugLevel>
+    <RunAOTCompilation Condition="'$(FerroUiBrowserAot)' == 'true'">true</RunAOTCompilation>
+    <WasmNativeStrip Condition="'$(FerroUiBrowserSymbols)' == 'true'">false</WasmNativeStrip>
+    <WasmNativeDebugSymbols Condition="'$(FerroUiBrowserSymbols)' == 'true'">true</WasmNativeDebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <StaticWebAssetFingerprintPattern Include="JS" Pattern="*.js" Expression="#[.{fingerprint}]!" />
+    <ProjectReference Include="../../src/Skia/Avalonia.Skia/Avalonia.Skia.csproj" />
+    <ProjectReference Include="../../src/Browser/Avalonia.Browser/Avalonia.Browser.csproj" />
+    <ProjectReference Include="../../src/Avalonia.Themes.Simple/Avalonia.Themes.Simple.csproj" />
+  </ItemGroup>
+  <Import Project="../../src/Browser/Avalonia.Browser/build/Avalonia.Browser.props" />
+  <Import Project="../../src/Browser/Avalonia.Browser/build/Avalonia.Browser.targets" />
+</Project>
