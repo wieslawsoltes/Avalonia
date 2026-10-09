@@ -59,8 +59,14 @@ public class SharedGlyphRunTests
         {
             using var cold = new GlyphRunImpl(font, 20 + i, glyphs, default);
             using var warm = new GlyphRunImpl(font, 20 + i, glyphs, default);
+            // Exercise eviction with demonstrably useful entries rather than relying on
+            // admission-only work to reset the adaptive miss streak.
+            using var hit = new GlyphRunImpl(font, 20 + i, glyphs, default);
+            Assert.Same(warm.SharedDataIdentity, hit.SharedDataIdentity);
         }
-        Assert.InRange(SharedGlyphRunCache.Count, 1, SharedGlyphRunCache.Capacity);
+        Assert.Equal(SharedGlyphRunCache.Capacity, SharedGlyphRunCache.Count);
+        using var recreated = new GlyphRunImpl(font, 18, glyphs, default);
+        Assert.NotSame(live.SharedDataIdentity, recreated.SharedDataIdentity);
         Assert.Equal(expected, Raster(live, default));
     }
 

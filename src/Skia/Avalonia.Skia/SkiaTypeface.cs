@@ -14,6 +14,7 @@ namespace Avalonia.Skia
         private int _disposed;
         private int _glyphMisses;
         private int _glyphProbeCountdown;
+        private int _glyphAdmissionClock;
 
         public SkiaTypeface(SKTypeface typeface, FontSimulations fontSimulations)
         {
@@ -32,8 +33,20 @@ namespace Avalonia.Skia
         public FontStretch Stretch { get; }
         internal bool IsDisposed => Volatile.Read(ref _disposed) != 0;
 
-        internal bool ShouldProbeGlyphCache() => Volatile.Read(ref _glyphProbeCountdown) <= 0 ||
-            Interlocked.Decrement(ref _glyphProbeCountdown) <= 0;
+        internal bool ShouldProbeGlyphCache()
+        {
+            if (Volatile.Read(ref _glyphProbeCountdown) <= 0 ||
+                Interlocked.Decrement(ref _glyphProbeCountdown) <= 0)
+                return true;
+
+            // Unsuccessful work ages hints even when the expensive lookup is bypassed.
+            // Keep the clock per font: another font's scan cannot expire this font's hints.
+            NextGlyphCacheAdmissionStamp();
+            return false;
+        }
+
+        internal uint NextGlyphCacheAdmissionStamp() =>
+            unchecked((uint)Interlocked.Increment(ref _glyphAdmissionClock));
 
         // Called under the native cache's gate. Per-typeface state prevents a unique-text font
         // from delaying reuse of an unrelated font. A non-power-of-two interval avoids common scan strides.
@@ -42,6 +55,14 @@ namespace Avalonia.Skia
             if (_glyphMisses < GlyphProbeInterval) ++_glyphMisses;
             if (_glyphMisses >= GlyphProbeInterval) Volatile.Write(ref _glyphProbeCountdown, GlyphProbeInterval);
         }
+
+        internal void RecordGlyphCacheAdmission()
+        {
+            // Give a newly recurring run one immediate opportunity to hit. Creating a cache
+            // entry is not itself a benefit and must not reset an unproductive miss streak.
+            Volatile.Write(ref _glyphProbeCountdown, 0);
+        }
+
         internal void RecordGlyphCacheBenefit()
         {
             _glyphMisses = 0;

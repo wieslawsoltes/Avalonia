@@ -159,14 +159,21 @@ internal static class SharedGlyphRunCache
 {
     internal const int Capacity = 128;
     internal const int MaxGlyphs = 128;
+    internal const int AdmissionSlots = 1024;
+    internal const int AdmissionWindow = Capacity;
     private const int ByteAllowance = 2 * 1024 * 1024;
     private static readonly object s_gate = new();
     private static readonly Dictionary<Key, LinkedListNode<Entry>> s_entries = new();
     private static readonly LinkedList<Entry> s_lru = new();
-    private static readonly ulong[] s_recent = new ulong[1024];
+    // Fingerprint and per-font age, not a glyph identity key. Keep the existing 8 KiB table.
+    private static readonly ulong[] s_recent = new ulong[AdmissionSlots];
     private static int s_bytes;
 
     internal static int Count { get { lock (s_gate) return s_entries.Count; } }
+
+    internal static bool IsRecentAdmission(ulong previous, uint fingerprint, uint stamp) =>
+        previous != 0 && (uint)(previous >> 32) == fingerprint &&
+        unchecked(stamp - (uint)previous) <= AdmissionWindow;
 
     internal static SharedGlyphRunData Acquire(SkiaTypeface face, double size, IReadOnlyList<GlyphInfo> glyphs)
     {
@@ -199,10 +206,11 @@ internal static class SharedGlyphRunCache
                     return found.Value.Data;
                 }
                 face.RecordGlyphCacheMiss();
-                var fingerprint = (ulong)(uint)key.Hash + 1;
-                ref var slot = ref s_recent[(int)(fingerprint & 1023)];
-                admit = slot == fingerprint;
-                slot = fingerprint;
+                var fingerprint = (uint)key.Hash;
+                var stamp = face.NextGlyphCacheAdmissionStamp();
+                ref var slot = ref s_recent[(int)(fingerprint & (AdmissionSlots - 1))];
+                admit = IsRecentAdmission(slot, fingerprint, stamp);
+                slot = ((ulong)fingerprint << 32) | stamp;
             }
         }
 
@@ -211,11 +219,13 @@ internal static class SharedGlyphRunCache
         lock (s_gate)
         {
             if (face.IsDisposed) return data;
-            face.RecordGlyphCacheBenefit();
             if (s_entries.TryGetValue(key, out var existing))
             {
                 if (Matches(existing.Value.Glyphs, glyphs))
                 {
+                    // A concurrent caller already produced reusable geometry: this really
+                    // is a benefit, unlike merely admitting a still-unused snapshot below.
+                    face.RecordGlyphCacheBenefit();
                     existing.Value.Data.AddReference();
                     data.Release();
                     return existing.Value.Data;
@@ -230,6 +240,7 @@ internal static class SharedGlyphRunCache
             var node = s_lru.AddFirst(new Entry(key, snapshot, data, bytes));
             s_entries.Add(key, node);
             s_bytes += bytes;
+            face.RecordGlyphCacheAdmission();
         }
         return data;
     }
