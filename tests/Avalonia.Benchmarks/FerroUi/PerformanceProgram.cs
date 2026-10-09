@@ -47,7 +47,6 @@ internal static class PerformanceProgram
             var parentA = new Node { Number = 1 };
             var parentB = new Node { Number = 2 };
             var child = new Node { InheritanceOwner = parentA };
-            // Mix real changes with transparent/no-op parent updates to expose pool ownership.
             Measure("inheritance-reparent", 30000, () =>
             {
                 var parent = (++toggle & 1) == 0 ? parentA : parentB;
@@ -58,6 +57,13 @@ internal static class PerformanceProgram
             var templateTarget = new Node { TemplatedParent = node };
             using var binding = templateTarget.Bind(Node.NumberProperty, new TemplateBinding(Node.NumberProperty));
             Measure("template-identity", 60000, () => { node.Number = ++toggle & 1; return templateTarget.Number; });
+
+            var reflectionSource = new Control { Tag = new Row(23) };
+            var reflectionTarget = new TextBlock();
+            var description = new ReflectionBinding("Tag.Name") { Source = reflectionSource };
+            Measure("reflection-description-reused", 10000, () => BindDescription(description));
+            Measure("reflection-description-once", 10000, () =>
+                BindDescription(new ReflectionBinding("Tag.Name") { Source = reflectionSource }));
 
             var style = new Style(x => x.Is<Button>()) { Setters = { new Setter(Control.TagProperty, "hit") } };
             var nonMatch = new TextBlock();
@@ -71,6 +77,22 @@ internal static class PerformanceProgram
             Measure("shape-repeated-short", 12000, () => Shape(repeated[index++ % repeated.Length]));
             index = 0;
             Measure("shape-unique-short", 8192, () => Shape(unique[index++ % unique.Length]));
+
+            // Warm-up consumes 6,144 values, measurement 8,192: none of these 16,384 strings
+            // repeats. String creation is outside the measured shaping operation.
+            var onePass = Enumerable.Range(0, 16384).Select(i => $"One pass {i}: a previously unseen label").ToArray();
+            var onePassIndex = 0;
+            Measure("shape-one-pass-short", 8192, () => Shape(onePass[onePassIndex++]));
+            var mixed = Enumerable.Range(0, 16384).Select(i => $"Mixed cold label {i}").ToArray();
+            var mixedIndex = 0;
+            Measure("shape-hot-with-one-off-scan", 8192, () =>
+            {
+                var i = mixedIndex++;
+                return Shape((i & 3) == 0 ? mixed[i] : repeated[(i / 4) % repeated.Length]);
+            });
+            var longText = new string('x', 512);
+            Measure("shape-long-uncacheable", 2048, () => Shape(longText));
+
             var context = "before office after".AsMemory(7, 6);
             Measure("shape-context-slice", 12000, () =>
             {
@@ -119,10 +141,19 @@ internal static class PerformanceProgram
                 architecture = RuntimeInformation.ProcessArchitecture.ToString(),
                 processorCount = Environment.ProcessorCount,
                 backend = "Skia + HarfBuzz; headless layout; no GPU presentation",
+                runtimeMode = Environment.GetEnvironmentVariable("AVALONIA_PERF_RUNTIME_MODE") ?? "unspecified",
                 results
             };
             File.WriteAllText(args[0], JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true }));
             return 0;
+
+            long BindDescription(ReflectionBinding source)
+            {
+                using var expression = reflectionTarget.Bind(TextBlock.TextProperty, source);
+                if (reflectionTarget.Text != "Item 23")
+                    throw new InvalidOperationException("Reflection binding did not produce the expected value.");
+                return reflectionTarget.Text.Length;
+            }
 
             long Shape(string text)
             {
