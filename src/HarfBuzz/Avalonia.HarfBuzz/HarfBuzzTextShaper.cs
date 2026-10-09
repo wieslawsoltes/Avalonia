@@ -41,17 +41,26 @@ namespace Avalonia.Harfbuzz
                 throw new ObjectDisposedException(nameof(GlyphTypeface));
 
             var usedCulture = options.Culture ?? CultureInfo.CurrentCulture;
+            // Resolve backing memory once, retaining surrounding characters for native shaping.
+            // Only a complete immutable string can use the cache. Slices, mutable memory,
+            // long runs and explicit features do not advance the adaptive policy at all.
+            var containingMemory = GetContainingMemory(text, out var start, out var length, out var completeString);
+            var eligible = completeString is { Length: > 0 and <= ShapedRunCache.MaxTextLength } &&
+                ShapedRunCache.CanCacheOptions(options);
+            var probe = eligible && _shapedRunCache.ShouldProbe();
             var cacheKey = default(ShapedRunCache.Key);
-            var probe = _shapedRunCache.ShouldProbe();
-            var cacheable = probe && ShapedRunCache.TryCreateKey(text, options, usedCulture, harfBuzzTypeface.CacheId, out cacheKey);
 #if AVALONIA_PERF_COUNTERS
             Avalonia.Diagnostics.PerformanceCounters.Increment(Avalonia.Diagnostics.PerformanceCounter.ShapeRequests);
-            if (!probe)
+            if (eligible && !probe)
                 Avalonia.Diagnostics.PerformanceCounters.Increment(Avalonia.Diagnostics.PerformanceCounter.ShapeProbeSkips);
 #endif
 
-            if (cacheable && _shapedRunCache.TryGet(cacheKey, text, options, out var cached))
-                return cached;
+            if (probe)
+            {
+                cacheKey = ShapedRunCache.CreateKey(completeString!, options, usedCulture, harfBuzzTypeface.CacheId);
+                if (_shapedRunCache.TryGet(cacheKey, text, options, out var cached))
+                    return cached;
+            }
 
             var fontRenderingEmSize = options.FontRenderingEmSize;
             var bidiLevel = options.BidiLevel;
@@ -60,8 +69,8 @@ namespace Avalonia.Harfbuzz
 
             buffer.Reset();
 
-            // HarfBuzz needs the surrounding characters to correctly shape the text
-            var containingText = GetContainingMemory(text, out var start, out var length).Span;
+            // HarfBuzz needs the surrounding characters to correctly shape the text.
+            var containingText = containingMemory.Span;
             buffer.AddUtf16(containingText, start, length);
 
             MergeBreakPair(buffer);
@@ -123,13 +132,13 @@ namespace Avalonia.Harfbuzz
                         glyphTypeface.TryGetHorizontalGlyphAdvance(glyphIndex, out var advance);
 
                         glyphAdvance = 4 * advance * textScale;
-                    }                          
+                    }
                 }
 
                 shapedBuffer[i] = new Media.TextFormatting.GlyphInfo(glyphIndex, glyphCluster, glyphAdvance, glyphOffset);
             }
 
-            if (cacheable)
+            if (probe)
                 _shapedRunCache.Add(cacheKey, shapedBuffer);
 
             return shapedBuffer;
@@ -209,10 +218,14 @@ namespace Avalonia.Harfbuzz
             return glyphPositions[index].XAdvance * textScale;
         }
 
-        private static ReadOnlyMemory<char> GetContainingMemory(ReadOnlyMemory<char> memory, out int start, out int length)
+        private static ReadOnlyMemory<char> GetContainingMemory(ReadOnlyMemory<char> memory,
+            out int start, out int length, out string? completeString)
         {
+            completeString = null;
             if (MemoryMarshal.TryGetString(memory, out var containingString, out start, out length))
             {
+                if (start == 0 && length == containingString.Length)
+                    completeString = containingString;
                 return containingString.AsMemory();
             }
 

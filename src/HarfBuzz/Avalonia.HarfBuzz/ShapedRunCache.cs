@@ -61,8 +61,8 @@ internal sealed class ShapedRunCache
             return true;
         }
 
-        // Age cold hints on bypasses too. Counting only sampled misses would make an
-        // old hint survive many full scans. Cache hits need no clock increment.
+        // Age cold hints on eligible bypasses too. Ineligible memory/options never call
+        // this policy. Counting only sampled misses would preserve hints over full scans.
         Interlocked.Increment(ref _admissionClock);
         return false;
     }
@@ -71,18 +71,25 @@ internal sealed class ShapedRunCache
         string Culture, int CultureLcid, double TabWidth, double LetterSpacing);
     private sealed record Entry(Key Key, GlyphInfo[] Glyphs, DefaultTextLineMetricsCache Metrics, int RetainedBytes);
 
+    internal static bool CanCacheOptions(TextShaperOptions options) =>
+        (options.FontFeatures is null || options.FontFeatures.Count == 0) &&
+        !double.IsNaN(options.FontRenderingEmSize) && !double.IsNaN(options.LetterSpacing) &&
+        !double.IsNaN(options.IncrementalTabWidth);
+
+    // The caller has already proved that text is the complete backing string and options
+    // are eligible. Keep culture identity resolution after the adaptive policy's decision.
+    internal static Key CreateKey(string text, TextShaperOptions options, CultureInfo culture, long typeface) =>
+        new(text, typeface, options.FontRenderingEmSize, options.BidiLevel,
+            culture.Name, culture.LCID, options.IncrementalTabWidth, options.LetterSpacing);
+
     internal static bool TryCreateKey(ReadOnlyMemory<char> text, TextShaperOptions options,
         CultureInfo culture, long typeface, out Key key)
     {
-        if (text.Length is > 0 and <= MaxTextLength &&
-            (options.FontFeatures is null || options.FontFeatures.Count == 0) &&
+        if (text.Length is > 0 and <= MaxTextLength && CanCacheOptions(options) &&
             MemoryMarshal.TryGetString(text, out var value, out var start, out var length) &&
-            start == 0 && length == value.Length &&
-            !double.IsNaN(options.FontRenderingEmSize) && !double.IsNaN(options.LetterSpacing) &&
-            !double.IsNaN(options.IncrementalTabWidth))
+            start == 0 && length == value.Length)
         {
-            key = new(value, typeface, options.FontRenderingEmSize, options.BidiLevel,
-                culture.Name, culture.LCID, options.IncrementalTabWidth, options.LetterSpacing);
+            key = CreateKey(value, options, culture, typeface);
             return true;
         }
         key = default;
