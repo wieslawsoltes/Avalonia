@@ -36,9 +36,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Validate measurement arithmetic and module metadata parser
+      - name: Validate measurement arithmetic, calibration and profile evidence
         working-directory: scripts/performance/browser
-        run: node --test evidence.test.mjs
+        run: node --test *.test.mjs
       - name: Install browser test dependencies
         working-directory: scripts/performance/browser
         run: |
@@ -54,18 +54,21 @@ jobs:
           python3 scripts/performance/build-browser.py --output "$RUNNER_TEMP/browser-builds" "${args[@]}"
       - name: Real input, resource invalidation, pixels, profiling, startup and idle measurements
         run: node scripts/performance/browser/compare.mjs "$RUNNER_TEMP/browser-builds/base" "$RUNNER_TEMP/browser-builds/head" "$RUNNER_TEMP/browser-results" 3
+      - name: Same-build calibration and separate wheel, thumb and idle profiles
+        run: node scripts/performance/browser/diagnose.mjs "$RUNNER_TEMP/browser-builds" "$RUNNER_TEMP/browser-results" "$RUNNER_TEMP/browser-diagnostics"
       - name: Publish report
         if: always()
         run: |
-          if [ -f "$RUNNER_TEMP/browser-results/comparison.md" ]; then
-            cat "$RUNNER_TEMP/browser-results/comparison.md" >> "$GITHUB_STEP_SUMMARY"
-          fi
+          for report in "$RUNNER_TEMP/browser-results/comparison.md" "$RUNNER_TEMP/browser-diagnostics/diagnostics.md"; do
+            if [ -f "$report" ]; then cat "$report" >> "$GITHUB_STEP_SUMMARY"; fi
+          done
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: ferroui-browser-${{ matrix.mode }}-results
           path: |
             ${{ runner.temp }}/browser-results
+            ${{ runner.temp }}/browser-diagnostics
             ${{ runner.temp }}/browser-builds/provenance.json
             scripts/performance/browser/package-lock.json
           retention-days: 14
