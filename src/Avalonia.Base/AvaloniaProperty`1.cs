@@ -22,12 +22,8 @@ namespace Avalonia
         /// <param name="hostType">The class that the property being is registered on.</param>
         /// <param name="metadata">The property metadata.</param>
         /// <param name="notifying">A <see cref="AvaloniaProperty.Notifying"/> callback.</param>
-        private protected AvaloniaProperty(
-            string name,
-            Type ownerType,
-            Type hostType,
-            AvaloniaPropertyMetadata metadata,
-            Action<AvaloniaObject, bool>? notifying = null)
+        private protected AvaloniaProperty(string name, Type ownerType, Type hostType,
+            AvaloniaPropertyMetadata metadata, Action<AvaloniaObject, bool>? notifying = null)
             : base(name, typeof(TValue), ownerType, hostType, metadata, notifying)
         {
             _changed = new LightweightSubject<AvaloniaPropertyChangedEventArgs<TValue>>();
@@ -39,11 +35,8 @@ namespace Avalonia
         /// <param name="source">The property to copy.</param>
         /// <param name="ownerType">The new owner type.</param>
         /// <param name="metadata">Optional overridden metadata.</param>
-        private protected AvaloniaProperty(
-            AvaloniaProperty<TValue> source,
-            Type ownerType,
-            AvaloniaPropertyMetadata? metadata)
-            : base(source, ownerType, metadata)
+        private protected AvaloniaProperty(AvaloniaProperty<TValue> source, Type ownerType,
+            AvaloniaPropertyMetadata? metadata) : base(source, ownerType, metadata)
         {
             _changed = source._changed;
         }
@@ -52,10 +45,8 @@ namespace Avalonia
         /// Gets an observable that is fired when this property changes on any
         /// <see cref="AvaloniaObject"/> instance.
         /// </summary>
-        /// <value>
-        /// An observable that is fired when this property changes on any
-        /// <see cref="AvaloniaObject"/> instance.
-        /// </value>
+        /// <value>An observable that is fired when this property changes on any
+        /// <see cref="AvaloniaObject"/> instance.</value>
         public new IObservable<AvaloniaPropertyChangedEventArgs<TValue>> Changed => _changed;
 
         /// <summary>
@@ -64,13 +55,15 @@ namespace Avalonia
         /// <param name="e">The observable arguments.</param>
         internal void NotifyChanged(AvaloniaPropertyChangedEventArgs<TValue> e)
         {
+#if AVALONIA_PERF_COUNTERS
+            Diagnostics.PerformanceCounters.Increment(Diagnostics.PerformanceCounter.PropertyNotifications);
+#endif
             _changed.OnNext(e);
         }
 
         private protected override IObservable<AvaloniaPropertyChangedEventArgs> GetChanged() => Changed;
 
-        BindingExpressionBase? ITypedTemplateBindingFactory.CreateTypedTemplateBinding(
-            AvaloniaProperty target, BindingMode mode)
+        BindingExpressionBase? ITypedTemplateBindingFactory.CreateTypedTemplateBinding(AvaloniaProperty target, BindingMode mode)
         {
             // Sentinel-capable properties and direct properties retain the original expression.
             // Generic construction through the property avoids reflection/MakeGenericType in AOT.
@@ -84,18 +77,12 @@ namespace Avalonia
         [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingMessages.ImplicitTypeConversionSupressWarningMessage)]
         private protected BindingValue<object?> TryConvert(object? value)
         {
-            if (value == UnsetValue)
-                return BindingValue<object?>.Unset;
-            else if (value == BindingOperations.DoNothing)
-                return BindingValue<object?>.DoNothing;
-
+            if (value == UnsetValue) return BindingValue<object?>.Unset;
+            else if (value == BindingOperations.DoNothing) return BindingValue<object?>.DoNothing;
             if (!TypeUtilities.TryConvertImplicit(PropertyType, value, out var converted))
             {
-                var error = new ArgumentException(string.Format(
-                    "Invalid value for Property '{0}': '{1}' ({2})",
-                    Name,
-                    value,
-                    value?.GetType().FullName ?? "(null)"));
+                var error = new ArgumentException(string.Format("Invalid value for Property '{0}': '{1}' ({2})",
+                    Name, value, value?.GetType().FullName ?? "(null)"));
                 return BindingValue<object?>.BindingError(error);
             }
             return converted;

@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Avalonia.Styling.Activators;
 
 #nullable enable
@@ -10,6 +11,8 @@ namespace Avalonia.Styling
     /// </summary>
     public abstract class Selector
     {
+        private EvaluationPlan? _evaluationPlan;
+
         /// <summary>
         /// Gets a value indicating whether either this selector or a previous selector has moved
         /// into a template.
@@ -43,19 +46,13 @@ namespace Avalonia.Styling
         /// <returns>A <see cref="SelectorMatch"/>.</returns>
         internal SelectorMatch Match(StyledElement control, IStyle? parent = null, bool subscribe = true)
         {
-            // First match the selector until a combinator is found. Selectors are stored from 
-            // right-to-left, so MatchUntilCombinator reverses this order because the type selector
-            // will be on the left.
+#if AVALONIA_PERF_COUNTERS
+            Diagnostics.PerformanceCounters.Increment(Diagnostics.PerformanceCounter.SelectorMatches);
+#endif
             var match = MatchUntilCombinator(control, this, parent, subscribe, out var combinator);
-
-            // If the pre-combinator selector matches, we can now match the combinator, if any.
             if (match.IsMatch && combinator is object)
             {
                 match = match.And(combinator.Match(control, parent, subscribe));
-
-                // If we have a combinator then we can never say that we always match a control of
-                // this type, because by definition the combinator matches on things outside of the
-                // control.
                 match = match.Result switch
                 {
                     SelectorMatchResult.AlwaysThisType => SelectorMatch.AlwaysThisInstance,
@@ -63,21 +60,24 @@ namespace Avalonia.Styling
                     _ => match
                 };
             }
-
+#if AVALONIA_PERF_COUNTERS
+            if (match.IsMatch)
+                Diagnostics.PerformanceCounters.Increment(Diagnostics.PerformanceCounter.SelectorSuccessfulMatches);
+#endif
             return match;
         }
 
         public override string ToString() => ToString(null);
 
         /// <summary>
-        /// Gets a string representing the selector, with the nesting separator (`^`) replaced with
+        /// Returns a string representing the selector, with the nesting separator (`^`) replaced with
         /// the parent selector.
         /// </summary>
         /// <param name="owner">The owner style.</param>
         public abstract string ToString(Style? owner);
 
         /// <summary>
-        /// Gets a string representing the selector, with the nesting separator (`^`) replaced with
+        /// Returns a string representing the selector, with the nesting separator (`^`) replaced with
         /// the parent selector.
         /// </summary>
         /// <param name="owner">The owner style.</param>
@@ -111,105 +111,99 @@ namespace Avalonia.Styling
         internal virtual void ValidateNestingSelector(bool inControlTheme, int templateCount = 0)
         {
             var s = this;
-
             if (inControlTheme)
             {
                 if (!s.InTemplate && s.IsCombinator)
-                    throw new InvalidOperationException(
-                        "ControlTheme style may not directly contain a child or descendent selector.");
+                    throw new InvalidOperationException("ControlTheme style may not directly contain a child or descendent selector.");
                 if (s is TemplateSelector && templateCount++ > 0)
-                    throw new InvalidOperationException(
-                        "ControlTemplate styles cannot contain multiple template selectors.");
+                    throw new InvalidOperationException("ControlTemplate styles cannot contain multiple template selectors.");
             }
-
             var previous = s.MovePreviousOrParent();
-
             if (previous is null)
             {
                 if (s is not NestingSelector)
                     throw new InvalidOperationException("Child styles must have a nesting selector.");
             }
-            else
-            {
-                previous.ValidateNestingSelector(inControlTheme, templateCount);
-            }
+            else previous.ValidateNestingSelector(inControlTheme, templateCount);
         }
 
-        private static SelectorMatch MatchUntilCombinator(
-            StyledElement control,
-            Selector start,
-            IStyle? parent,
-            bool subscribe,
-            out Selector? combinator)
+        private static SelectorMatch MatchUntilCombinator(StyledElement control, Selector start,
+            IStyle? parent, bool subscribe, out Selector? combinator)
         {
             combinator = null;
-
             var activators = new AndActivatorBuilder();
-            var result = Match(control, start, parent, subscribe, ref activators, ref combinator);
-
+            var previous = start.MovePrevious();
+            SelectorMatchResult result;
+            if (previous is null || previous.IsCombinator)
+            {
+                // The common single-node selector does not allocate an evaluation plan.
+                result = EvaluateNode(control, start, parent, subscribe, ref activators);
+                if (result >= SelectorMatchResult.Sometimes) combinator = previous;
+            }
+            else
+            {
+                var plan = start._evaluationPlan ?? start.CreateEvaluationPlan();
+                result = SelectorMatchResult.NeverThisInstance;
+                foreach (var selector in plan.Selectors)
+                {
+                    result = EvaluateNode(control, selector, parent, subscribe, ref activators);
+                    if (result < SelectorMatchResult.Sometimes)
+                        break;
+                }
+                if (result >= SelectorMatchResult.Sometimes) combinator = plan.Combinator;
+            }
             return result == SelectorMatchResult.Sometimes ?
-                new SelectorMatch(activators.Get()) :
-                new SelectorMatch(result);
+                new SelectorMatch(activators.Get()) : new SelectorMatch(result);
         }
 
-        private static SelectorMatchResult Match(
-            StyledElement control,
-            Selector selector,
-            IStyle? parent,
-            bool subscribe,
-            ref AndActivatorBuilder activators,
-            ref Selector? combinator)
+        private EvaluationPlan CreateEvaluationPlan()
         {
-            var previous = selector.MovePrevious();
-
-            // Selectors are stored from right-to-left, so we recurse into the selector in order to
-            // reverse this order, because the type selector will be on the left and is our best
-            // opportunity to exit early.
-            if (previous != null && !previous.IsCombinator)
+            var count = 1;
+            var current = this;
+            while (current.MovePrevious() is { } previous && !previous.IsCombinator)
             {
-                var previousMatch = Match(control, previous, parent, subscribe, ref activators, ref combinator);
-
-                if (previousMatch < SelectorMatchResult.Sometimes)
-                {
-                    return previousMatch;
-                }
+                ++count;
+                current = previous;
             }
+            var combinator = current.MovePrevious();
+            var selectors = new Selector[count];
+            current = this;
+            for (var i = count - 1; i >= 0; --i)
+            {
+                selectors[i] = current;
+                if (i > 0) current = current.MovePrevious()!;
+            }
+            var plan = new EvaluationPlan(selectors, combinator);
+            return Interlocked.CompareExchange(ref _evaluationPlan, plan, null) ?? plan;
+        }
 
-            SelectorMatch match = SelectorMatch.NeverThisInstance;
-            bool containerMatchesSometimes = false;
-            // Match any parent Container query
+        private static SelectorMatchResult EvaluateNode(StyledElement control, Selector selector,
+            IStyle? parent, bool subscribe, ref AndActivatorBuilder activators)
+        {
+#if AVALONIA_PERF_COUNTERS
+            Diagnostics.PerformanceCounters.Increment(Diagnostics.PerformanceCounter.SelectorEvaluations);
+#endif
+            var containerMatchesSometimes = false;
+            SelectorMatch match;
             if (parent is ContainerQuery container)
             {
                 match = container.Query?.Evaluate(control, container.Parent, subscribe, container.Name) ?? SelectorMatch.NeverThisInstance;
-
-                if (!match.IsMatch)
-                    return match.Result;
-
+                if (!match.IsMatch) return match.Result;
                 containerMatchesSometimes = match.Result == SelectorMatchResult.Sometimes;
-
-                if (containerMatchesSometimes)
-                    activators.Add(match.Activator!);
+                if (containerMatchesSometimes) activators.Add(match.Activator!);
             }
-
-            // Match this selector.
             match = selector.Evaluate(control, parent, subscribe);
-
-            if (!match.IsMatch)
-            {
-                combinator = null;
-                return match.Result;
-            }
-            else if (match.Activator is object)
-            {
-                activators.Add(match.Activator!);
-            }
-
-            if (previous?.IsCombinator == true)
-            {
-                combinator = previous;
-            }
-
+            if (!match.IsMatch) return match.Result;
+            if (match.Activator is object) activators.Add(match.Activator);
             return containerMatchesSometimes ? SelectorMatchResult.Sometimes : match.Result;
+        }
+
+        // Only immutable predecessor links are cached. Evaluate still reads live class/name,
+        // property, StyleKey, parent, container-query and mutable Or-alternative state in order.
+        private sealed class EvaluationPlan(Selector[] selectors, Selector? combinator)
+        {
+            internal Selector[] Selectors { get; } = selectors;
+            internal Selector? Combinator { get; } = combinator;
         }
     }
 }

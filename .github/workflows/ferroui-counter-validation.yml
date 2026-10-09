@@ -1,0 +1,35 @@
+name: FerroUI instrumented validation
+on:
+  push:
+    branches: ['perf/ferroui-runtime-optimizations']
+    paths: ['src/**', 'tests/**', 'Directory.Build.*', '.github/workflows/ferroui-counter-validation.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ferroui-counters-${{ github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  counters:
+    if: github.repository == 'wieslawsoltes/Avalonia'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - name: Verify normal and instrumented builds
+        run: |
+          dotnet run --project tests/Avalonia.Base.UnitTests -c Release -p:AvaloniaPerfCounters=false -p:AvsSkipBuildingLegacyTargetFrameworks=True -- --report-trx --results-directory "$RUNNER_TEMP/counter-off"
+          dotnet run --project tests/Avalonia.Base.UnitTests -c Release -p:AvaloniaPerfCounters=true -p:AvsSkipBuildingLegacyTargetFrameworks=True -- --report-trx --results-directory "$RUNNER_TEMP/counter-on"
+          dotnet run --project tests/Avalonia.Skia.UnitTests -c Release -p:AvaloniaPerfCounters=true -p:AvsSkipBuildingLegacyTargetFrameworks=True -- --report-trx --results-directory "$RUNNER_TEMP/counter-skia"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ferroui-counter-validation
+          path: ${{ runner.temp }}/counter-*
+          retention-days: 14

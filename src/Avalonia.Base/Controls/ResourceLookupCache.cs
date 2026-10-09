@@ -15,36 +15,51 @@ internal sealed class ResourceLookupCache
     internal const int Capacity = 128;
     private static long s_epoch;
     [ThreadStatic] internal static int DeferredDepth;
-    private readonly Dictionary<Key, ResourceDictionary?> _locations = new();
+    private readonly Dictionary<Key, WeakReference<ResourceDictionary>?> _locations = new();
     private long _epoch = -1;
 
     internal static long Epoch => Volatile.Read(ref s_epoch);
-    internal static void Invalidate() => Interlocked.Increment(ref s_epoch);
+    internal static void Invalidate()
+    {
+        Interlocked.Increment(ref s_epoch);
+#if AVALONIA_PERF_COUNTERS
+        Diagnostics.PerformanceCounters.Increment(Diagnostics.PerformanceCounter.ResourceInvalidations);
+#endif
+    }
     internal static bool IsEligible(object key) => key is Type || key is string { Length: <= 256 };
     internal int Count => _locations.Count;
 
     internal bool TryGet(object key, ThemeVariant? theme, out ResourceDictionary? location)
     {
+#if AVALONIA_PERF_COUNTERS
+        Diagnostics.PerformanceCounters.Increment(Diagnostics.PerformanceCounter.ResourceCacheProbes);
+#endif
         if (_epoch != Epoch)
         {
             _locations.Clear();
             _epoch = Epoch;
         }
-        return _locations.TryGetValue(new Key(key, theme), out location);
+        var lookup = new Key(key, theme);
+        var found = _locations.TryGetValue(lookup, out var weak);
+        location = null;
+        if (found && weak is not null && !weak.TryGetTarget(out location))
+        {
+            _locations.Remove(lookup);
+            found = false;
+        }
+#if AVALONIA_PERF_COUNTERS
+        Diagnostics.PerformanceCounters.Increment(found ? Diagnostics.PerformanceCounter.ResourceCacheHits : Diagnostics.PerformanceCounter.ResourceCacheMisses);
+#endif
+        return found;
     }
 
     internal void Add(object key, ThemeVariant? theme, ResourceDictionary? location, long epoch)
     {
-        if (epoch != Epoch)
-            return;
-        if (_epoch != epoch)
-        {
-            _locations.Clear();
-            _epoch = epoch;
-        }
-        if (_locations.Count >= Capacity)
-            _locations.Clear();
-        _locations[new Key(key, theme)] = location;
+        if (epoch != Epoch) return;
+        if (_epoch != epoch) { _locations.Clear(); _epoch = epoch; }
+        if (_locations.Count >= Capacity) _locations.Clear();
+        // A lazily invalidated cache must not keep a removed dictionary/resource graph alive.
+        _locations[new Key(key, theme)] = location is null ? null : new WeakReference<ResourceDictionary>(location);
     }
 
     private readonly struct Key(object value, ThemeVariant? theme) : IEquatable<Key>
