@@ -20,7 +20,7 @@ internal sealed class SharedGlyphRunData
     private readonly ushort[] _indices;
     // This private, owned array never escapes or changes identity. It also serves as the
     // blob monitor, avoiding a separate lock-object allocation for every cold glyph run.
-    // SetPositions copies its contents into native storage; it does not publish this array.
+    // CopyTo copies its contents into native storage; it does not publish this array.
     private readonly SKPoint[] _positions;
     private SKTextBlob? _firstBlob;
     private int _firstBlobIndex;
@@ -126,9 +126,11 @@ internal sealed class SharedGlyphRunData
         var builder = SKTextBlobBuilderCache.Shared.Get();
         try
         {
-            var run = builder.AllocatePositionedRun(font, _indices.Length);
-            run.SetPositions(_positions);
-            run.SetGlyphs(_indices);
+            // The raw value-type view addresses the same native storage as AllocatePositionedRun,
+            // without allocating an SKPositionedRunBuffer wrapper. Neither span escapes Build.
+            var run = builder.AllocateRawPositionedRun(font, _indices.Length);
+            _positions.AsSpan().CopyTo(run.Positions);
+            _indices.AsSpan().CopyTo(run.Glyphs);
             return builder.Build()!;
         }
         finally { SKTextBlobBuilderCache.Shared.Return(builder); }
