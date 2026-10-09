@@ -12,7 +12,7 @@ internal interface ITypedTemplateBindingFactory
 }
 
 /// <summary>
-/// Same-type, converter-free styled template binding. The value store consumes IValueEntry<T>
+/// Same-type, converter-free styled template binding. The value store consumes the typed entry
 /// directly, so neither source reads nor normal target publication box value types.
 /// </summary>
 internal sealed class TypedTemplateBindingExpression<T> : BindingExpressionBase, IValueEntry<T>, IDescription
@@ -100,7 +100,7 @@ internal sealed class TypedTemplateBindingExpression<T> : BindingExpressionBase,
             return _value.Value;
         if (!_defaultInitialized)
         {
-            if (_target?.TryGetTarget(out var target) != true)
+            if (_target is null || !_target.TryGetTarget(out var target))
                 return default!;
             _defaultValue = _targetProperty.GetDefaultValue(target);
             _defaultInitialized = true;
