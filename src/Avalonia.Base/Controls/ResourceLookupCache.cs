@@ -7,8 +7,8 @@ using Avalonia.Styling;
 namespace Avalonia.Controls;
 
 /// <summary>
-/// Caches resolution locations, never deferred resource values. Epoch invalidation happens at
-/// dictionary mutation, before host callbacks (including reentrant lookups) can run.
+/// Caches resolution locations, never deferred resource values. Location-invalidating changes
+/// advance the epoch before host callbacks (including reentrant lookups) can run.
 /// </summary>
 internal sealed class ResourceLookupCache
 {
@@ -50,6 +50,7 @@ internal sealed class ResourceLookupCache
     internal void Add(object key, ThemeVariant? theme, ResourceDictionary? location, long epoch)
     {
         if (epoch != Epoch) return;
+        location?.MarkResourceLookupDependency();
         var lookup = new Key(key, theme);
         var existing = _locations.TryGetValue(lookup, out var previous);
         if (!existing && _locations.Count >= Capacity) _locations.Clear();

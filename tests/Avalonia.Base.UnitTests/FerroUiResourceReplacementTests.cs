@@ -142,6 +142,11 @@ public class FerroUiResourceReplacementTests
         dictionary[key] = 2;
         Assert.Equal(1, key.Calls);
         Assert.Equal(2, dictionary[key]);
+        var root = new ResourceDictionary { MergedDictionaries = { dictionary } };
+        Assert.False(root.TryGetResource("missing", null, out _));
+        key.Calls = 0;
+        dictionary[key] = 3;
+        Assert.Equal(1, key.Calls);
     }
 
     [Fact]
@@ -150,10 +155,47 @@ public class FerroUiResourceReplacementTests
         var key = new CallbackKey();
         var dictionary = new ResourceDictionary { [key] = 1 };
         var other = new ResourceDictionary();
+        var root = new ResourceDictionary { MergedDictionaries = { dictionary, other } };
+        Assert.False(root.TryGetResource("new location", null, out _));
         var callbackEpoch = ResourceLookupCache.Epoch;
         key.Callback = () =>
         {
             other["new location"] = 1;
+            callbackEpoch = ResourceLookupCache.Epoch;
+        };
+        dictionary[key] = 2;
+        Assert.Equal(unchecked(callbackEpoch + 1), ResourceLookupCache.Epoch);
+        Assert.Equal(2, dictionary[key]);
+        Assert.Equal(1, Find(root, "new location"));
+    }
+
+    [Fact]
+    public void Unrelated_Local_Mutations_Do_Not_Flush_Existing_Caches()
+    {
+        var leaf = new ResourceDictionary { ["key"] = 1 };
+        var root = new ResourceDictionary { MergedDictionaries = { leaf } };
+        Assert.Equal(1, Find(root, "key"));
+        var unrelated = new ResourceDictionary();
+        var epoch = ResourceLookupCache.Epoch;
+        unrelated["local"] = 1;
+        unrelated["local"] = 2;
+        unrelated.Add("another", 3);
+        unrelated.Remove("another");
+        unrelated.Clear();
+        Assert.Equal(epoch, ResourceLookupCache.Epoch);
+        Assert.Equal(1, Find(root, "key"));
+    }
+
+    [Fact]
+    public void First_Dependency_Created_During_A_Key_Callback_Is_Rechecked_After_Write()
+    {
+        var key = new CallbackKey();
+        var dictionary = new ResourceDictionary { [key] = 1 };
+        var root = new ResourceDictionary { MergedDictionaries = { dictionary } };
+        var callbackEpoch = ResourceLookupCache.Epoch;
+        key.Callback = () =>
+        {
+            Assert.False(root.TryGetResource("missing", null, out _));
             callbackEpoch = ResourceLookupCache.Epoch;
         };
         dictionary[key] = 2;

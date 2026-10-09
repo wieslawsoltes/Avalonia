@@ -19,6 +19,7 @@ namespace Avalonia.Controls
         private AvaloniaList<IResourceProvider>? _mergedDictionaries;
         private AvaloniaDictionary<ThemeVariant, IThemeVariantProvider>? _themeDictionary;
         private ResourceLookupCache? _lookupCache;
+        private bool _isLookupDependency;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ResourceDictionary"/> class.
@@ -37,31 +38,45 @@ namespace Avalonia.Controls
             get { TryGetValue(key, out var value); return value; }
             set
             {
-                var epoch = ResourceLookupCache.Epoch;
-                bool preservesLocation;
-#if NET6_0_OR_GREATER
-                {
-                    // A single lookup preserves the setter's hash/equality call count.
-                    // Do not call user code or resize the dictionary while this ref is in use.
-                    ref var entry = ref CollectionsMarshal.GetValueRefOrAddDefault(Inner, key, out var exists);
-                    preservesLocation = exists && entry is not IDeferredContent && value is not IDeferredContent;
-                    entry = value;
-                }
-#else
-                // Keep the original single-lookup setter on older runtimes rather than
-                // adding an extra observable lookup through arbitrary user key comparers.
-                Inner[key] = value;
-                preservesLocation = false;
-#endif
-                // Plain replacement changes a value, not resolution precedence. Every cache
-                // hit still reads the live value from this dictionary, including found-null.
-                // Comparer reentrancy may have changed the graph during the lookup, so only
-                // preserve locations if no location-invalidating change intervened.
-                if (preservesLocation && epoch == ResourceLookupCache.Epoch)
-                    base.RaiseResourcesChanged();
+                if (_isLookupDependency)
+                    SetValueWithCachedLocations(key, value);
                 else
+                {
+                    // Keep a small, single-lookup setter for standalone/local resources.
+                    Inner[key] = value;
+                    // Recheck dependency state after hashing: a key callback may have
+                    // performed the first cached traversal during the dictionary operation.
                     RaiseResourcesChanged();
+                }
             }
+        }
+
+        private void SetValueWithCachedLocations(object key, object? value)
+        {
+            var epoch = ResourceLookupCache.Epoch;
+            bool preservesLocation;
+#if NET6_0_OR_GREATER
+            {
+                // A single lookup preserves the setter's hash/equality call count.
+                // Do not call user code or resize the dictionary while this ref is in use.
+                ref var entry = ref CollectionsMarshal.GetValueRefOrAddDefault(Inner, key, out var exists);
+                preservesLocation = exists && entry is not IDeferredContent && value is not IDeferredContent;
+                entry = value;
+            }
+#else
+            // Keep the original single-lookup setter on older runtimes rather than
+            // adding an extra observable lookup through arbitrary user key comparers.
+            Inner[key] = value;
+            preservesLocation = false;
+#endif
+            // Plain replacement changes a value, not resolution precedence. Every cache
+            // hit still reads the live value from this dictionary, including found-null.
+            // Comparer reentrancy may have changed the graph during the lookup, so only
+            // preserve locations if no location-invalidating change intervened.
+            if (preservesLocation && epoch == ResourceLookupCache.Epoch)
+                base.RaiseResourcesChanged();
+            else
+                RaiseResourcesChanged();
         }
 
         public ICollection<object> Keys => (ICollection<object>?)_inner?.Keys ?? Array.Empty<object>();
@@ -133,7 +148,7 @@ namespace Avalonia.Controls
                 {
                     Inner[value.Key] = value.Value;
                     // The iterator itself can reenter between successive assignments.
-                    ResourceLookupCache.Invalidate();
+                    InvalidateLookupCache();
                 }
             }
             finally { RaiseResourcesChanged(); }
@@ -162,17 +177,21 @@ namespace Avalonia.Controls
                 if (location.TryGetValue(key, out value)) return true;
             }
 
-            var result = TryGetResourceCore(key, theme, out value, out var foundIn, out var cacheable, localChecked: true);
+            var cacheable = true;
+            var result = TryGetResourceCore(key, theme, out value, out var foundIn, ref cacheable, localChecked: true);
             if (eligible && cacheable && (_themeDictionary?.Count > 0 || _mergedDictionaries?.Count > 0))
                 (_lookupCache ??= new()).Add(key, theme, foundIn, epoch);
             return result;
         }
 
         private bool TryGetResourceCore(object key, ThemeVariant? theme, out object? value,
-            out ResourceDictionary? foundIn, out bool cacheable, bool localChecked = false)
+            out ResourceDictionary? foundIn, ref bool cacheable, bool localChecked = false)
         {
+            // Mark every visited dictionary, not only the winner. Earlier misses determine
+            // precedence too, and a fully missing lookup depends on the entire visited graph.
+            // This sticky bit owns no graph references and is never cleared on cache eviction.
+            MarkResourceLookupDependency();
             foundIn = null;
-            cacheable = true;
             if (!localChecked && TryGetValue(key, out value)) { foundIn = this; return true; }
             if (_themeDictionary is not null)
             {
@@ -205,11 +224,7 @@ namespace Avalonia.Controls
             // Custom providers (including interface reimplementations on subclasses) may have
             // dynamic lookup behavior. Never cache an answer which bypasses one of their probes.
             if (provider.GetType() == typeof(ResourceDictionary))
-            {
-                var found = ((ResourceDictionary)provider).TryGetResourceCore(key, theme, out value, out foundIn, out var childCacheable);
-                cacheable &= childCacheable;
-                return found;
-            }
+                return ((ResourceDictionary)provider).TryGetResourceCore(key, theme, out value, out foundIn, ref cacheable);
             foundIn = null;
             cacheable = false;
             return provider.TryGetResource(key, theme, out value);
@@ -235,7 +250,7 @@ namespace Avalonia.Controls
                         if (deferred is not NotSharedDeferredItem)
                         {
                             _inner[key] = value;
-                            ResourceLookupCache.Invalidate();
+                            InvalidateLookupCache();
                         }
                     }
                     finally
@@ -282,9 +297,19 @@ namespace Avalonia.Controls
         internal bool ContainsDeferredKey(object key) =>
             _inner is not null && _inner.TryGetValue(key, out var result) && result is IDeferredContent;
 
+        internal void MarkResourceLookupDependency()
+        {
+            if (!_isLookupDependency) _isLookupDependency = true;
+        }
+
+        private void InvalidateLookupCache()
+        {
+            if (_isLookupDependency) ResourceLookupCache.Invalidate();
+        }
+
         private new void RaiseResourcesChanged()
         {
-            ResourceLookupCache.Invalidate();
+            InvalidateLookupCache();
             base.RaiseResourcesChanged();
         }
 
