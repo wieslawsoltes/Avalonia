@@ -57,6 +57,22 @@ internal static class ExtendedPerformanceProgram
                     throw new InvalidOperationException("Stale resource cache");
                 return version;
             });
+            var local = new ResourceDictionary { ["key"] = 0 };
+            var localVersion = 0;
+            Measure("resource-local-replacement", 10000, () =>
+            {
+                local["key"] = ++localVersion;
+                return (int)local["key"]!;
+            });
+            Measure("resource-deep-insert-remove", 1000, () =>
+            {
+                tail["temporary"] = 1;
+                if (!resources.TryGetResource("temporary", null, out var value) || (int)value! != 1)
+                    throw new InvalidOperationException("Inserted resource not found");
+                if (!tail.Remove("temporary") || resources.TryGetResource("temporary", null, out _))
+                    throw new InvalidOperationException("Removed resource still found");
+                return 1;
+            });
 
             var selector = default(Selector).Is<Control>().PropertyEquals(Control.TagProperty, "match").Class("active");
             var control = new Button { Tag = "match", Classes = { "active" } };

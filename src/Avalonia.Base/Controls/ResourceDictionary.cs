@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Avalonia.Collections;
 using Avalonia.Controls.Templates;
 using Avalonia.Styling;
@@ -34,7 +35,33 @@ namespace Avalonia.Controls
         public object? this[object key]
         {
             get { TryGetValue(key, out var value); return value; }
-            set { Inner[key] = value; RaiseResourcesChanged(); }
+            set
+            {
+                var epoch = ResourceLookupCache.Epoch;
+                bool preservesLocation;
+#if NET6_0_OR_GREATER
+                {
+                    // A single lookup preserves the setter's hash/equality call count.
+                    // Do not call user code or resize the dictionary while this ref is in use.
+                    ref var entry = ref CollectionsMarshal.GetValueRefOrAddDefault(Inner, key, out var exists);
+                    preservesLocation = exists && entry is not IDeferredContent && value is not IDeferredContent;
+                    entry = value;
+                }
+#else
+                // Keep the original single-lookup setter on older runtimes rather than
+                // adding an extra observable lookup through arbitrary user key comparers.
+                Inner[key] = value;
+                preservesLocation = false;
+#endif
+                // Plain replacement changes a value, not resolution precedence. Every cache
+                // hit still reads the live value from this dictionary, including found-null.
+                // Comparer reentrancy may have changed the graph during the lookup, so only
+                // preserve locations if no location-invalidating change intervened.
+                if (preservesLocation && epoch == ResourceLookupCache.Epoch)
+                    base.RaiseResourcesChanged();
+                else
+                    RaiseResourcesChanged();
+            }
         }
 
         public ICollection<object> Keys => (ICollection<object>?)_inner?.Keys ?? Array.Empty<object>();
