@@ -94,7 +94,13 @@ namespace Avalonia.Controls
                     _themeDictionary = new AvaloniaDictionary<ThemeVariant, IThemeVariantProvider>(2);
                     _themeDictionary.CollectionChanged += (_, _) => ResourceLookupCache.Invalidate();
                     _themeDictionary.ForEachItem(
-                        (_, x) => { if (Owner is not null) x.AddOwner(Owner); },
+                        (variant, x) =>
+                        {
+                            // ThemeVariant forwards equality/hash to its arbitrary Key. Mark
+                            // opaque keys before owner callbacks can initiate another lookup.
+                            TrackKey(variant.Key);
+                            if (Owner is not null) x.AddOwner(Owner);
+                        },
                         (_, x) => { if (Owner is not null) x.RemoveOwner(Owner); },
                         () => throw new NotSupportedException("Dictionary reset not supported"));
                 }
@@ -160,7 +166,8 @@ namespace Avalonia.Controls
             // added them. A standalone leaf has no resolution location of its own to cache.
             // Nested probes mark dependencies before visiting a leaf, independently of this.
             if (_themeDictionary is null && _mergedDictionaries is null) return false;
-            var eligible = !_hasUnstableKeys && ResourceLookupCache.DeferredDepth == 0 && ResourceLookupCache.IsEligible(key);
+            var eligible = !_hasUnstableKeys && ResourceLookupCache.DeferredDepth == 0 &&
+                ResourceLookupCache.IsEligible(key) && ResourceLookupCache.IsStableTheme(theme);
             var epoch = ResourceLookupCache.Epoch;
             if (eligible && _lookupCache?.TryGet(key, theme, out var location) == true)
             {
@@ -306,8 +313,8 @@ namespace Avalonia.Controls
         {
             if (!_hasUnstableKeys && !ResourceLookupCache.IsStableStoredKey(key))
             {
-                // Custom stored-key equality can change answers or run callbacks without a
-                // resource mutation. Such a dictionary must always be probed live.
+                // Custom resource or theme-key equality can change answers or run callbacks
+                // without a resource mutation. Such a dictionary must be probed live.
                 _hasUnstableKeys = true;
                 InvalidateLookupCache();
             }

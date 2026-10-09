@@ -63,6 +63,19 @@ internal sealed class ResourceLookupCache
     internal static bool IsEligible(object key) =>
         key is string { Length: <= 256 } || key is Type && key.GetType() == s_runtimeType;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static bool IsStableTheme(ThemeVariant? theme) =>
+        theme is null || ReferenceEquals(theme, ThemeVariant.Light) ||
+        ReferenceEquals(theme, ThemeVariant.Dark) || ReferenceEquals(theme, ThemeVariant.Default) ||
+        HasStableThemeChain(theme);
+
+    private static bool HasStableThemeChain(ThemeVariant theme)
+    {
+        for (ThemeVariant? current = theme; current is not null; current = current.InheritVariant)
+            if (!IsStableStoredKey(current.Key)) return false;
+        return true;
+    }
+
     internal int Count => _locations.Count;
 
     internal bool TryGet(object key, ThemeVariant? theme, out ResourceDictionary? location)
