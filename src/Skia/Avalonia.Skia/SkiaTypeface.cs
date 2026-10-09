@@ -11,10 +11,14 @@ namespace Avalonia.Skia
     internal class SkiaTypeface : IPlatformTypeface
     {
         internal const int GlyphProbeInterval = 67;
+        internal const int GlyphRecoverySampleInterval = 32;
+        internal const int GlyphRecoveryProbeCount = SharedGlyphRunCache.AdmissionWindow * 2 + 1;
         private int _disposed;
         private int _glyphMisses;
         private int _glyphProbeCountdown;
         private int _glyphAdmissionClock;
+        private int _glyphSampledProbes;
+        private int _glyphRecoveryProbesRemaining;
 
         public SkiaTypeface(SKTypeface typeface, FontSimulations fontSimulations)
         {
@@ -35,10 +39,24 @@ namespace Avalonia.Skia
 
         internal bool ShouldProbeGlyphCache()
         {
-            if (Volatile.Read(ref _glyphProbeCountdown) <= 0 ||
-                Interlocked.Decrement(ref _glyphProbeCountdown) <= 0)
+            if (Volatile.Read(ref _glyphRecoveryProbesRemaining) > 0)
+            {
+                Interlocked.Decrement(ref _glyphRecoveryProbesRemaining);
                 return true;
-
+            }
+            if (Volatile.Read(ref _glyphProbeCountdown) <= 0) return true;
+            if (Interlocked.Decrement(ref _glyphProbeCountdown) <= 0)
+            {
+                // A cyclic set can otherwise miss forever because its sampled second
+                // touch expires. Bound occasional full-rate recovery work, without
+                // slowing the ordinary isolated probe's recovery to a single hot run.
+                if (Interlocked.Increment(ref _glyphSampledProbes) >= GlyphRecoverySampleInterval)
+                {
+                    Volatile.Write(ref _glyphSampledProbes, 0);
+                    Volatile.Write(ref _glyphRecoveryProbesRemaining, GlyphRecoveryProbeCount - 1);
+                }
+                return true;
+            }
             // Unsuccessful work ages hints even when the expensive lookup is bypassed.
             // Keep the clock per font: another font's scan cannot expire this font's hints.
             NextGlyphCacheAdmissionStamp();
@@ -67,6 +85,8 @@ namespace Avalonia.Skia
         {
             _glyphMisses = 0;
             Volatile.Write(ref _glyphProbeCountdown, 0);
+            Volatile.Write(ref _glyphSampledProbes, 0);
+            Volatile.Write(ref _glyphRecoveryProbesRemaining, 0);
         }
 
         public SKFont CreateSKFont(float size) =>

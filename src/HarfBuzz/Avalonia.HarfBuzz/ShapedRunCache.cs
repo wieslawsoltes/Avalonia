@@ -22,6 +22,8 @@ internal sealed class ShapedRunCache
     internal const int AdmissionWindow = MaxEntries;
     // Do not sample at a power-of-two stride: over-capacity scans often have those lengths.
     internal const int ProbeInterval = 67;
+    internal const int RecoverySampleInterval = 32;
+    internal const int RecoveryProbeCount = AdmissionWindow * 2 + 1;
     private readonly object _gate = new();
     private readonly Dictionary<Key, LinkedListNode<Entry>> _entries = new();
     private readonly LinkedList<Entry> _lru = new();
@@ -32,17 +34,35 @@ internal sealed class ShapedRunCache
     private int _retainedBytes;
     private int _missesWithoutBenefit;
     private int _probeCountdown;
+    private int _sampledProbes;
+    private int _recoveryProbesRemaining;
 
     internal int Count { get { lock (_gate) return _entries.Count; } }
     internal int RetainedBytes { get { lock (_gate) return _retainedBytes + AdmissionRetainedBytes; } }
 
     internal bool ShouldProbe()
     {
-        if (Volatile.Read(ref _probeCountdown) <= 0 || Interlocked.Decrement(ref _probeCountdown) <= 0)
+        if (Volatile.Read(ref _recoveryProbesRemaining) > 0)
+        {
+            Interlocked.Decrement(ref _recoveryProbesRemaining);
             return true;
+        }
+        if (Volatile.Read(ref _probeCountdown) <= 0) return true;
+        if (Interlocked.Decrement(ref _probeCountdown) <= 0)
+        {
+            // Isolated samples can alias a small cyclic working set: its next sampled
+            // touch may always be older than the admission window. Periodically observe
+            // consecutive requests long enough for two touches and an actual reuse.
+            if (Interlocked.Increment(ref _sampledProbes) >= RecoverySampleInterval)
+            {
+                Volatile.Write(ref _sampledProbes, 0);
+                Volatile.Write(ref _recoveryProbesRemaining, RecoveryProbeCount - 1);
+            }
+            return true;
+        }
 
         // Age cold hints on bypasses too. Counting only sampled misses would make an
-        // old hint survive many full scans. Cache hits need no additional atomic work.
+        // old hint survive many full scans. Cache hits need no clock increment.
         Interlocked.Increment(ref _admissionClock);
         return false;
     }
@@ -84,6 +104,8 @@ internal sealed class ShapedRunCache
             }
             _missesWithoutBenefit = 0;
             Volatile.Write(ref _probeCountdown, 0);
+            Volatile.Write(ref _sampledProbes, 0);
+            Volatile.Write(ref _recoveryProbesRemaining, 0);
             _lru.Remove(node);
             _lru.AddFirst(node);
             entry = node.Value;
