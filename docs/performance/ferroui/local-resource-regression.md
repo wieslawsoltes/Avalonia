@@ -1,0 +1,7 @@
+# Preserve cheap standalone resource access
+
+The original local-replacement counterexample still showed a small default-runtime overhead while deep replacement and insert/remove paths had improved. Ordinary string setters now bypass the key-stability helper directly. Three small private bookkeeping wrappers are explicitly inlinable so they do not add a chain of tier-0 calls in front of the original owner notification. The dependency flag is still rechecked after the actual dictionary operation: arbitrary stored-key equality can establish a dependency during that operation.
+
+A public local miss with no theme or merged children now returns immediately, before cache eligibility/epoch/bookkeeping. The child fields are read after the local lookup so children added during a comparer/factory callback are not skipped. Nested dictionary probes still mark every visited leaf, and a leaf that later joins a resource graph is tracked normally. No previously established dependency flag is cleared.
+
+Tests cover standalone miss/write isolation from global invalidation, a previously standalone leaf later visited by a parent, and child dictionaries attached after a standalone miss. Existing custom-key, graph-mutation and notification tests remain required. The original local-replacement scenario is retained alongside deep mutation benchmarks; this is not a blanket runtime inlining policy or a change to resource notification semantics.

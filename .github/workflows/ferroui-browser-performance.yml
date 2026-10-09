@@ -1,0 +1,80 @@
+name: FerroUI browser validation
+on:
+  push:
+    branches: ['perf/ferroui-runtime-optimizations']
+    paths:
+      - 'src/**'
+      - 'samples/FerroUi.Browser.Performance/**'
+      - 'scripts/performance/**'
+      - '.github/workflows/ferroui-browser-performance.yml'
+      - 'Directory.Build.*'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ferroui-browser-${{ github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  browser:
+    if: github.repository == 'wieslawsoltes/Avalonia'
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [interpreter, aot, named-interpreter]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install WebAssembly toolchain
+        run: dotnet workload install wasm-tools
+      - name: Validate measurement arithmetic, calibration and profile evidence
+        working-directory: scripts/performance/browser
+        run: node --experimental-strip-types --test *.test.mjs
+      - name: Install browser test dependencies
+        working-directory: scripts/performance/browser
+        run: |
+          npm install --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Publish exact baseline and head browser apps
+        env:
+          MODE: ${{ matrix.mode }}
+        run: |
+          args=()
+          if [ "$MODE" = aot ]; then args+=(--aot); fi
+          if [ "$MODE" = named-interpreter ]; then args+=(--symbols); fi
+          python3 scripts/performance/build-browser.py --output "$RUNNER_TEMP/browser-builds" "${args[@]}"
+      - name: Real input, resource invalidation, pixels, profiling, startup and idle measurements
+        run: node scripts/performance/browser/compare.mjs "$RUNNER_TEMP/browser-builds/base" "$RUNNER_TEMP/browser-builds/head" "$RUNNER_TEMP/browser-results" 3
+      - name: Same-build calibration and separate wheel, thumb and idle profiles
+        run: node scripts/performance/browser/diagnose.mjs "$RUNNER_TEMP/browser-builds" "$RUNNER_TEMP/browser-results" "$RUNNER_TEMP/browser-diagnostics"
+      - name: Publish report
+        if: always()
+        run: |
+          for report in "$RUNNER_TEMP/browser-results/comparison.md" "$RUNNER_TEMP/browser-diagnostics/diagnostics.md"; do
+            if [ -f "$report" ]; then cat "$report" >> "$GITHUB_STEP_SUMMARY"; fi
+          done
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ferroui-browser-${{ matrix.mode }}-results
+          path: |
+            ${{ runner.temp }}/browser-results
+            ${{ runner.temp }}/browser-diagnostics
+            ${{ runner.temp }}/browser-builds/provenance.json
+            scripts/performance/browser/package-lock.json
+          retention-days: 14
+      - uses: actions/upload-artifact@v7
+        if: success()
+        with:
+          name: ferroui-browser-${{ matrix.mode }}-exact-builds
+          path: ${{ runner.temp }}/browser-builds
+          retention-days: 7

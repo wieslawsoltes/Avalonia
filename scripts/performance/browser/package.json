@@ -1,0 +1,7 @@
+{
+  "name": "avalonia-ferroui-browser-measurement",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test *.test.mjs" },
+  "dependencies": { "playwright": "1.56.1", "pngjs": "7.0.0" }
+}

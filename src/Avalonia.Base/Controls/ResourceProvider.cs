@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Avalonia.Styling;
 
 namespace Avalonia.Controls;
@@ -43,9 +44,10 @@ public abstract class ResourceProvider : AvaloniaObject, IResourceProvider
     /// <inheritdoc/>
     public event EventHandler? OwnerChanged;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void RaiseResourcesChanged()
     {
-        Owner?.NotifyHostedResourcesChanged(ResourcesChangedEventArgs.Create());
+        _owner?.NotifyHostedResourcesChanged(ResourcesChangedEventArgs.Create());
     }
 
     /// <summary>
