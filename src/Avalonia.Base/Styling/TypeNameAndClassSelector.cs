@@ -13,13 +13,10 @@ namespace Avalonia.Styling
     /// </summary>
     internal sealed class TypeNameAndClassSelector : Selector
     {
-        private static readonly Type s_runtimeType = typeof(object).GetType();
         private readonly Selector? _previous;
         private List<string>? _classes;
         private Type? _targetType;
         private string? _selectorString;
-        private Type? _lastAssignableType;
-        private bool _lastAssignableResult;
 
         public static TypeNameAndClassSelector OfType(Selector? previous, Type targetType)
         {
@@ -64,18 +61,11 @@ namespace Avalonia.Styling
         {
             if (_targetType is { } ownType)
             {
-                // An owned constraint is immutable; don't resolve the virtual predecessor
-                // property to retrieve it. StyleKey remains a live read on every evaluation.
+                // Resolve an owned constraint directly and let the runtime perform its
+                // assignability operation. A second managed last-type cache added cold/tiered
+                // overhead and required excluding arbitrary mutable Type implementations.
                 var controlType = control.StyleKey ?? control.GetType();
-                if (IsConcreteType)
-                {
-                    if (controlType != ownType) return SelectorMatch.NeverThisType;
-                }
-                else if (ReferenceEquals(_lastAssignableType, controlType))
-                {
-                    if (!_lastAssignableResult) return SelectorMatch.NeverThisType;
-                }
-                else if (!UpdateAssignableResult(ownType, controlType))
+                if (IsConcreteType ? controlType != ownType : !ownType.IsAssignableFrom(controlType))
                     return SelectorMatch.NeverThisType;
             }
             else if (TargetType != null)
@@ -99,19 +89,6 @@ namespace Avalonia.Styling
                     return SelectorMatch.NeverThisInstance;
             }
             return Name == null ? SelectorMatch.AlwaysThisType : SelectorMatch.AlwaysThisInstance;
-        }
-
-        private bool UpdateAssignableResult(Type constraint, Type controlType)
-        {
-            var result = constraint.IsAssignableFrom(controlType);
-            // Arbitrary Type subclasses can implement mutable assignability/equality. The
-            // reference-only warm check is valid only for actual immutable runtime types.
-            if (constraint.GetType() == s_runtimeType && controlType.GetType() == s_runtimeType)
-            {
-                _lastAssignableResult = result;
-                _lastAssignableType = controlType;
-            }
-            return result;
         }
 
         private protected override Selector? MovePrevious() => _previous;

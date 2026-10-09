@@ -2,6 +2,7 @@ using System;
 using System.Buffers;
 using System.Collections.Concurrent;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Avalonia.Media;
 using Avalonia.Media.TextFormatting;
@@ -99,8 +100,11 @@ namespace Avalonia.Harfbuzz
                 var glyphIndex = (ushort)sourceInfo.Codepoint;
                 var originalCluster = (int)sourceInfo.Cluster;
                 var glyphCluster = originalCluster - start;
-                var glyphAdvance = GetGlyphAdvance(glyphPositions, i, textScale) + options.LetterSpacing;
-                var glyphOffset = GetGlyphOffset(glyphPositions, i, textScale);
+                // Read one position once. Keep exactly the original arithmetic order while
+                // avoiding two helper calls and repeated span/index access for every glyph.
+                var position = glyphPositions[i];
+                var glyphAdvance = position.XAdvance * textScale + options.LetterSpacing;
+                var glyphOffset = new Vector(position.XOffset * textScale, -position.YOffset * textScale);
 
                 if (originalCluster < containingText.Length && containingText[originalCluster] == '\t')
                 {
@@ -149,21 +153,7 @@ namespace Avalonia.Harfbuzz
             }
         }
 
-        private static Vector GetGlyphOffset(ReadOnlySpan<GlyphPosition> glyphPositions, int index, double textScale)
-        {
-            var position = glyphPositions[index];
-            var offsetX = position.XOffset * textScale;
-            var offsetY = -position.YOffset * textScale;
-            return new Vector(offsetX, offsetY);
-        }
-
-        private static double GetGlyphAdvance(ReadOnlySpan<GlyphPosition> glyphPositions, int index, double textScale)
-        {
-            // Depends on direction of layout
-            // glyphPositions[index].YAdvance * textScale;
-            return glyphPositions[index].XAdvance * textScale;
-        }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static ReadOnlyMemory<char> GetContainingMemory(ReadOnlyMemory<char> memory,
             out int start, out int length, out string? completeString)
         {
