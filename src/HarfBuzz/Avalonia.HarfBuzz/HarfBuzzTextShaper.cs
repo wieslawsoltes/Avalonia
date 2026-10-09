@@ -49,20 +49,36 @@ namespace Avalonia.Harfbuzz
             var eligible = completeString is { Length: > 0 and <= ShapedRunCache.MaxTextLength } &&
                 ShapedRunCache.CanCacheOptions(options);
             var probe = eligible && _shapedRunCache.ShouldProbe();
-            var cacheKey = default(ShapedRunCache.Key);
 #if AVALONIA_PERF_COUNTERS
             Avalonia.Diagnostics.PerformanceCounters.Increment(Avalonia.Diagnostics.PerformanceCounter.ShapeRequests);
             if (eligible && !probe)
                 Avalonia.Diagnostics.PerformanceCounters.Increment(Avalonia.Diagnostics.PerformanceCounter.ShapeProbeSkips);
 #endif
-
             if (probe)
-            {
-                cacheKey = ShapedRunCache.CreateKey(completeString!, options, usedCulture, harfBuzzTypeface.CacheId);
-                if (_shapedRunCache.TryGet(cacheKey, text, options, out var cached))
-                    return cached;
-            }
+                return ShapeTextWithCache(text, containingMemory, start, length, completeString!,
+                    in options, harfBuzzTypeface, usedCulture);
 
+            return ShapeTextCore(text, containingMemory, start, length, in options, harfBuzzTypeface, usedCulture);
+        }
+
+        private ShapedBuffer ShapeTextWithCache(ReadOnlyMemory<char> text, ReadOnlyMemory<char> containingMemory,
+            int start, int length, string completeString, in TextShaperOptions options,
+            HarfBuzzTypeface harfBuzzTypeface, CultureInfo usedCulture)
+        {
+            // The relatively large cache key and cache-only locals are not part of the
+            // uncacheable native path's stack frame. Neither path changes admission policy.
+            var cacheKey = ShapedRunCache.CreateKey(completeString, options, usedCulture, harfBuzzTypeface.CacheId);
+            if (_shapedRunCache.TryGet(cacheKey, text, options, out var cached))
+                return cached;
+            var shaped = ShapeTextCore(text, containingMemory, start, length, in options, harfBuzzTypeface, usedCulture);
+            _shapedRunCache.Add(cacheKey, shaped);
+            return shaped;
+        }
+
+        private static ShapedBuffer ShapeTextCore(ReadOnlyMemory<char> text, ReadOnlyMemory<char> containingMemory,
+            int start, int length, in TextShaperOptions options, HarfBuzzTypeface harfBuzzTypeface, CultureInfo usedCulture)
+        {
+            var glyphTypeface = options.GlyphTypeface;
             var fontRenderingEmSize = options.FontRenderingEmSize;
             var bidiLevel = options.BidiLevel;
             var buffer = s_buffer ??= new Buffer();
@@ -121,7 +137,6 @@ namespace Avalonia.Harfbuzz
                 shapedBuffer.InitializeGlyph(i, new Media.TextFormatting.GlyphInfo(glyphIndex, glyphCluster, glyphAdvance, glyphOffset));
             }
 
-            if (probe) _shapedRunCache.Add(cacheKey, shapedBuffer);
             return shapedBuffer;
         }
 
