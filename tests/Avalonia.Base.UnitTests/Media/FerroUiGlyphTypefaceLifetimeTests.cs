@@ -94,7 +94,7 @@ public class FerroUiGlyphTypefaceLifetimeTests
         public string FamilyName => inner.FamilyName;
         public FontWeight Weight => inner.Weight;
         public FontStyle Style => inner.Style;
-        public FontStretch Stretch => inner.FontStretch;
+        public FontStretch Stretch => inner.Stretch;
         public FontSimulations FontSimulations => inner.FontSimulations;
         public bool TryGetStream([NotNullWhen(true)] out Stream? stream) => inner.TryGetStream(out stream);
         public bool TryGetTable(OpenTypeTag tag, out ReadOnlyMemory<byte> table) => inner.TryGetTable(tag, out table);
