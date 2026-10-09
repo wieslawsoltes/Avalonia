@@ -37,8 +37,12 @@ internal class BrowserRenderTimer : IRenderTimer
         if (_started) return;
         _timerThreadId = Environment.CurrentManagedThreadId;
         _context = SynchronizationContext.Current;
-        // JS workers normally provide their event-loop context. Keep the previous polling
-        // behavior for an unusual host without one rather than lose cross-thread wakeups.
+        // The base context posts to the thread pool, not this JS realm. It provides no
+        // usable wakeup route, just like a missing context. JS workers supply their own.
+        if (_context?.GetType() == typeof(SynchronizationContext))
+            _context = null;
+        // Keep the previous polling behavior for an unusual host without an event-loop
+        // context rather than lose cross-thread wakeups or import JS on the wrong thread.
         _pollingFallback = BrowserWindowingPlatform.IsThreadingEnabled && _context is null;
         TimerHelper.AnimationFrame += RenderFrameCallback;
         Volatile.Write(ref _started, true);
@@ -52,12 +56,21 @@ internal class BrowserRenderTimer : IRenderTimer
         else if (_context is { } context && Interlocked.Exchange(ref _updateQueued, 1) == 0)
         {
             // Never synchronously wait for the JS thread while the render-loop lock is held.
-            context.Post(static state =>
+            try
             {
-                var timer = (BrowserRenderTimer)state!;
-                Volatile.Write(ref timer._updateQueued, 0);
-                timer.UpdateTimer();
-            }, this);
+                context.Post(static state =>
+                {
+                    var timer = (BrowserRenderTimer)state!;
+                    Volatile.Write(ref timer._updateQueued, 0);
+                    timer.UpdateTimer();
+                }, this);
+            }
+            catch
+            {
+                // Preserve the failure, but do not permanently suppress a later retry.
+                Volatile.Write(ref _updateQueued, 0);
+                throw;
+            }
         }
     }
 
