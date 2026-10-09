@@ -19,7 +19,8 @@ internal sealed class ShapedRunCache
     internal const int MaxGlyphCount = 256;
     internal const int AdmissionSlots = 1024;
     internal const int AdmissionRetainedBytes = AdmissionSlots * sizeof(ulong);
-    internal const int ProbeInterval = 64;
+    // Do not sample at a power-of-two stride: over-capacity scans often have those lengths.
+    internal const int ProbeInterval = 67;
     private readonly object _gate = new();
     private readonly Dictionary<Key, LinkedListNode<Entry>> _entries = new();
     private readonly LinkedList<Entry> _lru = new();
@@ -96,7 +97,6 @@ internal sealed class ShapedRunCache
                 buffer.AttachMetricsCache(existing.Value.Metrics);
                 return;
             }
-            // Charge for the optional line-metrics holder as well as immutable glyph snapshots.
             var bytes = 512 + (key.Text.Length + key.Culture.Length) * sizeof(char) + buffer.Length * 40;
             if (bytes > MaxRetainedBytes - AdmissionRetainedBytes) return;
             var glyphs = new GlyphInfo[buffer.Length];

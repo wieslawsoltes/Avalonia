@@ -10,8 +10,8 @@ using SkiaSharp;
 namespace Avalonia.Skia;
 
 /// <summary>
-/// Immutable run geometry and retained blobs. Each live GlyphRunImpl and each cache entry owns
-/// one reference, so eviction or disposal of another run cannot invalidate a borrowed blob.
+/// Immutable run geometry and retained blobs. Each live GlyphRunImpl and cache entry owns a
+/// reference; eviction or disposal of another run cannot invalidate a borrowed blob.
 /// </summary>
 internal sealed class SharedGlyphRunData
 {
@@ -20,6 +20,8 @@ internal sealed class SharedGlyphRunData
     private readonly ushort[] _indices;
     private readonly SKPoint[] _positions;
     private readonly object _blobGate = new();
+    private SKTextBlob? _firstBlob;
+    private int _firstBlobIndex;
     private SKTextBlob?[]? _blobs;
     private int _references = 1;
 
@@ -33,9 +35,7 @@ internal sealed class SharedGlyphRunData
         if (glyphs is ShapedBuffer buffer)
             buffer.GlyphIndices.CopyTo(_indices);
         else
-            for (var i = 0; i < count; ++i)
-                _indices[i] = glyphs[i].GlyphIndex;
-
+            for (var i = 0; i < count; ++i) _indices[i] = glyphs[i].GlyphIndex;
         var options = default(TextOptions) with
         {
             TextRenderingMode = TextRenderingMode.SubpixelAntialias,
@@ -54,7 +54,6 @@ internal sealed class SharedGlyphRunData
                 var glyph = glyphs[i];
                 var b = bounds[i];
                 _positions[i] = new SKPoint((float)(currentX + glyph.GlyphOffset.X), (float)glyph.GlyphOffset.Y);
-                // Keep the existing native bounds algorithm; this change only reuses its result.
                 runBounds = runBounds.Union(new Rect(currentX + b.Left, b.Top, b.Width, b.Height));
                 currentX += glyph.GlyphAdvance;
             }
@@ -67,21 +66,21 @@ internal sealed class SharedGlyphRunData
     internal void AddReference() => Interlocked.Increment(ref _references);
     internal void Release()
     {
-        if (Interlocked.Decrement(ref _references) != 0)
-            return;
+        if (Interlocked.Decrement(ref _references) != 0) return;
         lock (_blobGate)
         {
             if (_blobs is not null)
-                foreach (var blob in _blobs)
-                    blob?.Dispose();
+            {
+                foreach (var blob in _blobs) blob?.Dispose();
+            }
+            else _firstBlob?.Dispose();
+            _firstBlob = null;
             _blobs = null;
         }
     }
 
     internal SKTextBlob GetTextBlob(TextOptions options)
     {
-        // There are only 3 edging x 3 hinting x 2 baseline-snap effective font states.
-        // Do not evict a blob while the data is leased: another wrapper may be drawing it.
         var edging = options.TextRenderingMode switch
         {
             TextRenderingMode.Alias => 0,
@@ -98,8 +97,21 @@ internal sealed class SharedGlyphRunData
         var index = edging * 6 + hinting * 2 + snap;
         lock (_blobGate)
         {
-            var blobs = _blobs ??= new SKTextBlob?[18];
-            return blobs[index] ??= CreateTextBlob(options);
+            // Most runs use one font state. Do not allocate an 18-element vector for a cold run.
+            // On expansion the first blob is retained, never disposed while another run leases it.
+            if (_firstBlob is null)
+            {
+                _firstBlob = CreateTextBlob(options);
+                _firstBlobIndex = index;
+                return _firstBlob;
+            }
+            if (index == _firstBlobIndex) return _firstBlob;
+            if (_blobs is null)
+            {
+                _blobs = new SKTextBlob?[18];
+                _blobs[_firstBlobIndex] = _firstBlob;
+            }
+            return _blobs[index] ??= CreateTextBlob(options);
         }
     }
 
@@ -158,27 +170,26 @@ internal static class SharedGlyphRunCache
 
     internal static SharedGlyphRunData Acquire(SkiaTypeface face, double size, IReadOnlyList<GlyphInfo> glyphs)
     {
-        #if AVALONIA_PERF_COUNTERS
+#if AVALONIA_PERF_COUNTERS
         Avalonia.Diagnostics.PerformanceCounters.Increment(Avalonia.Diagnostics.PerformanceCounter.NativeGlyphRequests);
 #endif
-        if (face.IsDisposed)
-            throw new ObjectDisposedException(nameof(GlyphTypeface));
+        if (face.IsDisposed) throw new ObjectDisposedException(nameof(GlyphTypeface));
         var eligible = glyphs.Count is > 0 and <= MaxGlyphs &&
             (glyphs is ShapedBuffer || glyphs is GlyphInfo[]) && !double.IsNaN(size) && !double.IsInfinity(size);
         var key = default(Key);
         var admit = false;
-        if (eligible)
+        if (eligible && face.ShouldProbeGlyphCache())
         {
             var hash = new HashCode();
             hash.Add(RuntimeHelpers.GetHashCode(face));
             hash.Add(size);
-            for (var i = 0; i < glyphs.Count; ++i)
-                hash.Add(glyphs[i]);
+            for (var i = 0; i < glyphs.Count; ++i) hash.Add(glyphs[i]);
             key = new Key(face, size, glyphs.Count, hash.ToHashCode());
             lock (s_gate)
             {
                 if (s_entries.TryGetValue(key, out var found) && Matches(found.Value.Glyphs, glyphs))
                 {
+                    face.RecordGlyphCacheBenefit();
                     s_lru.Remove(found);
                     s_lru.AddFirst(found);
                     found.Value.Data.AddReference();
@@ -187,6 +198,7 @@ internal static class SharedGlyphRunCache
 #endif
                     return found.Value.Data;
                 }
+                face.RecordGlyphCacheMiss();
                 var fingerprint = (ulong)(uint)key.Hash + 1;
                 ref var slot = ref s_recent[(int)(fingerprint & 1023)];
                 admit = slot == fingerprint;
@@ -195,12 +207,11 @@ internal static class SharedGlyphRunCache
         }
 
         var data = new SharedGlyphRunData(face, size, glyphs);
-        if (!admit)
-            return data;
+        if (!admit) return data;
         lock (s_gate)
         {
-            if (face.IsDisposed)
-                return data;
+            if (face.IsDisposed) return data;
+            face.RecordGlyphCacheBenefit();
             if (s_entries.TryGetValue(key, out var existing))
             {
                 if (Matches(existing.Value.Glyphs, glyphs))
@@ -211,11 +222,8 @@ internal static class SharedGlyphRunCache
                 }
                 Remove(existing);
             }
-            // Reserve for geometry, key/snapshot overhead and all effective blob states.
-            // This is a conservative allowance, not a measurement of Skia's internal heap.
             var bytes = 4096 + glyphs.Count * 256;
-            while (s_entries.Count >= Capacity || s_bytes + bytes > ByteAllowance)
-                Remove(s_lru.Last!);
+            while (s_entries.Count >= Capacity || s_bytes + bytes > ByteAllowance) Remove(s_lru.Last!);
             var snapshot = new GlyphInfo[glyphs.Count];
             for (var i = 0; i < snapshot.Length; ++i) snapshot[i] = glyphs[i];
             data.AddReference();
@@ -246,7 +254,6 @@ internal static class SharedGlyphRunCache
             if (!stored[i].Equals(current[i])) return false;
         return true;
     }
-
     private static void Remove(LinkedListNode<Entry> node)
     {
         s_entries.Remove(node.Value.Key);
@@ -254,7 +261,6 @@ internal static class SharedGlyphRunCache
         s_bytes -= node.Value.Bytes;
         node.Value.Data.Release();
     }
-
     private readonly record struct Key(SkiaTypeface Face, double Size, int Count, int Hash);
     private sealed record Entry(Key Key, GlyphInfo[] Glyphs, SharedGlyphRunData Data, int Bytes);
 }
