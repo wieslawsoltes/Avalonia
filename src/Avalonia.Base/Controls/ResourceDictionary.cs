@@ -32,12 +32,14 @@ namespace Avalonia.Controls
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
-                if (!_isLookupDependency && !_hasUnstableKeys && key is string)
+                if (!(_isLookupDependency | _hasUnstableKeys) && key is string)
                 {
                     // Only strings/runtime Types are stored here, and this string query
                     // cannot call user hashing/equality. No dependency can appear during
                     // the write. Owner callbacks still run, after the value is committed.
-                    Inner[key] = value;
+                    // Both flags are plain fields: evaluate them without a second branch.
+                    // Keep the existing-store access here instead of calling the lazy getter.
+                    (_inner ??= new Dictionary<object, object?>())[key] = value;
                     base.RaiseResourcesChanged();
                 }
                 else SetValueWithCallbacks(key, value);
