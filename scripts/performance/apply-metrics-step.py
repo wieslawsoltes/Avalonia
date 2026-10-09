@@ -23,7 +23,8 @@ edit('src/Avalonia.Base/Media/TextFormatting/ShapedTextRun.cs', 'e8f9e377000a383
     ('public sealed class ShapedTextRun :', 'public sealed partial class ShapedTextRun :')])
 edit('src/Avalonia.Base/Media/TextFormatting/TextLineImpl.cs', '29fc730e64af556a88a9379c7e5ff48f51e67f04', [
     ('internal class TextLineImpl :', 'internal partial class TextLineImpl :'),
-    ('_textLineMetrics = CreateLineMetrics();', '_textLineMetrics = GetOrCreateLineMetrics();')])
+    ('_textLineMetrics = CreateLineMetrics();\n\n            if (_textLineBreak is null',
+     '_textLineMetrics = GetOrCreateLineMetrics();\n\n            if (_textLineBreak is null')])
 edit('src/Avalonia.Base/Avalonia.Base.csproj', '45f792bb967faf4a9121be7895fa87460b3f2b4c', [
     ('<InternalsVisibleTo Include="Avalonia.Skia, PublicKey=$(AvaloniaPublicKey)" />',
      '<InternalsVisibleTo Include="Avalonia.Skia, PublicKey=$(AvaloniaPublicKey)" />\n    <InternalsVisibleTo Include="Avalonia.HarfBuzz, PublicKey=$(AvaloniaPublicKey)" />')])
@@ -34,7 +35,6 @@ edit('tests/Avalonia.Skia.UnitTests/Avalonia.Skia.UnitTests.csproj', '80731a076f
     ('<ProjectReference Include="..\\..\\src\\Avalonia.Base\\Avalonia.Base.csproj" />',
      '<ProjectReference Include="..\\..\\src\\Avalonia.Base\\Avalonia.Base.csproj" />\n    <ProjectReference Include="..\\..\\src\\HarfBuzz\\Avalonia.HarfBuzz\\Avalonia.HarfBuzz.csproj" />')])
 
-# HarfBuzz's public shaping algorithm is unchanged. Probe admission is policy, not a value key.
 path = ROOT / 'src/HarfBuzz/Avalonia.HarfBuzz/HarfBuzzTextShaper.cs'
 source = path.read_text(encoding='utf-8')
 old = 'var cacheable = ShapedRunCache.TryCreateKey(text, options, usedCulture, harfBuzzTypeface.CacheId, out cacheKey);'
@@ -48,7 +48,6 @@ source = source.replace(old, '''var probe = _shapedRunCache.ShouldProbe();
 #endif''')
 path.write_text(source, encoding='utf-8')
 
-# Add native-cache counters at existing, asserted boundaries; no calls survive a normal build.
 path = ROOT / 'src/Skia/Avalonia.Skia/SharedGlyphRunData.cs'
 source = path.read_text(encoding='utf-8')
 for old, new in [
@@ -77,14 +76,12 @@ assert source.count('    ValidationProbe,') == 1
 source = source.replace('    ValidationProbe,', '    TextLinesFinalized,\n    DefaultLineMetricHits,\n    ValidationProbe,')
 path.write_text(source, encoding='utf-8')
 
-# Staged files are atomically introduced together with their partial-class integration points.
 for pending in ROOT.glob('**/*.ferroui-pending'):
     destination = pending.with_suffix('')
     if destination.exists() and destination.name != 'ShapedRunCache.cs':
         raise RuntimeError(f'Unexpected existing target: {destination}')
     pending.replace(destination)
 
-# The browser fixture must actually exercise resource invalidation, not just expose a setter.
 path = ROOT / 'samples/FerroUi.Browser.Performance/Program.cs'
 source = path.read_text(encoding='utf-8')
 old = 'text.Bind(TextBlock.TextProperty, new ReflectionBinding(path));'
@@ -92,6 +89,5 @@ assert source.count(old) == 1
 source = source.replace(old, old + '\n                        text.Bind(TextBlock.ForegroundProperty, new Avalonia.Markup.Xaml.MarkupExtensions.DynamicResourceExtension("FerroUiAccent"));')
 path.write_text(source, encoding='utf-8')
 
-# Remove the integration scaffolding itself from the final implementation commit.
 (ROOT / '.github/workflows/ferroui-integrate-metrics.yml').unlink()
 Path(__file__).unlink()
