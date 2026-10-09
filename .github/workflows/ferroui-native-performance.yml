@@ -11,19 +11,31 @@ concurrency:
 jobs:
   compare:
     if: github.repository == 'wieslawsoltes/Avalonia'
-    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-26]
+        runtime-mode: [optimized-jit, runtime-default]
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v7
         with:
           submodules: recursive
           persist-credentials: false
+      - name: Test measurement validation
+        run: python3 -m unittest discover -s scripts/performance -p 'test_*.py' -v
       - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
           dotnet-version: 8.0.x
       - name: Alternate exact baseline and branch measurements
-        run: python3 scripts/performance/compare-native.py --pairs 5 --output "$RUNNER_TEMP/ferroui-native"
+        env:
+          RUNTIME_MODE: ${{ matrix.runtime-mode }}
+        run: python3 scripts/performance/compare-native.py --pairs 5 --runtime-mode "$RUNTIME_MODE" --output "$RUNNER_TEMP/ferroui-native"
       - name: Publish comparison summary
         if: always()
         run: |
@@ -33,6 +45,6 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: ferroui-native-measurements
+          name: ferroui-native-${{ matrix.os }}-${{ matrix.runtime-mode }}
           path: ${{ runner.temp }}/ferroui-native
           retention-days: 14
