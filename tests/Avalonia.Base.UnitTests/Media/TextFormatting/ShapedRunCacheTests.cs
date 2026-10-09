@@ -141,6 +141,9 @@ public class ShapedRunCacheTests
         {
             shaper.ShapeText(text.AsMemory(), options).Dispose();
             shaper.ShapeText(text.AsMemory(), options).Dispose();
+            // This test exercises LRU eviction of useful entries, not adaptive backoff.
+            // A real cache hit distinguishes reuse from an admission-only cold scan.
+            shaper.ShapeText(text.AsMemory(), options).Dispose();
         }
         for (var i = 0; i < ShapedRunCache.MaxEntries; ++i)
             Admit(i.ToString(CultureInfo.InvariantCulture));

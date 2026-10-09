@@ -19,19 +19,33 @@ internal sealed class ShapedRunCache
     internal const int MaxGlyphCount = 256;
     internal const int AdmissionSlots = 1024;
     internal const int AdmissionRetainedBytes = AdmissionSlots * sizeof(ulong);
+    internal const int AdmissionWindow = MaxEntries;
     // Do not sample at a power-of-two stride: over-capacity scans often have those lengths.
     internal const int ProbeInterval = 67;
     private readonly object _gate = new();
     private readonly Dictionary<Key, LinkedListNode<Entry>> _entries = new();
     private readonly LinkedList<Entry> _lru = new();
+    // Each slot packs a 32-bit fingerprint and a 32-bit age stamp. This is only an
+    // admission hint: the dictionary still compares the complete key on every hit.
     private readonly ulong[] _recent = new ulong[AdmissionSlots];
+    private int _admissionClock;
     private int _retainedBytes;
     private int _missesWithoutBenefit;
     private int _probeCountdown;
 
     internal int Count { get { lock (_gate) return _entries.Count; } }
     internal int RetainedBytes { get { lock (_gate) return _retainedBytes + AdmissionRetainedBytes; } }
-    internal bool ShouldProbe() => Volatile.Read(ref _probeCountdown) <= 0 || Interlocked.Decrement(ref _probeCountdown) <= 0;
+
+    internal bool ShouldProbe()
+    {
+        if (Volatile.Read(ref _probeCountdown) <= 0 || Interlocked.Decrement(ref _probeCountdown) <= 0)
+            return true;
+
+        // Age cold hints on bypasses too. Counting only sampled misses would make an
+        // old hint survive many full scans. Cache hits need no additional atomic work.
+        Interlocked.Increment(ref _admissionClock);
+        return false;
+    }
 
     internal readonly record struct Key(string Text, long Typeface, double Size, sbyte BidiLevel,
         string Culture, int CultureLcid, double TabWidth, double LetterSpacing);
@@ -89,9 +103,17 @@ internal sealed class ShapedRunCache
         if (buffer.Length > MaxGlyphCount) return;
         lock (_gate)
         {
-            var fingerprint = (ulong)(uint)key.GetHashCode() + 1;
-            ref var recent = ref _recent[(int)(fingerprint & (AdmissionSlots - 1))];
-            if (recent != fingerprint) { recent = fingerprint; return; }
+            var fingerprint = (uint)key.GetHashCode();
+            var stamp = unchecked((uint)Interlocked.Increment(ref _admissionClock));
+            ref var slot = ref _recent[(int)(fingerprint & (AdmissionSlots - 1))];
+            var recent = slot;
+            slot = ((ulong)fingerprint << 32) | stamp;
+            // Modular subtraction preserves a recent hint across counter wrap. Fingerprint
+            // collisions (including ancient wrap aliases) can only admit a cold entry, never
+            // return incorrect glyphs. No strings or fonts are retained by these hints.
+            if (recent == 0 || (uint)(recent >> 32) != fingerprint ||
+                unchecked(stamp - (uint)recent) > AdmissionWindow)
+                return;
             if (_entries.TryGetValue(key, out var existing))
             {
                 buffer.AttachMetricsCache(existing.Value.Metrics);
@@ -112,7 +134,8 @@ internal sealed class ShapedRunCache
             var node = _lru.AddFirst(new Entry(key, glyphs, metrics, bytes));
             _entries.Add(key, node);
             _retainedBytes += bytes;
-            _missesWithoutBenefit = 0;
+            // Give a newly recurring run one immediate chance to hit. Admission by itself
+            // is not a benefit: only TryGet's real hit resets the unproductive-miss streak.
             Volatile.Write(ref _probeCountdown, 0);
             buffer.AttachMetricsCache(metrics);
 #if AVALONIA_PERF_COUNTERS
