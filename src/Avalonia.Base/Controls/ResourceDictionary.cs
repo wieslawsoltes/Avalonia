@@ -30,7 +30,9 @@ namespace Avalonia.Controls
             get { TryGetValue(key, out var value); return value; }
             set
             {
-                TrackKey(key);
+                // Strings need no stability bookkeeping; keep the ordinary local setter
+                // free of a helper call even before tiered compilation has optimized it.
+                if (key is not string) TrackKey(key);
                 if (_isLookupDependency) SetValueWithCachedLocations(key, value);
                 else
                 {
@@ -154,6 +156,10 @@ namespace Avalonia.Controls
         public sealed override bool TryGetResource(object key, ThemeVariant? theme, out object? value)
         {
             if (TryGetValue(key, out value)) return true;
+            // Inspect children after the local lookup: comparer/factory callbacks may have
+            // added them. A standalone leaf has no resolution location of its own to cache.
+            // Nested probes mark dependencies before visiting a leaf, independently of this.
+            if (_themeDictionary is null && _mergedDictionaries is null) return false;
             var eligible = !_hasUnstableKeys && ResourceLookupCache.DeferredDepth == 0 && ResourceLookupCache.IsEligible(key);
             var epoch = ResourceLookupCache.Epoch;
             if (eligible && _lookupCache?.TryGet(key, theme, out var location) == true)
@@ -295,6 +301,7 @@ namespace Avalonia.Controls
         {
             if (!_isLookupDependency) _isLookupDependency = true;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void TrackKey(object key)
         {
             if (!_hasUnstableKeys && !ResourceLookupCache.IsStableStoredKey(key))
@@ -305,10 +312,12 @@ namespace Avalonia.Controls
                 InvalidateLookupCache();
             }
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void InvalidateLookupCache()
         {
             if (_isLookupDependency) ResourceLookupCache.Invalidate();
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private new void RaiseResourcesChanged()
         {
             InvalidateLookupCache();
