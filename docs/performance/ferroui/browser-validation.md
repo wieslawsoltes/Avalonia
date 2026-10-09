@@ -1,20 +1,25 @@
 # Designs 07–09: real browser validation and deployment experiments
 
-The standalone `samples/FerroUi.Browser.Performance` application uses the repository's browser/Skia backend and Simple theme. It contains five-column bound ListBox rows and expanded TreeView data. It does not alter the published ControlCatalog or its default FPS overlay. JS exports expose measured state and deterministic reset controls; JavaScript instrumentation counts application RAF callbacks without charging harness frame waits to those counters.
+`samples/FerroUi.Browser.Performance` uses repository browser/Skia code and the Simple theme, with five-column bound ListBox rows and expanded TreeView data. It does not alter published ControlCatalog behavior or diagnostics defaults. The fixture exposes measured state, deterministic reset controls, actual theme/resource changes and overlay control. RAF instrumentation excludes harness frame waits.
 
-`build-browser.py` publishes exactly the same harness sources against the original baseline and current branch, retaining source hashes and revision IDs. `browser/compare.mjs` serves both outputs on loopback, alternates three fresh-context pairs for software and default/WebGL rendering, sends real wheel input and real scrollbar-thumb drags, and verifies that offsets actually change. Rendering comparisons then reset to identical offsets and compare decoded PNG pixels exactly in light and dark themes. Matching screenshots do not stand in for input checks, and browser input coalescing is not required to produce identical intermediate offsets.
+`build-browser.py` publishes identical fixture sources against the exact original baseline and current branch, recording hashes and refs. `browser/compare.mjs` alternates three fresh-context pairs for Software2D and default/WebGL rendering, sends actual wheel input and scrollbar-thumb drags, and verifies that offsets move. It then compares decoded PNG pixels at equivalent states in light/dark themes. Dynamic resource replacement must visibly change foreground pixels and restoration must restore them, in addition to baseline/head equality.
 
-The report records first-ready time, per-scenario Chrome task CPU, three-second idle CPU/RAF counts with the overlay off/on, backend details, and file-by-file raw/gzip size. Precompressed duplicates and symbols are separated from runtime transfer estimates. Task CPU is not GPU time, and a double-RAF ready point is not a hardware presentation timestamp. Hosted Chromium can use SwiftShader; its results are not physical-GPU or user-device FPS claims.
+Reports include first-ready timestamps, Chrome task CPU, three-second idle CPU and application RAF activity with overlay off/on, backend details and file-by-file raw/gzip runtime-size estimates. Precompressed duplicates and symbols are not double-counted. Invalid/absent numeric evidence fails; zero CPU baselines do not produce fabricated percentages. Separate post-measurement CPU profiles preserve function stacks without contaminating timed runs. Actual module name sections and code hashes are inspected for correlation with exact builds. See [browser-evidence.md](browser-evidence.md).
 
-The fork-only workflow installs the SDK WebAssembly workload, publishes both applications, runs semantic/input/pixel gates, and retains exact builds and measurement artifacts. Elapsed-time differences remain report-only. Optional workflow inputs enable `RunAOTCompilation` through `FerroUiBrowserAot`, or preserve symbols in the exact measured output through `FerroUiBrowserSymbols`. These are app-level experiments, not global changes to Avalonia deployment defaults. Run each setting and compare its complete size/startup/CPU report before selecting an application policy; no unmeasured AOT or SIMD win is assumed.
-
-Reproduce with the SDK in `global.json` and initialized submodules:
+The fork workflow has three explicit deployment modes: interpreter, AOT (`RunAOTCompilation` through `FerroUiBrowserAot`), and symbol-retaining interpreter (`FerroUiBrowserSymbols`). Every mode builds/tests both revisions and both rendering paths, retaining reports, profiles, exact builds and the resolved npm lockfile. Five Node tests validate measurement arithmetic and module parsing before running Chromium. Modes are application-level experiments, not global library defaults; compare size, first-ready and workload results before choosing a deployment policy.
 
 ```sh
 dotnet workload install wasm-tools
-cd scripts/performance/browser && npm install --ignore-scripts && npx playwright install chromium && cd ../../..
+cd scripts/performance/browser
+npm install --ignore-scripts
+node --test evidence.test.mjs
+npx playwright install chromium
+cd ../../..
 python3 scripts/performance/build-browser.py --output artifacts/browser-builds
 node scripts/performance/browser/compare.mjs artifacts/browser-builds/base artifacts/browser-builds/head artifacts/browser-results 3
+# Separate deployment outputs:
+python3 scripts/performance/build-browser.py --aot --output artifacts/browser-aot
+python3 scripts/performance/build-browser.py --symbols --output artifacts/browser-named
 ```
 
-The browser harness intentionally does not bypass immutable-versus-mutable renderer semantics or promise idle scheduling behavior before measuring it. CI results must be read for the exact commit; adding this workflow alone is not evidence of a passing browser run.
+A double-RAF ready point is not a physical presentation timestamp. Browser task CPU is not GPU time, and a hosted default backend may use SwiftShader. RAF callbacks may continue while the compositor is idle; report their activity without assuming continuous rendering or an idle-loop optimization. Named flags are checked through emitted metadata rather than presumed successful. A workflow definition is not a passing run: use evidence for the exact evaluated revision.

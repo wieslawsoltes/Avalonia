@@ -15,8 +15,7 @@ internal sealed class ResourceLookupCache
     internal const int Capacity = 128;
     private static long s_epoch;
     [ThreadStatic] internal static int DeferredDepth;
-    private readonly Dictionary<Key, WeakReference<ResourceDictionary>?> _locations = new();
-    private long _epoch = -1;
+    private readonly Dictionary<Key, Entry> _locations = new();
 
     internal static long Epoch => Volatile.Read(ref s_epoch);
     internal static void Invalidate()
@@ -34,15 +33,10 @@ internal sealed class ResourceLookupCache
 #if AVALONIA_PERF_COUNTERS
         Diagnostics.PerformanceCounters.Increment(Diagnostics.PerformanceCounter.ResourceCacheProbes);
 #endif
-        if (_epoch != Epoch)
-        {
-            _locations.Clear();
-            _epoch = Epoch;
-        }
         var lookup = new Key(key, theme);
-        var found = _locations.TryGetValue(lookup, out var weak);
+        var found = _locations.TryGetValue(lookup, out var entry) && entry.Epoch == Epoch;
         location = null;
-        if (found && weak is not null && !weak.TryGetTarget(out location))
+        if (found && !entry.Missing && entry.Location?.TryGetTarget(out location) != true)
         {
             _locations.Remove(lookup);
             found = false;
@@ -56,11 +50,22 @@ internal sealed class ResourceLookupCache
     internal void Add(object key, ThemeVariant? theme, ResourceDictionary? location, long epoch)
     {
         if (epoch != Epoch) return;
-        if (_epoch != epoch) { _locations.Clear(); _epoch = epoch; }
-        if (_locations.Count >= Capacity) _locations.Clear();
-        // A lazily invalidated cache must not keep a removed dictionary/resource graph alive.
-        _locations[new Key(key, theme)] = location is null ? null : new WeakReference<ResourceDictionary>(location);
+        var lookup = new Key(key, theme);
+        var existing = _locations.TryGetValue(lookup, out var previous);
+        if (!existing && _locations.Count >= Capacity) _locations.Clear();
+        var weak = previous.Location;
+        if (location is not null)
+        {
+            if (weak is null) weak = new WeakReference<ResourceDictionary>(location);
+            else weak.SetTarget(location);
+        }
+        else weak?.SetTarget(null!);
+        // Stamp each entry separately. Reuse weak handles after invalidation instead of
+        // allocating a new handle on every update/lookup pair in a mutable resource graph.
+        _locations[lookup] = new Entry(epoch, weak, location is null);
     }
+
+    private readonly record struct Entry(long Epoch, WeakReference<ResourceDictionary>? Location, bool Missing);
 
     private readonly struct Key(object value, ThemeVariant? theme) : IEquatable<Key>
     {
