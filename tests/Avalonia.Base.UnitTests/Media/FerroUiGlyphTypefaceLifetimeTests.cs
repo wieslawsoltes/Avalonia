@@ -62,13 +62,24 @@ public class FerroUiGlyphTypefaceLifetimeTests
         var shaper = new HarfBuzzTextShaper();
         using var app = UnitTestApplication.Start(TestServices.MockThreadingInterface.With(textShaperImpl: shaper));
         var font = CreateFont(new List<string>());
-        var options = new TextShaperOptions(font, 16);
-        shaper.ShapeText("cached".AsMemory(), options).Dispose();
-        Assert.Equal(1, shaper.ShapedRunCache.Count);
-        var face = (HarfBuzzTypeface)font.TextShaperTypeface;
-        font.Dispose();
-        Assert.True(face.IsDisposed);
-        Assert.Throws<ObjectDisposedException>(() => shaper.ShapeText("cached".AsMemory(), options));
+        try
+        {
+            var options = new TextShaperOptions(font, 16);
+            // First touch records admission, second installs the snapshot, third exercises a hit.
+            shaper.ShapeText("cached".AsMemory(), options).Dispose();
+            Assert.Equal(0, shaper.ShapedRunCache.Count);
+            shaper.ShapeText("cached".AsMemory(), options).Dispose();
+            shaper.ShapeText("cached".AsMemory(), options).Dispose();
+            Assert.Equal(1, shaper.ShapedRunCache.Count);
+            var face = (HarfBuzzTypeface)font.TextShaperTypeface;
+            font.Dispose();
+            Assert.True(face.IsDisposed);
+            Assert.Throws<ObjectDisposedException>(() => shaper.ShapeText("cached".AsMemory(), options));
+        }
+        finally
+        {
+            font.Dispose();
+        }
     }
 
     private static GlyphTypeface CreateFont(List<string> events)
@@ -83,7 +94,7 @@ public class FerroUiGlyphTypefaceLifetimeTests
         public string FamilyName => inner.FamilyName;
         public FontWeight Weight => inner.Weight;
         public FontStyle Style => inner.Style;
-        public FontStretch Stretch => inner.Stretch;
+        public FontStretch Stretch => inner.FontStretch;
         public FontSimulations FontSimulations => inner.FontSimulations;
         public bool TryGetStream([NotNullWhen(true)] out Stream? stream) => inner.TryGetStream(out stream);
         public bool TryGetTable(OpenTypeTag tag, out ReadOnlyMemory<byte> table) => inner.TryGetTable(tag, out table);
