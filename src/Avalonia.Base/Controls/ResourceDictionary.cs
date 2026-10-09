@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Avalonia.Collections;
 using Avalonia.Controls.Templates;
@@ -187,82 +188,122 @@ namespace Avalonia.Controls
         private bool TryGetResourceCore(object key, ThemeVariant? theme, out object? value,
             out ResourceDictionary? foundIn, ref bool cacheable, bool localChecked = false)
         {
-            // Mark every visited dictionary, not only the winner. Earlier misses determine
-            // precedence too, and a fully missing lookup depends on the entire visited graph.
-            // This sticky bit owns no graph references and is never cleared on cache eviction.
-            MarkResourceLookupDependency();
-            foundIn = null;
-            if (!localChecked && TryGetValue(key, out value)) { foundIn = this; return true; }
-            if (_themeDictionary is not null)
+            var dictionary = this;
+            while (true)
             {
-                if (theme is not null && theme != ThemeVariant.Default)
+                // Keep the live traversal: a comparer, factory or custom provider may mutate
+                // the graph during a probe. No flattened snapshot may replace these reads.
+                dictionary.MarkResourceLookupDependency();
+                foundIn = null;
+                if (!localChecked && dictionary.TryGetValue(key, out value))
                 {
-                    if (_themeDictionary.TryGetValue(theme, out var provider) && Probe(provider, key, theme, out value, out foundIn, ref cacheable))
-                        return true;
-                    var inherited = theme.InheritVariant;
-                    while (inherited is not null)
+                    foundIn = dictionary;
+                    return true;
+                }
+                if (dictionary._themeDictionary is not null)
+                {
+                    if (theme is not null && theme != ThemeVariant.Default)
                     {
-                        if (_themeDictionary.TryGetValue(inherited, out provider) && Probe(provider, key, theme, out value, out foundIn, ref cacheable))
+                        if (dictionary._themeDictionary.TryGetValue(theme, out var provider) &&
+                            Probe(provider, key, theme, out value, out foundIn, ref cacheable))
                             return true;
-                        inherited = inherited.InheritVariant;
+                        var inherited = theme.InheritVariant;
+                        while (inherited is not null)
+                        {
+                            if (dictionary._themeDictionary.TryGetValue(inherited, out provider) &&
+                                Probe(provider, key, theme, out value, out foundIn, ref cacheable))
+                                return true;
+                            inherited = inherited.InheritVariant;
+                        }
+                    }
+                    if (dictionary._themeDictionary.TryGetValue(ThemeVariant.Default, out var fallback) &&
+                        Probe(fallback, key, theme, out value, out foundIn, ref cacheable))
+                        return true;
+                }
+                if (dictionary._mergedDictionaries is not null)
+                {
+                    for (var i = dictionary._mergedDictionaries.Count - 1; i >= 0; --i)
+                    {
+                        var provider = dictionary._mergedDictionaries[i];
+                        if (i == 0 && provider.GetType() == typeof(ResourceDictionary))
+                        {
+                            // This is a tail call: all higher-priority siblings and themes
+                            // have already missed, and this frame has no remaining work.
+                            dictionary = (ResourceDictionary)provider;
+                            localChecked = false;
+                            goto NextDictionary;
+                        }
+                        if (Probe(provider, key, theme, out value, out foundIn, ref cacheable))
+                            return true;
                     }
                 }
-                if (_themeDictionary.TryGetValue(ThemeVariant.Default, out var fallback) && Probe(fallback, key, theme, out value, out foundIn, ref cacheable))
-                    return true;
+                value = null;
+                foundIn = null;
+                return false;
+            NextDictionary:;
             }
-            if (_mergedDictionaries is not null)
-                for (var i = _mergedDictionaries.Count - 1; i >= 0; --i)
-                    if (Probe(_mergedDictionaries[i], key, theme, out value, out foundIn, ref cacheable))
-                        return true;
-            value = null;
-            return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool Probe(IResourceProvider provider, object key, ThemeVariant? theme,
             out object? value, out ResourceDictionary? foundIn, ref bool cacheable)
         {
-            // Custom providers (including interface reimplementations on subclasses) may have
-            // dynamic lookup behavior. Never cache an answer which bypasses one of their probes.
             if (provider.GetType() == typeof(ResourceDictionary))
-                return ((ResourceDictionary)provider).TryGetResourceCore(key, theme, out value, out foundIn, ref cacheable);
+            {
+                var dictionary = (ResourceDictionary)provider;
+                dictionary.MarkResourceLookupDependency();
+                if (dictionary.TryGetValue(key, out value))
+                {
+                    foundIn = dictionary;
+                    return true;
+                }
+                // Check children after the lookup, not before: arbitrary key equality can
+                // add children while reporting a local miss. Most resource leaves stop here.
+                if (dictionary._themeDictionary is not null || dictionary._mergedDictionaries is not null)
+                    return dictionary.TryGetResourceCore(key, theme, out value, out foundIn, ref cacheable, localChecked: true);
+                foundIn = null;
+                return false;
+            }
+            // Retain interface dispatch for subclasses, including interface reimplementations.
             foundIn = null;
             cacheable = false;
             return provider.TryGetResource(key, theme, out value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryGetValue(object key, out object? value)
         {
             if (_inner is not null && _inner.TryGetValue(key, out value))
-            {
-                if (value is IDeferredContent deferred)
-                {
-                    if (_lastDeferredItemKey == key) { value = null; return false; }
-                    try
-                    {
-                        _lastDeferredItemKey = key;
-                        ++ResourceLookupCache.DeferredDepth;
-                        value = deferred.Build(null) switch
-                        {
-                            ITemplateResult t => t.Result,
-                            { } v => v,
-                            _ => null,
-                        };
-                        if (deferred is not NotSharedDeferredItem)
-                        {
-                            _inner[key] = value;
-                            InvalidateLookupCache();
-                        }
-                    }
-                    finally
-                    {
-                        --ResourceLookupCache.DeferredDepth;
-                        _lastDeferredItemKey = null;
-                    }
-                }
-                return true;
-            }
+                return value is not IDeferredContent deferred || BuildDeferredValue(key, deferred, out value);
             value = null;
             return false;
+        }
+
+        private bool BuildDeferredValue(object key, IDeferredContent deferred, out object? value)
+        {
+            if (_lastDeferredItemKey == key) { value = null; return false; }
+            try
+            {
+                _lastDeferredItemKey = key;
+                ++ResourceLookupCache.DeferredDepth;
+                value = deferred.Build(null) switch
+                {
+                    ITemplateResult t => t.Result,
+                    { } v => v,
+                    _ => null,
+                };
+                if (deferred is not NotSharedDeferredItem)
+                {
+                    _inner![key] = value;
+                    InvalidateLookupCache();
+                }
+            }
+            finally
+            {
+                --ResourceLookupCache.DeferredDepth;
+                _lastDeferredItemKey = null;
+            }
+            return true;
         }
 
         /// <summary>
@@ -297,6 +338,7 @@ namespace Avalonia.Controls
         internal bool ContainsDeferredKey(object key) =>
             _inner is not null && _inner.TryGetValue(key, out var result) && result is IDeferredContent;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void MarkResourceLookupDependency()
         {
             if (!_isLookupDependency) _isLookupDependency = true;
