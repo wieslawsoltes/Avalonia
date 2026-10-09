@@ -10,7 +10,7 @@ namespace Avalonia
     /// A typed avalonia property.
     /// </summary>
     /// <typeparam name="TValue">The value type of the property.</typeparam>
-    public abstract class AvaloniaProperty<TValue> : AvaloniaProperty
+    public abstract class AvaloniaProperty<TValue> : AvaloniaProperty, ITypedTemplateBindingFactory
     {
         private readonly LightweightSubject<AvaloniaPropertyChangedEventArgs<TValue>> _changed;
 
@@ -56,7 +56,6 @@ namespace Avalonia
         /// An observable that is fired when this property changes on any
         /// <see cref="AvaloniaObject"/> instance.
         /// </value>
-
         public new IObservable<AvaloniaPropertyChangedEventArgs<TValue>> Changed => _changed;
 
         /// <summary>
@@ -70,17 +69,25 @@ namespace Avalonia
 
         private protected override IObservable<AvaloniaPropertyChangedEventArgs> GetChanged() => Changed;
 
+        BindingExpressionBase? ITypedTemplateBindingFactory.CreateTypedTemplateBinding(
+            AvaloniaProperty target, BindingMode mode)
+        {
+            // Sentinel-capable properties and direct properties retain the original expression.
+            // Generic construction through the property avoids reflection/MakeGenericType in AOT.
+            if (this is StyledProperty<TValue> source && target is StyledProperty<TValue> destination &&
+                !typeof(TValue).IsAssignableFrom(UnsetValue.GetType()) &&
+                !typeof(TValue).IsAssignableFrom(BindingOperations.DoNothing.GetType()))
+                return new TypedTemplateBindingExpression<TValue>(source, destination, mode);
+            return null;
+        }
+
         [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingMessages.ImplicitTypeConversionSupressWarningMessage)]
         private protected BindingValue<object?> TryConvert(object? value)
         {
             if (value == UnsetValue)
-            {
                 return BindingValue<object?>.Unset;
-            }
             else if (value == BindingOperations.DoNothing)
-            {
                 return BindingValue<object?>.DoNothing;
-            }
 
             if (!TypeUtilities.TryConvertImplicit(PropertyType, value, out var converted))
             {
@@ -91,7 +98,6 @@ namespace Avalonia
                     value?.GetType().FullName ?? "(null)"));
                 return BindingValue<object?>.BindingError(error);
             }
-
             return converted;
         }
     }

@@ -1,0 +1,9 @@
+# Design 05: typed template-binding value-store route
+
+`TemplateBinding.CreateInstance` selects `TypedTemplateBindingExpression<T>` when both properties are styled properties of exactly the same type, the binding has no converter, and the target does not request data validation. A factory implemented on the already-generic property constructs the expression without runtime reflection, dynamic code generation or `MakeGenericType`. Parameterless, differently typed, direct, converter-bearing and sentinel-capable properties retain the original expression.
+
+Source reads use `GetValue<T>`, expression storage uses `Optional<T>`, target publication uses `IBindingExpressionSink.OnChanged`, and the value store reads `IValueEntry<T>.GetValue`. No boxed value passes through the regular source-to-target route. Untyped diagnostics still box on request; two-way writes use typed event arguments and `SetCurrentValue<T>`. The original general expression remains available and is used as a behavioral oracle in tests.
+
+The typed expression retains template priority, the original target-default behavior when its parent is missing, identity comparison for reference values, value comparison for structs, unsubscribe/restart behavior, and separate observable detach/reattach states. It does not collapse source notifications or introduce a two-way feedback suppression rule. User converter/error cases are deliberately not folded into this fast path.
+
+`FerroUiTypedTemplateBindingTests` compares exact event sequences and values with the general implementation for reentrancy, clearing, reparenting, two-way writeback, higher-priority local overrides and resumption. It also tests selection/fallback, null values and disposal. Existing template and control suites remain required. Native `template-identity` measures the full path; no timing or allocation improvement is claimed until the exact revision is run.
