@@ -27,20 +27,32 @@ namespace Avalonia.Controls
 
         public object? this[object key]
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get { TryGetValue(key, out var value); return value; }
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
-                // Strings need no stability bookkeeping; keep the ordinary local setter
-                // free of a helper call even before tiered compilation has optimized it.
-                if (key is not string) TrackKey(key);
-                if (_isLookupDependency) SetValueWithCachedLocations(key, value);
-                else
+                if (!_isLookupDependency && !_hasUnstableKeys && key is string)
                 {
+                    // Only strings/runtime Types are stored here, and this string query
+                    // cannot call user hashing/equality. No dependency can appear during
+                    // the write. Owner callbacks still run, after the value is committed.
                     Inner[key] = value;
-                    // Recheck after arbitrary hashing: a callback may establish a dependency.
-                    RaiseResourcesChanged();
+                    base.RaiseResourcesChanged();
                 }
+                else SetValueWithCallbacks(key, value);
+            }
+        }
+
+        private void SetValueWithCallbacks(object key, object? value)
+        {
+            if (key is not string) TrackKey(key);
+            if (_isLookupDependency) SetValueWithCachedLocations(key, value);
+            else
+            {
+                Inner[key] = value;
+                // Arbitrary hashing/equality can establish a dependency during insertion.
+                RaiseResourcesChanged();
             }
         }
 
