@@ -1,0 +1,9 @@
+# Cold shaping: optional metadata and single-writer initialization
+
+The previous implementation grew every ShapedBuffer by a metrics-cache reference and generation stamp: 16 bytes on the measured 64-bit CLR. Uncacheable and one-off runs paid for metadata they never used.
+
+Metrics state now belongs to an optional stateful glyph reference. Normal RefCountable references and ShapedBuffer instances have no state fields. Cache hits construct the stateful reference directly in the existing reference allocation; second-touch admission upgrades only the admitted buffer's reference. Reference counts, critical finalization, independent arrays and alias lifetime remain unchanged. Clone and CloneAs intentionally drop view-local metadata, as Split/WithBidiLevel previously did; sibling writes still invalidate the original through the shared holder generation. No global weak table or per-buffer dictionary is introduced.
+
+HarfBuzz and snapshot restoration also populate newly allocated, unpublished buffers through InitializeGlyph. At that point there are no aliases or derived caches to invalidate. The method copies both glyph information and the parallel glyph-id array without an atomic generation increment per glyph. All writes after publication continue through the unchanged public indexer, including generation bumps and cluster-cache invalidation. This removes work for cold/context-sensitive text as well as cache hits.
+
+Tests cover optional-state allocation versus ordinary buffers without assuming a particular object size, independent snapshot copies, metadata replacement, alias mutation/disposal, index-array consistency, and stateful reference ownership. Existing exact glyph/metrics/raster and reference-lifetime suites remain required. The original 26 scenarios are unchanged; exact byte/time results must be read from the new commit's run, not inferred from this design.

@@ -60,7 +60,6 @@ internal sealed class ShapedRunCache
             }
             return true;
         }
-
         // Age cold hints on eligible bypasses too. Ineligible memory/options never call
         // this policy. Counting only sampled misses would preserve hints over full scans.
         Interlocked.Increment(ref _admissionClock);
@@ -120,10 +119,8 @@ internal sealed class ShapedRunCache
 #if AVALONIA_PERF_COUNTERS
         Avalonia.Diagnostics.PerformanceCounters.Increment(Avalonia.Diagnostics.PerformanceCounter.ShapeHits);
 #endif
-        result = new ShapedBuffer(text, entry.Glyphs.Length, options.GlyphTypeface,
-            options.FontRenderingEmSize, options.BidiLevel);
-        for (var i = 0; i < entry.Glyphs.Length; ++i) result[i] = entry.Glyphs[i];
-        result.AttachMetricsCache(entry.Metrics);
+        result = new ShapedBuffer(text, entry.Glyphs, options.GlyphTypeface,
+            options.FontRenderingEmSize, options.BidiLevel, entry.Metrics);
         return true;
     }
 
@@ -163,8 +160,7 @@ internal sealed class ShapedRunCache
             var node = _lru.AddFirst(new Entry(key, glyphs, metrics, bytes));
             _entries.Add(key, node);
             _retainedBytes += bytes;
-            // Give a newly recurring run one immediate chance to hit. Admission by itself
-            // is not a benefit: only TryGet's real hit resets the unproductive-miss streak.
+            // Only a real hit resets the unproductive-miss streak.
             Volatile.Write(ref _probeCountdown, 0);
             buffer.AttachMetricsCache(metrics);
 #if AVALONIA_PERF_COUNTERS
