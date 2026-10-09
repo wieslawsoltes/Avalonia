@@ -36,6 +36,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Validate measurement arithmetic and module metadata parser
+        working-directory: scripts/performance/browser
+        run: node --test evidence.test.mjs
       - name: Install browser test dependencies
         working-directory: scripts/performance/browser
         run: |
@@ -49,7 +52,7 @@ jobs:
           if [ "$MODE" = aot ]; then args+=(--aot); fi
           if [ "$MODE" = named-interpreter ]; then args+=(--symbols); fi
           python3 scripts/performance/build-browser.py --output "$RUNNER_TEMP/browser-builds" "${args[@]}"
-      - name: Real input, pixel parity, startup and idle measurements
+      - name: Real input, resource invalidation, pixels, profiling, startup and idle measurements
         run: node scripts/performance/browser/compare.mjs "$RUNNER_TEMP/browser-builds/base" "$RUNNER_TEMP/browser-builds/head" "$RUNNER_TEMP/browser-results" 3
       - name: Publish report
         if: always()
@@ -64,6 +67,7 @@ jobs:
           path: |
             ${{ runner.temp }}/browser-results
             ${{ runner.temp }}/browser-builds/provenance.json
+            scripts/performance/browser/package-lock.json
           retention-days: 14
       - uses: actions/upload-artifact@v7
         if: success()
