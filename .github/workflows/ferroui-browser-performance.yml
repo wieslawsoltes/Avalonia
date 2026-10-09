@@ -9,23 +9,18 @@ on:
       - '.github/workflows/ferroui-browser-performance.yml'
       - 'Directory.Build.*'
   workflow_dispatch:
-    inputs:
-      aot:
-        description: Measure the AOT deployment tradeoff as well as interpreter mode
-        type: boolean
-        default: false
-      symbols:
-        description: Retain native symbols in the exact measured build
-        type: boolean
-        default: false
 permissions:
   contents: read
 concurrency:
   group: ferroui-browser-${{ github.ref_name }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   browser:
     if: github.repository == 'wieslawsoltes/Avalonia'
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [interpreter, aot, named-interpreter]
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
@@ -48,12 +43,11 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Publish exact baseline and head browser apps
         env:
-          AOT: ${{ inputs.aot || 'false' }}
-          SYMBOLS: ${{ inputs.symbols || 'false' }}
+          MODE: ${{ matrix.mode }}
         run: |
           args=()
-          if [ "$AOT" = true ]; then args+=(--aot); fi
-          if [ "$SYMBOLS" = true ]; then args+=(--symbols); fi
+          if [ "$MODE" = aot ]; then args+=(--aot); fi
+          if [ "$MODE" = named-interpreter ]; then args+=(--symbols); fi
           python3 scripts/performance/build-browser.py --output "$RUNNER_TEMP/browser-builds" "${args[@]}"
       - name: Real input, pixel parity, startup and idle measurements
         run: node scripts/performance/browser/compare.mjs "$RUNNER_TEMP/browser-builds/base" "$RUNNER_TEMP/browser-builds/head" "$RUNNER_TEMP/browser-results" 3
@@ -66,7 +60,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: ferroui-browser-results
+          name: ferroui-browser-${{ matrix.mode }}-results
           path: |
             ${{ runner.temp }}/browser-results
             ${{ runner.temp }}/browser-builds/provenance.json
@@ -74,6 +68,6 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: success()
         with:
-          name: ferroui-browser-exact-builds
+          name: ferroui-browser-${{ matrix.mode }}-exact-builds
           path: ${{ runner.temp }}/browser-builds
           retention-days: 7
