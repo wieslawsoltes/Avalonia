@@ -17,14 +17,17 @@ internal sealed class ShapedRunCache
     internal const int MaxRetainedBytes = 256 * 1024;
     internal const int MaxTextLength = 128;
     internal const int MaxGlyphCount = 256;
+    internal const int AdmissionSlots = 1024;
+    internal const int AdmissionRetainedBytes = AdmissionSlots * sizeof(ulong);
 
     private readonly object _gate = new();
     private readonly Dictionary<Key, LinkedListNode<Entry>> _entries = new();
     private readonly LinkedList<Entry> _lru = new();
+    private readonly ulong[] _recent = new ulong[AdmissionSlots];
     private int _retainedBytes;
 
     internal int Count { get { lock (_gate) return _entries.Count; } }
-    internal int RetainedBytes { get { lock (_gate) return _retainedBytes; } }
+    internal int RetainedBytes { get { lock (_gate) return _retainedBytes + AdmissionRetainedBytes; } }
 
     internal readonly record struct Key(
         string Text, long Typeface, double Size, sbyte BidiLevel, string Culture,
@@ -85,20 +88,32 @@ internal sealed class ShapedRunCache
 
         lock (_gate)
         {
+            // A fingerprint is only an admission hint, never a glyph lookup key. A collision
+            // can admit a cold entry, but the dictionary still checks the complete key.
+            var fingerprint = (ulong)(uint)key.GetHashCode() + 1;
+            ref var recent = ref _recent[(int)(fingerprint & (AdmissionSlots - 1))];
+            if (recent != fingerprint)
+            {
+                recent = fingerprint;
+                return;
+            }
+
             // Another caller may have shaped this key while the cache lock was released.
             if (_entries.ContainsKey(key))
+                return;
+
+            // Cold, one-off strings never reach this allocation. Admission retains no strings,
+            // cultures, fonts or shaped buffers, and is included in the retained-byte allowance.
+            var bytes = 256 + (key.Text.Length + key.Culture.Length) * sizeof(char) + buffer.Length * 40;
+            if (bytes > MaxRetainedBytes - AdmissionRetainedBytes)
                 return;
 
             var glyphs = new GlyphInfo[buffer.Length];
             for (var i = 0; i < glyphs.Length; ++i)
                 glyphs[i] = buffer[i];
 
-            // Conservative accounting for glyph/string payloads and per-entry managed overhead.
-            // Both the byte allowance and the entry limit apply; no font object is retained.
-            var bytes = 256 + (key.Text.Length + key.Culture.Length) * sizeof(char) + glyphs.Length * 40;
-            if (bytes > MaxRetainedBytes)
-                return;
-            while (_entries.Count >= MaxEntries || _retainedBytes + bytes > MaxRetainedBytes)
+            while (_entries.Count >= MaxEntries ||
+                   _retainedBytes + bytes > MaxRetainedBytes - AdmissionRetainedBytes)
             {
                 var last = _lru.Last!;
                 _entries.Remove(last.Value.Key);

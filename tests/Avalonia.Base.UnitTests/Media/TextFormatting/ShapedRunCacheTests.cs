@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,14 +29,16 @@ public class ShapedRunCacheTests
         var font = CreateFont();
         using var fontLifetime = Disposable.Create(font.Dispose);
         var options = new TextShaperOptions(font, 16, (sbyte)bidi);
-        // Full mutable memory has the same context but is deliberately not cache eligible.
         using var reference = shaper.ShapeText(text.ToCharArray().AsMemory(), options);
         using var first = shaper.ShapeText(text.AsMemory(), options);
+        Assert.Equal(0, shaper.ShapedRunCache.Count);
+        using var admitted = shaper.ShapeText(text.AsMemory(), options);
         using var cached = shaper.ShapeText(text.AsMemory(), options);
         Assert.Equal(1, shaper.ShapedRunCache.Count);
         Assert.Equal(Snapshot(reference), Snapshot(first));
+        Assert.Equal(Snapshot(reference), Snapshot(admitted));
         Assert.Equal(Snapshot(reference), Snapshot(cached));
-        Assert.NotSame(first, cached);
+        Assert.NotSame(admitted, cached);
     }
 
     [Fact]
@@ -79,6 +82,7 @@ public class ShapedRunCacheTests
         {
             using var reference = shaper.ShapeText("fi\ti".ToCharArray().AsMemory(), option);
             using var first = shaper.ShapeText("fi\ti".AsMemory(), option);
+            using var admitted = shaper.ShapeText("fi\ti".AsMemory(), option);
             using var cached = shaper.ShapeText("fi\ti".AsMemory(), option);
             Assert.Equal(Snapshot(reference), Snapshot(cached));
         }
@@ -98,7 +102,8 @@ public class ShapedRunCacheTests
             foreach (var name in new[] { "en-US", "tr-TR" })
             {
                 CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(name);
-                using var result = shaper.ShapeText("fi".AsMemory(), new TextShaperOptions(font));
+                using var first = shaper.ShapeText("fi".AsMemory(), new TextShaperOptions(font));
+                using var admitted = shaper.ShapeText("fi".AsMemory(), new TextShaperOptions(font));
             }
             Assert.Equal(2, shaper.ShapedRunCache.Count);
         }
@@ -113,11 +118,14 @@ public class ShapedRunCacheTests
         var font = CreateFont();
         using var fontLifetime = Disposable.Create(font.Dispose);
         var options = new TextShaperOptions(font);
-        using var sliced = shaper.ShapeText("before office after".AsMemory(7, 6), options);
-        using var mutable = shaper.ShapeText("office".ToCharArray().AsMemory(), options);
-        using var featured = shaper.ShapeText("office".AsMemory(), new TextShaperOptions(font,
-            fontFeatures: new[] { FontFeature.Parse("liga=0") }));
-        using var longText = shaper.ShapeText(new string('a', ShapedRunCache.MaxTextLength + 1).AsMemory(), options);
+        for (var i = 0; i < 3; ++i)
+        {
+            using var sliced = shaper.ShapeText("before office after".AsMemory(7, 6), options);
+            using var mutable = shaper.ShapeText("office".ToCharArray().AsMemory(), options);
+            using var featured = shaper.ShapeText("office".AsMemory(), new TextShaperOptions(font,
+                fontFeatures: new[] { FontFeature.Parse("liga=0") }));
+            using var longText = shaper.ShapeText(new string('a', ShapedRunCache.MaxTextLength + 1).AsMemory(), options);
+        }
         Assert.Equal(0, shaper.ShapedRunCache.Count);
     }
 
@@ -129,11 +137,15 @@ public class ShapedRunCacheTests
         var font = CreateFont();
         using var fontLifetime = Disposable.Create(font.Dispose);
         var options = new TextShaperOptions(font);
-        // Short values hit the entry limit before the byte allowance.
+        void Admit(string text)
+        {
+            shaper.ShapeText(text.AsMemory(), options).Dispose();
+            shaper.ShapeText(text.AsMemory(), options).Dispose();
+        }
         for (var i = 0; i < ShapedRunCache.MaxEntries; ++i)
-            shaper.ShapeText(i.ToString(CultureInfo.InvariantCulture).AsMemory(), options).Dispose();
+            Admit(i.ToString(CultureInfo.InvariantCulture));
         shaper.ShapeText("0".AsMemory(), options).Dispose();
-        shaper.ShapeText("new".AsMemory(), options).Dispose();
+        Admit("new");
         var face = (HarfBuzzTypeface)font.TextShaperTypeface;
         Assert.True(ShapedRunCache.TryCreateKey("0".AsMemory(), options, CultureInfo.CurrentCulture, face.CacheId, out var recent));
         Assert.True(ShapedRunCache.TryCreateKey("1".AsMemory(), options, CultureInfo.CurrentCulture, face.CacheId, out var old));
@@ -141,9 +153,65 @@ public class ShapedRunCacheTests
         buffer!.Dispose();
         Assert.False(shaper.ShapedRunCache.TryGet(old, "1".AsMemory(), options, out _));
         for (var i = 0; i < 500; ++i)
-            shaper.ShapeText((new string('x', 100) + i).AsMemory(), options).Dispose();
+            Admit(new string('x', 100) + i);
         Assert.InRange(shaper.ShapedRunCache.Count, 1, ShapedRunCache.MaxEntries);
         Assert.InRange(shaper.ShapedRunCache.RetainedBytes, 1, ShapedRunCache.MaxRetainedBytes);
+    }
+
+    [Fact]
+    public void Cold_Admissions_Allocate_No_Snapshots_And_Do_Not_Retain_Strings()
+    {
+        var shaper = new HarfBuzzTextShaper();
+        using var app = Start(shaper);
+        var font = CreateFont();
+        using var fontLifetime = Disposable.Create(font.Dispose);
+        var options = new TextShaperOptions(font);
+        using var source = shaper.ShapeText("probe".ToCharArray().AsMemory(), options);
+        var cache = new ShapedRunCache();
+        var keys = new List<ShapedRunCache.Key>();
+        var hashes = new HashSet<int>();
+        // Avoid probabilistic admission collisions so the allocation assertion is deterministic.
+        for (var i = 0; keys.Count < 4096; ++i)
+        {
+            var key = new ShapedRunCache.Key("unique " + i, 1, 12, 0, "en-US", 1033, 0, 0);
+            if (hashes.Add(key.GetHashCode()))
+                keys.Add(key);
+        }
+        var warm = new ShapedRunCache();
+        warm.Add(keys[0], source);
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        foreach (var key in keys)
+            cache.Add(key, source);
+        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        Assert.Equal(0, allocated);
+        Assert.Equal(0, cache.Count);
+        Assert.Equal(ShapedRunCache.AdmissionRetainedBytes, cache.RetainedBytes);
+    }
+
+    [Fact]
+    public void One_Off_Scan_Does_Not_Evict_A_Hot_Run()
+    {
+        var shaper = new HarfBuzzTextShaper();
+        using var app = Start(shaper);
+        var font = CreateFont();
+        using var fontLifetime = Disposable.Create(font.Dispose);
+        var options = new TextShaperOptions(font);
+        using var first = shaper.ShapeText("hot".AsMemory(), options);
+        using var admitted = shaper.ShapeText("hot".AsMemory(), options);
+        var face = (HarfBuzzTypeface)font.TextShaperTypeface;
+        Assert.True(ShapedRunCache.TryCreateKey("hot".AsMemory(), options, CultureInfo.CurrentCulture, face.CacheId, out var hot));
+        var hashes = new HashSet<int> { hot.GetHashCode() };
+        for (var i = 0; i < 4096; ++i)
+        {
+            var text = "one off " + i;
+            Assert.True(ShapedRunCache.TryCreateKey(text.AsMemory(), options, CultureInfo.CurrentCulture, face.CacheId, out var key));
+            if (hashes.Add(key.GetHashCode()))
+                shaper.ShapeText(text.AsMemory(), options).Dispose();
+        }
+        Assert.Equal(1, shaper.ShapedRunCache.Count);
+        Assert.True(shaper.ShapedRunCache.TryGet(hot, "hot".AsMemory(), options, out var cached));
+        using (cached)
+            Assert.Equal(Snapshot(admitted), Snapshot(cached!));
     }
 
     [Fact]
@@ -155,6 +223,7 @@ public class ShapedRunCacheTests
         using var fontLifetime = Disposable.Create(font.Dispose);
         var options = new TextShaperOptions(font);
         using var first = shaper.ShapeText("parallel".AsMemory(), options);
+        using var admitted = shaper.ShapeText("parallel".AsMemory(), options);
         var expected = Snapshot(first);
         Parallel.For(0, 64, _ =>
         {
