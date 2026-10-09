@@ -30,6 +30,10 @@
                       PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
+    <!-- Exercise the actual browser timer state machine on the host with JS interop stubs. -->
+    <Compile Include="..\..\src\Browser\Avalonia.Browser\Rendering\BrowserRenderTimer.cs" Link="BrowserRenderTimer.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
 </Project>

@@ -31,14 +31,14 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
-      - name: Install WebAssembly toolchain
-        run: dotnet workload install wasm-tools
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Install WebAssembly toolchain
+        run: dotnet workload install wasm-tools
       - name: Validate measurement arithmetic, calibration and profile evidence
         working-directory: scripts/performance/browser
-        run: node --test *.test.mjs
+        run: node --experimental-strip-types --test *.test.mjs
       - name: Install browser test dependencies
         working-directory: scripts/performance/browser
         run: |
