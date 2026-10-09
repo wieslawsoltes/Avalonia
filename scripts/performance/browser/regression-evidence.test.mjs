@@ -77,13 +77,17 @@ test('different timed scroll endpoints remain visible and inconclusive', () => {
     assert.deepEqual(row.comparison[0].stateDifferences, ['after.Offset']);
 });
 
-test('CPU profile summaries retain exact frame identity and sampled time', () => {
+test('CPU profile summaries retain exact frame identity and forward sample intervals', () => {
     const nodes = [1, 2].map(id => ({ id, callFrame: { functionName: `function-${id}`, url: 'exact.wasm' } }));
-    const summary = summarizeProfile({ nodes, samples: [1, 2, 1], timeDeltas: [100, 50, 200] });
-    assert.equal(summary[0].nodeId, 1);
-    assert.equal(summary[0].samples, 2);
-    assert.equal(summary[0].sampledMicroseconds, 300);
-    assert.throws(() => summarizeProfile({ nodes, samples: [3], timeDeltas: [100] }));
-    assert.throws(() => summarizeProfile({ nodes, samples: [1], timeDeltas: [-1] }));
-    assert.throws(() => summarizeProfile({ nodes, samples: [1], timeDeltas: [] }));
+    const profile = { startTime: 1000, endTime: 1400, nodes, samples: [1, 2, 1], timeDeltas: [100, 50, 200] };
+    const summary = summarizeProfile(profile);
+    assert.equal(summary[0].nodeId, 2);
+    assert.equal(summary[0].sampledMicroseconds, 200);
+    assert.equal(summary[1].nodeId, 1);
+    assert.equal(summary[1].samples, 2);
+    assert.equal(summary[1].sampledMicroseconds, 100);
+    assert.strictEqual(summary[1].callFrame, nodes[0].callFrame);
+    assert.throws(() => summarizeProfile({ ...profile, samples: [3], timeDeltas: [100] }));
+    assert.throws(() => summarizeProfile({ ...profile, samples: [1], timeDeltas: [-1] }));
+    assert.throws(() => summarizeProfile({ ...profile, samples: [1], timeDeltas: [] }));
 });

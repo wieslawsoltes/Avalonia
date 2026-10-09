@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { median, pairedChange, validateSnapshot } from './evidence.mjs';
+import { analyzeProfile } from './profile-timeline.mjs';
 
 export const scenarios = Object.freeze(['list-wheel', 'list-thumb', 'tree-wheel', 'tree-thumb',
     'idle-overlay-false', 'idle-overlay-true']);
@@ -133,22 +134,5 @@ export function auditReports(comparison, calibration) {
 }
 
 export function summarizeProfile(profile) {
-    assert(Array.isArray(profile?.nodes) && Array.isArray(profile.samples) && Array.isArray(profile.timeDeltas), 'Missing CPU profile samples');
-    assert.equal(profile.samples.length, profile.timeDeltas.length, 'Mismatched CPU profile samples');
-    const nodes = new Map();
-    for (const node of profile.nodes) {
-        assert(Number.isInteger(node.id) && !nodes.has(node.id) && node.callFrame, 'Invalid profile node');
-        nodes.set(node.id, node);
-    }
-    const totals = new Map();
-    for (let i = 0; i < profile.samples.length; ++i) {
-        const id = profile.samples[i], duration = profile.timeDeltas[i];
-        assert(nodes.has(id), 'Unknown sampled profile node');
-        finite(duration, 'Invalid sample duration');
-        const total = totals.get(id) ?? { nodeId: id, callFrame: nodes.get(id).callFrame, samples: 0, sampledMicroseconds: 0 };
-        ++total.samples;
-        total.sampledMicroseconds += duration;
-        totals.set(id, total);
-    }
-    return [...totals.values()].sort((a, b) => b.sampledMicroseconds - a.sampledMicroseconds);
+    return analyzeProfile(profile).frames;
 }

@@ -7,7 +7,8 @@ import { dirname, extname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import { validateSnapshot, taskMilliseconds, inspectWasm } from './evidence.mjs';
-import { auditReports, summarizeProfile } from './regression-evidence.mjs';
+import { auditReports } from './regression-evidence.mjs';
+import { analyzeProfile } from './profile-timeline.mjs';
 
 const [buildArgument, resultArgument, outputArgument] = process.argv.slice(2);
 if (!buildArgument || !resultArgument || !outputArgument)
@@ -18,7 +19,8 @@ await mkdir(output, { recursive: true });
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
 const json = async file => JSON.parse(await readFile(file, 'utf8'));
 const save = async (file, value) => writeFile(resolve(output, file), JSON.stringify(value, null, 2) + '\n');
-const manifest = { schema: 1, provenance: await json(resolve(builds, 'provenance.json')), files: {}, profiles: [] };
+const manifest = { schema: 1, profileSummaryVersion: 2,
+    provenance: await json(resolve(builds, 'provenance.json')), files: {}, profiles: [] };
 assert(/^[0-9a-f]{40}$/.test(manifest.provenance.base) && /^[0-9a-f]{40}$/.test(manifest.provenance.head), 'Missing exact revisions');
 const roots = { base: await realpath(resolve(builds, 'base')), head: await realpath(resolve(builds, 'head')) };
 
@@ -66,6 +68,7 @@ try {
     for (const row of audit.rows)
         lines.push(`| ${row.software ? 'Software2D' : 'default/WebGL'} | ${row.scenario} | ${row.deltaPercent?.toFixed(1) ?? 'n/a'}% | ${row.medianAbsoluteDeltaMs.toFixed(2)} | ${row.aaRatios.map(x => x?.toFixed(3) ?? 'n/a').join(', ')} | ${row.status} |`);
     lines.push('', audit.limitations, '', '## Separate scenario profiles', '',
+        'Version 2 estimates forward intervals after stable timestamp sorting, ending at the recorded profile end. Time before the first sample is unattributed. Negative deltas and reordered/coincident samples are reported, not clamped or removed.',
         'Sampled self-time is diagnostic, not task CPU, GPU time or presented FPS. Frames belong only to the exact fingerprinted build. Unknown wasm indices are not matched across different links.', '');
     await writeFile(resolve(output, 'diagnostics.md'), lines.join('\n') + '\n');
     console.log(lines.join('\n'));
@@ -119,14 +122,16 @@ try {
                     if (scroll) assert(after.Offset > before.Offset, `${name}: real input did not scroll`);
                     const file = `${label}-${software}-${name}.cpuprofile`;
                     await save(file, trace);
-                    const top = summarizeProfile(trace);
+                    const { frames: top, timing } = analyzeProfile(trace);
                     const entry = { label, software, name, file, before, after,
-                        diagnosticCpuMs: taskMilliseconds(start, end), profileSha256: sha(await readFile(resolve(output, file))), top };
+                        diagnosticCpuMs: taskMilliseconds(start, end), profileSha256: sha(await readFile(resolve(output, file))),
+                        timing, top };
                     manifest.profiles.push(entry);
                     await save('manifest.json', manifest);
                     const display = top.slice(0, 8).map(x => `${String(x.callFrame.functionName || '(unnamed)').replaceAll('|', '/')} ${(x.sampledMicroseconds / 1000).toFixed(1)} ms`).join('; ');
-                    lines.push(`### ${label} / ${software ? 'Software2D' : 'default/WebGL'} / ${name}`, '', display, '');
-                    console.log(`PROFILE ${label}/${software}/${name}: ${display}`);
+                    const timingNote = `Timestamp deltas: ${timing.negativeDeltas} negative; ${timing.reorderedSamples} reordered; ${timing.coincidentSamples} coincident. Unattributed start: ${(timing.unattributedMicroseconds / 1000).toFixed(3)} ms.`;
+                    lines.push(`### ${label} / ${software ? 'Software2D' : 'default/WebGL'} / ${name}`, '', display, '', timingNote, '');
+                    console.log(`PROFILE ${label}/${software}/${name}: ${display}\n${timingNote}`);
                 }
                 for (const scenario of ['list', 'tree']) {
                     await page.evaluate(s => { window.ferroPerf.scenario(s); window.ferroPerf.theme(false); window.ferroPerf.overlay(false); window.ferroPerf.offset(0); }, scenario);
