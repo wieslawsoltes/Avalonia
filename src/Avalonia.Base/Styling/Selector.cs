@@ -131,12 +131,25 @@ namespace Avalonia.Styling
             IStyle? parent, bool subscribe, out Selector? combinator)
         {
             combinator = null;
-            var activators = new AndActivatorBuilder();
             var previous = start.MovePrevious();
-            SelectorMatchResult result;
-            if (previous is null || previous.IsCombinator)
+            var single = previous is null || previous.IsCombinator;
+            if (single && parent is not ContainerQuery)
             {
-                // The common single-node selector does not allocate an evaluation plan.
+                // There is no AND operation to build for one selector. Return its original
+                // match/activator directly, without a helper call and struct reconstruction.
+#if AVALONIA_PERF_COUNTERS
+                Diagnostics.PerformanceCounters.Increment(Diagnostics.PerformanceCounter.SelectorEvaluations);
+#endif
+                var match = start.Evaluate(control, parent, subscribe);
+                if (match.IsMatch) combinator = previous;
+                return match;
+            }
+
+            var activators = new AndActivatorBuilder();
+            SelectorMatchResult result;
+            if (single)
+            {
+                // Container queries still participate in the original AND and activation.
                 result = EvaluateNode(control, start, parent, subscribe, ref activators);
                 if (result >= SelectorMatchResult.Sometimes) combinator = previous;
             }

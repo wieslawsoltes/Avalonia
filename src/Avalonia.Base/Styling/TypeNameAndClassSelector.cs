@@ -13,6 +13,7 @@ namespace Avalonia.Styling
     /// </summary>
     internal sealed class TypeNameAndClassSelector : Selector
     {
+        private static readonly Type s_runtimeType = typeof(object).GetType();
         private readonly Selector? _previous;
         private List<string>? _classes;
         private Type? _targetType;
@@ -25,128 +26,92 @@ namespace Avalonia.Styling
             var result = new TypeNameAndClassSelector(previous);
             result._targetType = targetType;
             result.IsConcreteType = true;
-
             return result;
         }
-
         public static TypeNameAndClassSelector Is(Selector? previous, Type targetType)
         {
             var result = new TypeNameAndClassSelector(previous);
             result._targetType = targetType;
             result.IsConcreteType = false;
-
             return result;
         }
-
         public static TypeNameAndClassSelector ForName(Selector? previous, string name)
         {
             var result = new TypeNameAndClassSelector(previous);
             result.Name = name;
-
             return result;
         }
-
         public static TypeNameAndClassSelector ForClass(Selector? previous, string className)
         {
             var result = new TypeNameAndClassSelector(previous);
             result.Classes.Add(className);
-
             return result;
         }
+        TypeNameAndClassSelector(Selector? previous) { _previous = previous; }
 
-        TypeNameAndClassSelector(Selector? previous)
-        {
-            _previous = previous;
-        }
-
-        /// <inheritdoc/>
         internal override bool InTemplate => _previous?.InTemplate ?? false;
-
-        /// <summary>
-        /// Gets the name of the control to match.
-        /// </summary>
+        /// <summary>Gets the name of the control to match.</summary>
         public string? Name { get; set; }
-
-        /// <inheritdoc/>
         internal override Type? TargetType => _targetType ?? _previous?.TargetType;
-
-        /// <inheritdoc/>
         internal override bool IsCombinator => false;
-
-        /// <summary>
-        /// Whether the selector matches the concrete <see cref="TargetType"/> or any object which
-        /// implements <see cref="TargetType"/>.
-        /// </summary>
+        /// <summary>Whether this selector matches the concrete type or assignable types.</summary>
         public bool IsConcreteType { get; private set; }
-
-        /// <summary>
-        /// The style classes which the selector matches.
-        /// </summary>
+        /// <summary>The style classes which the selector matches.</summary>
         public IList<string> Classes => _classes ??= new();
+        public override string ToString(Style? owner) => _selectorString ??= BuildSelectorString(owner);
 
-        /// <inheritdoc/>
-        public override string ToString(Style? owner)
-        {
-            return _selectorString ??= BuildSelectorString(owner);
-        }
-
-        /// <inheritdoc/>
         private protected override SelectorMatch Evaluate(StyledElement control, IStyle? parent, bool subscribe)
         {
-            if (TargetType != null)
+            if (_targetType is { } ownType)
             {
+                // An owned constraint is immutable; don't resolve the virtual predecessor
+                // property to retrieve it. StyleKey remains a live read on every evaluation.
                 var controlType = control.StyleKey ?? control.GetType();
-
                 if (IsConcreteType)
                 {
-                    if (controlType != TargetType)
-                    {
-                        return SelectorMatch.NeverThisType;
-                    }
+                    if (controlType != ownType) return SelectorMatch.NeverThisType;
                 }
-                else
+                else if (ReferenceEquals(_lastAssignableType, controlType))
                 {
-                    // Only cache this selector's own immutable type constraint. A TargetType
-                    // inherited through another selector can depend on a mutable Or/nesting tree.
-                    if (_targetType is not null)
-                    {
-                        if (_lastAssignableType != controlType)
-                        {
-                            _lastAssignableResult = _targetType.IsAssignableFrom(controlType);
-                            _lastAssignableType = controlType;
-                        }
-
-                        if (!_lastAssignableResult)
-                            return SelectorMatch.NeverThisType;
-                    }
-                    else if (!TargetType.IsAssignableFrom(controlType))
-                    {
-                        return SelectorMatch.NeverThisType;
-                    }
+                    if (!_lastAssignableResult) return SelectorMatch.NeverThisType;
                 }
+                else if (!UpdateAssignableResult(ownType, controlType))
+                    return SelectorMatch.NeverThisType;
             }
-
-            if (Name != null && control.Name != Name)
+            else if (TargetType != null)
             {
-                return SelectorMatch.NeverThisInstance;
+                // Inherited constraints can change through Or/nesting callbacks, including
+                // during StyleKey access. Preserve the original repeated resolution here.
+                var controlType = control.StyleKey ?? control.GetType();
+                if (IsConcreteType)
+                {
+                    if (controlType != TargetType) return SelectorMatch.NeverThisType;
+                }
+                else if (!TargetType.IsAssignableFrom(controlType))
+                    return SelectorMatch.NeverThisType;
             }
-
+            if (Name != null && control.Name != Name) return SelectorMatch.NeverThisInstance;
             if (_classes is { Count: > 0 })
             {
                 if (subscribe)
-                {
-                    var observable = new StyleClassActivator(control.Classes, _classes);
-
-                    return new SelectorMatch(observable);
-                }
-
+                    return new SelectorMatch(new StyleClassActivator(control.Classes, _classes));
                 if (!StyleClassActivator.AreClassesMatching(control.Classes, _classes))
-                {
                     return SelectorMatch.NeverThisInstance;
-                }
             }
-
             return Name == null ? SelectorMatch.AlwaysThisType : SelectorMatch.AlwaysThisInstance;
+        }
+
+        private bool UpdateAssignableResult(Type constraint, Type controlType)
+        {
+            var result = constraint.IsAssignableFrom(controlType);
+            // Arbitrary Type subclasses can implement mutable assignability/equality. The
+            // reference-only warm check is valid only for actual immutable runtime types.
+            if (constraint.GetType() == s_runtimeType && controlType.GetType() == s_runtimeType)
+            {
+                _lastAssignableResult = result;
+                _lastAssignableType = controlType;
+            }
+            return result;
         }
 
         private protected override Selector? MovePrevious() => _previous;
@@ -155,18 +120,10 @@ namespace Avalonia.Styling
         private string BuildSelectorString(Style? owner)
         {
             var builder = StringBuilderCache.Acquire();
-
-            if (_previous != null)
-            {
-                builder.Append(_previous.ToString(owner, true));
-            }
-
+            if (_previous != null) builder.Append(_previous.ToString(owner, true));
             if (TargetType != null)
             {
-                if (IsConcreteType)
-                {
-                    builder.Append(TargetType.Name);
-                }
+                if (IsConcreteType) builder.Append(TargetType.Name);
                 else
                 {
                     builder.Append(":is(");
@@ -174,26 +131,15 @@ namespace Avalonia.Styling
                     builder.Append(")");
                 }
             }
-
-            if (Name != null)
-            {
-                builder.Append('#');
-                builder.Append(Name);
-            }
-
+            if (Name != null) { builder.Append('#'); builder.Append(Name); }
             if (_classes is { Count: > 0 })
             {
                 foreach (var c in _classes)
                 {
-                    if (!c.StartsWith(":"))
-                    {
-                        builder.Append('.');
-                    }
-
+                    if (!c.StartsWith(":")) builder.Append('.');
                     builder.Append(c);
                 }
             }
-
             return StringBuilderCache.GetStringAndRelease(builder);
         }
     }
