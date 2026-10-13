@@ -372,6 +372,8 @@ namespace Avalonia
 
             property = AvaloniaPropertyRegistry.Instance.GetRegisteredDirect(this, property);
             LogPropertySet(property, value, BindingPriority.LocalValue);
+            if (value is not UnsetValueType and not DoNothingType && _values.TrySetWritableBindingValue(property, value))
+                return;
             if (value is not DoNothingType)
                 _values.PrepareExplicitValue(property, clearing: value is UnsetValueType);
             SetDirectValueUnchecked(property, value);
@@ -802,6 +804,8 @@ namespace Avalonia
             VerifyAccess();
             property = AvaloniaPropertyRegistry.Instance.GetRegisteredDirect(this, property);
             LogPropertySet(property, value, BindingPriority.LocalValue);
+            if (_values.TrySetWritableBindingValue(property, value))
+                return;
             SetDirectValueUnchecked(property, value);
         }
 

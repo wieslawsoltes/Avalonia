@@ -17,7 +17,8 @@ public class AvaloniaObjectTests_BindingValueBehavior
     private const BindingValueBehavior Compatibility =
         BindingValueBehavior.ReplaceNonWritableBindingOnSetValue |
         BindingValueBehavior.RemoveBindingOnClearValue |
-        BindingValueBehavior.ResetCurrentValueOnSourceChange;
+        BindingValueBehavior.ResetCurrentValueOnSourceChange |
+        BindingValueBehavior.IgnoreInactiveBindingSourceUpdates;
 
     public static IEnumerable<object[]> AssignmentCases()
     {
@@ -57,7 +58,7 @@ public class AvaloniaObjectTests_BindingValueBehavior
             Assert.Empty(changes);
         else
             Assert.Equal(new[] { (previous, (object?)value, writable) }, changes);
-        Assert.Equal(writable && !equal ? value : sourceBeforeAssignment, source.Value);
+        Assert.Equal(writable ? value : sourceBeforeAssignment, source.Value);
         source.Value = "later";
         Assert.Equal(mode == BindingMode.TwoWay ? "later" : value, target.GetValue(property));
         Assert.Equal(mode == BindingMode.Default ? BindingMode.OneWay : mode, expression.Mode);
@@ -358,9 +359,135 @@ public class AvaloniaObjectTests_BindingValueBehavior
         Assert.Equal("current", target.Value);
     }
 
+    [Theory]
+    [InlineData(BindingPriority.LocalValue, false)]
+    [InlineData(BindingPriority.LocalValue, true)]
+    [InlineData(BindingPriority.StyleTrigger, false)]
+    [InlineData(BindingPriority.StyleTrigger, true)]
+    [InlineData(BindingPriority.Style, false)]
+    [InlineData(BindingPriority.Style, true)]
+    public void Higher_Priority_Contributions_Do_Not_Write_Through_Lower_Binding(BindingPriority priority, bool observable)
+    {
+        var target = new OptInTarget();
+        var source = new Source { Value = "initial" };
+        var expression = Bind(target, source, Target.ValueProperty, BindingMode.TwoWay, priority);
+        // A local SetValue is an explicit write which a writable style expression
+        // consumes in WPF; use an animation to supersede a style trigger instead.
+        var higherPriority = !observable && priority == BindingPriority.StyleTrigger
+            ? BindingPriority.Animation : priority - 1;
+        using var higher = observable
+            ? target.Bind(Target.ValueProperty, new BehaviorSubject<string?>("higher"), higherPriority)
+            : target.SetValue(Target.ValueProperty, "higher", higherPriority);
+        Assert.Equal("higher", target.Value);
+        Assert.Equal("initial", source.Value);
+        higher!.Dispose();
+        Assert.Equal("initial", target.Value);
+        Assert.Equal("initial", source.Value);
+        target.SetCurrentValue(Target.ValueProperty, "current");
+        Assert.Equal("current", source.Value);
+        Assert.Same(expression, Expression(target, Target.ValueProperty));
+    }
+
+    [Theory]
+    [InlineData(BindingPriority.Style, false)]
+    [InlineData(BindingPriority.Style, true)]
+    [InlineData(BindingPriority.Template, false)]
+    [InlineData(BindingPriority.Template, true)]
+    [InlineData(BindingPriority.StyleTrigger, false)]
+    [InlineData(BindingPriority.StyleTrigger, true)]
+    public void Explicit_Writes_Preserve_Writable_Style_Expression(BindingPriority priority, bool current)
+    {
+        var target = new OptInTarget();
+        var source = new Source { Value = "initial" };
+        var expression = Bind(target, source, Target.ValueProperty, BindingMode.TwoWay, priority);
+        if (current)
+            target.SetCurrentValue(Target.ValueProperty, "assigned");
+        else
+            target.Value = "assigned";
+        Assert.Equal("assigned", target.Value);
+        Assert.Equal("assigned", source.Value);
+        Assert.Same(expression, Expression(target, Target.ValueProperty));
+        Assert.Equal(priority, target.GetValueStore().GetDiagnostic(Target.ValueProperty).Priority);
+        source.Value = "later";
+        Assert.Equal("later", target.Value);
+    }
+
+    [Theory]
+    [InlineData(BindingPriority.LocalValue, false)]
+    [InlineData(BindingPriority.LocalValue, true)]
+    [InlineData(BindingPriority.Style, false)]
+    [InlineData(BindingPriority.Style, true)]
+    public void Explicit_Write_Under_Animation_Updates_Binding_Base_Value(BindingPriority priority, bool current)
+    {
+        var target = new OptInTarget();
+        var source = new Source { Value = "initial" };
+        Bind(target, source, Target.ValueProperty, BindingMode.TwoWay, priority);
+        using var animation = target.SetValue(Target.ValueProperty, "animated", BindingPriority.Animation);
+        if (current)
+            target.SetCurrentValue(Target.ValueProperty, "assigned");
+        else
+            target.Value = "assigned";
+        Assert.Equal("animated", target.Value);
+        Assert.Equal("assigned", source.Value);
+        animation!.Dispose();
+        Assert.Equal("assigned", target.Value);
+    }
+
+    [Theory]
+    [InlineData(BindingPriority.LocalValue)]
+    [InlineData(BindingPriority.Style)]
+    public void Explicit_Source_Update_Under_Animation_Uses_Binding_Base_Value(BindingPriority priority)
+    {
+        var target = new OptInTarget();
+        var source = new Source { Value = "initial" };
+        var expression = target.Bind(Target.ValueProperty, CompiledBinding.Create<Source, string?>(x => x.Value,
+            source: source, mode: BindingMode.TwoWay, priority: priority, updateSourceTrigger: UpdateSourceTrigger.Explicit));
+        target.Value = "pending";
+        Assert.Equal("initial", source.Value);
+        using var animation = target.SetValue(Target.ValueProperty, "animated", BindingPriority.Animation);
+        expression.UpdateSource();
+        Assert.Equal("pending", source.Value);
+        Assert.Equal("animated", target.Value);
+        animation!.Dispose();
+        Assert.Equal("pending", target.Value);
+    }
+
+    [Fact]
+    public void None_Preserves_Existing_Animation_Feedback_Behavior()
+    {
+        var target = new Target();
+        var source = new Source { Value = "initial" };
+        Bind(target, source, Target.ValueProperty, BindingMode.TwoWay);
+        using var animation = target.SetValue(Target.ValueProperty, "animated", BindingPriority.Animation);
+        Assert.Equal("animated", source.Value);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Indexer_And_Template_Bindings_Respect_Animation_And_Explicit_Writes(bool template)
+    {
+        var source = new Source { Value = "initial" };
+        var target = new OptInTarget { TemplatedParent = source };
+        var binding = template
+            ? (BindingBase)new TemplateBinding(Source.ValueProperty) { Mode = BindingMode.TwoWay }
+            : new IndexerBinding(source, Source.ValueProperty, BindingMode.TwoWay);
+        var expression = target.Bind(Target.ValueProperty, binding);
+        Assert.Equal(BindingMode.TwoWay, expression.Mode);
+        using var animation = target.SetValue(Target.ValueProperty, "animated", BindingPriority.Animation);
+        Assert.Equal("initial", source.Value);
+        target.Value = "assigned";
+        Assert.Equal("assigned", source.Value);
+        Assert.Equal("animated", target.Value);
+        animation!.Dispose();
+        Assert.Equal("assigned", target.Value);
+        source.Value = "later";
+        Assert.Equal("later", target.Value);
+    }
+
     private static BindingExpressionBase Bind(Target target, Source source, AvaloniaProperty property,
-        BindingMode mode = BindingMode.OneWay) => target.Bind(property,
-        CompiledBinding.Create<Source, string?>(x => x.Value, source: source, mode: mode));
+        BindingMode mode = BindingMode.OneWay, BindingPriority priority = BindingPriority.LocalValue) => target.Bind(property,
+        CompiledBinding.Create<Source, string?>(x => x.Value, source: source, mode: mode, priority: priority));
 
     private static BindingExpressionBase? Expression(Target target, AvaloniaProperty property) =>
         BindingOperations.GetBindingExpressionBase(target, property);

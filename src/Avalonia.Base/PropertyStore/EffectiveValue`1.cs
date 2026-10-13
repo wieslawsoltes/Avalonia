@@ -193,6 +193,8 @@ namespace Avalonia.PropertyStore
 
         protected override object? GetBoxedValue() => Value;
 
+        internal override object? GetBaseValue() => _baseValue;
+
         private static T GetValue(IValueEntry entry)
         {
             if (entry is IValueEntry<T> typed)

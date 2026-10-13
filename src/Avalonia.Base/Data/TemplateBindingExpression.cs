@@ -151,10 +151,19 @@ internal class TemplateBindingExpression : UntypedBindingExpressionBase
 
             OnTemplatedParentChanged();
         }
-        else if (_mode is BindingMode.TwoWay or BindingMode.OneWayToSource && e.Property == TargetProperty)
+        else if (_mode is BindingMode.TwoWay or BindingMode.OneWayToSource && e.Property == TargetProperty && ShouldUpdateSource(e))
         {
-            WriteValueToSource(e.NewValue);
+            if ((e.Property.GetMetadata(e.Sender).BindingValueBehavior & BindingValueBehavior.ReplaceNonWritableBindingOnSetValue) != 0)
+                NotifyTargetValueChanged();
+            else
+                WriteValueToSource(e.NewValue);
         }
+    }
+
+    private protected override void OnTargetValueChangedCore()
+    {
+        if (TryGetTargetValue(out var value))
+            WriteValueToSource(value);
     }
 
     private bool TryGetTemplatedParent([NotNullWhen(true)] out AvaloniaObject? result)

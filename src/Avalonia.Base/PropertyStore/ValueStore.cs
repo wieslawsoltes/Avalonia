@@ -227,6 +227,8 @@ namespace Avalonia.PropertyStore
             }
             else
             {
+                if (TrySetWritableBindingValue(property, value))
+                    return null;
                 PrepareExplicitValue(property, clearing: false);
                 SetLocalValue(property, value);
                 return null;
@@ -235,6 +237,8 @@ namespace Avalonia.PropertyStore
 
         public void SetCurrentValue<T>(StyledProperty<T> property, T value)
         {
+            if (TrySetWritableBindingValue(property, value))
+                return;
             if (TryGetEffectiveValue(property, out var v))
             {
                 ((EffectiveValue<T>)v).SetCurrentValueAndRaise(this, property, value);
@@ -1282,6 +1286,61 @@ namespace Avalonia.PropertyStore
                 BindingValueBehavior.RemoveBindingOnClearValue;
             return (property.GetMetadata(Owner).BindingValueBehavior & lifetime) == 0 ||
                 (_localValueBindings?.TryGetValue(property.Id, out var current) == true && ReferenceEquals(current, binding));
+        }
+
+        internal bool TryGetBindingTargetValue(UntypedBindingExpressionBase binding, out object? value)
+        {
+            var property = binding.TargetProperty!;
+            if (property.IsDirect)
+            {
+                value = Owner.GetValue(property);
+                return true;
+            }
+
+            if (TryGetEffectiveValue(property, out var current))
+            {
+                var animated = current.Priority == BindingPriority.Animation;
+                var priority = animated ? current.BasePriority : current.Priority;
+                var entry = animated ? current.BaseValueEntry : current.ValueEntry;
+                var owned = binding.Priority == BindingPriority.LocalValue
+                    ? _localValueBindings?.TryGetValue(property.Id, out var local) == true && ReferenceEquals(local, binding)
+                    : ReferenceEquals(entry, binding);
+                if (priority == binding.Priority && owned)
+                {
+                    value = animated ? current.GetBaseValue() : current.Value;
+                    return true;
+                }
+            }
+
+            // A OneWayToSource expression need not have produced an effective value yet.
+            if (binding.Priority == BindingPriority.LocalValue && !IsSet(property) &&
+                _localValueBindings?.TryGetValue(property.Id, out var existing) == true && ReferenceEquals(existing, binding))
+            {
+                value = Owner.GetValue(property);
+                return true;
+            }
+
+            value = null;
+            return false;
+        }
+
+        internal bool TrySetWritableBindingValue<T>(AvaloniaProperty property, T value)
+        {
+            if ((property.GetMetadata(Owner).BindingValueBehavior & BindingValueBehavior.ReplaceNonWritableBindingOnSetValue) == 0)
+                return false;
+
+            UntypedBindingExpressionBase? binding = null;
+            if (_localValueBindings?.TryGetValue(property.Id, out var local) == true)
+                binding = local as UntypedBindingExpressionBase;
+            else if (TryGetEffectiveValue(property, out var current) && current.BasePriority > BindingPriority.LocalValue)
+                binding = (current.Priority == BindingPriority.Animation ? current.BaseValueEntry : current.ValueEntry)
+                    as UntypedBindingExpressionBase;
+
+            if (binding is not { Mode: BindingMode.TwoWay or BindingMode.OneWayToSource })
+                return false;
+
+            binding.SetTargetValue(value);
+            return true;
         }
 
         private bool ReleaseRetiredCurrentValue(EffectiveValue current)
