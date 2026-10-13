@@ -281,6 +281,18 @@ namespace Avalonia
         }
 
         /// <summary>
+        /// Gets or sets an optional source used when traversing this element's logical children.
+        /// </summary>
+        /// <remarks>
+        /// When null, traversal uses <see cref="LogicalChildren"/>. A custom source affects
+        /// <see cref="ILogical.LogicalChildren"/> and logical-tree, resource, style and data-context
+        /// propagation. It does not change ownership: add and remove owned children through
+        /// <see cref="LogicalChildren"/>, or explicitly assign their logical parent. Changing this
+        /// source or its contents does not assign parents or attach or detach children.
+        /// </remarks>
+        protected IAvaloniaReadOnlyList<ILogical>? LogicalChildrenSource { get; set; }
+
+        /// <summary>
         /// Gets the <see cref="Classes"/> collection in a form that allows adding and removing
         /// pseudoclasses.
         /// </summary>
@@ -320,7 +332,7 @@ namespace Avalonia
         /// <summary>
         /// Gets the styled element's logical children.
         /// </summary>
-        IAvaloniaReadOnlyList<ILogical> ILogical.LogicalChildren => LogicalChildren;
+        IAvaloniaReadOnlyList<ILogical> ILogical.LogicalChildren => LogicalChildrenSource ?? LogicalChildren;
 
         /// <inheritdoc/>
         bool IResourceNode.HasResources => (_resources?.HasResources ?? false) ||
@@ -402,9 +414,19 @@ namespace Avalonia
             return _stylesApplied;
         }
 
+        /// <summary>
+        /// Gets whether initialization must wait for derived control state to become available.
+        /// </summary>
+        /// <remarks>
+        /// The default is false. A derived control can defer initialization during construction;
+        /// after the condition changes it must call <see cref="InitializeIfNeeded"/>, or allow
+        /// normal visual-tree attachment or <see cref="EndInit"/> to complete initialization.
+        /// </remarks>
+        protected virtual bool IsInitializationDeferred => false;
+
         protected void InitializeIfNeeded()
         {
-            if (_initCount == 0 && !IsInitialized)
+            if (_initCount == 0 && !IsInitialized && !IsInitializationDeferred)
             {
                 IsInitialized = true;
                 OnInitialized();
@@ -541,15 +563,15 @@ namespace Avalonia
         /// <param name="e">The change token.</param>
         internal virtual void NotifyChildResourcesChanged(ResourcesChangedEventArgs e)
         {
-            if (_logicalChildren is object)
+            if ((LogicalChildrenSource ?? _logicalChildren) is { } logicalChildren)
             {
-                var count = _logicalChildren.Count;
+                var count = logicalChildren.Count;
 
                 if (count > 0)
                 {
                     for (var i = 0; i < count; ++i)
                     {
-                        _logicalChildren[i].NotifyResourcesChanged(e);
+                        logicalChildren[i].NotifyResourcesChanged(e);
                     }
                 }
             }
@@ -705,12 +727,12 @@ namespace Avalonia
                     element._dataContextUpdating = true;
                     element.OnDataContextBeginUpdate();
 
-                    var logicalChildren = element.LogicalChildren;
+                    var logicalChildren = element.LogicalChildrenSource ?? element.LogicalChildren;
                     var logicalChildrenCount = logicalChildren.Count;
 
                     for (var i = 0; i < logicalChildrenCount; i++)
                     {
-                        if (element.LogicalChildren[i] is StyledElement s &&
+                        if (logicalChildren[i] is StyledElement s &&
                             s.InheritanceParent == element &&
                             !s.IsSet(DataContextProperty))
                         {
@@ -864,7 +886,7 @@ namespace Avalonia
                 AttachedToLogicalTree?.Invoke(this, e);
             }
 
-            var logicalChildren = LogicalChildren;
+            var logicalChildren = LogicalChildrenSource ?? LogicalChildren;
             var logicalChildrenCount = logicalChildren.Count;
 
             for (var i = 0; i < logicalChildrenCount; i++)
@@ -885,7 +907,7 @@ namespace Avalonia
                 OnDetachedFromLogicalTree(e);
                 DetachedFromLogicalTree?.Invoke(this, e);
 
-                var logicalChildren = LogicalChildren;
+                var logicalChildren = LogicalChildrenSource ?? LogicalChildren;
                 var logicalChildrenCount = logicalChildren.Count;
 
                 for (var i = 0; i < logicalChildrenCount; i++)
@@ -950,13 +972,13 @@ namespace Avalonia
             try { values.RemoveFrames(styles); }
             finally { values.EndStyling(); }
 
-            if (_logicalChildren is not null)
+            if ((LogicalChildrenSource ?? _logicalChildren) is { } logicalChildren)
             {
-                var childCount = _logicalChildren.Count;
+                var childCount = logicalChildren.Count;
 
                 for (var i = 0; i < childCount; ++i)
                 {
-                    (_logicalChildren[i] as StyledElement)?.DetachStyles(styles);
+                    (logicalChildren[i] as StyledElement)?.DetachStyles(styles);
                 }
             }
         }

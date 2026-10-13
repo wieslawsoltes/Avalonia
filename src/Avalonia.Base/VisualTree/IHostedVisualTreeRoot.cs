@@ -12,5 +12,10 @@ namespace Avalonia.VisualTree
         /// The visual tree host.
         /// </value>
         Visual? Host { get; }
+
+        /// <summary>
+        /// Gets whether keyboard focus-within and key bindings continue through the host.
+        /// </summary>
+        bool IsInputRootConnectedToHost => false;
     }
 }

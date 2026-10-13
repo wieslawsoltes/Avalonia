@@ -540,6 +540,32 @@ namespace Avalonia.Input
 
         public List<KeyBinding> KeyBindings { get; } = new List<KeyBinding>();
 
+        /// <summary>Captures the platform's primary mouse pointer to this element.</summary>
+        /// <returns>True if this element owns the capture after the request.</returns>
+        /// <remarks>
+        /// The element must be attached, visible and enabled. The normal pointer capture events
+        /// and platform capture lifecycle apply. Touch and pen pointers are not affected.
+        /// </remarks>
+        public bool CaptureMouse()
+        {
+            VerifyAccess();
+            if (!IsAttachedToVisualTree || !IsEffectivelyVisible || !IsEffectivelyEnabled)
+                return false;
+            var pointer = MouseDevice.Primary.Pointer;
+            pointer.Capture(this);
+            return ReferenceEquals(pointer.Captured, this);
+        }
+
+        /// <summary>Releases the primary mouse pointer if this element owns its capture.</summary>
+        /// <remarks>Capture owned by another element, or by a touch or pen pointer, is unchanged.</remarks>
+        public void ReleaseMouseCapture()
+        {
+            VerifyAccess();
+            var pointer = MouseDevice.Primary.Pointer;
+            if (ReferenceEquals(pointer.Captured, this))
+                pointer.Capture(null);
+        }
+
         /// <summary>
         /// Allows a derived class to override the enabled state of the control.
         /// </summary>
