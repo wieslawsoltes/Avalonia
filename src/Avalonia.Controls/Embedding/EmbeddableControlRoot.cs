@@ -43,7 +43,8 @@ namespace Avalonia.Controls.Embedding
         /// <param name="host">The hosting control, or null for an independently hosted root.</param>
         /// <remarks>
         /// A hosted root inherits resources, styles and data context from its host, and routes
-        /// input and keyboard focus through it. Disposing the root removes this association.
+        /// input and keyboard focus through it. Its visibility follows the host's effective
+        /// visibility. Disposing the root removes this association.
         /// Native parenting and positioning remain the caller's responsibility.
         /// </remarks>
         public EmbeddableControlRoot(ITopLevelImpl impl, Control? host) : base(impl)
@@ -52,6 +53,8 @@ namespace Avalonia.Controls.Embedding
             host?.LogicalChildren.Add(this);
             if (host is not null)
             {
+                host.IsEffectivelyVisibleChanged += OnHostVisibilityChanged;
+                SetCurrentValue(IsVisibleProperty, host.IsEffectivelyVisible);
                 AddHandler(GotFocusEvent, OnHostedFocusChanged, handledEventsToo: true);
                 AddHandler(LostFocusEvent, OnHostedFocusChanged, handledEventsToo: true);
             }
@@ -126,10 +129,18 @@ namespace Avalonia.Controls.Embedding
             _restoreHostFocus = false;
         }
 
+        private void OnHostVisibilityChanged(object? sender, EventArgs e)
+        {
+            if (_host is not null)
+                SetCurrentValue(IsVisibleProperty, _host.IsEffectivelyVisible);
+        }
+
         private protected override void HandleClosed()
         {
             RestoreHostFocus();
             // Remove ownership before base teardown so removal cannot reattach a closed root.
+            if (_host is not null)
+                _host.IsEffectivelyVisibleChanged -= OnHostVisibilityChanged;
             _host?.LogicalChildren.Remove(this);
             base.HandleClosed();
             _host = null;

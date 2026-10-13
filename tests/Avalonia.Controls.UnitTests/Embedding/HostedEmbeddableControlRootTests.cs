@@ -175,6 +175,51 @@ public class HostedEmbeddableControlRootTests : ScopedTestBase
         Assert.Equal("application", child.FindResource("resource"));
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Host_And_Ancestor_Visibility_Disable_Embedded_Input_And_Release_Focus(bool hideAncestor)
+    {
+        using var app = UnitTestApplication.Start(TestServices.FocusableWindow);
+        var host = new Control();
+        var parent = new Decorator { Child = host };
+        var owner = new Window { Content = parent };
+        owner.Show();
+        var child = new Button();
+        using var root = CreateRoot(host, child);
+        Assert.True(child.Focus());
+
+        (hideAncestor ? (Control)parent : host).IsVisible = false;
+
+        Assert.False(root.IsEffectivelyVisible);
+        Assert.False(child.IsEffectivelyVisible);
+        Assert.False(child.IsFocused);
+        Assert.False(host.IsKeyboardFocusWithin);
+        Assert.False(child.Focus());
+
+        (hideAncestor ? (Control)parent : host).IsVisible = true;
+        Assert.True(root.IsEffectivelyVisible);
+        Assert.True(child.Focus());
+        owner.Close();
+    }
+
+    [Fact]
+    public void Initially_Hidden_Host_Is_Respected_And_Disposal_Removes_Visibility_Subscription()
+    {
+        using var app = UnitTestApplication.Start(TestServices.FocusableWindow);
+        var host = new Control { IsVisible = false };
+        var child = new Button();
+        var root = CreateRoot(host, child);
+        Assert.False(root.IsVisible);
+        Assert.False(child.Focus());
+
+        root.Dispose();
+        host.IsVisible = true;
+
+        Assert.False(root.IsVisible);
+        Assert.Null(root.Host);
+    }
+
     private static EmbeddableControlRoot CreateRoot(Control host, Control child)
     {
         var result = new EmbeddableControlRoot(MockWindowingPlatform.CreateWindowMock().Object, host) { Content = child };
