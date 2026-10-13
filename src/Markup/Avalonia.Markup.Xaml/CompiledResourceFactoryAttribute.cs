@@ -6,8 +6,9 @@ namespace Avalonia.Markup.Xaml;
 /// <remarks>
 /// Apply this attribute to a static, parameterless method returning <see cref="object"/>.
 /// The XAML compiler replaces its body with a call to the compiled resource constructor.
-/// The resource URI must be an absolute avares URI identifying a public resource in the
-/// same assembly. Missing resources and invalid factory signatures are build errors.
+/// The resource URI must be an absolute avares URI identifying a resource in the same
+/// assembly. Internal resources remain internal to the ordinary URI loader. Missing
+/// resources, inaccessible constructors and invalid factory signatures are build errors.
 /// </remarks>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 public sealed class CompiledResourceFactoryAttribute : Attribute

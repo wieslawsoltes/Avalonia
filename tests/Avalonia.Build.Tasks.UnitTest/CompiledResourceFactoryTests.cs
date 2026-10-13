@@ -14,7 +14,7 @@ public class CompiledResourceFactoryTests
     public void Factory_Bodies_Call_Compiled_Xaml_And_Codebehind_Directly()
     {
         using var fixture = new CompilationFixture();
-        Assert.True(fixture.Compile());
+        Assert.True(fixture.Compile(), fixture.Errors);
         using var assembly = AssemblyDefinition.ReadAssembly(fixture.Output);
         var factories = assembly.MainModule.GetType("PInvoke.ResourceFactories");
         var dictionary = factories.Methods.Single(m => m.Name == "CreateDictionary");
@@ -23,6 +23,12 @@ public class CompiledResourceFactoryTests
         var window = factories.Methods.Single(m => m.Name == "CreateWindow");
         Assert.Contains(window.Body.Instructions, i => i.OpCode == OpCodes.Newobj &&
             i.Operand is MethodReference method && method.DeclaringType.FullName == "PInvoke.MainWindow");
+        var internalDictionary = factories.Methods.Single(m => m.Name == "CreateInternalDictionary");
+        Assert.Contains(internalDictionary.Body.Instructions, i => i.OpCode == OpCodes.Call &&
+            i.Operand is MethodReference method && method.Name == "Build:/InternalFactoryResources.axaml");
+        var dispatcher = assembly.MainModule.GetType("CompiledAvaloniaXaml.!XamlLoader");
+        Assert.DoesNotContain(dispatcher.Methods.SelectMany(m => m.Body.Instructions), i =>
+            i.OpCode == OpCodes.Ldstr && (string)i.Operand == "avares://PInvoke/InternalFactoryResources.axaml");
         Assert.DoesNotContain(factories.Methods.SelectMany(m => m.Body.Instructions), i =>
             i.OpCode == OpCodes.Throw || i.Operand is MethodReference method &&
             method.DeclaringType.Namespace.StartsWith("System.Reflection", StringComparison.Ordinal));
@@ -65,6 +71,7 @@ public class CompiledResourceFactoryTests
         }
 
         public string Output { get; }
+        public string Errors { get; private set; } = string.Empty;
 
         public void ChangeFactory(Action<MethodDefinition> change)
         {
@@ -80,7 +87,7 @@ public class CompiledResourceFactoryTests
             using var engine = UnitTestBuildEngine.Start(continueOnError: true);
             var assembly = new TaskItem(_source);
             assembly.SetMetadata(CompileAvaloniaXamlTask.AvaloniaCompileOutputMetadataName, Output);
-            return new CompileAvaloniaXamlTask
+            var success = new CompileAvaloniaXamlTask
             {
                 AssemblyFile = assembly,
                 References = File.ReadAllLines(_referenceList).Select(p => new TaskItem(p)).ToArray(),
@@ -88,6 +95,8 @@ public class CompiledResourceFactoryTests
                 ProjectDirectory = Directory.GetCurrentDirectory(),
                 VerifyIl = true
             }.Execute();
+            Errors = string.Join(Environment.NewLine, engine.Errors.Select(e => e.Message));
+            return success;
         }
 
         public void Dispose() => Directory.Delete(_directory, true);

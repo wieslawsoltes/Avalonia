@@ -10,4 +10,7 @@ public static class ResourceFactories
 
     [CompiledResourceFactory("avares://PInvoke/MainWindow.axaml")]
     public static object CreateWindow() => throw new InvalidOperationException("Not compiled.");
+
+    [CompiledResourceFactory("avares://PInvoke/InternalFactoryResources.axaml")]
+    public static object CreateInternalDictionary() => throw new InvalidOperationException("Not compiled.");
 }

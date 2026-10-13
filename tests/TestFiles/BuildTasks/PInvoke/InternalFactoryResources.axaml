@@ -1,0 +1,5 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    x:ClassModifier="Internal">
+  <x:String x:Key="InternalFactoryValue">internal compiled resource</x:String>
+</ResourceDictionary>

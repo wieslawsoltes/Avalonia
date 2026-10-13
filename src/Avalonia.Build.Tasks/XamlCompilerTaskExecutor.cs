@@ -585,6 +585,21 @@ namespace Avalonia.Build.Tasks
 
                         }
 
+                        if (!document.IsPublic && resourceFactories.ContainsKey(res.Uri))
+                        {
+                            var privateBuild = document.TypeBuilderProvider.BuildMethod is not { } factoryBuild ? null :
+                                typeSystem.GetTypeReference(builder).Resolve().Methods.First(m => m.Name == factoryBuild.Name);
+                            var localConstructor = privateBuild is not null ? null : classTypeDefinition?.GetConstructors().FirstOrDefault(c =>
+                                !c.IsStatic && !c.HasParameters && (c.IsPublic || c.IsAssembly || c.IsFamilyOrAssembly));
+                            var localConstructorWithSp = privateBuild is not null ? null : classTypeDefinition?.GetConstructors().FirstOrDefault(c =>
+                                !c.IsStatic && (c.IsPublic || c.IsAssembly || c.IsFamilyOrAssembly) && c.Parameters.Count == 1 &&
+                                c.Parameters[0].ParameterType.FullName == serviceProviderType.FullName);
+                            if (privateBuild is null && localConstructor is null && localConstructorWithSp is null)
+                                throw new InvalidProgramException($"Compiled resource factory for '{res.Uri}' requires an accessible constructor.");
+                            EmitResourceFactories(resourceFactories, res.Uri, privateBuild,
+                                localConstructor, localConstructorWithSp, createRootServiceProviderMethod);
+                        }
+
                         if (document.IsPublic
                             && (document.TypeBuilderProvider.BuildMethod != null || classTypeDefinition != null))
                         {
