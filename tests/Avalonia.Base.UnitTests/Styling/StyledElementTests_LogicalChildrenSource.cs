@@ -1,4 +1,9 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.LogicalTree;
@@ -193,8 +198,105 @@ public class StyledElementTests_LogicalChildrenSource
         Assert.False(((ILogical)owned).IsAttachedToLogicalTree);
     }
 
+    [Fact]
+    public void Weak_Projection_Remains_Stable_During_Resource_Callback_Garbage_Collection()
+    {
+        var owner = new SourceControl { WeakChildren = true };
+        var first = new Control();
+        ((ISetLogicalParent)first).SetParent(owner);
+        var source = new WeakProjection();
+        source.Add(first);
+        var (second, keepAlive) = AddWeakChild(owner, source);
+        owner.Source = source;
+        first.ResourcesChanged += (_, _) =>
+        {
+            keepAlive.Value = null;
+            Collect();
+            Assert.True(second.TryGetTarget(out _));
+        };
+
+        owner.Resources["key"] = "value";
+
+        Collect();
+        Assert.False(second.TryGetTarget(out _));
+        Assert.Single(source);
+        GC.KeepAlive(first);
+        GC.KeepAlive(owner);
+    }
+
+    [Fact]
+    public void Projected_Child_Reparented_During_Propagation_Is_Not_Notified_By_Old_Parent()
+    {
+        var owner = new SourceControl();
+        var first = new Control();
+        var second = new Control();
+        ((ISetLogicalParent)first).SetParent(owner);
+        ((ISetLogicalParent)second).SetParent(owner);
+        owner.Source = new AvaloniaList<ILogical> { first, second };
+        var notifications = 0;
+        first.ResourcesChanged += (_, _) => ((ISetLogicalParent)second).SetParent(null);
+        second.ResourcesChanged += (_, _) => ++notifications;
+
+        owner.Resources["key"] = "value";
+
+        // Detachment itself raises one resource notification. The old owner's
+        // still-running propagation must not issue another notification.
+        Assert.Equal(1, notifications);
+        Assert.Null(second.Parent);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static (WeakReference<Control>, StrongBox<Control?>) AddWeakChild(
+        SourceControl owner, WeakProjection source)
+    {
+        var child = new Control();
+        ((ISetLogicalParent)child).SetParent(owner);
+        source.Add(child);
+        return (new(child), new(child));
+    }
+
+    private static void Collect()
+    {
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+    }
+
+    private sealed class WeakProjection : IAvaloniaReadOnlyList<ILogical>
+    {
+        private readonly List<WeakReference<ILogical>> _children = new();
+        public void Add(ILogical child) => _children.Add(new(child));
+        public int Count
+        {
+            get
+            {
+                var count = 0;
+                foreach (var _ in this) ++count;
+                return count;
+            }
+        }
+        public ILogical this[int index]
+        {
+            get
+            {
+                foreach (var child in this)
+                    if (index-- == 0) return child;
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
+        }
+        public IEnumerator<ILogical> GetEnumerator()
+        {
+            foreach (var child in _children)
+                if (child.TryGetTarget(out var target)) yield return target;
+        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        public event NotifyCollectionChangedEventHandler? CollectionChanged { add { } remove { } }
+        public event PropertyChangedEventHandler? PropertyChanged { add { } remove { } }
+    }
+
     private sealed class SourceControl : Control
     {
+        public bool WeakChildren { get => UseWeakInheritanceChildren; set => UseWeakInheritanceChildren = value; }
         public IAvaloniaList<ILogical> Children => LogicalChildren;
         public IAvaloniaReadOnlyList<ILogical>? Source
         {

@@ -114,7 +114,8 @@ namespace Avalonia
                     using var children = GetInheritanceChildren();
                     _inheritanceChildren = new List<AvaloniaObject>(children.Count);
                     for (var i = 0; i < children.Count; ++i)
-                        _inheritanceChildren.Add(children[i]);
+                        if (children[i] is { } child)
+                            _inheritanceChildren.Add(child);
                     _weakInheritanceChildren = null;
                 }
             }
@@ -701,7 +702,7 @@ namespace Avalonia
             var live = _weakInheritanceChildren?.GetAlive();
             if (_weakInheritanceChildren?.NeedCompact == true)
                 _weakInheritanceChildren.Compact();
-            return new InheritanceChildren(_inheritanceChildren, live);
+            return new InheritanceChildren(this, _inheritanceChildren, live);
         }
 
         /// <summary>

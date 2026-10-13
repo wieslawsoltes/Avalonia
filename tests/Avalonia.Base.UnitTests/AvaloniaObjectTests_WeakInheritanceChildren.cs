@@ -82,6 +82,43 @@ public class AvaloniaObjectTests_WeakInheritanceChildren
         GC.KeepAlive(parent);
     }
 
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public void Reentrant_Removal_Does_Not_Publish_Stale_Inherited_Values(bool clear, bool reparent)
+    {
+        var parent = new Node { WeakChildren = true, Value = "initial" };
+        var first = new Node { Parent = parent };
+        var removed = new Node { Parent = parent };
+        var other = reparent ? new Node { Value = "other" } : null;
+        var changes = new List<object?>();
+        first.PropertyChanged += (_, e) =>
+        {
+            if (e.Property == Node.ValueProperty)
+                removed.Parent = other;
+        };
+        removed.PropertyChanged += (_, e) =>
+        {
+            if (e.Property == Node.ValueProperty)
+            {
+                changes.Add(e.NewValue);
+                Assert.Equal(removed.Value, e.NewValue);
+            }
+        };
+
+        if (clear)
+            parent.ClearValue(Node.ValueProperty);
+        else
+            parent.Value = "updated";
+
+        Assert.Same(other, removed.Parent);
+        Assert.Equal(reparent ? "other" : "unset", removed.Value);
+        Assert.DoesNotContain("updated", changes);
+        Assert.InRange(changes.Count, 0, 1);
+    }
+
     [Fact]
     public void Logical_Ownership_Remains_Strong_When_Inheritance_Uses_Weak_References()
     {

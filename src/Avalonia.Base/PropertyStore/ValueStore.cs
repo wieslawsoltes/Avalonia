@@ -574,7 +574,7 @@ namespace Avalonia.PropertyStore
 
             for (var i = 0; i < count; ++i)
             {
-                children[i].GetValueStore().OnInheritanceAncestorChanged(ancestor);
+                children[i]?.GetValueStore().OnInheritanceAncestorChanged(ancestor);
             }
         }
 
@@ -604,7 +604,7 @@ namespace Avalonia.PropertyStore
 
             for (var i = 0; i < count; ++i)
             {
-                children[i].GetValueStore().OnAncestorInheritedValueChanged(apArgs, incpArgs);
+                children[i]?.GetValueStore().OnAncestorInheritedValueChanged(apArgs, incpArgs);
             }
         }
 
@@ -630,7 +630,7 @@ namespace Avalonia.PropertyStore
 
                 for (var i = 0; i < count; ++i)
                 {
-                    children[i].GetValueStore().OnAncestorInheritedValueChanged(apArgs, incpArgs);
+                    children[i]?.GetValueStore().OnAncestorInheritedValueChanged(apArgs, incpArgs);
                 }
             }
         }
@@ -681,7 +681,7 @@ namespace Avalonia.PropertyStore
 
             for (var i = 0; i < count; ++i)
             {
-                children[i].GetValueStore().OnAncestorInheritedValueChanged(apArgs, args);
+                children[i]?.GetValueStore().OnAncestorInheritedValueChanged(apArgs, args);
             }
         }
 
@@ -1010,7 +1010,7 @@ namespace Avalonia.PropertyStore
 
             for (var i = 0; i < count; ++i)
             {
-                children[i].GetValueStore().InheritedValueChanged(property, oldValue, newValue);
+                children[i]?.GetValueStore().InheritedValueChanged(property, oldValue, newValue);
             }
         }
 
