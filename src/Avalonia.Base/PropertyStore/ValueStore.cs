@@ -187,8 +187,10 @@ namespace Avalonia.PropertyStore
             return observer;
         }
 
-        public void ClearValue(AvaloniaProperty property)
+        public void ClearValue(AvaloniaProperty property, bool isExplicit = false)
         {
+            if (isExplicit)
+                PrepareExplicitValue(property, clearing: true);
             if (TryGetEffectiveValue(property, out var effective) &&
                 (effective.Priority == BindingPriority.LocalValue || effective.IsOverridenCurrentValue))
             {
@@ -225,6 +227,7 @@ namespace Avalonia.PropertyStore
             }
             else
             {
+                PrepareExplicitValue(property, clearing: false);
                 SetLocalValue(property, value);
                 return null;
             }
@@ -1026,7 +1029,15 @@ namespace Avalonia.PropertyStore
                 var generation = _frameGeneration;
 
                 // Notify the existing effective value that reevaluation is starting.
-                current?.BeginReevaluation(ignoreLocalValue);
+                if (current is not null)
+                {
+                    if (ReleaseRetiredCurrentValue(current))
+                    {
+                        ReevaluateEffectiveValues(changedValueEntry);
+                        return;
+                    }
+                    current.BeginReevaluation(ignoreLocalValue);
+                }
 
                 // Iterate the frames to get the effective value.
                 for (var i = _frames.Count - 1; i >= 0; --i)
@@ -1117,7 +1128,10 @@ namespace Avalonia.PropertyStore
 
                 // Notify the existing effective values that reevaluation is starting.
                 for (var i = 0; i < count; ++i)
+                {
+                    ReleaseRetiredCurrentValue(_effectiveValues[i]);
                     _effectiveValues[i].BeginReevaluation();
+                }
 
                 // Iterate the frames, setting and creating effective values.
                 for (var i = _frames.Count - 1; i >= 0; --i)
@@ -1242,6 +1256,56 @@ namespace Avalonia.PropertyStore
             {
                 existing.Dispose();
             }
+        }
+
+        internal void PrepareExplicitValue(AvaloniaProperty property, bool clearing)
+        {
+            if (_localValueBindings is null || !_localValueBindings.TryGetValue(property.Id, out var binding))
+                return;
+            var behavior = property.GetMetadata(Owner).BindingValueBehavior;
+            var option = clearing ? BindingValueBehavior.RemoveBindingOnClearValue
+                : BindingValueBehavior.ReplaceNonWritableBindingOnSetValue;
+            if ((behavior & option) == 0)
+                return;
+            if (!clearing && binding is BindingExpressionBase { Mode: BindingMode.TwoWay or BindingMode.OneWayToSource })
+                return;
+
+            // Detach ownership first: completion must not clear the old value or
+            // publish an intermediate default before the explicit operation.
+            _localValueBindings.Remove(property.Id);
+            binding.Dispose();
+        }
+
+        internal bool CanApplyQueuedBindingValue(AvaloniaProperty property, IDisposable binding)
+        {
+            const BindingValueBehavior lifetime = BindingValueBehavior.ReplaceNonWritableBindingOnSetValue |
+                BindingValueBehavior.RemoveBindingOnClearValue;
+            return (property.GetMetadata(Owner).BindingValueBehavior & lifetime) == 0 ||
+                (_localValueBindings?.TryGetValue(property.Id, out var current) == true && ReferenceEquals(current, binding));
+        }
+
+        private bool ReleaseRetiredCurrentValue(EffectiveValue current)
+        {
+            if (!current.IsOverridenCurrentValue ||
+                current.Priority <= BindingPriority.LocalValue || current.Priority >= BindingPriority.Inherited ||
+                current.ValueEntry is not { } source ||
+                (current.Property.GetMetadata(Owner).BindingValueBehavior & BindingValueBehavior.ResetCurrentValueOnSourceChange) == 0)
+                return false;
+
+            // SetCurrentValue retains the originating value entry. Keep the override only
+            // while that entry is still present and active. Reading activation can affect
+            // sibling properties, so preserve the normal whole-store reevaluation signal.
+            var reevaluateAll = false;
+            for (var i = _frames.Count - 1; i >= 0; --i)
+            {
+                var frame = _frames[i];
+                var active = frame.TryGetEntryIfActive(current.Property, out var entry, out var activeChanged);
+                reevaluateAll |= activeChanged && frame.EntryCount > 1;
+                if (active && ReferenceEquals(entry, source))
+                    return reevaluateAll;
+            }
+            current.IsOverridenCurrentValue = false;
+            return reevaluateAll;
         }
 
         private int BinarySearchFrame(FramePriority priority)

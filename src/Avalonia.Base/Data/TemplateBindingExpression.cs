@@ -10,6 +10,9 @@ namespace Avalonia.Data;
 
 internal class TemplateBindingExpression : UntypedBindingExpressionBase
 {
+    /// <inheritdoc/>
+    public override BindingMode Mode => _mode == BindingMode.Default ? BindingMode.OneWay : _mode;
+
     private IValueConverter? _converter;
     private CultureInfo? _converterCulture;
     private object? _converterParameter;

@@ -59,9 +59,14 @@ namespace Avalonia.PropertyStore
                 // To avoid allocating closure in the outer scope we need to capture variables
                 // locally. This allows us to skip most of the allocations when on UI thread.
                 var instance = _owner.Owner;
+                var observer = this;
                 var property = Property;
                 var newValue = value;
-                Dispatcher.UIThread.Post(() => instance.SetDirectValueUnchecked(property, newValue));
+                Dispatcher.UIThread.Post(() =>
+                {
+                    if (observer._owner.CanApplyQueuedBindingValue(property, observer))
+                        instance.SetDirectValueUnchecked(property, newValue);
+                });
             }
         }
 
@@ -76,9 +81,14 @@ namespace Avalonia.PropertyStore
                 // To avoid allocating closure in the outer scope we need to capture variables
                 // locally. This allows us to skip most of the allocations when on UI thread.
                 var instance = _owner.Owner;
+                var observer = this;
                 var property = Property;
                 var newValue = value;
-                Dispatcher.UIThread.Post(() => instance.SetDirectValueUnchecked(property, newValue));
+                Dispatcher.UIThread.Post(() =>
+                {
+                    if (observer._owner.CanApplyQueuedBindingValue(property, observer))
+                        instance.SetDirectValueUnchecked(property, newValue);
+                });
             }
         }
     }

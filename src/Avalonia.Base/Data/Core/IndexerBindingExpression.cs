@@ -4,6 +4,9 @@ namespace Avalonia.Data.Core;
 
 internal class IndexerBindingExpression : UntypedBindingExpressionBase
 {
+    /// <inheritdoc/>
+    public override BindingMode Mode => _mode == BindingMode.Default ? BindingMode.OneWay : _mode;
+
     private readonly AvaloniaObject _source;
     private readonly AvaloniaProperty _sourceProperty;
     private readonly AvaloniaObject _target;

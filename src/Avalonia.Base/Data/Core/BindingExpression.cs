@@ -23,6 +23,9 @@ namespace Avalonia.Data.Core;
 /// </remarks>
 internal class BindingExpression : UntypedBindingExpressionBase, IDescription, IDisposable
 {
+    /// <inheritdoc/>
+    public override BindingMode Mode => _mode;
+
     private static readonly List<ExpressionNode> s_emptyExpressionNodes = new();
     private readonly WeakReference<object?>? _source;
     private readonly BindingMode _mode;

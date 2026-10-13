@@ -72,7 +72,10 @@ namespace Avalonia
                 return this;
             }
 
-            var copy = new StyledPropertyMetadata<TValue>(DefaultValue, DefaultBindingMode, null, EnableDataValidation ?? false);
+            var copy = new StyledPropertyMetadata<TValue>(DefaultValue, DefaultBindingMode, null, EnableDataValidation ?? false)
+            {
+                BindingValueBehavior = BindingValueBehavior,
+            };
             copy.Freeze();
             return copy;
         }

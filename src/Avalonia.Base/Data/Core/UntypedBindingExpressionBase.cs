@@ -448,7 +448,12 @@ public abstract class UntypedBindingExpressionBase : BindingExpressionBase,
             var ec = hasErrorChanged;
             var v = GetValueOrDefault();
             var e = _error;
-            Dispatcher.UIThread.Post(() => sink.OnChanged(this, vc, ec, v, e));
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (Priority != BindingPriority.LocalValue || sink is not ValueStore store ||
+                    store.CanApplyQueuedBindingValue(TargetProperty!, this))
+                    sink.OnChanged(this, vc, ec, v, e);
+            });
         }
     }
 

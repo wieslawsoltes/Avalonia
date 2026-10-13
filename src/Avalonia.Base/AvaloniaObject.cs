@@ -133,7 +133,11 @@ namespace Avalonia
         {
             ThrowHelper.ThrowIfNull(property, nameof(property));
             VerifyAccess();
-            _values.ClearValue(property);
+            if (property.IsDirect &&
+                (property.GetMetadata(this).BindingValueBehavior & BindingValueBehavior.RemoveBindingOnClearValue) != 0)
+                property.RouteClearValue(this);
+            else
+                _values.ClearValue(property, isExplicit: true);
         }
 
         /// <summary>
@@ -167,7 +171,7 @@ namespace Avalonia
             ThrowHelper.ThrowIfNull(property, nameof(property));
             VerifyAccess();
 
-            _values.ClearValue(property);
+            _values.ClearValue(property, isExplicit: true);
         }
 
         /// <summary>
@@ -180,6 +184,7 @@ namespace Avalonia
             VerifyAccess();
 
             var p = AvaloniaPropertyRegistry.Instance.GetRegisteredDirect(this, property);
+            _values.PrepareExplicitValue(p, clearing: true);
             p.InvokeSetter(this, p.GetUnsetValue(this));
         }
 
@@ -344,7 +349,7 @@ namespace Avalonia
             if (value is UnsetValueType)
             {
                 if (priority == BindingPriority.LocalValue)
-                    _values.ClearValue(property);
+                    _values.ClearValue(property, isExplicit: true);
             }
             else if (value is not DoNothingType)
             {
@@ -367,6 +372,8 @@ namespace Avalonia
 
             property = AvaloniaPropertyRegistry.Instance.GetRegisteredDirect(this, property);
             LogPropertySet(property, value, BindingPriority.LocalValue);
+            if (value is not DoNothingType)
+                _values.PrepareExplicitValue(property, clearing: value is UnsetValueType);
             SetDirectValueUnchecked(property, value);
         }
 
@@ -413,7 +420,7 @@ namespace Avalonia
 
             if (value is UnsetValueType)
             {
-                _values.ClearValue(property);
+                _values.ClearValue(property, isExplicit: true);
             }
             else if (value is not DoNothingType)
             {
@@ -788,6 +795,14 @@ namespace Avalonia
             {
                 property.InvokeSetter(this, value);
             }
+        }
+
+        internal void SetDirectCurrentValue<T>(DirectPropertyBase<T> property, T value)
+        {
+            VerifyAccess();
+            property = AvaloniaPropertyRegistry.Instance.GetRegisteredDirect(this, property);
+            LogPropertySet(property, value, BindingPriority.LocalValue);
+            SetDirectValueUnchecked(property, value);
         }
 
         /// <summary>

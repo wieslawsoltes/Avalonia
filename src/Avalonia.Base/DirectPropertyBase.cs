@@ -185,7 +185,13 @@ namespace Avalonia
 
         internal override void RouteSetCurrentValue(AvaloniaObject o, object? value)
         {
-            RouteSetValue(o, value, BindingPriority.LocalValue);
+            var converted = TryConvert(value);
+            if (converted.HasValue)
+                o.SetDirectCurrentValue(this, (TValue)converted.Value!);
+            else if (converted.Type == BindingValueType.UnsetValue)
+                o.ClearValue(this);
+            else if (converted.HasError)
+                throw converted.Error!;
         }
 
         /// <summary>
