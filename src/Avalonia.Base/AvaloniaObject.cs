@@ -28,6 +28,7 @@ namespace Avalonia
         private PropertyChangedEventHandler? _inpcChanged;
         private EventHandler<AvaloniaPropertyChangedEventArgs>? _propertyChanged;
         private List<AvaloniaObject>? _inheritanceChildren;
+        private WeakHashList<AvaloniaObject>? _weakInheritanceChildren;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AvaloniaObject"/> class.
@@ -79,6 +80,42 @@ namespace Avalonia
                     _inheritanceParent = value;
                     _inheritanceParent?.AddInheritanceChild(this);
                     _values.SetInheritanceParent(value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether inheritance children are retained through weak references.
+        /// </summary>
+        /// <remarks>
+        /// The default is false. Enable this for parents with weakly owned logical projections.
+        /// Inherited properties continue to propagate to live children. This does not weaken
+        /// ownership collections such as <see cref="StyledElement.LogicalChildren"/>.
+        /// Changing the value converts existing inheritance-child registrations.
+        /// </remarks>
+        protected bool UseWeakInheritanceChildren
+        {
+            get => _weakInheritanceChildren is not null;
+            set
+            {
+                VerifyAccess();
+                if (value == UseWeakInheritanceChildren)
+                    return;
+                if (value)
+                {
+                    _weakInheritanceChildren = new WeakHashList<AvaloniaObject>();
+                    if (_inheritanceChildren is not null)
+                        foreach (var child in _inheritanceChildren)
+                            _weakInheritanceChildren.Add(child);
+                    _inheritanceChildren = null;
+                }
+                else
+                {
+                    using var children = GetInheritanceChildren();
+                    _inheritanceChildren = new List<AvaloniaObject>(children.Count);
+                    for (var i = 0; i < children.Count; ++i)
+                        _inheritanceChildren.Add(children[i]);
+                    _weakInheritanceChildren = null;
                 }
             }
         }
@@ -622,13 +659,19 @@ namespace Avalonia
 
         internal void AddInheritanceChild(AvaloniaObject child)
         {
-            _inheritanceChildren ??= new List<AvaloniaObject>();
-            _inheritanceChildren.Add(child);
+            if (_weakInheritanceChildren is { } weak)
+                weak.Add(child);
+            else
+            {
+                _inheritanceChildren ??= new List<AvaloniaObject>();
+                _inheritanceChildren.Add(child);
+            }
         }
 
         internal void RemoveInheritanceChild(AvaloniaObject child)
         {
             _inheritanceChildren?.Remove(child);
+            _weakInheritanceChildren?.Remove(child);
         }
 
         /// <inheritdoc/>
@@ -653,7 +696,13 @@ namespace Avalonia
         }
 
         internal ValueStore GetValueStore() => _values;
-        internal IReadOnlyList<AvaloniaObject>? GetInheritanceChildren() => _inheritanceChildren;
+        internal InheritanceChildren GetInheritanceChildren()
+        {
+            var live = _weakInheritanceChildren?.GetAlive();
+            if (_weakInheritanceChildren?.NeedCompact == true)
+                _weakInheritanceChildren.Compact();
+            return new InheritanceChildren(_inheritanceChildren, live);
+        }
 
         /// <summary>
         /// Called to update the validation state for properties for which data validation is

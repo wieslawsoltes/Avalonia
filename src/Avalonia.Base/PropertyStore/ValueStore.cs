@@ -565,9 +565,9 @@ namespace Avalonia.PropertyStore
                     return;
             }
 
-            var children = Owner.GetInheritanceChildren();
+            using var children = Owner.GetInheritanceChildren();
 
-            if (children is null)
+            if (children.Count == 0)
                 return;
 
             var count = children.Count;
@@ -592,9 +592,9 @@ namespace Avalonia.PropertyStore
         {
             Debug.Assert(property.Inherits);
 
-            var children = Owner.GetInheritanceChildren();
+            using var children = Owner.GetInheritanceChildren();
 
-            if (children is null)
+            if (children.Count == 0)
                 return;
 
             var count = children.Count;
@@ -619,9 +619,9 @@ namespace Avalonia.PropertyStore
         {
             Debug.Assert(property.Inherits);
 
-            var children = Owner.GetInheritanceChildren();
+            using var children = Owner.GetInheritanceChildren();
 
-            if (children is not null)
+            if (children.Count > 0)
             {
                 var count = children.Count;
 
@@ -672,9 +672,9 @@ namespace Avalonia.PropertyStore
             apArgs.SetSender(Owner);
             Owner.RaisePropertyChanged(apArgs, args);
 
-            var children = Owner.GetInheritanceChildren();
+            using var children = Owner.GetInheritanceChildren();
 
-            if (children is null)
+            if (children.Count == 0)
                 return;
 
             var count = children.Count;
@@ -1001,9 +1001,9 @@ namespace Avalonia.PropertyStore
             // Raise PropertyChanged on this object if necessary.
             (oldValue ?? newValue!).RaiseInheritedValueChanged(Owner, property, oldValue, newValue);
 
-            var children = Owner.GetInheritanceChildren();
+            using var children = Owner.GetInheritanceChildren();
 
-            if (children is null)
+            if (children.Count == 0)
                 return;
 
             var count = children.Count;

@@ -45,7 +45,7 @@ public class StyledElementTests_LogicalChildrenSource
     }
 
     [Fact]
-    public void Custom_Source_Drives_Attach_And_Detach()
+    public void Custom_Source_Attaches_Without_Disconnecting_Owned_Children()
     {
         var owner = new SourceControl();
         var omitted = new Control();
@@ -62,10 +62,11 @@ public class StyledElementTests_LogicalChildrenSource
 
         Assert.Equal(1, attached);
         Assert.True(((ILogical)enumerated).IsAttachedToLogicalTree);
-        Assert.False(((ILogical)omitted).IsAttachedToLogicalTree);
+        Assert.True(((ILogical)omitted).IsAttachedToLogicalTree);
         root.Child = null;
         Assert.Equal(1, detached);
         Assert.False(((ILogical)enumerated).IsAttachedToLogicalTree);
+        Assert.False(((ILogical)omitted).IsAttachedToLogicalTree);
         Assert.Same(owner, enumerated.Parent);
     }
 
@@ -89,7 +90,7 @@ public class StyledElementTests_LogicalChildrenSource
         owner.Resources["key"] = "value";
 
         Assert.Equal(1, notified);
-        Assert.Equal(0, omittedNotified);
+        Assert.Equal(hasOwnedChildren ? 1 : 0, omittedNotified);
         Assert.Equal("value", enumerated.FindResource("key"));
     }
 
@@ -98,8 +99,10 @@ public class StyledElementTests_LogicalChildrenSource
     {
         var owner = new SourceControl();
         var child = new Control();
+        var owned = new Control();
+        owner.Own(owned);
         ((ISetLogicalParent)child).SetParent(owner);
-        owner.Source = new AvaloniaList<ILogical> { child };
+        owner.Source = new AvaloniaList<ILogical> { child, owned, child };
         var style = new Style(x => x.OfType<Control>())
         {
             Setters = { new Setter(Control.TagProperty, "styled") },
@@ -107,10 +110,12 @@ public class StyledElementTests_LogicalChildrenSource
         owner.Styles.Add(style);
         var root = new TestRoot(owner);
         Assert.Equal("styled", child.Tag);
+        Assert.Equal("styled", owned.Tag);
 
         owner.Styles.Remove(style);
 
         Assert.Null(child.Tag);
+        Assert.Null(owned.Tag);
     }
 
     [Fact]
@@ -119,17 +124,73 @@ public class StyledElementTests_LogicalChildrenSource
         var calls = new List<string>();
         var owner = new SourceControl { Name = "parent", Calls = calls };
         var child = new SourceControl { Name = "child", Calls = calls };
+        var owned = new SourceControl { Name = "owned", Calls = calls };
+        owner.Own(owned);
         ((ISetLogicalParent)child).SetParent(owner);
-        owner.Source = new AvaloniaList<ILogical> { child };
+        owner.Source = new AvaloniaList<ILogical> { child, owned, child };
         owner.DataContextChanged += (_, _) => calls.Add("parent changed");
         calls.Clear();
 
         owner.DataContext = "context";
 
         Assert.Equal("context", child.DataContext);
+        Assert.Equal("context", owned.DataContext);
         Assert.True(calls.IndexOf("child begin") < calls.IndexOf("parent changed"));
+        Assert.True(calls.IndexOf("owned begin") < calls.IndexOf("parent changed"));
+        Assert.Single(calls.FindAll(value => value == "child begin"));
+        Assert.Single(calls.FindAll(value => value == "owned begin"));
         Assert.Contains("child end", calls);
+        Assert.Contains("owned end", calls);
         Assert.Contains("parent end", calls);
+    }
+
+    [Fact]
+    public void Internal_Traversal_Deduplicates_Projection_And_Respects_Actual_Parents()
+    {
+        var owner = new SourceControl();
+        var owned = new Control();
+        var projected = new Control();
+        var foreign = new Control();
+        var unowned = new Control();
+        var other = new SourceControl();
+        owner.Own(owned);
+        other.Own(foreign);
+        ((ISetLogicalParent)projected).SetParent(owner);
+        var source = new AvaloniaList<ILogical> { owned, projected, projected, owner, foreign, unowned };
+        owner.Source = source;
+        var visited = new List<ILogical>();
+
+        foreach (var child in new LogicalChildrenTraversal(owner, owner.Children, source))
+            visited.Add(child);
+
+        Assert.Equal(new[] { owned, projected }, visited);
+        Assert.Same(source, ((ILogical)owner).LogicalChildren);
+        var root = new TestRoot(owner);
+        Assert.True(((ILogical)owned).IsAttachedToLogicalTree);
+        Assert.True(((ILogical)projected).IsAttachedToLogicalTree);
+        Assert.False(((ILogical)foreign).IsAttachedToLogicalTree);
+        Assert.False(((ILogical)unowned).IsAttachedToLogicalTree);
+    }
+
+    [Fact]
+    public void Empty_Projection_Preserves_Owned_Lifecycle_And_Resource_Updates()
+    {
+        var owner = new SourceControl { Source = new AvaloniaList<ILogical>() };
+        var owned = new Control();
+        owner.Own(owned);
+        var root = new TestRoot(owner);
+        var resourcesChanged = 0;
+        owned.ResourcesChanged += (_, _) => ++resourcesChanged;
+
+        owner.Resources["key"] = "value";
+        owner.DataContext = "data";
+
+        Assert.Empty(((ILogical)owner).LogicalChildren);
+        Assert.True(((ILogical)owned).IsAttachedToLogicalTree);
+        Assert.Equal(1, resourcesChanged);
+        Assert.Equal("data", owned.DataContext);
+        root.Child = null;
+        Assert.False(((ILogical)owned).IsAttachedToLogicalTree);
     }
 
     private sealed class SourceControl : Control

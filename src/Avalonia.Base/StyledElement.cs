@@ -284,11 +284,12 @@ namespace Avalonia
         /// Gets or sets an optional source used when traversing this element's logical children.
         /// </summary>
         /// <remarks>
-        /// When null, traversal uses <see cref="LogicalChildren"/>. A custom source affects
-        /// <see cref="ILogical.LogicalChildren"/> and logical-tree, resource, style and data-context
-        /// propagation. It does not change ownership: add and remove owned children through
-        /// <see cref="LogicalChildren"/>, or explicitly assign their logical parent. Changing this
-        /// source or its contents does not assign parents or attach or detach children.
+        /// When null, public traversal uses <see cref="LogicalChildren"/>. A custom source supplies
+        /// <see cref="ILogical.LogicalChildren"/> without changing ownership. Framework lifecycle,
+        /// resource, style and data-context propagation still visits owned children, and also visits
+        /// projected children whose logical parent is this element, once per child. Add and remove
+        /// owned children through <see cref="LogicalChildren"/>, or explicitly assign their logical
+        /// parent. Changing this source or its contents does not assign parents or attach or detach children.
         /// </remarks>
         protected IAvaloniaReadOnlyList<ILogical>? LogicalChildrenSource { get; set; }
 
@@ -563,18 +564,8 @@ namespace Avalonia
         /// <param name="e">The change token.</param>
         internal virtual void NotifyChildResourcesChanged(ResourcesChangedEventArgs e)
         {
-            if ((LogicalChildrenSource ?? _logicalChildren) is { } logicalChildren)
-            {
-                var count = logicalChildren.Count;
-
-                if (count > 0)
-                {
-                    for (var i = 0; i < count; ++i)
-                    {
-                        logicalChildren[i].NotifyResourcesChanged(e);
-                    }
-                }
-            }
+            foreach (var child in new LogicalChildrenTraversal(this, _logicalChildren, LogicalChildrenSource))
+                child.NotifyResourcesChanged(e);
         }
 
         /// <summary>
@@ -702,8 +693,9 @@ namespace Avalonia
 
             _stylesApplied = false;
 
-            if (recurse && GetInheritanceChildren() is { } children)
+            if (recurse)
             {
+                using var children = GetInheritanceChildren();
                 var childCount = children.Count;
                 for (var i = 0; i < childCount; ++i)
                     (children[i] as StyledElement)?.InvalidateStyles(recurse);
@@ -727,12 +719,9 @@ namespace Avalonia
                     element._dataContextUpdating = true;
                     element.OnDataContextBeginUpdate();
 
-                    var logicalChildren = element.LogicalChildrenSource ?? element.LogicalChildren;
-                    var logicalChildrenCount = logicalChildren.Count;
-
-                    for (var i = 0; i < logicalChildrenCount; i++)
+                    foreach (var child in new LogicalChildrenTraversal(element, element._logicalChildren, element.LogicalChildrenSource))
                     {
-                        if (logicalChildren[i] is StyledElement s &&
+                        if (child is StyledElement s &&
                             s.InheritanceParent == element &&
                             !s.IsSet(DataContextProperty))
                         {
@@ -886,12 +875,9 @@ namespace Avalonia
                 AttachedToLogicalTree?.Invoke(this, e);
             }
 
-            var logicalChildren = LogicalChildrenSource ?? LogicalChildren;
-            var logicalChildrenCount = logicalChildren.Count;
-
-            for (var i = 0; i < logicalChildrenCount; i++)
+            foreach (var logicalChild in new LogicalChildrenTraversal(this, _logicalChildren, LogicalChildrenSource))
             {
-                if (logicalChildren[i] is StyledElement child && child._logicalRoot != e.Root) // child may already have been attached within an event handler
+                if (logicalChild is StyledElement child && child._logicalRoot != e.Root) // child may already have been attached within an event handler
                 {
                     child.OnAttachedToLogicalTreeCore(e);
                 }
@@ -907,12 +893,9 @@ namespace Avalonia
                 OnDetachedFromLogicalTree(e);
                 DetachedFromLogicalTree?.Invoke(this, e);
 
-                var logicalChildren = LogicalChildrenSource ?? LogicalChildren;
-                var logicalChildrenCount = logicalChildren.Count;
-
-                for (var i = 0; i < logicalChildrenCount; i++)
+                foreach (var logicalChild in new LogicalChildrenTraversal(this, _logicalChildren, LogicalChildrenSource))
                 {
-                    if (logicalChildren[i] is StyledElement child)
+                    if (logicalChild is StyledElement child)
                     {
                         child.OnDetachedFromLogicalTreeCore(e);
                     }
@@ -972,15 +955,8 @@ namespace Avalonia
             try { values.RemoveFrames(styles); }
             finally { values.EndStyling(); }
 
-            if ((LogicalChildrenSource ?? _logicalChildren) is { } logicalChildren)
-            {
-                var childCount = logicalChildren.Count;
-
-                for (var i = 0; i < childCount; ++i)
-                {
-                    (logicalChildren[i] as StyledElement)?.DetachStyles(styles);
-                }
-            }
+            foreach (var child in new LogicalChildrenTraversal(this, _logicalChildren, LogicalChildrenSource))
+                (child as StyledElement)?.DetachStyles(styles);
         }
 
         internal void NotifyResourcesChanged(
