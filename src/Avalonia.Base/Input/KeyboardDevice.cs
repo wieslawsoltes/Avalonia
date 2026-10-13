@@ -4,6 +4,7 @@ using Avalonia.Input.Raw;
 using Avalonia.Input.TextInput;
 using Avalonia.Interactivity;
 using Avalonia.Metadata;
+using Avalonia.VisualTree;
 
 namespace Avalonia.Input
 {
@@ -27,6 +28,11 @@ namespace Avalonia.Input
 
         public IInputElement? FocusedElement => _focusedElement;
 
+        private static Visual? GetInputParent(Visual? visual) =>
+            visual is IHostedVisualTreeRoot { IsInputRootConnectedToHost: true, Host: { } host }
+                ? host
+                : visual?.VisualParent;
+
         private static void ClearFocusWithinAncestors(IInputElement? element)
         {
             var el = element;
@@ -38,7 +44,7 @@ namespace Avalonia.Input
                     ie.IsKeyboardFocusWithin = false;
                 }
 
-                el = (IInputElement?)(el as Visual)?.VisualParent;
+                el = GetInputParent(el as Visual) as IInputElement;
             }
         }
         
@@ -85,7 +91,7 @@ namespace Avalonia.Input
                     break;
                 }
 
-                el = (el as Visual)?.VisualParent as IInputElement;
+                el = GetInputParent(el as Visual) as IInputElement;
             }
 
             el = oldElement;
@@ -104,7 +110,7 @@ namespace Avalonia.Input
                     ie.IsKeyboardFocusWithin = true;
                 }
 
-                el = (el as Visual)?.VisualParent as IInputElement;
+                el = GetInputParent(el as Visual) as IInputElement;
             }
         }
         
@@ -288,7 +294,7 @@ namespace Avalonia.Input
                                     }
                                 }
                             }
-                            currentHandler = currentHandler.VisualParent;
+                            currentHandler = GetInputParent(currentHandler);
                         }
 
                         element.RaiseEvent(ev);

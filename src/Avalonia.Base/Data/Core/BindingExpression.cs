@@ -23,6 +23,9 @@ namespace Avalonia.Data.Core;
 /// </remarks>
 internal class BindingExpression : UntypedBindingExpressionBase, IDescription, IDisposable
 {
+    /// <inheritdoc/>
+    public override BindingMode Mode => _mode;
+
     private static readonly List<ExpressionNode> s_emptyExpressionNodes = new();
     private readonly WeakReference<object?>? _source;
     private readonly BindingMode _mode;
@@ -503,10 +506,9 @@ internal class BindingExpression : UntypedBindingExpressionBase, IDescription, I
 
         StopDelayTimer();
 
-        if (TryGetTarget(out var target) &&
-            TargetProperty is not null)
+        if (TryGetTargetValue(out var value))
         {
-            WriteValueToSource(target.GetValue(TargetProperty));
+            WriteValueToSource(value);
         }
     }
 
@@ -522,7 +524,15 @@ internal class BindingExpression : UntypedBindingExpressionBase, IDescription, I
         Debug.Assert(_mode is BindingMode.TwoWay or BindingMode.OneWayToSource);
         Debug.Assert(UpdateSourceTrigger is UpdateSourceTrigger.PropertyChanged);
 
-        if (e.Property != TargetProperty)
+        if (e.Property != TargetProperty || !ShouldUpdateSource(e))
+            return;
+
+        NotifyTargetValueChanged();
+    }
+
+    private protected override void OnTargetValueChangedCore()
+    {
+        if (UpdateSourceTrigger != UpdateSourceTrigger.PropertyChanged)
             return;
 
         if (_uncommon?._delay is not { Ticks: > 0 } delay)

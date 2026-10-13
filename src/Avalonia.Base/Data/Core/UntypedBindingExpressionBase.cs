@@ -29,6 +29,7 @@ public abstract class UntypedBindingExpressionBase : BindingExpressionBase,
     private bool _isDefaultValueInitialized;
     private bool _isRunning;
     private bool _produceValue;
+    private bool _targetValueChangeNotified;
     private IBindingExpressionSink? _sink;
     private WeakReference<AvaloniaObject?>? _target;
     private object? _value = AvaloniaProperty.UnsetValue;
@@ -147,6 +148,44 @@ public abstract class UntypedBindingExpressionBase : BindingExpressionBase,
     /// Starts the binding expression following a call to <see cref="AttachCore"/>.
     /// </summary>
     public void Start() => Start(produceValue: true);
+
+    internal void SetTargetValue(object? value)
+    {
+        _targetValueChangeNotified = false;
+        PublishValue(value, forceUpdate: true);
+        // A base-value change under an animation, or an equal-value assignment, does
+        // not raise PropertyChanged. It still belongs to the writable expression.
+        if (!_targetValueChangeNotified)
+            NotifyTargetValueChanged();
+    }
+
+    private protected void NotifyTargetValueChanged()
+    {
+        _targetValueChangeNotified = true;
+        OnTargetValueChangedCore();
+    }
+
+    private protected virtual void OnTargetValueChangedCore() { }
+
+    private protected bool ShouldUpdateSource(AvaloniaPropertyChangedEventArgs change)
+    {
+        if ((change.Property.GetMetadata(change.Sender).BindingValueBehavior & BindingValueBehavior.IgnoreInactiveBindingSourceUpdates) == 0)
+            return true;
+        return change.Priority == Priority && change.Sender.GetValueStore().TryGetBindingTargetValue(this, out _);
+    }
+
+    private protected bool TryGetTargetValue(out object? value)
+    {
+        if (TryGetTarget(out var target) && TargetProperty is { } property)
+        {
+            if ((property.GetMetadata(target).BindingValueBehavior & BindingValueBehavior.IgnoreInactiveBindingSourceUpdates) != 0)
+                return target.GetValueStore().TryGetBindingTargetValue(this, out value);
+            value = target.GetValue(property);
+            return true;
+        }
+        value = null;
+        return false;
+    }
 
     bool IValueEntry.GetDataValidationState(out BindingValueType state, out Exception? error)
     {
@@ -448,7 +487,12 @@ public abstract class UntypedBindingExpressionBase : BindingExpressionBase,
             var ec = hasErrorChanged;
             var v = GetValueOrDefault();
             var e = _error;
-            Dispatcher.UIThread.Post(() => sink.OnChanged(this, vc, ec, v, e));
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (Priority != BindingPriority.LocalValue || sink is not ValueStore store ||
+                    store.CanApplyQueuedBindingValue(TargetProperty!, this))
+                    sink.OnChanged(this, vc, ec, v, e);
+            });
         }
     }
 

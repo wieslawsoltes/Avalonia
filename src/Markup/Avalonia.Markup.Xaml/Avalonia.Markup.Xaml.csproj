@@ -11,6 +11,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AvaloniaXamlLoader.cs" />
+    <Compile Include="CompiledResourceFactoryAttribute.cs" />
     <Compile Include="Converters\AvaloniaUriTypeConverter.cs" />
     <Compile Include="Converters\ColorToBrushConverter.cs" />
     <Compile Include="Converters\FontFamilyTypeConverter.cs" />

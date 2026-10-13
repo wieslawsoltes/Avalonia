@@ -518,7 +518,13 @@ namespace Avalonia.Controls
         /// <inheritdoc/>
         public double RenderScaling => _scaling;
 
-        IStyleHost IStyleHost.StylingParent => _globalStyles!;
+        IStyleHost? IStyleHost.StylingParent => StylingParent;
+
+        /// <summary>
+        /// Gets the source of styles and resources for this top level.
+        /// </summary>
+        /// <remarks>Embedded roots can override this to inherit the hosting control's scope.</remarks>
+        protected virtual IStyleHost? StylingParent => _globalStyles;
 
         /// <summary>
         /// File System storage service used for file pickers and bookmarks.

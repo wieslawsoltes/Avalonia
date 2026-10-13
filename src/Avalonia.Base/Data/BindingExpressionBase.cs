@@ -10,6 +10,10 @@ public abstract class BindingExpressionBase : IDisposable, ISetterInstance
     {
     }
 
+    /// <summary>Gets the resolved direction of this binding expression.</summary>
+    /// <remarks>Expressions without a writable source default to OneWay. Default binding modes are resolved when the expression is created.</remarks>
+    public virtual BindingMode Mode => BindingMode.OneWay;
+
     public virtual void Dispose()
     {
         GC.SuppressFinalize(this);

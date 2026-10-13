@@ -232,6 +232,29 @@ namespace Avalonia
             _metadataCache.Remove(type);
         }
         /// <summary>
+        /// Registers a styled property with explicitly supplied metadata.
+        /// </summary>
+        /// <typeparam name="TOwner">The type that registers the property.</typeparam>
+        /// <typeparam name="TValue">The type of the property value.</typeparam>
+        /// <param name="metadata">The metadata, which becomes immutable after registration.</param>
+        /// <param name="name">The name of the property.</param>
+        /// <param name="inherits">Whether the property inherits its value.</param>
+        /// <param name="validate">A value validation callback.</param>
+        /// <returns>The registered property.</returns>
+        public static StyledProperty<TValue> Register<TOwner, TValue>(
+            StyledPropertyMetadata<TValue> metadata,
+            string name,
+            bool inherits = false,
+            Func<TValue, bool>? validate = null)
+                where TOwner : AvaloniaObject
+        {
+            var result = new StyledProperty<TValue>(
+                name, typeof(TOwner), typeof(TOwner), metadata, inherits, validate);
+            AvaloniaPropertyRegistry.Instance.Register(typeof(TOwner), result);
+            return result;
+        }
+
+        /// <summary>
         /// Registers a <see cref="AvaloniaProperty"/>.
         /// </summary>
         /// <typeparam name="TOwner">The type of the class that is registering the property.</typeparam>
@@ -458,6 +481,29 @@ namespace Avalonia
                 getter,
                 setter,
                 metadata);
+            AvaloniaPropertyRegistry.Instance.Register(typeof(TOwner), result);
+            return result;
+        }
+
+        /// <summary>
+        /// Registers a direct property with explicitly supplied metadata.
+        /// </summary>
+        /// <typeparam name="TOwner">The type that registers the property.</typeparam>
+        /// <typeparam name="TValue">The type of the property value.</typeparam>
+        /// <param name="metadata">The metadata, which becomes immutable after registration.</param>
+        /// <param name="name">The name of the property.</param>
+        /// <param name="getter">Gets the current value of the property.</param>
+        /// <param name="setter">Sets the property value, or null for a read-only property.</param>
+        /// <returns>The registered property.</returns>
+        public static DirectProperty<TOwner, TValue> RegisterDirect<TOwner, TValue>(
+            DirectPropertyMetadata<TValue> metadata,
+            string name,
+            Func<TOwner, TValue> getter,
+            Action<TOwner, TValue>? setter = null)
+                where TOwner : AvaloniaObject
+        {
+            _ = getter ?? throw new ArgumentNullException(nameof(getter));
+            var result = new DirectProperty<TOwner, TValue>(name, getter, setter, metadata);
             AvaloniaPropertyRegistry.Instance.Register(typeof(TOwner), result);
             return result;
         }

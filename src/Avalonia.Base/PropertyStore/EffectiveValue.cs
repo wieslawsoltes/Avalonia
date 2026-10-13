@@ -21,6 +21,8 @@ namespace Avalonia.PropertyStore
         /// </summary>
         public object? Value => GetBoxedValue();
 
+        internal abstract object? GetBaseValue();
+
         /// <summary>
         /// Gets the priority of the current effective value.
         /// </summary>

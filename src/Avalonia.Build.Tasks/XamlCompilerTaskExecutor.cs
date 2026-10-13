@@ -145,9 +145,14 @@ namespace Avalonia.Build.Tasks
 
             var asm = typeSystem.TargetAssemblyDefinition;
             var avares = new AvaloniaResources(asm, projectDirectory);
+            var resourceFactories = FindResourceFactories(asm.MainModule);
             if (avares.Resources.Count(CheckXamlName) == 0)
+            {
+                if (resourceFactories.Count != 0)
+                    throw new InvalidProgramException("Compiled resource factories require XAML resources in the same assembly.");
                 // Nothing to do
                 return null;
+            }
 
             if (typeSystem.FindType("System.Reflection.AssemblyMetadataAttribute") is {} asmMetadata)
             {
@@ -580,6 +585,21 @@ namespace Avalonia.Build.Tasks
 
                         }
 
+                        if (!document.IsPublic && resourceFactories.ContainsKey(res.Uri))
+                        {
+                            var privateBuild = document.TypeBuilderProvider.BuildMethod is not { } factoryBuild ? null :
+                                typeSystem.GetTypeReference(builder).Resolve().Methods.First(m => m.Name == factoryBuild.Name);
+                            var localConstructor = privateBuild is not null ? null : classTypeDefinition?.GetConstructors().FirstOrDefault(c =>
+                                !c.IsStatic && !c.HasParameters && (c.IsPublic || c.IsAssembly || c.IsFamilyOrAssembly));
+                            var localConstructorWithSp = privateBuild is not null ? null : classTypeDefinition?.GetConstructors().FirstOrDefault(c =>
+                                !c.IsStatic && (c.IsPublic || c.IsAssembly || c.IsFamilyOrAssembly) && c.Parameters.Count == 1 &&
+                                c.Parameters[0].ParameterType.FullName == serviceProviderType.FullName);
+                            if (privateBuild is null && localConstructor is null && localConstructorWithSp is null)
+                                throw new InvalidProgramException($"Compiled resource factory for '{res.Uri}' requires an accessible constructor.");
+                            EmitResourceFactories(resourceFactories, res.Uri, privateBuild,
+                                localConstructor, localConstructorWithSp, createRootServiceProviderMethod);
+                        }
+
                         if (document.IsPublic
                             && (document.TypeBuilderProvider.BuildMethod != null || classTypeDefinition != null))
                         {
@@ -598,6 +618,8 @@ namespace Avalonia.Build.Tasks
 
                             if (compiledBuildMethod != null || parameterlessConstructor != null || constructorWithSp != null)
                             {
+                                EmitResourceFactories(resourceFactories, res.Uri, compiledBuildMethod,
+                                    parameterlessConstructor, constructorWithSp, createRootServiceProviderMethod);
                                 var i = loaderDispatcherMethod.Body.Instructions;
                                 var nop = Instruction.Create(OpCodes.Nop);
                                 i.Add(Instruction.Create(OpCodes.Ldarg_1));
@@ -672,6 +694,8 @@ namespace Avalonia.Build.Tasks
             
             loaderDispatcherMethod.Body.Instructions.Add(Instruction.Create(OpCodes.Ldnull));
             loaderDispatcherMethod.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
+            if (resourceFactories.Count != 0)
+                throw new InvalidProgramException("Unable to resolve compiled resource factories: " + string.Join(", ", resourceFactories.Keys));
             return true;
         }
 

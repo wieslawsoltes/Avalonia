@@ -28,6 +28,7 @@ namespace Avalonia
         private PropertyChangedEventHandler? _inpcChanged;
         private EventHandler<AvaloniaPropertyChangedEventArgs>? _propertyChanged;
         private List<AvaloniaObject>? _inheritanceChildren;
+        private WeakHashList<AvaloniaObject>? _weakInheritanceChildren;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AvaloniaObject"/> class.
@@ -84,6 +85,43 @@ namespace Avalonia
         }
 
         /// <summary>
+        /// Gets or sets whether inheritance children are retained through weak references.
+        /// </summary>
+        /// <remarks>
+        /// The default is false. Enable this for parents with weakly owned logical projections.
+        /// Inherited properties continue to propagate to live children. This does not weaken
+        /// ownership collections such as <see cref="StyledElement.LogicalChildren"/>.
+        /// Changing the value converts existing inheritance-child registrations.
+        /// </remarks>
+        protected bool UseWeakInheritanceChildren
+        {
+            get => _weakInheritanceChildren is not null;
+            set
+            {
+                VerifyAccess();
+                if (value == UseWeakInheritanceChildren)
+                    return;
+                if (value)
+                {
+                    _weakInheritanceChildren = new WeakHashList<AvaloniaObject>();
+                    if (_inheritanceChildren is not null)
+                        foreach (var child in _inheritanceChildren)
+                            _weakInheritanceChildren.Add(child);
+                    _inheritanceChildren = null;
+                }
+                else
+                {
+                    using var children = GetInheritanceChildren();
+                    _inheritanceChildren = new List<AvaloniaObject>(children.Count);
+                    for (var i = 0; i < children.Count; ++i)
+                        if (children[i] is { } child)
+                            _inheritanceChildren.Add(child);
+                    _weakInheritanceChildren = null;
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the value of a <see cref="AvaloniaProperty"/>.
         /// </summary>
         /// <param name="property">The property.</param>
@@ -133,7 +171,11 @@ namespace Avalonia
         {
             ThrowHelper.ThrowIfNull(property, nameof(property));
             VerifyAccess();
-            _values.ClearValue(property);
+            if (property.IsDirect &&
+                (property.GetMetadata(this).BindingValueBehavior & BindingValueBehavior.RemoveBindingOnClearValue) != 0)
+                property.RouteClearValue(this);
+            else
+                _values.ClearValue(property, isExplicit: true);
         }
 
         /// <summary>
@@ -167,7 +209,7 @@ namespace Avalonia
             ThrowHelper.ThrowIfNull(property, nameof(property));
             VerifyAccess();
 
-            _values.ClearValue(property);
+            _values.ClearValue(property, isExplicit: true);
         }
 
         /// <summary>
@@ -180,6 +222,7 @@ namespace Avalonia
             VerifyAccess();
 
             var p = AvaloniaPropertyRegistry.Instance.GetRegisteredDirect(this, property);
+            _values.PrepareExplicitValue(p, clearing: true);
             p.InvokeSetter(this, p.GetUnsetValue(this));
         }
 
@@ -344,7 +387,7 @@ namespace Avalonia
             if (value is UnsetValueType)
             {
                 if (priority == BindingPriority.LocalValue)
-                    _values.ClearValue(property);
+                    _values.ClearValue(property, isExplicit: true);
             }
             else if (value is not DoNothingType)
             {
@@ -367,6 +410,10 @@ namespace Avalonia
 
             property = AvaloniaPropertyRegistry.Instance.GetRegisteredDirect(this, property);
             LogPropertySet(property, value, BindingPriority.LocalValue);
+            if (value is not UnsetValueType and not DoNothingType && _values.TrySetWritableBindingValue(property, value))
+                return;
+            if (value is not DoNothingType)
+                _values.PrepareExplicitValue(property, clearing: value is UnsetValueType);
             SetDirectValueUnchecked(property, value);
         }
 
@@ -413,7 +460,7 @@ namespace Avalonia
 
             if (value is UnsetValueType)
             {
-                _values.ClearValue(property);
+                _values.ClearValue(property, isExplicit: true);
             }
             else if (value is not DoNothingType)
             {
@@ -613,13 +660,19 @@ namespace Avalonia
 
         internal void AddInheritanceChild(AvaloniaObject child)
         {
-            _inheritanceChildren ??= new List<AvaloniaObject>();
-            _inheritanceChildren.Add(child);
+            if (_weakInheritanceChildren is { } weak)
+                weak.Add(child);
+            else
+            {
+                _inheritanceChildren ??= new List<AvaloniaObject>();
+                _inheritanceChildren.Add(child);
+            }
         }
 
         internal void RemoveInheritanceChild(AvaloniaObject child)
         {
             _inheritanceChildren?.Remove(child);
+            _weakInheritanceChildren?.Remove(child);
         }
 
         /// <inheritdoc/>
@@ -644,7 +697,13 @@ namespace Avalonia
         }
 
         internal ValueStore GetValueStore() => _values;
-        internal IReadOnlyList<AvaloniaObject>? GetInheritanceChildren() => _inheritanceChildren;
+        internal InheritanceChildren GetInheritanceChildren()
+        {
+            var live = _weakInheritanceChildren?.GetAlive();
+            if (_weakInheritanceChildren?.NeedCompact == true)
+                _weakInheritanceChildren.Compact();
+            return new InheritanceChildren(this, _inheritanceChildren, live);
+        }
 
         /// <summary>
         /// Called to update the validation state for properties for which data validation is
@@ -788,6 +847,16 @@ namespace Avalonia
             {
                 property.InvokeSetter(this, value);
             }
+        }
+
+        internal void SetDirectCurrentValue<T>(DirectPropertyBase<T> property, T value)
+        {
+            VerifyAccess();
+            property = AvaloniaPropertyRegistry.Instance.GetRegisteredDirect(this, property);
+            LogPropertySet(property, value, BindingPriority.LocalValue);
+            if (_values.TrySetWritableBindingValue(property, value))
+                return;
+            SetDirectValueUnchecked(property, value);
         }
 
         /// <summary>

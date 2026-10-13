@@ -76,7 +76,11 @@ namespace Avalonia.PropertyStore
                 // locally. This allows us to skip most of the allocations when on UI thread.
                 var instance = this;
                 var newValue = value;
-                Dispatcher.UIThread.Post(() => Execute(instance, newValue));
+                Dispatcher.UIThread.Post(() =>
+                {
+                    if (instance._owner.CanApplyQueuedBindingValue(instance.Property, instance))
+                        Execute(instance, newValue);
+                });
             }
         }
 
@@ -113,7 +117,11 @@ namespace Avalonia.PropertyStore
                 // locally. This allows us to skip most of the allocations when on UI thread.
                 var instance = this;
                 var newValue = value;
-                Dispatcher.UIThread.Post(() => Execute(instance, newValue));
+                Dispatcher.UIThread.Post(() =>
+                {
+                    if (instance._owner.CanApplyQueuedBindingValue(instance.Property, instance))
+                        Execute(instance, newValue);
+                });
             }
         }
 

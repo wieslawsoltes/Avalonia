@@ -4,6 +4,9 @@ namespace Avalonia.Data.Core;
 
 internal class IndexerBindingExpression : UntypedBindingExpressionBase
 {
+    /// <inheritdoc/>
+    public override BindingMode Mode => _mode == BindingMode.Default ? BindingMode.OneWay : _mode;
+
     private readonly AvaloniaObject _source;
     private readonly AvaloniaProperty _sourceProperty;
     private readonly AvaloniaObject _target;
@@ -62,7 +65,18 @@ internal class IndexerBindingExpression : UntypedBindingExpressionBase
 
     private void OnTargetPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
     {
-        if (e.Property == _targetProperty)
-            WriteValueToSource(e.NewValue);
+        if (e.Property == _targetProperty && ShouldUpdateSource(e))
+        {
+            if ((e.Property.GetMetadata(e.Sender).BindingValueBehavior & BindingValueBehavior.ReplaceNonWritableBindingOnSetValue) != 0)
+                NotifyTargetValueChanged();
+            else
+                WriteValueToSource(e.NewValue);
+        }
+    }
+
+    private protected override void OnTargetValueChangedCore()
+    {
+        if (TryGetTargetValue(out var value))
+            WriteValueToSource(value);
     }
 }

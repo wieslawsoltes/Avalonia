@@ -9,6 +9,7 @@ namespace Avalonia
     public abstract class AvaloniaPropertyMetadata
     {
         private BindingMode _defaultBindingMode;
+        private BindingValueBehavior? _bindingValueBehavior;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AvaloniaPropertyMetadata"/> class.
@@ -46,6 +47,14 @@ namespace Avalonia
         /// </remarks>
         public bool? EnableDataValidation { get; private set; }
 
+        /// <summary>Gets or initializes the binding lifetime behavior for explicit property operations.</summary>
+        /// <remarks>Unspecified metadata inherits its owner's behavior. Explicit None restores the standard behavior.</remarks>
+        public BindingValueBehavior BindingValueBehavior
+        {
+            get => _bindingValueBehavior ?? BindingValueBehavior.None;
+            init => _bindingValueBehavior = value;
+        }
+
         /// <summary>
         /// Gets whether this instance is read-only and can't be modified.
         /// </summary>
@@ -71,6 +80,7 @@ namespace Avalonia
             }
 
             EnableDataValidation ??= baseMetadata.EnableDataValidation;
+            _bindingValueBehavior ??= baseMetadata.BindingValueBehavior;
         }
 
         /// <summary>

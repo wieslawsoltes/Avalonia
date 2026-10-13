@@ -54,7 +54,10 @@ namespace Avalonia
                 return this;
             }
 
-            var copy = new DirectPropertyMetadata<TValue>(UnsetValue, DefaultBindingMode, EnableDataValidation);
+            var copy = new DirectPropertyMetadata<TValue>(UnsetValue, DefaultBindingMode, EnableDataValidation)
+            {
+                BindingValueBehavior = BindingValueBehavior,
+            };
             copy.Freeze();
             return copy;
         }
