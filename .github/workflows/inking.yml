@@ -47,6 +47,11 @@ jobs:
           python -m pip install -r validation/requirements.txt > artifacts/validation/browser-setup.log 2>&1 || { cat artifacts/validation/browser-setup.log; exit 1; }
           python -m playwright install chromium --with-deps >> artifacts/validation/browser-setup.log 2>&1 || { tail -n 40 artifacts/validation/browser-setup.log; exit 1; }
           python validation/browser.py | tee artifacts/validation/browser-run.log
+      - name: Validate focused layer UI and bindings
+        if: ${{ !cancelled() }}
+        run: |
+          set -euo pipefail
+          python validation/layers.py | tee artifacts/validation/layers.log
       - name: Validate native control lifecycle
         if: ${{ !cancelled() }}
         run: |
