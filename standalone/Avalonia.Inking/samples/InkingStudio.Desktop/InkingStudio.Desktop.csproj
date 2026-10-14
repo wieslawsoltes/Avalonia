@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>WinExe</OutputType><IsPackable>false</IsPackable></PropertyGroup><ItemGroup><PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)"/><ProjectReference Include="../InkingStudio/InkingStudio.csproj"/></ItemGroup></Project>

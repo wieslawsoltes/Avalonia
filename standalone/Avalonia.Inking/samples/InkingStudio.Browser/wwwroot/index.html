@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <meta name="theme-color" content="#5265d9"/>
+  <title>Ink Studio · Avalonia Inking</title>
+  <link rel="preload" id="webassembly"/>
+  <script type="importmap"></script>
+  <script type="module" src="main#[.{fingerprint}].js"></script>
+  <style>
+    html,body,#out { width:100%;height:100%;margin:0;overflow:hidden; }
+    body { background:#f6f7fb;font-family:system-ui,sans-serif; }
+    #out { touch-action:none;overscroll-behavior:none; }
+    .loading { display:grid;place-content:center;height:100%;text-align:center;color:#5265d9;gap:12px; }
+    .loading b { font-size:22px;letter-spacing:4px; }.loading span{font-size:13px;color:#738096;}
+    #fatal { position:fixed;inset:20px;overflow:auto;background:white;color:#8b2434;padding:20px;white-space:pre-wrap;z-index:10000;display:none; }
+  </style>
+</head>
+<body>
+  <div id="out"><div class="loading"><b>INK STUDIO</b><span>Loading Avalonia and the inking engine…</span></div></div>
+  <pre id="fatal" role="alert"></pre>
+</body>
+</html>

@@ -3,7 +3,6 @@ using Avalonia.Inking.Core;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Media;
-
 namespace Avalonia.Inking;
 
 public partial class InkCanvas
@@ -99,8 +98,7 @@ public partial class InkCanvas
         if (!CanEdit || !Session.CanWriteActiveLayer) return;
         var clipboard = TopLevel.GetTopLevel(this)?.Clipboard ?? throw new NotSupportedException("The host has no clipboard.");
         var session = Session; var document = session.Document; var layer = session.ActiveLayerId;
-        var json = await clipboard.TryGetTextAsync();
-        if (json is null) return;
+        var json = await clipboard.TryGetTextAsync(); if (json is null) return;
         if (!CanEdit || !ReferenceEquals(Session, session) || !ReferenceEquals(session.Document, document) || layer != session.ActiveLayerId) throw new InvalidOperationException("The document changed while reading the clipboard.");
         session.PasteJson(json); SelectTool(InkTool.Select); SetStatus("Pasted ink");
     }
@@ -133,14 +131,7 @@ public partial class InkCanvas
         var command = e.KeyModifiers.HasFlag(KeyModifiers.Control) || e.KeyModifiers.HasFlag(KeyModifiers.Meta);
         InkCommand? action = null;
         if (command)
-        {
-            action = e.Key switch
-            {
-                Key.Z => e.KeyModifiers.HasFlag(KeyModifiers.Shift) ? RedoCommand : UndoCommand,
-                Key.Y => RedoCommand, Key.A => SelectAllCommand, Key.D => DuplicateCommand,
-                Key.C => CopyCommand, Key.X => CutCommand, Key.V => PasteCommand, Key.D0 => ResetViewCommand, _ => null
-            };
-        }
+            action = e.Key switch { Key.Z => e.KeyModifiers.HasFlag(KeyModifiers.Shift) ? RedoCommand : UndoCommand, Key.Y => RedoCommand, Key.A => SelectAllCommand, Key.D => DuplicateCommand, Key.C => CopyCommand, Key.X => CutCommand, Key.V => PasteCommand, Key.D0 => ResetViewCommand, _ => null };
         else if (e.Key is Key.Delete or Key.Back) action = DeleteCommand;
         if (action is not null) { action.Execute(null); e.Handled = true; return; }
         if ((e.Key is Key.Left or Key.Right or Key.Up or Key.Down) && CanEdit && Session.Selection.Count > 0)
@@ -150,19 +141,14 @@ public partial class InkCanvas
             e.Handled = true; return;
         }
         if (command || _gesture != Gesture.None) return;
-        InkTool? tool = e.Key switch
-        {
-            Key.B => InkTool.Pen, Key.P => InkTool.Pencil, Key.H => InkTool.Highlighter,
-            Key.E => e.KeyModifiers.HasFlag(KeyModifiers.Shift) ? InkTool.StrokeEraser : InkTool.PointEraser,
-            Key.V => InkTool.Select, Key.L => InkTool.Lasso, Key.I => InkTool.Line, Key.R => InkTool.Rectangle, Key.O => InkTool.Ellipse, _ => null
-        };
+        InkTool? tool = e.Key switch { Key.B => InkTool.Pen, Key.P => InkTool.Pencil, Key.H => InkTool.Highlighter, Key.E => e.KeyModifiers.HasFlag(KeyModifiers.Shift) ? InkTool.StrokeEraser : InkTool.PointEraser, Key.V => InkTool.Select, Key.L => InkTool.Lasso, Key.I => InkTool.Line, Key.R => InkTool.Rectangle, Key.O => InkTool.Ellipse, _ => null };
         if (tool is { } selected) { SelectTool(selected); e.Handled = true; }
     }
     protected override void OnKeyUp(KeyEventArgs e)
     {
         base.OnKeyUp(e); if (e.Key == Key.Space) { _spaceDown = false; UpdateCursor(); e.Handled = true; }
     }
-    protected override void OnLostFocus(RoutedEventArgs e)
+    protected override void OnLostFocus(FocusChangedEventArgs e)
     {
         base.OnLostFocus(e); _spaceDown = false; UpdateCursor();
     }

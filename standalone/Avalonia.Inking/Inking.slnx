@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/Libraries/">
+    <Project Path="src/Avalonia.Inking.Core/Avalonia.Inking.Core.csproj"/>
+    <Project Path="src/Avalonia.Inking/Avalonia.Inking.csproj"/>
+    <Project Path="src/Avalonia.Inking.Themes/Avalonia.Inking.Themes.csproj"/>
+  </Folder>
+  <Folder Name="/Samples/">
+    <Project Path="samples/InkingStudio/InkingStudio.csproj"/>
+    <Project Path="samples/InkingStudio.Desktop/InkingStudio.Desktop.csproj"/>
+    <Project Path="samples/InkingStudio.Browser/InkingStudio.Browser.csproj"/>
+  </Folder>
+  <Folder Name="/Tests/"><Project Path="tests/Avalonia.Inking.Specs/Avalonia.Inking.Specs.csproj"/></Folder>
+</Solution>

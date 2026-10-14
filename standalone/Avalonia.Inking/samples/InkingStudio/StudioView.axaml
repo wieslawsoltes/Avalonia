@@ -1,0 +1,122 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:ink="using:Avalonia.Inking" x:Class="InkingStudio.StudioView" x:Name="Root" Background="{DynamicResource InkPanelBrush}" Foreground="{DynamicResource InkTextBrush}">
+  <UserControl.Styles>
+    <Style Selector="Button"><Setter Property="CornerRadius" Value="8"/><Setter Property="FontSize" Value="12"/><Setter Property="Padding" Value="12,7"/></Style>
+    <Style Selector="Button.primary"><Setter Property="Background" Value="{DynamicResource InkAccentBrush}"/><Setter Property="Foreground" Value="White"/><Setter Property="BorderThickness" Value="0"/></Style>
+    <Style Selector="TextBlock.caption"><Setter Property="FontSize" Value="11"/><Setter Property="Foreground" Value="{DynamicResource InkMutedBrush}"/></Style>
+    <Style Selector="TextBlock.section"><Setter Property="FontSize" Value="11"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="LetterSpacing" Value="1.4"/><Setter Property="Foreground" Value="{DynamicResource InkMutedBrush}"/></Style>
+    <Style Selector="CheckBox"><Setter Property="FontSize" Value="12"/><Setter Property="MinHeight" Value="28"/></Style>
+  </UserControl.Styles>
+  <Grid>
+    <Grid RowDefinitions="68,50,*,34">
+      <Border Grid.Row="0" Background="{DynamicResource InkSurfaceBrush}" BorderBrush="{DynamicResource InkBorderBrush}" BorderThickness="0,0,0,1" Padding="22,12">
+        <Grid ColumnDefinitions="Auto,*,Auto">
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <Border Background="{DynamicResource InkAccentBrush}" CornerRadius="10" Width="36" Height="36"><TextBlock Text="i" FontSize="28" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+            <StackPanel Spacing="1"><TextBlock Text="INK STUDIO" FontSize="14" FontWeight="Bold" LetterSpacing="1.4"/><TextBlock Text="AVALONIA INKING" FontSize="9" LetterSpacing="1.6" Foreground="{DynamicResource InkMutedBrush}"/></StackPanel>
+          </StackPanel>
+          <StackPanel Grid.Column="1" x:Name="DocumentHeading" VerticalAlignment="Center" Margin="32,0,0,0" Spacing="2">
+            <TextBlock x:Name="DocumentTitle" FontWeight="SemiBold" FontSize="13" Text="Creative notes"/>
+            <TextBlock x:Name="SaveState" Classes="caption" Text="Local document · recovery enabled"/>
+          </StackPanel>
+          <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">
+            <Button x:Name="NewButton" Content="New" AutomationProperties.AutomationId="new"/>
+            <Button x:Name="OpenButton" Content="Open" AutomationProperties.AutomationId="open"/>
+            <Button x:Name="SaveButton" Content="Save ink" Classes="primary" AutomationProperties.AutomationId="save"/>
+            <Button x:Name="SvgButton" Content="SVG" ToolTip.Tip="Export resolution-independent vector ink" AutomationProperties.AutomationId="export-svg"/>
+            <Button x:Name="PngButton" Content="PNG" ToolTip.Tip="Export an image without selection or grid" AutomationProperties.AutomationId="export-png"/>
+            <Button x:Name="ThemeButton" Content="Dark" AutomationProperties.AutomationId="theme"/>
+          </StackPanel>
+        </Grid>
+      </Border>
+      <Border Grid.Row="1" Padding="22,7" BorderBrush="{DynamicResource InkBorderBrush}" BorderThickness="0,0,0,1">
+        <Grid ColumnDefinitions="Auto,*,Auto">
+          <StackPanel Orientation="Horizontal" Spacing="5">
+            <Button Content="Undo" Command="{CompiledBinding #Canvas.UndoCommand}" AutomationProperties.AutomationId="undo" ToolTip.Tip="Ctrl/Cmd+Z"/>
+            <Button Content="Redo" Command="{CompiledBinding #Canvas.RedoCommand}" AutomationProperties.AutomationId="redo" ToolTip.Tip="Ctrl/Cmd+Shift+Z"/>
+            <Border Width="1" Background="{DynamicResource InkBorderBrush}" Margin="7,4"/>
+            <Button Content="Select all" Command="{CompiledBinding #Canvas.SelectAllCommand}" AutomationProperties.AutomationId="select-all"/>
+            <Button Content="Duplicate" Command="{CompiledBinding #Canvas.DuplicateCommand}" AutomationProperties.AutomationId="duplicate"/>
+            <Button Content="Delete" Command="{CompiledBinding #Canvas.DeleteCommand}" AutomationProperties.AutomationId="delete"/>
+          </StackPanel>
+          <TextBlock Grid.Column="1" x:Name="ToolbarHint" Classes="caption" Text="A place for your next idea." VerticalAlignment="Center" HorizontalAlignment="Center"/>
+          <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
+            <Button Content="−" Command="{CompiledBinding #Canvas.ZoomOutCommand}" AutomationProperties.AutomationId="zoom-out"/>
+            <Button x:Name="ZoomButton" Content="100%" Command="{CompiledBinding #Canvas.ResetViewCommand}" MinWidth="65" AutomationProperties.AutomationId="zoom-reset"/>
+            <Button Content="+" Command="{CompiledBinding #Canvas.ZoomInCommand}" AutomationProperties.AutomationId="zoom-in"/>
+            <Button Content="Fit" Command="{CompiledBinding #Canvas.FitCommand}" AutomationProperties.AutomationId="fit"/>
+          </StackPanel>
+        </Grid>
+      </Border>
+      <Grid Grid.Row="2" x:Name="Workspace" ColumnDefinitions="70,*,272" Margin="18,16,18,8" ColumnSpacing="14">
+        <ScrollViewer Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden">
+          <ink:InkToolbar x:Name="Tools" Target="{CompiledBinding #Canvas}" VerticalAlignment="Top" HorizontalAlignment="Center"/>
+        </ScrollViewer>
+        <Border Grid.Column="1" CornerRadius="16" BorderThickness="1" BorderBrush="{DynamicResource InkBorderBrush}" ClipToBounds="True">
+          <Grid>
+            <ink:InkCanvas x:Name="Canvas" AutomationProperties.Name="Ink drawing canvas" AutomationProperties.AutomationId="ink-canvas" CornerRadius="15"/>
+            <StackPanel x:Name="EmptyHint" IsHitTestVisible="False" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10">
+              <TextBlock Text="Make your mark." FontSize="28" FontWeight="Light" Foreground="{DynamicResource InkMutedBrush}" HorizontalAlignment="Center"/>
+              <TextBlock Text="Draw with a pen, mouse, or touch.&#10;Every idea stays editable." TextAlignment="Center" FontSize="13" Foreground="{DynamicResource InkMutedBrush}" LineHeight="22"/>
+            </StackPanel>
+            <Border Background="{DynamicResource InkSurfaceBrush}" CornerRadius="7" Padding="10,5" Margin="16" VerticalAlignment="Bottom" HorizontalAlignment="Left" IsHitTestVisible="False" Opacity="0.88">
+              <TextBlock Text="SPACE to pan   ·   CTRL + wheel to zoom   ·   ESC to cancel" FontSize="10" Foreground="{DynamicResource InkMutedBrush}"/>
+            </Border>
+          </Grid>
+        </Border>
+        <Border x:Name="Inspector" Grid.Column="2" Background="{DynamicResource InkSurfaceBrush}" CornerRadius="14" BorderBrush="{DynamicResource InkBorderBrush}" BorderThickness="1" Padding="18">
+          <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Spacing="12">
+              <Grid ColumnDefinitions="*,Auto"><TextBlock Text="BRUSH" Classes="section" VerticalAlignment="Center"/><TextBlock Grid.Column="1" x:Name="ToolLabel" Text="Pen" Classes="caption"/></Grid>
+              <Border CornerRadius="8" ClipToBounds="True" Height="58" BorderBrush="{DynamicResource InkBorderBrush}" BorderThickness="1"><ink:InkCanvas x:Name="BrushPreview" IsReadOnly="True" ShowSelection="False" GridMode="None" IsHitTestVisible="False" Focusable="False"/></Border>
+              <WrapPanel x:Name="Palette" ItemWidth="27" ItemHeight="29"/>
+              <Grid ColumnDefinitions="*,Auto"><TextBlock Text="Size" FontSize="12"/><TextBlock Grid.Column="1" x:Name="SizeLabel" Classes="caption"/></Grid>
+              <Slider x:Name="SizeSlider" Minimum="0.5" Maximum="48" Value="3" AutomationProperties.Name="Brush size" AutomationProperties.AutomationId="brush-size"/>
+              <Grid ColumnDefinitions="*,Auto"><TextBlock Text="Opacity" FontSize="12"/><TextBlock Grid.Column="1" x:Name="OpacityLabel" Classes="caption"/></Grid>
+              <Slider x:Name="OpacitySlider" Minimum="0" Maximum="1" Value="1" SmallChange="0.05" AutomationProperties.Name="Brush opacity"/>
+              <TextBlock Text="Smoothing" FontSize="12"/>
+              <Slider x:Name="SmoothingSlider" Minimum="0" Maximum="1" Value="0.4" SmallChange="0.05" AutomationProperties.Name="Stroke smoothing"/>
+              <CheckBox x:Name="PressureToggle" Content="Pressure sensitivity" IsChecked="True" AutomationProperties.AutomationId="pressure"/>
+              <Border Height="1" Background="{DynamicResource InkBorderBrush}" Margin="0,3"/>
+              <ink:InkLayerPanel x:Name="LayerPanel" Session="{CompiledBinding #Canvas.Session}"/>
+              <TextBox x:Name="LayerNameBox" Watermark="Active layer name" FontSize="12" AutomationProperties.AutomationId="layer-name"/>
+              <Slider x:Name="LayerOpacitySlider" Minimum="0" Maximum="1" Value="1" SmallChange="0.05" AutomationProperties.Name="Layer opacity"/>
+              <Border Height="1" Background="{DynamicResource InkBorderBrush}" Margin="0,3"/>
+              <TextBlock Text="SELECTION" Classes="section"/>
+              <WrapPanel>
+                <Button Content="↶ 15°" Command="{CompiledBinding #Canvas.RotateLeftCommand}" Margin="0,0,5,5" AutomationProperties.AutomationId="rotate-left"/>
+                <Button Content="↷ 15°" Command="{CompiledBinding #Canvas.RotateRightCommand}" Margin="0,0,5,5" AutomationProperties.AutomationId="rotate-right"/>
+                <Button Content="Front" Command="{CompiledBinding #Canvas.BringToFrontCommand}" Margin="0,0,5,5"/>
+                <Button Content="Back" Command="{CompiledBinding #Canvas.SendToBackCommand}" Margin="0,0,5,5"/>
+              </WrapPanel>
+              <TextBlock Text="CANVAS" Classes="section"/>
+              <ComboBox x:Name="GridCombo" HorizontalAlignment="Stretch" FontSize="12" AutomationProperties.Name="Paper grid"/>
+              <CheckBox x:Name="SnapToggle" Content="Snap shapes to grid" AutomationProperties.AutomationId="snap"/>
+              <CheckBox x:Name="RulerToggle" Content="Straightedge ruler" AutomationProperties.AutomationId="ruler"/>
+              <Slider x:Name="RulerSlider" Minimum="-90" Maximum="90" Value="0" SmallChange="15" AutomationProperties.Name="Ruler angle"/>
+              <CheckBox x:Name="TouchToggle" Content="Draw with touch" AutomationProperties.AutomationId="touch-ink"/>
+              <CheckBox x:Name="ReadOnlyToggle" Content="Read-only document" AutomationProperties.AutomationId="read-only"/>
+              <Button x:Name="DemoButton" Content="Load showcase" HorizontalAlignment="Stretch" AutomationProperties.AutomationId="demo"/>
+              <TextBlock Text="B pen · P pencil · H highlight&#10;V select · L lasso · E erase&#10;I line · R rectangle · O ellipse&#10;Shift constrains transforms" Classes="caption" LineHeight="19"/>
+            </StackPanel>
+          </ScrollViewer>
+        </Border>
+      </Grid>
+      <Grid Grid.Row="3" ColumnDefinitions="*,Auto" Margin="24,0">
+        <TextBlock x:Name="Status" Classes="caption" VerticalAlignment="Center" Text="Ready"/>
+        <TextBlock Grid.Column="1" x:Name="Metrics" Classes="caption" VerticalAlignment="Center"/>
+      </Grid>
+    </Grid>
+    <Border x:Name="ConfirmationOverlay" IsVisible="False" Background="#80000000">
+      <Border Background="{DynamicResource InkSurfaceBrush}" CornerRadius="16" Padding="28" Width="380" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel Spacing="16">
+          <TextBlock Text="Keep your current work?" FontSize="20" FontWeight="SemiBold"/>
+          <TextBlock Text="This document has unsaved changes. Save it before replacing it, or discard the changes." TextWrapping="Wrap" FontSize="13"/>
+          <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+            <Button x:Name="ConfirmCancel" Content="Keep editing" AutomationProperties.AutomationId="confirm-cancel"/>
+            <Button x:Name="ConfirmDiscard" Content="Discard changes" Classes="primary" AutomationProperties.AutomationId="confirm-discard"/>
+          </StackPanel>
+        </StackPanel>
+      </Border>
+    </Border>
+  </Grid>
+</UserControl>
