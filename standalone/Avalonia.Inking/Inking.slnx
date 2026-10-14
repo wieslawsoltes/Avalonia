@@ -9,5 +9,8 @@
     <Project Path="samples/InkingStudio.Desktop/InkingStudio.Desktop.csproj"/>
     <Project Path="samples/InkingStudio.Browser/InkingStudio.Browser.csproj"/>
   </Folder>
-  <Folder Name="/Tests/"><Project Path="tests/Avalonia.Inking.Specs/Avalonia.Inking.Specs.csproj"/></Folder>
+  <Folder Name="/Tests/">
+    <Project Path="tests/Avalonia.Inking.Specs/Avalonia.Inking.Specs.csproj"/>
+    <Project Path="tests/Avalonia.Inking.HeadlessSpecs/Avalonia.Inking.HeadlessSpecs.csproj"/>
+  </Folder>
 </Solution>

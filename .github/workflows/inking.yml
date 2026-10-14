@@ -39,14 +39,19 @@ jobs:
         run: |
           set -euo pipefail
           dotnet workload install wasm-tools --skip-manifest-update > artifacts/validation/workload.log 2>&1 || { tail -n 60 artifacts/validation/workload.log; exit 1; }
-          dotnet publish samples/InkingStudio.Browser -c Release -o artifacts/browser > artifacts/validation/browser-build.log 2>&1 || { tail -n 100 artifacts/validation/browser-build.log; exit 1; }
-          tail -n 20 artifacts/validation/browser-build.log
+          dotnet publish samples/InkingStudio.Browser -c Release -o artifacts/browser > artifacts/validation/browser-build.log 2>&1 || { tail -n 16 artifacts/validation/browser-build.log; exit 1; }
+          grep -E 'error|warning|InkingStudio.Browser ->' artifacts/validation/browser-build.log || true
       - name: Validate published browser application
         run: |
           set -euo pipefail
           python -m pip install -r validation/requirements.txt > artifacts/validation/browser-setup.log 2>&1 || { cat artifacts/validation/browser-setup.log; exit 1; }
-          python -m playwright install chromium --with-deps >> artifacts/validation/browser-setup.log 2>&1 || { tail -n 80 artifacts/validation/browser-setup.log; exit 1; }
+          python -m playwright install chromium --with-deps >> artifacts/validation/browser-setup.log 2>&1 || { tail -n 40 artifacts/validation/browser-setup.log; exit 1; }
           python validation/browser.py | tee artifacts/validation/browser-run.log
+      - name: Validate native control lifecycle
+        if: ${{ !cancelled() }}
+        run: |
+          set -euo pipefail
+          dotnet run --project tests/Avalonia.Inking.HeadlessSpecs -c Release -- artifacts/validation/headless.json | tee artifacts/validation/headless.log
       - name: Pack reusable libraries and validate isolated consumer
         run: |
           set -euo pipefail
