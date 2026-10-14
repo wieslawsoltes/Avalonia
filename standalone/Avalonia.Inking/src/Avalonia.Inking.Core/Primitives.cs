@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-
 namespace Avalonia.Inking.Core;
 
 public static class InkLimits
@@ -7,13 +6,9 @@ public static class InkLimits
     public const int MaxLayers = 128, MaxStrokes = 100_000, MaxPoints = 2_000_000;
     public const int MaxPointsPerStroke = 100_000, MaxJsonCharacters = 64 * 1024 * 1024;
     public const double MaxCoordinate = 10_000_000;
-    public static void Require(bool condition, string message)
-    {
-        if (!condition) throw new ArgumentException(message);
-    }
+    public static void Require(bool condition, string message) { if (!condition) throw new ArgumentException(message); }
     public static bool Finite(double value) => double.IsFinite(value);
 }
-
 public readonly record struct InkVector(double X, double Y)
 {
     public double LengthSquared => X * X + Y * Y;
@@ -26,10 +21,8 @@ public readonly record struct InkVector(double X, double Y)
     public static double Cross(InkVector a, InkVector b) => a.X * b.Y - a.Y * b.X;
     public static InkVector Lerp(InkVector a, InkVector b, double t) => a + (b - a) * t;
 }
-
 /// <summary>Device sample. Coordinates are document units; timestamps are monotonic milliseconds.</summary>
-public readonly record struct InkPoint(double X, double Y, double Pressure = 1,
-    double TiltX = 0, double TiltY = 0, double Twist = 0, double Timestamp = 0)
+public readonly record struct InkPoint(double X, double Y, double Pressure = 1, double TiltX = 0, double TiltY = 0, double Twist = 0, double Timestamp = 0)
 {
     public InkVector Position => new(X, Y);
     public void Validate()
@@ -43,13 +36,11 @@ public readonly record struct InkPoint(double X, double Y, double Pressure = 1,
     public static InkPoint Lerp(InkPoint a, InkPoint b, double t)
     {
         var rotation = ((b.Twist - a.Twist + 540) % 360) - 180;
-        return new(a.X + (b.X - a.X) * t, a.Y + (b.Y - a.Y) * t,
-            a.Pressure + (b.Pressure - a.Pressure) * t,
+        return new(a.X + (b.X - a.X) * t, a.Y + (b.Y - a.Y) * t, a.Pressure + (b.Pressure - a.Pressure) * t,
             a.TiltX + (b.TiltX - a.TiltX) * t, a.TiltY + (b.TiltY - a.TiltY) * t,
             (a.Twist + rotation * t + 360) % 360, a.Timestamp + (b.Timestamp - a.Timestamp) * t);
     }
 }
-
 public readonly record struct InkRect(double X, double Y, double Width, double Height)
 {
     public static InkRect Empty => new(0, 0, -1, -1);
@@ -62,15 +53,13 @@ public readonly record struct InkRect(double X, double Y, double Width, double H
     public InkRect Inflate(double amount) => IsEmpty ? this : new(X - amount, Y - amount, Width + amount * 2, Height + amount * 2);
     public InkRect Union(InkRect r)
     {
-        if (IsEmpty) return r;
-        if (r.IsEmpty) return this;
+        if (IsEmpty) return r; if (r.IsEmpty) return this;
         var x = Math.Min(X, r.X); var y = Math.Min(Y, r.Y);
         return new(x, y, Math.Max(Right, r.Right) - x, Math.Max(Bottom, r.Bottom) - y);
     }
     public static InkRect Between(InkVector a, InkVector b) => new(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y), Math.Abs(a.X - b.X), Math.Abs(a.Y - b.Y));
 }
-
-/// <summary>Full affine transform. Stored separately so editing never destroys pressure or raw samples.</summary>
+/// <summary>Full affine transform stored separately so editing never destroys pressure or raw samples.</summary>
 public readonly record struct InkTransform(double A, double B, double C, double D, double Tx, double Ty)
 {
     public static InkTransform Identity => new(1, 0, 0, 1, 0, 0);
@@ -88,8 +77,8 @@ public readonly record struct InkTransform(double A, double B, double C, double 
     public InkRect Apply(InkRect r)
     {
         if (r.IsEmpty) return r;
-        var a = Apply(new(r.X, r.Y)); var b = Apply(new(r.Right, r.Y));
-        var c = Apply(new(r.Right, r.Bottom)); var d = Apply(new(r.X, r.Bottom));
+        var a = Apply(new InkVector(r.X, r.Y)); var b = Apply(new InkVector(r.Right, r.Y));
+        var c = Apply(new InkVector(r.Right, r.Bottom)); var d = Apply(new InkVector(r.X, r.Bottom));
         return InkRect.Between(a, b).Union(InkRect.Between(c, d));
     }
     public InkTransform Then(InkTransform n) => new(n.A * A + n.C * B, n.B * A + n.D * B,
@@ -107,11 +96,9 @@ public readonly record struct InkTransform(double A, double B, double C, double 
         return new(c, s, -s, c, center.X * (1 - c) + center.Y * s, center.Y * (1 - c) - center.X * s);
     }
 }
-
 public enum InkBrushKind { Pen, Pencil, Marker, Highlighter }
 public enum InkTool { Pen, Pencil, Highlighter, StrokeEraser, PointEraser, Select, Lasso, Line, Rectangle, Ellipse, Pan }
 public enum InkGrid { None, Dots, Lines, Ruled }
-
 public sealed record InkBrush
 {
     public InkBrushKind Kind { get; init; } = InkBrushKind.Pen;
@@ -139,13 +126,11 @@ public sealed record InkBrush
     {
         var pressure = UsePressure ? MinimumPressureWidth + (1 - MinimumPressureWidth) * Math.Pow(point.Pressure, PressureCurve) : 1;
         var tilt = Math.Min(1, Math.Sqrt(point.TiltX * point.TiltX + point.TiltY * point.TiltY) / 90);
-        var r = Width * .5 * pressure;
-        var angle = (NibAngle + point.Twist) * Math.PI / 180;
+        var r = Width * .5 * pressure; var angle = (NibAngle + point.Twist) * Math.PI / 180;
         if (TiltInfluence > 0 && tilt > .01) angle += Math.Atan2(point.TiltY, point.TiltX);
         return new(r * (1 + tilt * TiltInfluence), r * NibAspect, angle);
     }
 }
-
 public readonly record struct InkNib(double RadiusX, double RadiusY, double Angle)
 {
     public InkVector Map(InkVector p)
@@ -161,7 +146,6 @@ public readonly record struct InkNib(double RadiusX, double RadiusY, double Angl
         return length < 1e-12 ? default : Map(new(x * RadiusX / length, y * RadiusY / length));
     }
 }
-
 public static class InkPresets
 {
     public static InkBrush Pen { get; } = new();

@@ -30,6 +30,8 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts/validation
           dotnet run --project tests/Avalonia.Inking.Specs -c Release -- artifacts/validation/core.json | tee artifacts/validation/core.log
+      - name: Compile templated controls
+        run: dotnet build src/Avalonia.Inking -c Release
       - name: Build desktop sample
         if: hashFiles('standalone/Avalonia.Inking/samples/InkingStudio.Desktop/InkingStudio.Desktop.csproj') != ''
         run: dotnet build samples/InkingStudio.Desktop -c Release
@@ -49,9 +51,18 @@ jobs:
       - name: Preserve source and validation evidence
         if: always()
         run: |
+          set -euo pipefail
           mkdir -p artifacts
           git rev-parse HEAD > artifacts/source-commit.txt
-          git archive HEAD:standalone/Avalonia.Inking --format=zip -o "$PWD/artifacts/Avalonia.Inking-source.zip"
+          python - <<'PY'
+          import pathlib, subprocess, zipfile
+          root = pathlib.Path.cwd()
+          files = subprocess.check_output(['git', 'ls-files', '-z', '.']).decode().split('\0')
+          with zipfile.ZipFile('artifacts/Avalonia.Inking-source.zip', 'w', zipfile.ZIP_DEFLATED) as z:
+              for name in files:
+                  if name and pathlib.Path(name).is_file(): z.write(name, name)
+          print('Source archive bytes:', pathlib.Path('artifacts/Avalonia.Inking-source.zip').stat().st_size)
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
