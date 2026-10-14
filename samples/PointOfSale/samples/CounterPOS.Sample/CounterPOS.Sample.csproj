@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><ItemGroup><ProjectReference Include="../../src/CounterPOS.Controls/CounterPOS.Controls.csproj"/><PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)"/><PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)"/></ItemGroup></Project>

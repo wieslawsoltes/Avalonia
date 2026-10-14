@@ -1,0 +1,6 @@
+**/bin/
+**/obj/
+artifacts/
+node_modules/
+.DS_Store
+*.user
