@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><Description>Decimal-safe transactional point-of-sale domain and persistence contracts.</Description></PropertyGroup></Project>

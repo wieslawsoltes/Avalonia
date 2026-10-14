@@ -1,0 +1,55 @@
+name: CounterPOS build toolchain
+on:
+  push:
+    branches: [feat/pos-sales-system]
+    paths: ['samples/PointOfSale/**', '.github/workflows/counterpos-toolchain.yml']
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            samples/PointOfSale
+          sparse-checkout-cone-mode: true
+      - name: Install isolated .NET and WebAssembly toolchain
+        working-directory: samples/PointOfSale
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location https://dot.net/v1/dotnet-install.sh --output /tmp/dotnet-install.sh
+          bash /tmp/dotnet-install.sh --version 10.0.100 --install-dir /tmp/counterpos-dotnet
+          export DOTNET_ROOT=/tmp/counterpos-dotnet
+          export PATH="$DOTNET_ROOT:$PATH"
+          echo "DOTNET_ROOT=$DOTNET_ROOT" >> "$GITHUB_ENV"
+          echo "$DOTNET_ROOT" >> "$GITHUB_PATH"
+          dotnet workload install wasm-tools --skip-manifest-update
+      - name: Restore public dependencies and compile domain
+        working-directory: samples/PointOfSale
+        shell: bash
+        env:
+          NUGET_PACKAGES: /tmp/counterpos-nuget
+        run: |
+          set -euo pipefail
+          dotnet restore samples/CounterPOS.Browser/CounterPOS.Browser.csproj
+          dotnet restore samples/CounterPOS.Desktop/CounterPOS.Desktop.csproj
+          dotnet build src/CounterPOS.Core/CounterPOS.Core.csproj -c Release
+      - name: Archive public SDK and dependency cache for offline local validation
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p /tmp/counterpos-toolchain
+          tar -C /tmp -cf - counterpos-dotnet | xz -T2 -1 > /tmp/counterpos-toolchain/sdk.tar.xz
+          if test -d /tmp/counterpos-nuget; then tar -C /tmp -cf - counterpos-nuget | xz -T2 -1 > /tmp/counterpos-toolchain/nuget.tar.xz; fi
+          cd /tmp/counterpos-toolchain
+          sha256sum *.tar.xz > SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: counterpos-public-toolchain
+          path: /tmp/counterpos-toolchain
+          compression-level: 0
+          retention-days: 2
