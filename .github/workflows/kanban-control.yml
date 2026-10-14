@@ -59,7 +59,7 @@ jobs:
         if: always()
         run: |
           git rev-parse HEAD > artifacts/commit.txt
-          git archive HEAD samples/KanbanControl > artifacts/source.tar
+          git -C ../.. archive HEAD samples/KanbanControl > artifacts/source.tar
       - uses: actions/upload-artifact@v4
         if: always()
         with:
