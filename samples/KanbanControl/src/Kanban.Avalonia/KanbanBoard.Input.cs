@@ -1,17 +1,9 @@
-using System.Collections;
-using System.Collections.ObjectModel;
-using System.Windows.Input;
 using Avalonia;
 using Avalonia.Automation.Peers;
 using Avalonia.Controls;
-using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
-using Avalonia.Controls.Templates;
-using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Layout;
-using Avalonia.Styling;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Kanban.Core;
@@ -122,7 +114,7 @@ public partial class KanbanBoard
         _dropCell = null; _dropRequest = null;
         foreach (var column in RealizedColumns())
         {
-            if (column.View is not { } view || !view.IsExpanded || column.TranslatePoint(default, this) is not { } origin ||
+            if (column.View is not { } view || !view.IsExpanded || view.Lane.IsCollapsed || !column.IsVisible || column.TranslatePoint(default, this) is not { } origin ||
                 !new Rect(origin, column.Bounds.Size).Contains(_pointerPoint)) continue;
             if (column.ItemsList is not { } list) continue;
             _dropCell = view;

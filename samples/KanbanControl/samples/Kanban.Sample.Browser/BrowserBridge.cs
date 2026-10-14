@@ -62,6 +62,7 @@ public static partial class BrowserBridge
             case "dark": view.SetDark(value == "true"); break;
             case "compact": view.SetCompact(value == "true"); break;
             case "lanes": view.SetSwimlanes(value == "true"); break;
+            case "collapse-lane": board.Swimlanes.First(l => l.Key == value).IsCollapsed = true; break;
             case "readonly": board.IsReadOnly = value == "true"; break;
             case "search": board.SearchText = value; break;
             case "select": board.SelectOnly(view.Items.FirstOrDefault(i => i.Id == value)); break;
