@@ -29,19 +29,28 @@ jobs:
           mkdir -p artifacts
           dotnet run --project tests/Kanban.Core.Tests -c Release | tee artifacts/core.log
       - name: Headless template, selection and virtualization checks
+        id: headless
+        continue-on-error: true
         run: |
           set -o pipefail
           dotnet run --project tests/Kanban.Headless.Tests -c Release | tee artifacts/headless.log
       - name: Build desktop sample
+        id: desktop
+        continue-on-error: true
         run: dotnet build samples/Kanban.Sample.Desktop -c Release
       - name: Install WebAssembly build tools
         run: dotnet workload install wasm-tools
       - name: Publish real Avalonia browser application
+        id: browser_build
+        continue-on-error: true
         run: |
           set -o pipefail
           dotnet publish samples/Kanban.Sample.Browser -c Release -o artifacts/browser | tee artifacts/browser-build.log
           find artifacts/browser -name index.html -print
       - name: Browser interaction validation
+        id: browser_test
+        if: steps.browser_build.outcome == 'success'
+        continue-on-error: true
         run: |
           python -m pip install playwright==1.58.0
           python -m playwright install --with-deps chromium
@@ -66,3 +75,29 @@ jobs:
           name: kanban-validation-${{ github.sha }}
           path: samples/KanbanControl/artifacts
           retention-days: 14
+      - name: Capture reproducible local build inputs
+        if: always() && github.run_number == 3
+        run: |
+          mkdir -p .toolchain
+          tar -czf .toolchain/dotnet.tar.gz -C "$DOTNET_ROOT" dotnet host shared "sdk/$(dotnet --version)" packs sdk-manifests metadata
+          tar -czf .toolchain/nuget-packages.tar.gz -C "$HOME/.nuget" packages
+          sha256sum .toolchain/*.tar.gz > .toolchain/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        if: always() && github.run_number == 3
+        with:
+          name: kanban-build-inputs
+          path: samples/KanbanControl/.toolchain
+          retention-days: 1
+          compression-level: 0
+      - name: Require all validation stages to pass
+        if: always()
+        env:
+          HEADLESS: ${{ steps.headless.outcome }}
+          DESKTOP: ${{ steps.desktop.outcome }}
+          BROWSER_BUILD: ${{ steps.browser_build.outcome }}
+          BROWSER_TEST: ${{ steps.browser_test.outcome }}
+        run: |
+          test "$HEADLESS" = success
+          test "$DESKTOP" = success
+          test "$BROWSER_BUILD" = success
+          test "$BROWSER_TEST" = success

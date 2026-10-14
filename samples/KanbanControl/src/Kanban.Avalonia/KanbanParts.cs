@@ -21,6 +21,7 @@ public class KanbanCard : ListBoxItem
         var board = this.FindAncestorOfType<KanbanBoard>();
         var column = this.FindAncestorOfType<KanbanColumn>();
         bool selectedGroup = IsSelected && board?.SelectedItems.Count > 1 && e.KeyModifiers == KeyModifiers.None;
+        if (!selectedGroup && e.KeyModifiers == KeyModifiers.None && column?.ItemsList is { } list) board?.ClearOtherSelections(list);
         if (!selectedGroup) base.OnPointerPressed(e);
         else { Focus(); e.Handled = true; }
         if (column?.View is { } view && Content is { } item && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)

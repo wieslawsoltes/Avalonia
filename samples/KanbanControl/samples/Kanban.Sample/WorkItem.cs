@@ -11,6 +11,7 @@ public sealed class RelayCommand(Action<object?> execute, Predicate<object?>? ca
 }
 public sealed class WorkItem : KanbanItem
 {
+    public WorkItem() => PropertyChanged += (_, e) => { if (e.PropertyName == nameof(Assignee)) Raise(nameof(Initials)); };
     public string Kind { get; set; } = "FEATURE";
     public string Initials => string.Concat(Assignee.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(s => s[0])).ToUpperInvariant();
     [JsonIgnore] public ICommand? OpenCommand { get; set; }
