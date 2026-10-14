@@ -1,0 +1,147 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:k="using:Kanban.Avalonia">
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Light">
+      <SolidColorBrush x:Key="KanbanBoardBrush">#F8FAFC</SolidColorBrush>
+      <SolidColorBrush x:Key="KanbanColumnBrush">#EEF1F6</SolidColorBrush>
+      <SolidColorBrush x:Key="KanbanCardBrush">#FFFFFF</SolidColorBrush>
+      <SolidColorBrush x:Key="KanbanBorderBrush">#DCE2EB</SolidColorBrush>
+      <SolidColorBrush x:Key="KanbanTextBrush">#1C2840</SolidColorBrush>
+      <SolidColorBrush x:Key="KanbanMutedBrush">#63718A</SolidColorBrush>
+      <SolidColorBrush x:Key="KanbanHoverBrush">#F3F5FF</SolidColorBrush>
+      <SolidColorBrush x:Key="KanbanSelectedBrush">#EBEEFF</SolidColorBrush>
+      <SolidColorBrush x:Key="KanbanAccentBrush">#5B5BD6</SolidColorBrush>
+      <SolidColorBrush x:Key="KanbanDangerBrush">#B83E35</SolidColorBrush>
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="Dark">
+      <SolidColorBrush x:Key="KanbanBoardBrush">#111722</SolidColorBrush>
+      <SolidColorBrush x:Key="KanbanColumnBrush">#1A2230</SolidColorBrush>
+      <SolidColorBrush x:Key="KanbanCardBrush">#242E40</SolidColorBrush>
+      <SolidColorBrush x:Key="KanbanBorderBrush">#344158</SolidColorBrush>
+      <SolidColorBrush x:Key="KanbanTextBrush">#EDF2FC</SolidColorBrush>
+      <SolidColorBrush x:Key="KanbanMutedBrush">#A8B5CD</SolidColorBrush>
+      <SolidColorBrush x:Key="KanbanHoverBrush">#2C3650</SolidColorBrush>
+      <SolidColorBrush x:Key="KanbanSelectedBrush">#353B65</SolidColorBrush>
+      <SolidColorBrush x:Key="KanbanAccentBrush">#AAA9FF</SolidColorBrush>
+      <SolidColorBrush x:Key="KanbanDangerBrush">#FFA49A</SolidColorBrush>
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
+
+  <ControlTheme x:Key="{x:Type k:KanbanCard}" TargetType="k:KanbanCard">
+    <Setter Property="Background" Value="{DynamicResource KanbanCardBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource KanbanTextBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource KanbanBorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="9" />
+    <Setter Property="Margin" Value="8,4" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Focusable" Value="True" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="Template"><ControlTemplate>
+      <Grid>
+        <Border x:Name="PART_Surface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}" Padding="{TemplateBinding Padding}">
+          <ContentPresenter x:Name="PART_ContentPresenter" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" />
+        </Border>
+        <Border x:Name="PART_Insertion" Height="3" Margin="0,-3,0,0" VerticalAlignment="Top" Background="{DynamicResource KanbanAccentBrush}" IsVisible="False" IsHitTestVisible="False" />
+      </Grid>
+    </ControlTemplate></Setter>
+    <Style Selector="^:pointerover"><Setter Property="Background" Value="{DynamicResource KanbanHoverBrush}" /></Style>
+    <Style Selector="^:selected"><Setter Property="Background" Value="{DynamicResource KanbanSelectedBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource KanbanAccentBrush}" /></Style>
+    <Style Selector="^:focus-visible /template/ Border#PART_Surface"><Setter Property="BorderThickness" Value="2" /></Style>
+    <Style Selector="^:dragging"><Setter Property="Opacity" Value="0.45" /></Style>
+    <Style Selector="^:drop-before /template/ Border#PART_Insertion"><Setter Property="IsVisible" Value="True" /></Style>
+    <Style Selector="^:disabled"><Setter Property="Opacity" Value="0.5" /></Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type k:KanbanColumn}" TargetType="k:KanbanColumn">
+    <Setter Property="Width" Value="{Binding View.DisplayWidth, RelativeSource={RelativeSource Self}}" />
+    <Setter Property="Margin" Value="0,0,14,0" />
+    <Setter Property="Foreground" Value="{DynamicResource KanbanTextBrush}" />
+    <Setter Property="Template"><ControlTemplate>
+      <Border Background="{DynamicResource KanbanColumnBrush}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource KanbanBorderBrush}" ClipToBounds="True">
+        <Grid RowDefinitions="4,Auto,*,Auto" ColumnDefinitions="*,6">
+          <Border Grid.ColumnSpan="2" Background="{Binding View.Accent, RelativeSource={RelativeSource TemplatedParent}}" />
+          <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="12,10,8,8">
+            <ContentControl Content="{Binding View, RelativeSource={RelativeSource TemplatedParent}}" ContentTemplate="{Binding View.Board.ColumnHeaderTemplate, RelativeSource={RelativeSource TemplatedParent}}" IsVisible="{Binding View.IsExpanded, RelativeSource={RelativeSource TemplatedParent}}" />
+            <Button x:Name="PART_Collapse" Grid.Column="1" Content="≡" Padding="7,3" Background="Transparent" AutomationProperties.Name="Collapse or expand column" ToolTip.Tip="Collapse / expand column" />
+          </Grid>
+          <Grid Grid.Row="2" IsVisible="{Binding View.IsExpanded, RelativeSource={RelativeSource TemplatedParent}}">
+            <k:KanbanListBox x:Name="PART_Items" Background="Transparent" BorderThickness="0" Padding="0,0,0,8" SelectionMode="Multiple" AutoScrollToSelectedItem="False"
+                ItemsSource="{Binding View.Items, RelativeSource={RelativeSource TemplatedParent}}"
+                ItemTemplate="{Binding View.Board.EffectiveCardTemplate, RelativeSource={RelativeSource TemplatedParent}}"
+                ItemContainerTheme="{Binding View.Board.CardTheme, RelativeSource={RelativeSource TemplatedParent}}"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
+              <k:KanbanListBox.ItemsPanel><ItemsPanelTemplate><VirtualizingStackPanel /></ItemsPanelTemplate></k:KanbanListBox.ItemsPanel>
+            </k:KanbanListBox>
+            <ContentControl Content="{Binding View, RelativeSource={RelativeSource TemplatedParent}}" ContentTemplate="{Binding View.Board.EmptyTemplate, RelativeSource={RelativeSource TemplatedParent}}" IsVisible="{Binding View.IsEmpty, RelativeSource={RelativeSource TemplatedParent}}" IsHitTestVisible="False" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            <Border BorderThickness="2" CornerRadius="8" BorderBrush="{DynamicResource KanbanAccentBrush}" IsVisible="{Binding View.IsDropTarget, RelativeSource={RelativeSource TemplatedParent}}" IsHitTestVisible="False" Margin="3">
+              <Border Background="{DynamicResource KanbanSelectedBrush}" CornerRadius="6" Padding="10" VerticalAlignment="Bottom" Margin="6">
+                <TextBlock Text="{Binding View.DropText, RelativeSource={RelativeSource TemplatedParent}}" TextWrapping="Wrap" Foreground="{DynamicResource KanbanTextBrush}" FontSize="12" />
+              </Border>
+            </Border>
+          </Grid>
+          <StackPanel Grid.Row="3" Margin="10,4,10,10" IsVisible="{Binding View.IsExpanded, RelativeSource={RelativeSource TemplatedParent}}">
+            <ContentControl Content="{Binding View, RelativeSource={RelativeSource TemplatedParent}}" ContentTemplate="{Binding View.Board.ColumnFooterTemplate, RelativeSource={RelativeSource TemplatedParent}}" />
+            <Button x:Name="PART_Add" Content="＋  Add card" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" Foreground="{DynamicResource KanbanMutedBrush}" IsVisible="{Binding View.CanAdd, RelativeSource={RelativeSource TemplatedParent}}" />
+          </StackPanel>
+          <Thumb x:Name="PART_Resize" Grid.Column="1" Grid.Row="1" Grid.RowSpan="3" Cursor="SizeWestEast" Background="Transparent" IsVisible="{Binding View.Board.CanResizeColumns, RelativeSource={RelativeSource TemplatedParent}}" AutomationProperties.Name="Resize column" />
+        </Grid>
+      </Border>
+    </ControlTemplate></Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type k:KanbanSwimlane}" TargetType="k:KanbanSwimlane">
+    <Setter Property="Margin" Value="0,0,0,16" />
+    <Setter Property="Template"><ControlTemplate>
+      <StackPanel>
+        <Button x:Name="PART_Collapse" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" Margin="0,0,14,10" IsVisible="{Binding View.ShowHeader, RelativeSource={RelativeSource TemplatedParent}}" AutomationProperties.Name="Collapse or expand swimlane">
+          <ContentControl Content="{Binding View, RelativeSource={RelativeSource TemplatedParent}}" ContentTemplate="{Binding View.Board.LaneHeaderTemplate, RelativeSource={RelativeSource TemplatedParent}}" />
+        </Button>
+        <ItemsControl ItemsSource="{Binding View.Columns, RelativeSource={RelativeSource TemplatedParent}}" Height="{Binding View.BodyHeight, RelativeSource={RelativeSource TemplatedParent}}" IsVisible="{Binding View.IsExpanded, RelativeSource={RelativeSource TemplatedParent}}">
+          <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate><DataTemplate><k:KanbanColumn View="{Binding}" Theme="{Binding Board.ColumnTheme}" /></DataTemplate></ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </ControlTemplate></Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type k:KanbanBoard}" TargetType="k:KanbanBoard">
+    <Setter Property="Background" Value="{DynamicResource KanbanBoardBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource KanbanTextBrush}" />
+    <Setter Property="Focusable" Value="True" />
+    <Setter Property="CardTheme" Value="{StaticResource {x:Type k:KanbanCard}}" />
+    <Setter Property="ColumnTheme" Value="{StaticResource {x:Type k:KanbanColumn}}" />
+    <Setter Property="SwimlaneTheme" Value="{StaticResource {x:Type k:KanbanSwimlane}}" />
+    <Setter Property="ColumnHeaderTemplate"><DataTemplate>
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Text="{Binding Definition.Header}" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+        <Border Grid.Column="1" Background="{DynamicResource KanbanCardBrush}" CornerRadius="5" Padding="7,3" Margin="8,0,0,0">
+          <TextBlock Text="{Binding CountLabel}" FontSize="11" Foreground="{DynamicResource KanbanMutedBrush}" />
+        </Border>
+      </Grid>
+    </DataTemplate></Setter>
+    <Setter Property="ColumnFooterTemplate"><DataTemplate><TextBlock Text="WIP limit reached" IsVisible="{Binding IsAtWip}" Foreground="{DynamicResource KanbanDangerBrush}" FontSize="11" Margin="3,2,0,7" /></DataTemplate></Setter>
+    <Setter Property="LaneHeaderTemplate"><DataTemplate><TextBlock Text="{Binding Label}" FontWeight="SemiBold" FontSize="14" /></DataTemplate></Setter>
+    <Setter Property="EmptyTemplate"><DataTemplate>
+      <StackPanel Spacing="6" Margin="20"><TextBlock Text="No cards here" FontWeight="SemiBold" HorizontalAlignment="Center" /><TextBlock Text="Drop a card or add new work" Foreground="{DynamicResource KanbanMutedBrush}" FontSize="11" HorizontalAlignment="Center" /></StackPanel>
+    </DataTemplate></Setter>
+    <Setter Property="Template"><ControlTemplate>
+      <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+        <Grid RowDefinitions="Auto,*,Auto">
+          <ContentPresenter Content="{TemplateBinding Header}" />
+          <ScrollViewer x:Name="PART_ScrollViewer" Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <ItemsControl x:Name="PART_Rows" ItemsSource="{Binding Rows, RelativeSource={RelativeSource TemplatedParent}}">
+              <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate><DataTemplate><k:KanbanSwimlane View="{Binding}" Theme="{Binding Board.SwimlaneTheme}" /></DataTemplate></ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+          <ContentPresenter Grid.Row="2" Content="{TemplateBinding Footer}" />
+          <Canvas Grid.RowSpan="3" IsHitTestVisible="False" ClipToBounds="True">
+            <Border x:Name="PART_DragGhost" Background="{DynamicResource KanbanAccentBrush}" CornerRadius="8" Padding="18,10" IsVisible="{TemplateBinding IsDragging}">
+              <TextBlock Text="{TemplateBinding DragLabel}" Foreground="White" FontWeight="SemiBold" />
+            </Border>
+          </Canvas>
+        </Grid>
+      </Border>
+    </ControlTemplate></Setter>
+  </ControlTheme>
+</ResourceDictionary>

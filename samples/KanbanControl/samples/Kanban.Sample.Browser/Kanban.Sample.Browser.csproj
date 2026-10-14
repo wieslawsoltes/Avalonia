@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+  <PropertyGroup>
+    <TargetFramework>net10.0-browser</TargetFramework><AllowUnsafeBlocks>true</AllowUnsafeBlocks><IsPackable>false</IsPackable>
+    <WasmBuildNative>true</WasmBuildNative><RunAOTCompilation>false</RunAOTCompilation>
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+    <PublishTrimmed>false</PublishTrimmed>
+  </PropertyGroup>
+  <ItemGroup><PackageReference Include="Avalonia.Browser" Version="$(AvaloniaVersion)" /><ProjectReference Include="../Kanban.Sample/Kanban.Sample.csproj" /></ItemGroup>
+</Project>

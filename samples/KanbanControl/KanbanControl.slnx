@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/src/"><Project Path="src/Kanban.Core/Kanban.Core.csproj" /><Project Path="src/Kanban.Avalonia/Kanban.Avalonia.csproj" /></Folder>
+  <Folder Name="/samples/"><Project Path="samples/Kanban.Sample/Kanban.Sample.csproj" /><Project Path="samples/Kanban.Sample.Desktop/Kanban.Sample.Desktop.csproj" /><Project Path="samples/Kanban.Sample.Browser/Kanban.Sample.Browser.csproj" /></Folder>
+  <Folder Name="/tests/"><Project Path="tests/Kanban.Core.Tests/Kanban.Core.Tests.csproj" /><Project Path="tests/Kanban.Headless.Tests/Kanban.Headless.Tests.csproj" /></Folder>
+</Solution>

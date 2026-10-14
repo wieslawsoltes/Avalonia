@@ -1,0 +1,97 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:k="using:Kanban.Avalonia" xmlns:local="using:Kanban.Sample" x:Class="Kanban.Sample.MainView" Background="{DynamicResource KanbanBoardBrush}">
+  <UserControl.Styles>
+    <Style Selector="TextBlock.muted"><Setter Property="Foreground" Value="{DynamicResource KanbanMutedBrush}" /></Style>
+    <Style Selector="Button.tool"><Setter Property="Padding" Value="13,8" /><Setter Property="CornerRadius" Value="7" /></Style>
+    <Style Selector="TextBlock.label"><Setter Property="FontSize" Value="11" /><Setter Property="FontWeight" Value="SemiBold" /><Setter Property="Foreground" Value="{DynamicResource KanbanMutedBrush}" /></Style>
+    <Style Selector="k|KanbanBoard.compact k|KanbanCard Border.cardBody"><Setter Property="Padding" Value="10" /></Style>
+    <Style Selector="k|KanbanBoard.compact k|KanbanCard TextBlock.description"><Setter Property="IsVisible" Value="False" /></Style>
+    <Style Selector="k|KanbanBoard.compact k|KanbanCard ProgressBar"><Setter Property="IsVisible" Value="False" /></Style>
+  </UserControl.Styles>
+  <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+    <Border BorderThickness="0,0,0,1" BorderBrush="{DynamicResource KanbanBorderBrush}" Padding="26,14">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <Border Width="32" Height="32" CornerRadius="8" Background="#5B5BD6" Margin="0,0,12,0"><TextBlock Text="A" FontSize="20" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+          <TextBlock Text="Atlas" FontWeight="Bold" FontSize="17" /><TextBlock Text="/" Classes="muted" /><TextBlock Text="Product workspace" Classes="muted" FontSize="13" />
+        </StackPanel>
+        <TextBlock Grid.Column="2" Text="AVALONIA  ·  KANBAN CONTROL" Classes="label" VerticalAlignment="Center" />
+      </Grid>
+    </Border>
+    <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="26,22,26,16">
+      <StackPanel Spacing="7"><TextBlock Text="Product delivery" FontSize="29" FontWeight="Bold" /><TextBlock Text="Turn good ideas into shipped work. One clear view of every next step." Classes="muted" FontSize="13" /></StackPanel>
+      <WrapPanel Grid.Column="1" VerticalAlignment="Center" Orientation="Horizontal">
+        <Button x:Name="ThemeButton" Content="◐  Theme" Classes="tool" Click="ThemeClick" Margin="6,0" />
+        <Button x:Name="NewButton" Content="＋  New card" Classes="tool" Click="NewClick" Background="#5B5BD6" Foreground="White" />
+      </WrapPanel>
+    </Grid>
+    <Border Grid.Row="2" Margin="26,0,26,16" Padding="14,12" Background="{DynamicResource KanbanCardBrush}" CornerRadius="10" BorderThickness="1" BorderBrush="{DynamicResource KanbanBorderBrush}">
+      <StackPanel Spacing="10">
+        <WrapPanel Orientation="Horizontal">
+          <TextBox x:Name="SearchBox" Width="248" Watermark="Search cards, people, tags…" Text="{Binding SearchText, ElementName=Board, Mode=TwoWay}" Margin="0,0,12,0" AutomationProperties.Name="Search cards" />
+          <CheckBox x:Name="MineBox" Content="My work" IsCheckedChanged="FilterChanged" Margin="0,0,14,0" />
+          <CheckBox x:Name="LockedBox" Content="Locked" IsCheckedChanged="FilterChanged" Margin="0,0,14,0" />
+          <ComboBox x:Name="SortBox" Width="140" SelectedIndex="0" SelectionChanged="SortChanged" Margin="0,0,12,0" AutomationProperties.Name="Sort cards"><ComboBoxItem Content="Manual order" /><ComboBoxItem Content="Title A–Z" /><ComboBoxItem Content="Due date" /></ComboBox>
+          <Button x:Name="UndoButton" Content="↶  Undo" Click="UndoClick" IsEnabled="{Binding CanUndo, ElementName=Board}" Margin="0,0,5,0" />
+          <Button x:Name="RedoButton" Content="↷  Redo" Click="RedoClick" IsEnabled="{Binding CanRedo, ElementName=Board}" />
+        </WrapPanel>
+        <WrapPanel Orientation="Horizontal">
+          <CheckBox x:Name="LanesBox" Content="Swimlanes" IsCheckedChanged="LanesChanged" Margin="0,0,16,0" />
+          <CheckBox x:Name="CompactBox" Content="Compact cards" IsCheckedChanged="CompactChanged" Margin="0,0,16,0" />
+          <CheckBox Content="Read-only" IsChecked="{Binding IsReadOnly, ElementName=Board, Mode=TwoWay}" Margin="0,0,18,0" />
+          <Button x:Name="StressButton" Content="10,000 cards" Click="StressClick" Background="Transparent" Margin="0,0,4,0" />
+          <Button x:Name="ResetButton" Content="Reset demo" Click="ResetClick" Background="Transparent" Margin="0,0,4,0" />
+          <Button Content="Export JSON" Click="ExportClick" Background="Transparent" Margin="0,0,4,0" />
+          <Button Content="Import JSON" Click="ImportClick" Background="Transparent" />
+        </WrapPanel>
+      </StackPanel>
+    </Border>
+    <Grid Grid.Row="3" ColumnDefinitions="*,Auto" Margin="26,0,12,0">
+      <k:KanbanBoard x:Name="Board" ItemsSource="{Binding Items}" AutomationProperties.Name="Product delivery board" LaneHeight="500">
+        <k:KanbanBoard.CardTemplate><DataTemplate DataType="local:WorkItem" x:DataType="local:WorkItem" x:CompileBindings="True">
+          <Border Classes="cardBody" Padding="14">
+            <Border.ContextMenu><ContextMenu>
+              <MenuItem Header="Open / edit" Command="{Binding OpenCommand}" />
+              <MenuItem Header="Move to next column" Command="{Binding NextCommand}" />
+              <MenuItem Header="Lock / unlock" Command="{Binding LockCommand}" />
+              <Separator /><MenuItem Header="Delete card" Command="{Binding DeleteCommand}" />
+            </ContextMenu></Border.ContextMenu>
+            <StackPanel Spacing="10">
+              <Grid ColumnDefinitions="*,Auto"><TextBlock Text="{Binding Kind}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource KanbanAccentBrush}" /><TextBlock Grid.Column="1" Text="LOCKED" IsVisible="{Binding IsLocked}" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource KanbanDangerBrush}" /></Grid>
+              <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap" />
+              <TextBlock Text="{Binding Description}" Classes="description muted" FontSize="11" TextWrapping="Wrap" MaxHeight="32" TextTrimming="CharacterEllipsis" />
+              <WrapPanel><Border Background="{DynamicResource KanbanColumnBrush}" CornerRadius="4" Padding="7,3" Margin="0,0,5,0"><TextBlock Text="{Binding Tags}" FontSize="10" Classes="muted" /></Border><Border Background="{DynamicResource KanbanSelectedBrush}" CornerRadius="4" Padding="7,3"><TextBlock Text="{Binding Priority}" FontSize="10" Foreground="{DynamicResource KanbanAccentBrush}" /></Border></WrapPanel>
+              <ProgressBar Minimum="0" Maximum="100" Value="{Binding Progress}" Height="3" Background="{DynamicResource KanbanColumnBrush}" Foreground="{DynamicResource KanbanAccentBrush}" />
+              <Grid ColumnDefinitions="*,Auto,Auto">
+                <TextBlock Text="{Binding Id}" FontSize="10" Classes="muted" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding DueText}" FontSize="10" Classes="muted" Margin="0,0,10,0" VerticalAlignment="Center" />
+                <Border Grid.Column="2" Width="25" Height="25" CornerRadius="13" Background="{DynamicResource KanbanSelectedBrush}" ToolTip.Tip="{Binding Assignee}"><TextBlock Text="{Binding Initials}" FontSize="9" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource KanbanAccentBrush}" /></Border>
+              </Grid>
+            </StackPanel>
+          </Border>
+        </DataTemplate></k:KanbanBoard.CardTemplate>
+      </k:KanbanBoard>
+      <Border x:Name="Editor" Grid.Column="1" Width="310" Margin="4,0,14,16" Background="{DynamicResource KanbanCardBrush}" BorderBrush="{DynamicResource KanbanBorderBrush}" BorderThickness="1" CornerRadius="12" IsVisible="False">
+        <ScrollViewer><StackPanel Margin="20" Spacing="12">
+          <Grid ColumnDefinitions="*,Auto"><TextBlock Text="Card details" FontSize="19" FontWeight="Bold" /><Button Grid.Column="1" Content="×" Click="CloseEditorClick" AutomationProperties.Name="Close card editor" /></Grid>
+          <TextBlock x:Name="EditorId" Classes="label" />
+          <TextBlock Text="TITLE" Classes="label" /><TextBox x:Name="TitleEdit" Watermark="Card title" TextWrapping="Wrap" />
+          <TextBlock Text="DESCRIPTION" Classes="label" /><TextBox x:Name="DescriptionEdit" AcceptsReturn="True" Height="100" TextWrapping="Wrap" />
+          <TextBlock Text="ASSIGNEE" Classes="label" /><TextBox x:Name="AssigneeEdit" />
+          <TextBlock Text="TAGS" Classes="label" /><TextBox x:Name="TagsEdit" />
+          <TextBlock x:Name="EditError" Foreground="{DynamicResource KanbanDangerBrush}" TextWrapping="Wrap" />
+          <Button x:Name="SaveCardButton" Content="Save changes" Click="SaveEditorClick" Background="#5B5BD6" Foreground="White" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+          <TextBlock Text="Edits are owned by the application. The control's undo history covers card moves, not content edits." TextWrapping="Wrap" FontSize="11" Classes="muted" />
+        </StackPanel></ScrollViewer>
+      </Border>
+    </Grid>
+    <Border Grid.Row="4" Padding="26,10" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource KanbanBorderBrush}">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Orientation="Horizontal" Spacing="16"><TextBlock Text="{Binding StatusText, ElementName=Board}" FontSize="11" Classes="muted" /><TextBlock x:Name="Metrics" FontSize="11" Classes="muted" /></StackPanel>
+        <TextBlock Grid.Column="1" Text="Alt + arrows  Move   ·   Enter  Open   ·   Ctrl / ⌘ + Z  Undo" FontSize="10" Classes="muted" />
+      </Grid>
+    </Border>
+    <Border x:Name="JsonPanel" Grid.RowSpan="5" Background="{DynamicResource KanbanCardBrush}" Margin="60" Padding="22" CornerRadius="14" BorderThickness="1" BorderBrush="{DynamicResource KanbanBorderBrush}" IsVisible="False">
+      <Grid RowDefinitions="Auto,*,Auto"><TextBlock Text="Board JSON · schema version 1" FontSize="20" FontWeight="Bold" Margin="0,0,0,14" /><TextBox x:Name="JsonText" Grid.Row="1" AcceptsReturn="True" FontFamily="monospace" TextWrapping="NoWrap" /><StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="10" Margin="0,14,0,0"><Button Content="Apply import" Click="ApplyImportClick" /><Button Content="Close" Click="CloseJsonClick" /><TextBlock x:Name="JsonError" TextWrapping="Wrap" MaxWidth="600" Foreground="{DynamicResource KanbanDangerBrush}" /></StackPanel></Grid>
+    </Border>
+  </Grid>
+</UserControl>

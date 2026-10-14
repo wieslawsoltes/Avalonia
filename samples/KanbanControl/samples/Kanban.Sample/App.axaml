@@ -1,0 +1,3 @@
+<Application xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:k="using:Kanban.Avalonia" x:Class="Kanban.Sample.App" RequestedThemeVariant="Light">
+  <Application.Styles><FluentTheme /><k:KanbanTheme /></Application.Styles>
+</Application>

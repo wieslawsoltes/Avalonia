@@ -1,0 +1,68 @@
+name: Kanban control validation
+on:
+  push:
+    branches: [feat/kanban-control]
+    paths: ['samples/KanbanControl/**', '.github/workflows/kanban-control.yml']
+  pull_request:
+    paths: ['samples/KanbanControl/**', '.github/workflows/kanban-control.yml']
+permissions:
+  contents: read
+concurrency:
+  group: kanban-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: samples/KanbanControl
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Core specifications
+        run: |
+          set -o pipefail
+          mkdir -p artifacts
+          dotnet run --project tests/Kanban.Core.Tests -c Release | tee artifacts/core.log
+      - name: Headless template, selection and virtualization checks
+        run: |
+          set -o pipefail
+          dotnet run --project tests/Kanban.Headless.Tests -c Release | tee artifacts/headless.log
+      - name: Build desktop sample
+        run: dotnet build samples/Kanban.Sample.Desktop -c Release
+      - name: Install WebAssembly build tools
+        run: dotnet workload install wasm-tools
+      - name: Publish real Avalonia browser application
+        run: |
+          set -o pipefail
+          dotnet publish samples/Kanban.Sample.Browser -c Release -o artifacts/browser | tee artifacts/browser-build.log
+          find artifacts/browser -name index.html -print
+      - name: Browser interaction validation
+        run: |
+          python -m pip install playwright==1.58.0
+          python -m playwright install --with-deps chromium
+          SITE=$(find artifacts/browser -name index.html -printf '%h\n' | head -1)
+          test -n "$SITE"
+          python scripts/serve.py "$SITE" --port 8080 >artifacts/server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID"' EXIT
+          python tests/browser/validate.py --url http://127.0.0.1:8080 --output artifacts/validation
+      - name: Pack libraries
+        run: |
+          dotnet pack src/Kanban.Core -c Release -o artifacts/packages
+          dotnet pack src/Kanban.Avalonia -c Release -o artifacts/packages
+      - name: Capture exact build source
+        if: always()
+        run: |
+          git rev-parse HEAD > artifacts/commit.txt
+          git archive HEAD samples/KanbanControl > artifacts/source.tar
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kanban-validation-${{ github.sha }}
+          path: samples/KanbanControl/artifacts
+          retention-days: 14
