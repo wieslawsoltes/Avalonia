@@ -1,0 +1,60 @@
+name: Standalone Inking
+on:
+  push:
+    branches: [feat/standalone-inking-system]
+    paths: ['standalone/Avalonia.Inking/**', '.github/workflows/inking.yml']
+  pull_request:
+    paths: ['standalone/Avalonia.Inking/**', '.github/workflows/inking.yml']
+permissions:
+  contents: read
+concurrency:
+  group: inking-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: standalone/Avalonia.Inking
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: standalone/Avalonia.Inking
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.402
+      - name: Validate independent ink engine
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/validation
+          dotnet run --project tests/Avalonia.Inking.Specs -c Release -- artifacts/validation/core.json | tee artifacts/validation/core.log
+      - name: Build desktop sample
+        if: hashFiles('standalone/Avalonia.Inking/samples/InkingStudio.Desktop/InkingStudio.Desktop.csproj') != ''
+        run: dotnet build samples/InkingStudio.Desktop -c Release
+      - name: Publish actual Avalonia browser application
+        if: hashFiles('standalone/Avalonia.Inking/samples/InkingStudio.Browser/InkingStudio.Browser.csproj') != ''
+        run: |
+          set -euo pipefail
+          dotnet workload install wasm-tools --skip-manifest-update
+          dotnet publish samples/InkingStudio.Browser -c Release -o artifacts/browser
+      - name: Validate published browser application
+        if: hashFiles('standalone/Avalonia.Inking/validation/browser.py') != ''
+        run: |
+          set -euo pipefail
+          python -m pip install playwright pillow
+          python -m playwright install chromium --with-deps
+          python validation/browser.py
+      - name: Preserve source and validation evidence
+        if: always()
+        run: |
+          mkdir -p artifacts
+          git rev-parse HEAD > artifacts/source-commit.txt
+          git archive HEAD:standalone/Avalonia.Inking --format=zip -o "$PWD/artifacts/Avalonia.Inking-source.zip"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: inking-validation-${{ github.run_number }}
+          path: standalone/Avalonia.Inking/artifacts
+          retention-days: 14
