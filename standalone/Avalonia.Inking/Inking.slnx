@@ -12,5 +12,6 @@
   <Folder Name="/Tests/">
     <Project Path="tests/Avalonia.Inking.Specs/Avalonia.Inking.Specs.csproj"/>
     <Project Path="tests/Avalonia.Inking.HeadlessSpecs/Avalonia.Inking.HeadlessSpecs.csproj"/>
+    <Project Path="tests/InkingStudio.UiSpecs/InkingStudio.UiSpecs.csproj"/>
   </Folder>
 </Solution>

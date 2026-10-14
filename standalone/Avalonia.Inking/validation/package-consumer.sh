@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
+# Exercise the real shared sample UI as well as isolated reusable controls.
+dotnet run --project "$root/tests/InkingStudio.UiSpecs" -c Release -- "$root/artifacts/validation/studio-ui.json"
 consumer="$(mktemp -d)"
 trap 'rm -rf "$consumer"' EXIT
 export NUGET_PACKAGES="$consumer/packages"

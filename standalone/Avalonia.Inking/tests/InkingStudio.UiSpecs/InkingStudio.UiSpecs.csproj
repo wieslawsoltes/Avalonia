@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><IsPackable>false</IsPackable></PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Headless" Version="$(AvaloniaVersion)"/>
+    <ProjectReference Include="../../samples/InkingStudio/InkingStudio.csproj"/>
+  </ItemGroup>
+</Project>

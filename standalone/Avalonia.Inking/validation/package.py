@@ -17,12 +17,12 @@ def git(*args):
 def digest(data):
     return hashlib.sha256(data).hexdigest()
 def archive(name,files):
-    output=DIST/name; expected={}
+    output=DIST/name;expected={}
     with zipfile.ZipFile(output,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
         for path,relative in sorted(files,key=lambda item:item[1]):
-            content=path.read_bytes(); info=zipfile.ZipInfo(relative,date_time=(2026,1,1,0,0,0))
-            info.compress_type=zipfile.ZIP_DEFLATED; info.external_attr=0o100644<<16
-            z.writestr(info,content); expected[relative]=digest(content)
+            content=path.read_bytes();info=zipfile.ZipInfo(relative,date_time=(2026,1,1,0,0,0))
+            info.compress_type=zipfile.ZIP_DEFLATED;info.external_attr=0o100644<<16
+            z.writestr(info,content);expected[relative]=digest(content)
     with zipfile.ZipFile(output) as z:
         assert z.testzip() is None,name
         assert {n:digest(z.read(n)) for n in z.namelist()}==expected,name
@@ -42,12 +42,12 @@ if roots:
 packages=ARTIFACTS/'packages'
 if packages.is_dir():
     outputs.append(archive('Avalonia.Inking-packages.zip',[(p,p.name) for p in packages.iterdir() if p.is_file()]))
-reports={}; measurements=[]
-for name in ['core','core-browser','headless','browser']:
+reports={};measurements=[]
+for name in ['core','core-browser','headless','studio-ui','browser']:
     file=ARTIFACTS/'validation'/(name+'.json')
     if not file.exists():
-        reports[name]={'status':'not executed or no report produced'}; continue
-    report=json.loads(file.read_text()); reports[name]={key:report.get(key) for key in ['total','passed','failed']}
+        reports[name]={'status':'not executed or no report produced'};continue
+    report=json.loads(file.read_text());reports[name]={key:report.get(key) for key in ['total','passed','failed']}
     for test in report.get('tests',[]):
         if not test['passed']:
             print('FAILED SCENARIO',name,json.dumps(test,indent=2),flush=True)
@@ -59,10 +59,11 @@ summary=['# Avalonia Inking validation','',f"Source commit: `{identity['commit']
          '| Suite | Passed | Total | Failed |','| --- | ---: | ---: | ---: |']
 for name,r in reports.items():
     summary.append(f"| {name} | {r.get('passed','Not run')} | {r.get('total','—')} | {r.get('failed','—')} |")
-summary+=['','Browser interaction tests target the published Avalonia WebAssembly application, not a DOM substitute.',
-          'Pen and touch inputs are synthetic Chromium/CDP events; physical digitizer and all-browser certification are not implied.',
+summary+=['','Browser tests target the published Avalonia WebAssembly application, not a DOM substitute.',
+          'Pen/touch inputs are synthetic Chromium/CDP events; physical digitizer and all-browser certification are not implied.',
           'Desktop compilation and native headless UI tests do not replace hardware/device acceptance testing.',
-          'Inspect the individual JSON reports and workflow conclusion. Missing reports are not passes.','']
+          'The focused layer report verifies command binding, center-point hit target and routed pointer input.',
+          'Inspect individual JSON reports, the isolated NuGet consumer log, and the workflow conclusion. Missing reports are not passes.','']
 (ARTIFACTS/'validation.md').write_text('\n'.join(summary))
 evidence=[(p,p.relative_to(ARTIFACTS).as_posix()) for p in (ARTIFACTS/'validation').rglob('*') if p.is_file()]
 evidence += [(ARTIFACTS/n,n) for n in ['source-identity.json','source-files.sha256.json','validation.md']]

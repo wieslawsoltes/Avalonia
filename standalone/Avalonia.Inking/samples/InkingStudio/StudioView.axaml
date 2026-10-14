@@ -64,8 +64,10 @@
           </Grid>
         </Border>
         <Border x:Name="Inspector" Grid.Column="2" Background="{DynamicResource InkSurfaceBrush}" CornerRadius="14" BorderBrush="{DynamicResource InkBorderBrush}" BorderThickness="1" Padding="18">
-          <ScrollViewer HorizontalScrollBarVisibility="Disabled">
-            <StackPanel Spacing="12">
+          <ScrollViewer x:Name="InspectorScroll" HorizontalScrollBarVisibility="Disabled">
+            <!-- Fluent's overlay scrollbar owns its hit area even before hover expansion.
+                 Keep all inspector actions outside that gutter, rather than moving test clicks. -->
+            <StackPanel Spacing="12" Margin="0,0,24,0">
               <Grid ColumnDefinitions="*,Auto"><TextBlock Text="BRUSH" Classes="section" VerticalAlignment="Center"/><TextBlock Grid.Column="1" x:Name="ToolLabel" Text="Pen" Classes="caption"/></Grid>
               <Border CornerRadius="8" ClipToBounds="True" Height="58" BorderBrush="{DynamicResource InkBorderBrush}" BorderThickness="1"><ink:InkCanvas x:Name="BrushPreview" IsReadOnly="True" ShowSelection="False" GridMode="None" IsHitTestVisible="False" Focusable="False"/></Border>
               <WrapPanel x:Name="Palette" ItemWidth="27" ItemHeight="29"/>
@@ -78,7 +80,7 @@
               <CheckBox x:Name="PressureToggle" Content="Pressure sensitivity" IsChecked="True" AutomationProperties.AutomationId="pressure"/>
               <Border Height="1" Background="{DynamicResource InkBorderBrush}" Margin="0,3"/>
               <ink:InkLayerPanel x:Name="LayerPanel" Session="{CompiledBinding #Canvas.Session}"/>
-              <TextBox x:Name="LayerNameBox" Watermark="Active layer name" FontSize="12" AutomationProperties.AutomationId="layer-name"/>
+              <TextBox x:Name="LayerNameBox" PlaceholderText="Active layer name" FontSize="12" AutomationProperties.AutomationId="layer-name"/>
               <Slider x:Name="LayerOpacitySlider" Minimum="0" Maximum="1" Value="1" SmallChange="0.05" AutomationProperties.Name="Layer opacity"/>
               <Border Height="1" Background="{DynamicResource InkBorderBrush}" Margin="0,3"/>
               <TextBlock Text="SELECTION" Classes="section"/>
