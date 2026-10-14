@@ -1,0 +1,39 @@
+name: Inspect inking validation evidence
+on:
+  push:
+    branches: [feat/standalone-inking-system]
+    paths: ['.github/workflows/inking-diagnostics.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: inking-validation
+          run-id: 38627468046
+          github-token: ${{ github.token }}
+          path: evidence
+      - name: Read exact failed scenario and recorded control state
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, pathlib, zipfile
+          with zipfile.ZipFile('evidence/Avalonia.Inking-validation.zip') as z:
+              report = json.loads(z.read('validation/browser.json'))
+              for test in report['tests']:
+                  if not test['passed']:
+                      print('FAILED TEST', json.dumps(test, indent=2))
+                  if test.get('detail') and ('thousand' in test['name'] or 'pressure, tilt' in test['name'] or 'uniform opacity' in test['name']):
+                      print('MEASUREMENT', json.dumps(test, indent=2))
+              for name in z.namelist():
+                  if name.startswith('validation/failure-') and name.endswith('.json'):
+                      print('FAILURE SNAPSHOT', name, z.read(name).decode())
+              console = json.loads(z.read('validation/browser-console.json'))
+              for entry in console:
+                  if entry['type'] in ('warning', 'error') or 'binding' in entry['text'].lower():
+                      print('CONSOLE', json.dumps(entry))
+          PY
