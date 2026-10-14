@@ -75,20 +75,6 @@ jobs:
           name: kanban-validation-${{ github.sha }}
           path: samples/KanbanControl/artifacts
           retention-days: 14
-      - name: Capture reproducible local build inputs
-        if: always() && github.run_number == 3
-        run: |
-          mkdir -p .toolchain
-          tar -czf .toolchain/dotnet.tar.gz -C "$DOTNET_ROOT" dotnet host shared "sdk/$(dotnet --version)" packs sdk-manifests metadata
-          tar -czf .toolchain/nuget-packages.tar.gz -C "$HOME/.nuget" packages
-          sha256sum .toolchain/*.tar.gz > .toolchain/SHA256SUMS.txt
-      - uses: actions/upload-artifact@v4
-        if: always() && github.run_number == 3
-        with:
-          name: kanban-build-inputs
-          path: samples/KanbanControl/.toolchain
-          retention-days: 1
-          compression-level: 0
       - name: Require all validation stages to pass
         if: always()
         env:

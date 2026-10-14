@@ -54,6 +54,31 @@ Spec("batch refresh is nested and idempotent",()=>{var(c,i,_)=Fixture();using(c)
 Spec("rebind and dispose unsubscribe old sources",()=>{var(c,i,cols)=Fixture();c.Bind(new[]{new KanbanItem{Id="new",ColumnKey="todo"}},cols);long rev=c.Revision;i[0].Title="old";Check(c.Revision==rev,"old source detached");c.Dispose();cols[0].Header="after dispose";i.Clear();Check(c.Entries.Count==0,"disposed empty");});
 Spec("model value constraints reject nonfinite sizes and invalid counts",()=>{var w=new KanbanItem();bool order=false,width=false,tasks=false,wip=false;try{w.Order=double.NaN;}catch(ArgumentOutOfRangeException){order=true;}try{new KanbanColumnDefinition().Width=double.PositiveInfinity;}catch(ArgumentOutOfRangeException){width=true;}try{w.TotalTasks=-1;}catch(ArgumentOutOfRangeException){tasks=true;}try{new KanbanColumnDefinition().MaximumWorkInProgress=-1;}catch(ArgumentOutOfRangeException){wip=true;}Check(order&&width&&tasks&&wip,"constraints");w.TotalTasks=3;w.CompletedTasks=5;Check(w.Progress==100,"clamp");});
 Spec("10,000-card batch indexes and moves without duplicate loss",()=>{var watch=Stopwatch.StartNew();using var c=new KanbanController();var items=Enumerable.Range(0,10_000).Select(i=>new KanbanItem{Id=$"i{i}",ColumnKey="todo",Order=i}).ToArray();c.Bind(items,new[]{new KanbanColumnDefinition{Key="todo"},new KanbanColumnDefinition{Key="done"}});Check(c.Entries.Count==10_000,"index");Check(c.TryMove(new(["i9999","i5000"],"done")).Succeeded,"move");Check(c.GetCell("todo").Count==9998&&Order(c,"done")=="i9999,i5000","no loss");Check(c.Undo().Succeeded&&c.GetCell("todo").Count==10000,"restore");Console.WriteLine($"10k index + move + undo: {watch.Elapsed.TotalMilliseconds:F1} ms (this machine)");});
+Spec("locked neighbors do not block undo of another card", () =>
+{
+    var (c, items, _) = Fixture(); using (c)
+    {
+        items[2].IsLocked = true;
+        Check(c.TryMove(new(["a"], "doing", BeforeId: "c")).Succeeded, "insert before locked neighbor");
+        Check(c.Undo().Succeeded, "undo rank normalization of neighbor");
+        Check(Order(c, "doing") == "c,d" && items[2].IsLocked, "locked neighbor remains in place");
+        Check(c.Redo().Succeeded && Order(c, "doing") == "a,c,d", "redo rank normalization");
+    }
+});
+Spec("moves and history reject an unfinished source batch", () =>
+{
+    var (c, items, _) = Fixture(); using (c)
+    {
+        c.TryMove(new(["a"], "done"));
+        using (c.DeferRefresh())
+        {
+            items.Add(new() { Id = "new", ColumnKey = "todo" });
+            Check(c.TryMove(new(["b"], "done")).Failure == KanbanMoveFailure.Busy, "move during batch");
+            Check(c.Undo().Failure == KanbanMoveFailure.Busy, "undo during batch");
+        }
+        Check(c.Find("new") is not null && Order(c, "done") == "a", "batch finishes without stale move");
+    }
+});
 Console.WriteLine($"RESULT: {specs} specifications; {assertions} assertions passed.");
 
 sealed class FaultAdapter : IKanbanAdapter

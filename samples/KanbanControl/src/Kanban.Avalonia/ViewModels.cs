@@ -46,7 +46,8 @@ public sealed class KanbanLaneView : ObservableObject
     public bool IsExpanded => !Definition.IsCollapsed;
     public int Count => Columns.Sum(c => c.TotalCount);
     public string Label => $"{Definition.Header}  ·  {Count}";
-    public double BodyHeight => Board.LaneHeight;
+    public double BodyHeight => Board.FitSingleLaneToViewport && !ShowHeader && Board.Bounds.Height > 160
+        ? Math.Max(160, Board.Bounds.Height - 16) : Board.LaneHeight;
     internal KanbanLaneView(KanbanBoard board, KanbanLaneDefinition lane) { Board = board; Definition = lane; }
     internal void RefreshLabels() { Raise(nameof(Count)); Raise(nameof(Label)); Raise(nameof(ShowHeader)); Raise(nameof(IsExpanded)); Raise(nameof(BodyHeight)); }
 }

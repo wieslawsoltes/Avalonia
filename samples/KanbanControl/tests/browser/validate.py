@@ -35,7 +35,7 @@ with sync_playwright() as p:
         results.append({'name': name, 'passed': ok, 'detail': detail})
         print(('PASS ' if ok else 'FAIL ') + name, flush=True)
         if not ok:
-            raise AssertionError(f'{name}: {detail}')
+            page.screenshot(path=str(args.output / f'failed-{len(results):02d}.png'), full_page=True)
     def settle():
         page.wait_for_timeout(250)
     def item(state, id):
@@ -148,6 +148,7 @@ with sync_playwright() as p:
         check('Native editor commits validated title',item(snap(),'ATL-101')['title']=='Validated browser title')
         action('reset');click_control('NewButton')
         check('New-card command adds model and opens editor',snap()['total']==17 and control('Editor')['visible'])
+        # Reset also dismisses the editor before subsequent input tests.
         action('reset')
         col=column(snap(),'backlog');collapse=next(b for b in col['buttons'] if b['name']=='PART_Collapse')
         page.mouse.click(*xy(collapse['bounds']));settle()
@@ -184,3 +185,6 @@ with sync_playwright() as p:
         report={'passed':sum(x['passed'] for x in results),'failed':sum(not x['passed'] for x in results),'seconds':time.perf_counter()-start,'checks':results,'runtimeErrors':errors,'console':console,'browser':browser.version}
         (args.output/'report.json').write_text(json.dumps(report,indent=2))
         browser.close()
+
+if any(not result["passed"] for result in results):
+    raise SystemExit(1)

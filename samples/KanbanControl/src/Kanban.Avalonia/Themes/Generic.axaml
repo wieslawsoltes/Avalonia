@@ -62,7 +62,7 @@
           <Border Grid.ColumnSpan="2" Background="{Binding View.Accent, RelativeSource={RelativeSource TemplatedParent}}" />
           <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="12,10,8,8">
             <ContentControl Content="{Binding View, RelativeSource={RelativeSource TemplatedParent}}" ContentTemplate="{Binding View.Board.ColumnHeaderTemplate, RelativeSource={RelativeSource TemplatedParent}}" IsVisible="{Binding View.IsExpanded, RelativeSource={RelativeSource TemplatedParent}}" />
-            <Button x:Name="PART_Collapse" Grid.Column="1" Content="≡" Padding="7,3" Background="Transparent" AutomationProperties.Name="Collapse or expand column" ToolTip.Tip="Collapse / expand column" />
+            <Button x:Name="PART_Collapse" Grid.Column="1" Padding="7,5" Background="Transparent" AutomationProperties.Name="Collapse or expand column" ToolTip.Tip="Collapse / expand column"><Path Width="12" Height="12" Data="M1,2 H11 M1,6 H11 M1,10 H11" Stroke="{DynamicResource KanbanMutedBrush}" StrokeThickness="1.5" /></Button>
           </Grid>
           <Grid Grid.Row="2" IsVisible="{Binding View.IsExpanded, RelativeSource={RelativeSource TemplatedParent}}">
             <k:KanbanListBox x:Name="PART_Items" Background="Transparent" BorderThickness="0" Padding="0,0,0,8" SelectionMode="Multiple" AutoScrollToSelectedItem="False"
@@ -73,7 +73,7 @@
               <k:KanbanListBox.ItemsPanel><ItemsPanelTemplate><VirtualizingStackPanel /></ItemsPanelTemplate></k:KanbanListBox.ItemsPanel>
             </k:KanbanListBox>
             <ContentControl Content="{Binding View, RelativeSource={RelativeSource TemplatedParent}}" ContentTemplate="{Binding View.Board.EmptyTemplate, RelativeSource={RelativeSource TemplatedParent}}" IsVisible="{Binding View.IsEmpty, RelativeSource={RelativeSource TemplatedParent}}" IsHitTestVisible="False" VerticalAlignment="Center" HorizontalAlignment="Center" />
-            <Border BorderThickness="2" CornerRadius="8" BorderBrush="{DynamicResource KanbanAccentBrush}" IsVisible="{Binding View.IsDropTarget, RelativeSource={RelativeSource TemplatedParent}}" IsHitTestVisible="False" Margin="3">
+            <Border x:Name="PART_DropFrame" Classes.invalid="{Binding !View.IsDropAllowed, RelativeSource={RelativeSource TemplatedParent}}" BorderThickness="2" CornerRadius="8" BorderBrush="{DynamicResource KanbanAccentBrush}" IsVisible="{Binding View.IsDropTarget, RelativeSource={RelativeSource TemplatedParent}}" IsHitTestVisible="False" Margin="3">
               <Border Background="{DynamicResource KanbanSelectedBrush}" CornerRadius="6" Padding="10" VerticalAlignment="Bottom" Margin="6">
                 <TextBlock Text="{Binding View.DropText, RelativeSource={RelativeSource TemplatedParent}}" TextWrapping="Wrap" Foreground="{DynamicResource KanbanTextBrush}" FontSize="12" />
               </Border>
@@ -81,12 +81,13 @@
           </Grid>
           <StackPanel Grid.Row="3" Margin="10,4,10,10" IsVisible="{Binding View.IsExpanded, RelativeSource={RelativeSource TemplatedParent}}">
             <ContentControl Content="{Binding View, RelativeSource={RelativeSource TemplatedParent}}" ContentTemplate="{Binding View.Board.ColumnFooterTemplate, RelativeSource={RelativeSource TemplatedParent}}" />
-            <Button x:Name="PART_Add" Content="＋  Add card" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" Foreground="{DynamicResource KanbanMutedBrush}" IsVisible="{Binding View.CanAdd, RelativeSource={RelativeSource TemplatedParent}}" />
+            <Button x:Name="PART_Add" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" Foreground="{DynamicResource KanbanMutedBrush}" IsVisible="{Binding View.CanAdd, RelativeSource={RelativeSource TemplatedParent}}"><StackPanel Orientation="Horizontal" Spacing="8"><Path Width="12" Height="12" VerticalAlignment="Center" Data="M6,1 V11 M1,6 H11" Stroke="{DynamicResource KanbanMutedBrush}" StrokeThickness="1.5" /><TextBlock Text="Add card" /></StackPanel></Button>
           </StackPanel>
           <Thumb x:Name="PART_Resize" Grid.Column="1" Grid.Row="1" Grid.RowSpan="3" Cursor="SizeWestEast" Background="Transparent" IsVisible="{Binding View.Board.CanResizeColumns, RelativeSource={RelativeSource TemplatedParent}}" AutomationProperties.Name="Resize column" />
         </Grid>
       </Border>
     </ControlTemplate></Setter>
+    <Style Selector="^ /template/ Border#PART_DropFrame.invalid"><Setter Property="BorderBrush" Value="{DynamicResource KanbanDangerBrush}" /></Style>
   </ControlTheme>
 
   <ControlTheme x:Key="{x:Type k:KanbanSwimlane}" TargetType="k:KanbanSwimlane">

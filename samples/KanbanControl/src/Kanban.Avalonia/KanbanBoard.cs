@@ -67,6 +67,8 @@ public partial class KanbanBoard : TemplatedControl
     public WipLimitMode WipLimitMode { get => GetValue(WipLimitModeProperty); set => SetValue(WipLimitModeProperty, value); }
     public static readonly StyledProperty<double> LaneHeightProperty = AvaloniaProperty.Register<KanbanBoard, double>(nameof(LaneHeight), 520d, validate: v => double.IsFinite(v) && v >= 160 && v <= 4000);
     public double LaneHeight { get => GetValue(LaneHeightProperty); set => SetValue(LaneHeightProperty, value); }
+    public static readonly StyledProperty<bool> FitSingleLaneToViewportProperty = AvaloniaProperty.Register<KanbanBoard, bool>(nameof(FitSingleLaneToViewport), true);
+    public bool FitSingleLaneToViewport { get => GetValue(FitSingleLaneToViewportProperty); set => SetValue(FitSingleLaneToViewportProperty, value); }
     public static readonly StyledProperty<object?> SelectedItemProperty = AvaloniaProperty.Register<KanbanBoard, object?>(nameof(SelectedItem), null, defaultBindingMode: BindingMode.TwoWay);
     public object? SelectedItem { get => GetValue(SelectedItemProperty); set => SetValue(SelectedItemProperty, value); }
     public static readonly StyledProperty<ICommand?> AddCardCommandProperty = AvaloniaProperty.Register<KanbanBoard, ICommand?>(nameof(AddCardCommand), null);
@@ -165,6 +167,8 @@ public partial class KanbanBoard : TemplatedControl
         else if (change.Property == SelectedItemProperty && !_syncSelection) SelectOnly(SelectedItem);
         else if (change.Property == IsReadOnlyProperty || change.Property == WipLimitModeProperty || change.Property == AllowLaneChangeProperty)
         { SyncOptions(); if (IsReadOnly) CancelDrag(); QueueProjection(); }
+        else if (change.Property == BoundsProperty || change.Property == FitSingleLaneToViewportProperty)
+        { foreach (var row in Rows) row.RefreshLabels(); }
         else if (change.Property == SearchTextProperty || change.Property == FilterProperty || change.Property == SortComparerProperty ||
                  change.Property == LaneHeightProperty || change.Property == AddCardCommandProperty || change.Property == CardTemplateProperty)
             QueueProjection();
@@ -288,6 +292,14 @@ public partial class KanbanBoard : TemplatedControl
             return Report(KanbanMoveResult.Reject(KanbanMoveFailure.Policy, "Manual ordering is unavailable while sorting."));
         return Report(Controller.TryMove(request));
     }
-    public KanbanMoveResult Undo() { CancelDrag(); SyncOptions(); return Report(Controller.Undo()); }
-    public KanbanMoveResult Redo() { CancelDrag(); SyncOptions(); return Report(Controller.Redo()); }
+    public KanbanMoveResult Undo() => ReplayHistory(false);
+    public KanbanMoveResult Redo() => ReplayHistory(true);
+    private KanbanMoveResult ReplayHistory(bool forward)
+    {
+        CancelDrag(); SyncOptions();
+        var result = Report(forward ? Controller.Redo() : Controller.Undo());
+        if (result.Succeeded && SelectedItem is { } item)
+            Dispatcher.UIThread.Post(() => FocusItem(item), DispatcherPriority.Background);
+        return result;
+    }
 }

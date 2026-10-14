@@ -24,7 +24,7 @@ public sealed class KanbanController : IDisposable
     private int _defer;
     private bool _pending, _mutating, _busy, _disposed;
     private sealed record Delta(string Id, object Item, KanbanPlacement Before, KanbanPlacement After);
-    private sealed record History(IReadOnlyList<Delta> Changes);
+    private sealed record History(IReadOnlyList<Delta> Changes, IReadOnlySet<string> MovedIds);
     public long Revision { get; private set; }
     public bool IsReadOnly { get; set; }
     public bool AllowLaneChange { get; set; } = true;
@@ -127,6 +127,7 @@ public sealed class KanbanController : IDisposable
     {
         ArgumentNullException.ThrowIfNull(request);
         if (_disposed) return KanbanMoveResult.Reject(KanbanMoveFailure.InvalidData, "Board is disposed.");
+        if (_defer > 0) return KanbanMoveResult.Reject(KanbanMoveFailure.Busy, "Finish the source update batch before moving cards.");
         if (IsReadOnly) return KanbanMoveResult.Reject(KanbanMoveFailure.ReadOnly, "Board is read-only.");
         if (_diagnostics.Count != 0) return KanbanMoveResult.Reject(KanbanMoveFailure.InvalidData, _diagnostics[0]);
         if (request.ExpectedRevision is { } revision && revision != Revision) return KanbanMoveResult.Reject(KanbanMoveFailure.StaleRevision, "Board changed during the operation.");
@@ -135,7 +136,7 @@ public sealed class KanbanController : IDisposable
         if (request.ItemIds.Distinct(StringComparer.Ordinal).Count() != request.ItemIds.Count) return KanbanMoveResult.Reject(KanbanMoveFailure.InvalidData, "Duplicate card IDs in move.");
         var col = _columns.FirstOrDefault(c => c.Key == request.ColumnKey);
         var lane = _lanes.FirstOrDefault(l => l.Key == request.LaneKey);
-        if (col is null || (_lanes.Any() ? lane is null : request.LaneKey != "")) return KanbanMoveResult.Reject(KanbanMoveFailure.UnknownTarget, "Destination does not exist.");
+        if (col is null || (_lanes.Any() ? lane is null : !string.IsNullOrEmpty(request.LaneKey))) return KanbanMoveResult.Reject(KanbanMoveFailure.UnknownTarget, "Destination does not exist.");
         if (col.IsReadOnly || !col.AllowDrop || lane?.IsReadOnly == true) return KanbanMoveResult.Reject(KanbanMoveFailure.ReadOnly, "Destination does not accept moves.");
         int incoming = 0;
         foreach (var id in request.ItemIds)
@@ -145,8 +146,6 @@ public sealed class KanbanController : IDisposable
             if (_columns.Any(c => c.Key == entry.Placement.ColumnKey && c.IsReadOnly) || _lanes.Any(l => l.Key == entry.Placement.LaneKey && l.IsReadOnly))
                 return KanbanMoveResult.Reject(KanbanMoveFailure.ReadOnly, "Source is read-only.");
             if (!AllowLaneChange && entry.Placement.LaneKey != request.LaneKey) return KanbanMoveResult.Reject(KanbanMoveFailure.LaneChangeNotAllowed, "Moving between swimlanes is disabled.");
-            if (entry.Placement.ColumnKey != request.LaneKey && !AllowLaneChange && entry.Placement.LaneKey != request.LaneKey)
-                return KanbanMoveResult.Reject(KanbanMoveFailure.LaneChangeNotAllowed, "Moving between swimlanes is disabled.");
             if (entry.Placement.ColumnKey != request.ColumnKey) incoming++;
         }
         if (request.BeforeId is { } before && (!_index.TryGetValue(before, out var anchor) ||
@@ -187,7 +186,7 @@ public sealed class KanbanController : IDisposable
             var result = Apply(changes, forward: true); if (!result.Succeeded) return result;
             if (HistoryLimit > 0)
             {
-                _undo.Add(new(changes));
+                _undo.Add(new(changes, movingIds));
                 while (_undo.Count > HistoryLimit) _undo.RemoveAt(0);
             }
             _redo.Clear();
@@ -228,7 +227,7 @@ public sealed class KanbanController : IDisposable
     public KanbanMoveResult Redo() => Replay(true);
     private KanbanMoveResult Replay(bool forward)
     {
-        if (_busy) return KanbanMoveResult.Reject(KanbanMoveFailure.Busy, "Another operation is in progress.");
+        if (_busy || _defer > 0) return KanbanMoveResult.Reject(KanbanMoveFailure.Busy, "Another operation or source update batch is in progress.");
         if (IsReadOnly) return KanbanMoveResult.Reject(KanbanMoveFailure.ReadOnly, "Board is read-only.");
         var source = forward ? _redo : _undo; var destination = forward ? _undo : _redo;
         if (source.Count == 0) return KanbanMoveResult.Reject(KanbanMoveFailure.NoHistory, "No history available.");
@@ -238,7 +237,7 @@ public sealed class KanbanController : IDisposable
             if (!_index.TryGetValue(d.Id, out var e) || !ReferenceEquals(e.Item, d.Item) ||
                 _adapter.GetPlacement(e.Item) != (forward ? d.Before : d.After))
             { _undo.Clear(); _redo.Clear(); return KanbanMoveResult.Reject(KanbanMoveFailure.HistoryConflict, "External changes invalidated history."); }
-            if (!_adapter.CanMove(e.Item) || _columns.Any(c => (c.Key == d.Before.ColumnKey || c.Key == d.After.ColumnKey) && c.IsReadOnly) ||
+            if ((h.MovedIds.Contains(d.Id) && !_adapter.CanMove(e.Item)) || _columns.Any(c => (c.Key == d.Before.ColumnKey || c.Key == d.After.ColumnKey) && c.IsReadOnly) ||
                 _lanes.Any(l => (l.Key == d.Before.LaneKey || l.Key == d.After.LaneKey) && l.IsReadOnly))
                 return KanbanMoveResult.Reject(KanbanMoveFailure.Locked, "A card or its column/lane is now locked.");
         }

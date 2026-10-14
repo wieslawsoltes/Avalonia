@@ -20,19 +20,19 @@
     <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="26,22,26,16">
       <StackPanel Spacing="7"><TextBlock Text="Product delivery" FontSize="29" FontWeight="Bold" /><TextBlock Text="Turn good ideas into shipped work. One clear view of every next step." Classes="muted" FontSize="13" /></StackPanel>
       <WrapPanel Grid.Column="1" VerticalAlignment="Center" Orientation="Horizontal">
-        <Button x:Name="ThemeButton" Content="◐  Theme" Classes="tool" Click="ThemeClick" Margin="6,0" />
-        <Button x:Name="NewButton" Content="＋  New card" Classes="tool" Click="NewClick" Background="#5B5BD6" Foreground="White" />
+        <Button x:Name="ThemeButton" Classes="tool" Click="ThemeClick" Margin="6,0"><StackPanel Orientation="Horizontal" Spacing="8"><PathIcon Width="14" Height="14" Data="M8,0 A8,8 0 1 0 8,16 A8,8 0 1 0 8,0 Z M8,2 L8,14 A6,6 0 1 1 8,2 Z" /><TextBlock Text="Theme" /></StackPanel></Button>
+        <Button x:Name="NewButton" Classes="tool" Click="NewClick" Background="#5B5BD6" Foreground="White"><StackPanel Orientation="Horizontal" Spacing="8"><PathIcon Width="14" Height="14" Foreground="White" Data="M6,0 H8 V6 H14 V8 H8 V14 H6 V8 H0 V6 H6 Z" /><TextBlock Text="New card" /></StackPanel></Button>
       </WrapPanel>
     </Grid>
     <Border Grid.Row="2" Margin="26,0,26,16" Padding="14,12" Background="{DynamicResource KanbanCardBrush}" CornerRadius="10" BorderThickness="1" BorderBrush="{DynamicResource KanbanBorderBrush}">
       <StackPanel Spacing="10">
         <WrapPanel Orientation="Horizontal">
-          <TextBox x:Name="SearchBox" Width="248" Watermark="Search cards, people, tags…" Text="{Binding SearchText, ElementName=Board, Mode=TwoWay}" Margin="0,0,12,0" AutomationProperties.Name="Search cards" />
+          <TextBox x:Name="SearchBox" Width="248" PlaceholderText="Search cards, people, tags…" Text="{Binding SearchText, ElementName=Board, Mode=TwoWay}" Margin="0,0,12,0" AutomationProperties.Name="Search cards" />
           <CheckBox x:Name="MineBox" Content="My work" IsCheckedChanged="FilterChanged" Margin="0,0,14,0" />
           <CheckBox x:Name="LockedBox" Content="Locked" IsCheckedChanged="FilterChanged" Margin="0,0,14,0" />
           <ComboBox x:Name="SortBox" Width="140" SelectedIndex="0" SelectionChanged="SortChanged" Margin="0,0,12,0" AutomationProperties.Name="Sort cards"><ComboBoxItem Content="Manual order" /><ComboBoxItem Content="Title A–Z" /><ComboBoxItem Content="Due date" /></ComboBox>
-          <Button x:Name="UndoButton" Content="↶  Undo" Click="UndoClick" IsEnabled="{Binding CanUndo, ElementName=Board}" Margin="0,0,5,0" />
-          <Button x:Name="RedoButton" Content="↷  Redo" Click="RedoClick" IsEnabled="{Binding CanRedo, ElementName=Board}" />
+          <Button x:Name="UndoButton" Click="UndoClick" IsEnabled="{Binding CanUndo, ElementName=Board}" Margin="0,0,5,0"><StackPanel Orientation="Horizontal" Spacing="7"><Path Width="14" Height="14" VerticalAlignment="Center" Data="M5,1 L1,5 L5,9 M1,5 H9 Q13,5 13,10 V13" Stroke="{DynamicResource KanbanTextBrush}" StrokeThickness="1.5" /><TextBlock Text="Undo" /></StackPanel></Button>
+          <Button x:Name="RedoButton" Click="RedoClick" IsEnabled="{Binding CanRedo, ElementName=Board}"><StackPanel Orientation="Horizontal" Spacing="7"><Path Width="14" Height="14" VerticalAlignment="Center" Data="M9,1 L13,5 L9,9 M13,5 H5 Q1,5 1,10 V13" Stroke="{DynamicResource KanbanTextBrush}" StrokeThickness="1.5" /><TextBlock Text="Redo" /></StackPanel></Button>
         </WrapPanel>
         <WrapPanel Orientation="Horizontal">
           <CheckBox x:Name="LanesBox" Content="Swimlanes" IsCheckedChanged="LanesChanged" Margin="0,0,16,0" />
@@ -72,9 +72,9 @@
       </k:KanbanBoard>
       <Border x:Name="Editor" Grid.Column="1" Width="310" Margin="4,0,14,16" Background="{DynamicResource KanbanCardBrush}" BorderBrush="{DynamicResource KanbanBorderBrush}" BorderThickness="1" CornerRadius="12" IsVisible="False">
         <ScrollViewer><StackPanel Margin="20" Spacing="12">
-          <Grid ColumnDefinitions="*,Auto"><TextBlock Text="Card details" FontSize="19" FontWeight="Bold" /><Button Grid.Column="1" Content="×" Click="CloseEditorClick" AutomationProperties.Name="Close card editor" /></Grid>
+          <Grid ColumnDefinitions="*,Auto"><TextBlock Text="Card details" FontSize="19" FontWeight="Bold" /><Button Grid.Column="1" Click="CloseEditorClick" AutomationProperties.Name="Close card editor"><Path Width="12" Height="12" Data="M1,1 L11,11 M1,11 L11,1" Stroke="{DynamicResource KanbanTextBrush}" StrokeThickness="1.5" /></Button></Grid>
           <TextBlock x:Name="EditorId" Classes="label" />
-          <TextBlock Text="TITLE" Classes="label" /><TextBox x:Name="TitleEdit" Watermark="Card title" TextWrapping="Wrap" />
+          <TextBlock Text="TITLE" Classes="label" /><TextBox x:Name="TitleEdit" PlaceholderText="Card title" TextWrapping="Wrap" />
           <TextBlock Text="DESCRIPTION" Classes="label" /><TextBox x:Name="DescriptionEdit" AcceptsReturn="True" Height="100" TextWrapping="Wrap" />
           <TextBlock Text="ASSIGNEE" Classes="label" /><TextBox x:Name="AssigneeEdit" />
           <TextBlock Text="TAGS" Classes="label" /><TextBox x:Name="TagsEdit" />
