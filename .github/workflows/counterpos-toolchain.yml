@@ -16,6 +16,7 @@ jobs:
             samples/PointOfSale
           sparse-checkout-cone-mode: true
       - name: Install isolated .NET and WebAssembly toolchain
+        working-directory: samples/PointOfSale
         shell: bash
         run: |
           set -euo pipefail
