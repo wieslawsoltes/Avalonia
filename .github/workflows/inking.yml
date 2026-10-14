@@ -13,7 +13,7 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: standalone/Avalonia.Inking
@@ -30,42 +30,61 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts/validation
           dotnet run --project tests/Avalonia.Inking.Specs -c Release -- artifacts/validation/core.json | tee artifacts/validation/core.log
-      - name: Compile templated controls
-        run: dotnet build src/Avalonia.Inking -c Release
-      - name: Build desktop sample
-        if: hashFiles('standalone/Avalonia.Inking/samples/InkingStudio.Desktop/InkingStudio.Desktop.csproj') != ''
-        run: dotnet build samples/InkingStudio.Desktop -c Release
-      - name: Publish actual Avalonia browser application
-        if: hashFiles('standalone/Avalonia.Inking/samples/InkingStudio.Browser/InkingStudio.Browser.csproj') != ''
+      - name: Compile controls and desktop sample
         run: |
           set -euo pipefail
-          dotnet workload install wasm-tools --skip-manifest-update
-          dotnet publish samples/InkingStudio.Browser -c Release -o artifacts/browser
+          dotnet build samples/InkingStudio.Desktop -c Release > artifacts/validation/desktop-build.log 2>&1 || { cat artifacts/validation/desktop-build.log; exit 1; }
+          tail -n 12 artifacts/validation/desktop-build.log
+      - name: Publish actual Avalonia WebAssembly application
+        run: |
+          set -euo pipefail
+          dotnet workload install wasm-tools --skip-manifest-update > artifacts/validation/workload.log 2>&1 || { tail -n 60 artifacts/validation/workload.log; exit 1; }
+          dotnet publish samples/InkingStudio.Browser -c Release -o artifacts/browser > artifacts/validation/browser-build.log 2>&1 || { tail -n 100 artifacts/validation/browser-build.log; exit 1; }
+          tail -n 20 artifacts/validation/browser-build.log
       - name: Validate published browser application
-        if: hashFiles('standalone/Avalonia.Inking/validation/browser.py') != ''
         run: |
           set -euo pipefail
-          python -m pip install playwright pillow
-          python -m playwright install chromium --with-deps
-          python validation/browser.py
-      - name: Preserve source and validation evidence
+          python -m pip install -r validation/requirements.txt > artifacts/validation/browser-setup.log 2>&1 || { cat artifacts/validation/browser-setup.log; exit 1; }
+          python -m playwright install chromium --with-deps >> artifacts/validation/browser-setup.log 2>&1 || { tail -n 80 artifacts/validation/browser-setup.log; exit 1; }
+          python validation/browser.py | tee artifacts/validation/browser-run.log
+      - name: Pack reusable libraries and validate isolated consumer
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/packages
+          for project in Avalonia.Inking.Core Avalonia.Inking Avalonia.Inking.Themes; do
+            dotnet pack "src/$project" -c Release --no-restore -o artifacts/packages
+          done
+          bash validation/package-consumer.sh | tee artifacts/validation/package-consumer.log
+      - name: Package exact source and validation evidence
         if: always()
-        run: |
-          set -euo pipefail
-          mkdir -p artifacts
-          git rev-parse HEAD > artifacts/source-commit.txt
-          python - <<'PY'
-          import pathlib, subprocess, zipfile
-          root = pathlib.Path.cwd()
-          files = subprocess.check_output(['git', 'ls-files', '-z', '.']).decode().split('\0')
-          with zipfile.ZipFile('artifacts/Avalonia.Inking-source.zip', 'w', zipfile.ZIP_DEFLATED) as z:
-              for name in files:
-                  if name and pathlib.Path(name).is_file(): z.write(name, name)
-          print('Source archive bytes:', pathlib.Path('artifacts/Avalonia.Inking-source.zip').stat().st_size)
-          PY
+        run: python validation/package.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: inking-validation-${{ github.run_number }}
-          path: standalone/Avalonia.Inking/artifacts
-          retention-days: 14
+          name: inking-source
+          path: |
+            standalone/Avalonia.Inking/artifacts/distribution/Avalonia.Inking-source.zip
+            standalone/Avalonia.Inking/artifacts/distribution/manifest.json
+            standalone/Avalonia.Inking/artifacts/distribution/SHA256SUMS.txt
+            standalone/Avalonia.Inking/artifacts/distribution/final-archive-verification.txt
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: inking-browser
+          path: standalone/Avalonia.Inking/artifacts/distribution/Avalonia.Inking-browser.zip
+          if-no-files-found: ignore
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: inking-packages
+          path: standalone/Avalonia.Inking/artifacts/distribution/Avalonia.Inking-packages.zip
+          if-no-files-found: ignore
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: inking-validation
+          path: standalone/Avalonia.Inking/artifacts/distribution/Avalonia.Inking-validation.zip
+          retention-days: 30

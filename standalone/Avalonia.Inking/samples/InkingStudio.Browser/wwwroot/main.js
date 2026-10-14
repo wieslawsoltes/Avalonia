@@ -1,4 +1,5 @@
 import { dotnet } from './_framework/dotnet.js';
+import * as storageHost from './host.js';
 
 window.inkStartupErrors = [];
 function report(error) {
@@ -11,9 +12,10 @@ function report(error) {
 window.addEventListener('unhandledrejection', event => report(event.reason));
 try {
     const runtime = await dotnet.withDiagnosticTracing(false).withApplicationArgumentsFromQuery().create();
+    runtime.setModuleImports('studio-host', storageHost);
     const config = runtime.getConfig();
     const exports = await runtime.getAssemblyExports(config.mainAssemblyName);
-    // Sample-only diagnostics. Pointer tests still enter through the browser's actual input pipeline.
+    // Sample-only diagnostics. Pointer tests enter through the actual browser input pipeline.
     window.inkTest = exports.InkingStudio.Browser.Probe;
     await runtime.runMain(config.mainAssemblyName, [location.href]);
 } catch (error) { report(error); }
