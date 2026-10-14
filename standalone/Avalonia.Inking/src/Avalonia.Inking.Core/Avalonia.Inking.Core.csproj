@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><IsPackable>true</IsPackable><Description>Immutable pressure-aware ink documents, geometry, editing history and portable persistence.</Description></PropertyGroup></Project>
