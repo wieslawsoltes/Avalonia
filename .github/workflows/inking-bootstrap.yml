@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
-      DOTNET_INSTALL_DIR: ${{ runner.temp }}/inking-dotnet
-      NUGET_PACKAGES: ${{ runner.temp }}/inking-nuget
-      DOTNET_CLI_TELEMETRY_OPTOUT: 1
-      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+      DOTNET_INSTALL_DIR: /tmp/inking-dotnet
+      NUGET_PACKAGES: /tmp/inking-nuget
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: '1'
     steps:
       - uses: actions/setup-dotnet@v4
         with:
