@@ -1,0 +1,52 @@
+name: CounterPOS toolchain transfer
+on:
+  push:
+    branches: [feat/pos-sales-system]
+    paths: ['.github/workflows/counterpos-toolchain-transfer.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  transfer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: counterpos-public-toolchain
+          run-id: 38606441497
+          github-token: ${{ github.token }}
+          path: /tmp/counterpos-public-toolchain
+      - name: Verify and split public SDK transport below artifact download size limit
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/counterpos-public-toolchain
+          sha256sum -c SHA256SUMS.txt
+          mkdir /tmp/counterpos-transfer
+          tar -cf - SHA256SUMS.txt sdk.tar.xz nuget.tar.xz | split -b 300M - /tmp/counterpos-transfer/bundle-
+          sha256sum /tmp/counterpos-transfer/bundle-*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: counterpos-toolchain-00
+          path: /tmp/counterpos-transfer/bundle-aa
+          compression-level: 0
+          retention-days: 2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: counterpos-toolchain-01
+          path: /tmp/counterpos-transfer/bundle-ab
+          compression-level: 0
+          retention-days: 2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: counterpos-toolchain-02
+          path: /tmp/counterpos-transfer/bundle-ac
+          compression-level: 0
+          retention-days: 2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: counterpos-toolchain-03
+          path: /tmp/counterpos-transfer/bundle-ad
+          compression-level: 0
+          retention-days: 2
