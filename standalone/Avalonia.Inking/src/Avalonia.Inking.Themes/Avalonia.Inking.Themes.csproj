@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><IsPackable>true</IsPackable><Description>Replaceable light and dark control themes for Avalonia Inking.</Description></PropertyGroup><ItemGroup><PackageReference Include="Avalonia" Version="$(AvaloniaVersion)"/><ProjectReference Include="../Avalonia.Inking/Avalonia.Inking.csproj"/></ItemGroup></Project>

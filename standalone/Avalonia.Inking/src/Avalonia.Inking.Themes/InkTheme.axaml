@@ -1,0 +1,123 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ink="using:Avalonia.Inking"
+        x:Class="Avalonia.Inking.Themes.InkTheme">
+  <Styles.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="InkSurfaceBrush">#FFFFFF</SolidColorBrush>
+          <SolidColorBrush x:Key="InkPanelBrush">#F6F7FB</SolidColorBrush>
+          <SolidColorBrush x:Key="InkTextBrush">#25304A</SolidColorBrush>
+          <SolidColorBrush x:Key="InkMutedBrush">#738096</SolidColorBrush>
+          <SolidColorBrush x:Key="InkBorderBrush">#E1E5EE</SolidColorBrush>
+          <SolidColorBrush x:Key="InkGridBrush">#D7DEEC</SolidColorBrush>
+          <SolidColorBrush x:Key="InkActiveBrush">#E9ECFC</SolidColorBrush>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="InkSurfaceBrush">#191F2D</SolidColorBrush>
+          <SolidColorBrush x:Key="InkPanelBrush">#141925</SolidColorBrush>
+          <SolidColorBrush x:Key="InkTextBrush">#E9EDFA</SolidColorBrush>
+          <SolidColorBrush x:Key="InkMutedBrush">#98A5BD</SolidColorBrush>
+          <SolidColorBrush x:Key="InkBorderBrush">#30394D</SolidColorBrush>
+          <SolidColorBrush x:Key="InkGridBrush">#35405A</SolidColorBrush>
+          <SolidColorBrush x:Key="InkActiveBrush">#303C68</SolidColorBrush>
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+      <SolidColorBrush x:Key="InkAccentBrush">#5265D9</SolidColorBrush>
+      <ControlTheme x:Key="InkToolButtonTheme" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Width" Value="42"/>
+        <Setter Property="Height" Value="42"/>
+        <Setter Property="Padding" Value="10"/>
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="{DynamicResource InkMutedBrush}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Style Selector="^.active /template/ ContentPresenter">
+          <Setter Property="Background" Value="{DynamicResource InkAccentBrush}"/>
+          <Setter Property="Foreground" Value="White"/>
+        </Style>
+      </ControlTheme>
+      <ControlTheme x:Key="{x:Type ink:InkCanvas}" TargetType="ink:InkCanvas">
+        <Setter Property="Background" Value="{DynamicResource InkSurfaceBrush}"/>
+        <Setter Property="GridBrush" Value="{DynamicResource InkGridBrush}"/>
+        <Setter Property="SelectionBrush" Value="{DynamicResource InkAccentBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource InkBorderBrush}"/>
+        <Setter Property="Template">
+          <ControlTemplate>
+            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}" ClipToBounds="True">
+              <Grid>
+                <ink:InkPresenter x:Name="PART_Presenter" IsHitTestVisible="False"/>
+                <ink:InkAdornerPresenter x:Name="PART_Adorner" IsHitTestVisible="False"/>
+              </Grid>
+            </Border>
+          </ControlTemplate>
+        </Setter>
+      </ControlTheme>
+      <ControlTheme x:Key="{x:Type ink:InkToolbar}" TargetType="ink:InkToolbar">
+        <Setter Property="Background" Value="{DynamicResource InkSurfaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource InkBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="14"/>
+        <Setter Property="Padding" Value="6"/>
+        <Setter Property="Template">
+          <ControlTemplate>
+            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}" Padding="{TemplateBinding Padding}">
+              <ItemsControl ItemsSource="{CompiledBinding $parent[ink:InkToolbar].Tools}">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate><StackPanel Spacing="3" Orientation="{CompiledBinding $parent[ink:InkToolbar].Orientation}"/></ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="ink:InkToolItem" x:CompileBindings="True">
+                    <Button Command="{Binding Command}" Classes.active="{Binding IsActive}" Theme="{StaticResource InkToolButtonTheme}" ToolTip.Tip="{Binding Hint}" AutomationProperties.Name="{Binding Label}" AutomationProperties.AutomationId="{Binding AutomationId}">
+                      <PathIcon Data="{Binding Icon}" Width="20" Height="20"/>
+                    </Button>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </Border>
+          </ControlTemplate>
+        </Setter>
+      </ControlTheme>
+      <ControlTheme x:Key="{x:Type ink:InkLayerPanel}" TargetType="ink:InkLayerPanel">
+        <Setter Property="Foreground" Value="{DynamicResource InkTextBrush}"/>
+        <Setter Property="Template">
+          <ControlTemplate>
+            <StackPanel Spacing="10">
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="LAYERS" FontSize="11" FontWeight="SemiBold" LetterSpacing="1.4" Foreground="{DynamicResource InkMutedBrush}" VerticalAlignment="Center"/>
+                <Button Grid.Column="1" Content="+" Padding="9,3" Command="{CompiledBinding $parent[ink:InkLayerPanel].AddLayerCommand}" AutomationProperties.Name="Add layer" AutomationProperties.AutomationId="add-layer"/>
+              </Grid>
+              <ItemsControl ItemsSource="{CompiledBinding $parent[ink:InkLayerPanel].Layers}">
+                <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="6"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="ink:InkLayerItem" x:CompileBindings="True">
+                    <Border Classes.active="{Binding IsActive}" CornerRadius="9" BorderThickness="1" BorderBrush="{DynamicResource InkBorderBrush}" Padding="8">
+                      <Border.Styles><Style Selector="Border.active"><Setter Property="Background" Value="{DynamicResource InkActiveBrush}"/></Style></Border.Styles>
+                      <StackPanel Spacing="5">
+                        <Button Command="{Binding ActivateCommand}" HorizontalAlignment="Stretch" Background="Transparent" BorderThickness="0" Padding="2" HorizontalContentAlignment="Left" AutomationProperties.Name="{Binding Name}">
+                          <StackPanel Spacing="2"><TextBlock Text="{Binding Name}" FontSize="12" FontWeight="SemiBold"/><TextBlock Text="{Binding Detail}" FontSize="10" Foreground="{DynamicResource InkMutedBrush}"/></StackPanel>
+                        </Button>
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                          <Button Content="{Binding VisibilityText}" Command="{Binding ToggleVisibilityCommand}" FontSize="10" Padding="7,3" AutomationProperties.AutomationId="layer-visibility"/>
+                          <Button Content="{Binding LockText}" Command="{Binding ToggleLockCommand}" FontSize="10" Padding="7,3" AutomationProperties.AutomationId="layer-lock"/>
+                        </StackPanel>
+                      </StackPanel>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <StackPanel Orientation="Horizontal" Spacing="5">
+                <Button Content="Up" FontSize="11" Padding="9,5" Command="{CompiledBinding $parent[ink:InkLayerPanel].MoveUpCommand}" AutomationProperties.AutomationId="layer-up"/>
+                <Button Content="Down" FontSize="11" Padding="9,5" Command="{CompiledBinding $parent[ink:InkLayerPanel].MoveDownCommand}" AutomationProperties.AutomationId="layer-down"/>
+                <Button Content="Remove" FontSize="11" Padding="9,5" Command="{CompiledBinding $parent[ink:InkLayerPanel].RemoveLayerCommand}" AutomationProperties.AutomationId="layer-remove"/>
+              </StackPanel>
+            </StackPanel>
+          </ControlTemplate>
+        </Setter>
+      </ControlTheme>
+    </ResourceDictionary>
+  </Styles.Resources>
+</Styles>
