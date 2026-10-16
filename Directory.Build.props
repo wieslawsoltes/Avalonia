@@ -18,4 +18,7 @@
     <CreateHardLinksForCopyLocalIfPossible>true</CreateHardLinksForCopyLocalIfPossible>
     <CreateHardLinksForPublishFilesIfPossible>true</CreateHardLinksForPublishFilesIfPossible>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(AvaloniaPerfCounters)' == 'true'">
+    <DefineConstants>$(DefineConstants);AVALONIA_PERF_COUNTERS</DefineConstants>
+  </PropertyGroup>
 </Project>

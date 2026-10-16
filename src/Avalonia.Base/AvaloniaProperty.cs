@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Avalonia.Data;
@@ -20,6 +21,11 @@ namespace Avalonia
         public static readonly object UnsetValue = new UnsetValueType();
 
         private static int s_nextId;
+        private PropertyChangedEventArgs? _inpcChangedEventArgs;
+
+        // INPC arguments contain only the immutable property name, not an owner or a value.
+        internal PropertyChangedEventArgs InpcChangedEventArgs =>
+            _inpcChangedEventArgs ??= new PropertyChangedEventArgs(Name);
 
         /// <summary>
         /// Provides a metadata object for types which have no metadata of their own.

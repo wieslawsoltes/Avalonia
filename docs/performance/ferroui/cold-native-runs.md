@@ -1,0 +1,9 @@
+# Measurement-driven refinement: unique native glyph runs
+
+The first complete 24-scenario Linux non-tiered comparison at `9ffdb4e74889e57cc8d4ff9e5939db57958c9c22` measured a 13.2% regression for unique native runs, outside that job's same-revision noise envelope. Allocation increased from 632 to about 812 bytes per operation. Recreated repeated runs improved by 68.6%, but that does not justify ignoring the cold path. Evidence: [run 37902859152, job 113729369051](https://github.com/wieslawsoltes/Avalonia/actions/runs/37902859152/job/113729369051).
+
+`SharedGlyphRunData` now keeps the first blob inline. The vector for 18 effective font states is allocated only when another state is actually requested. Expanding the storage preserves the first blob and all lease ownership rules; no borrowed blob is disposed until the last shared-data reference is released. `ColdGlyphCacheTests` verifies storage remains absent for a single state and that expansion does not invalidate the first blob.
+
+Native cache probing now backs off per typeface after an unsuccessful run, before hashing all glyph records or entering the global cache lock. A hit or admission restores normal probing. Keeping this state on the typeface prevents a one-off font's workload from disabling an unrelated font's reuse. A 67-call sampling interval, also used by the shaping cache, avoids synchronizing with common power-of-two scan lengths. Correctness never depends on admission or sampling: misses take the original geometry/shaping algorithms and only full-key matches reuse data.
+
+This refinement targets the observed counterexample. Post-change numbers must be taken from its own CI run. The line-metrics token adds 16 bytes to a ShapedBuffer on the measured x64 runtime; the reduced line/layout allocations must be considered alongside that explicit footprint tradeoff, rather than repeating the old 336-byte claim.

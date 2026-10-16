@@ -1,0 +1,11 @@
+# Designs 04/05: shared resource-dictionary resolution caches
+
+Each resource host's ordinary ResourceDictionary can memoize resolution through nested merged/theme dictionaries. Implicit-theme lookup and dynamic-resource bindings both use this path. The cache is shared across elements consulting the dictionary, bounded to 128 short-string/type keys, and keyed by theme-variant identity. Precedence remains local, requested/inherited theme, default theme, then reverse merged order.
+
+Entries store weak references to supplying dictionaries, not returned values. Hits call that dictionary's `TryGetValue`, preserving non-shared deferred factory execution and found-null semantics. Absence is distinct from a collected location. Weak location ownership prevents an otherwise unused stale cache from retaining a removed resource graph. Custom providers, including dictionary-subclass interface reimplementations, remain dynamically probed; an answer which would bypass such a probe is not cached.
+
+All dictionary mutations, collection replacement/reordering, shared deferred materialization and individual bulk-set assignments invalidate a conservative global epoch before host/user callbacks. This covers unowned nested dictionaries where no host notification exists. Results are not cached when the epoch changes during their lookup. Deferred construction suppresses memoization recursively, avoiding retention of temporary reentrant misses.
+
+The ancestor-host walk stays live, preserving reparenting and custom hosts. A cached arbitrary ancestor answer invalidated only by later descendant notifications would be stale during a reentrant ancestor callback, so that unsafe shortcut is not used. The reusable ordinary dictionary graph is accelerated beneath the existing host API instead.
+
+`FerroUiResourceLookupTests` covers precedence/missing/null, nested unowned mutation, reorder/replacement, variants/default fallback, non-shared factories, dynamic providers, callback reentrancy, partial bulk updates and bounds. `FerroUiResourceCacheLifetimeTests` verifies collection of a removed graph. Browser foreground resources are actually bound and changed/restored under exact screenshot comparison. Native benchmarks separately measure deep hits, misses and mutations: invalidation-heavy use has a cost and is not hidden by hit-only results.

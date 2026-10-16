@@ -17,7 +17,7 @@ namespace Avalonia.Skia
     /// <summary>
     /// Skia platform render interface.
     /// </summary>
-    internal class PlatformRenderInterface : IPlatformRenderInterface
+    internal class PlatformRenderInterface : IPlatformRenderInterface, IDefaultLineMetricsCacheBackend
     {
         private readonly long? _maxResourceBytes;
         private readonly bool? _useStencilBuffers;

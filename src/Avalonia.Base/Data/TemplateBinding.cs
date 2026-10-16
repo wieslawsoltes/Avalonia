@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Globalization;
 using Avalonia.Data.Converters;
@@ -59,12 +59,13 @@ namespace Avalonia.Data
             if (Mode is BindingMode.OneTime or BindingMode.OneWayToSource)
                 throw new NotSupportedException("TemplateBinding does not support OneTime or OneWayToSource bindings.");
 
-            return new TemplateBindingExpression(
-                Property,
-                Converter,
-                ConverterCulture,
-                ConverterParameter,
-                Mode);
+            if (Converter is null && target is StyledElement && targetProperty is not null &&
+                targetProperty.GetMetadata(target).EnableDataValidation != true &&
+                Property is ITypedTemplateBindingFactory factory &&
+                factory.CreateTypedTemplateBinding(targetProperty, Mode) is { } typed)
+                return typed;
+
+            return new TemplateBindingExpression(Property, Converter, ConverterCulture, ConverterParameter, Mode);
         }
     }
 }

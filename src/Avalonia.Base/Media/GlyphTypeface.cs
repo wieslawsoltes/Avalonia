@@ -1153,7 +1153,16 @@ namespace Avalonia.Media
                 return;
             }
 
-            PlatformTypeface.Dispose();
+            // Release the shaper before the font memory its table callbacks may access.
+            // Do not create the lazy shaper just to dispose an unused typeface.
+            try
+            {
+                _textShaperTypeface?.Dispose();
+            }
+            finally
+            {
+                PlatformTypeface.Dispose();
+            }
         }
     }
 }

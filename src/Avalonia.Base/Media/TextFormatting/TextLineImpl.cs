@@ -6,7 +6,7 @@ using Avalonia.Utilities;
 
 namespace Avalonia.Media.TextFormatting
 {
-    internal class TextLineImpl : TextLine
+    internal partial class TextLineImpl : TextLine
     {
         internal static Comparer<TextBounds> TextBoundsComparer { get; } =
             Comparer<TextBounds>.Create((x, y) => x.Rectangle.Left.CompareTo(y.Rectangle.Left));
@@ -1220,7 +1220,7 @@ namespace Avalonia.Media.TextFormatting
         {
             _indexedTextRuns = BidiReorderer.Instance.BidiReorder(_textRuns, _paragraphProperties.FlowDirection, FirstTextSourceIndex);
 
-            _textLineMetrics = CreateLineMetrics();
+            _textLineMetrics = GetOrCreateLineMetrics();
 
             if (_textLineBreak is null && _textRuns.Length > 1 && _textRuns[_textRuns.Length - 1] is TextEndOfLine textEndOfLine)
             {

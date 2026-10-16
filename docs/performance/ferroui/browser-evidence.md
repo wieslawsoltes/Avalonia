@@ -1,0 +1,9 @@
+# Browser evidence quality and profiling
+
+The fixture now binds every ListBox cell foreground to a dynamic resource in the nested dictionary graph. The browser checks that replacing this resource changes pixels, restoring it restores the original pixels, and baseline/head screenshots match in both states. This is an actual invalidation/render test, not merely an unused exported setter.
+
+Browser reports validate finite ready/layout/CPU data, paired sample sizes and monotonic task CPU. A zero baseline is explicitly reported as no percentage rather than silently serializing infinity. First-ready waits for the timestamp as well as usable layout. The Markdown summary includes raw/gzip runtime size, first-ready time, absolute CPU per input/idle case, and application RAF counts with diagnostics off/on; raw JSON retains every pair.
+
+Separate CPU profiles are recorded after timed work, one baseline/head trace per rendering mode. They therefore do not contaminate the measured pair. Exact published build artifacts accompany the profiles. The module inspector reads real WebAssembly name-section counts and code-section SHA-256 values; it does not assume that symbol-retaining flags worked, or that function indices match between separately linked builds. Correlate a profile only with its own exact module. Named deployments can be compared by actual code hashes where equal; different hashes are not falsely treated as equivalent.
+
+Five Node tests validate summary arithmetic, input checks and module metadata parsing. These are in addition to actual Chromium input and decoded PNG tests. Browser task CPU is not GPU time; the hosted default backend may be SwiftShader. Application RAF callbacks are reported separately from whether the compositor performed rendering, so an active browser timer is not misreported as continuous GPU work.
