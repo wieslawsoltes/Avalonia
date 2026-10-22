@@ -8,6 +8,9 @@ internal static partial class TimerHelper
     [JSImport("TimerHelper.runAnimationFrames", AvaloniaModule.MainModuleName)]
     public static partial void RunAnimationFrames();
 
+    [JSImport("TimerHelper.stopAnimationFrames", AvaloniaModule.MainModuleName)]
+    public static partial void StopAnimationFrames();
+
     public static Action<double>? AnimationFrame;
     [JSExport]
     public static void JsExportOnAnimationFrame(double d)

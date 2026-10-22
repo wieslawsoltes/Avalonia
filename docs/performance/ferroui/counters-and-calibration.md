@@ -1,0 +1,11 @@
+# Design 09: compile-time counters and same-revision calibration
+
+`-p:AvaloniaPerfCounters=true` includes `PerformanceCounters` and the instrumented call sites. Both are enclosed in preprocessor conditions: normal builds have no counter type, storage or calls. Counters cover property notifications reaching property publication, binding-expression construction, selector matching/evaluation, resource probes/hits/invalidations, shaping requests/hits/admissions/skipped probes, native glyph requests/hits/blob creation, line finalization/default-metrics hits, and existing layout/compositor pass boundaries. Atomic snapshots are individually consistent, not a cross-thread stop-the-world transaction.
+
+The instrumented workflow builds/tests Base with counters off and on, tests Skia with counters on, then runs the real extended workload and prints/persists its counter snapshot. Required hot paths must have nonzero observations; this prevents unused declarations from masquerading as instrumentation. Instrumented workload timing is diagnostic only and is never compared with uninstrumented baseline timing.
+
+The native harness now has 24 scenarios. Added cases cover deep resource hits/misses and mutation, compound live selectors, native glyph recreation/unique runs, and wrapped-paragraph fallback. All harness C# files and the project are copied unchanged to the exact baseline checkout, with SHA-256 provenance.
+
+Each platform/runtime-mode job first runs five same-head A/A pairs on the same machine, then five original-baseline/head pairs. An optional calibration-informed screen compares the fastest candidate ratio with the worst symmetric A/A envelope plus a 3% margin. It requires matching revision, environment, scenario set and at least five calibration pairs. This is a conservative heuristic, not a confidence interval or proof that unflagged changes are harmless. Raw data and positive regressions remain visible.
+
+CI reports timing by default, as the source design requires until runner behavior is known. Controlled environments can select `--fail-regressions` with `--calibration-file` to make consistently out-of-envelope regressions fail. Numeric/logical inconsistencies always fail regardless of the timing policy. Four additional Python tests cover the calibration screen's decisions and rejection of incompatible or invalid evidence.

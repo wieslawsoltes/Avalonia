@@ -165,14 +165,16 @@ namespace Avalonia.Reactive
                 }
                 else if (observers != null)
                 {
-                    for(int i = 0; i < count; i++)
+                    try
                     {
-                        observers[i].OnNext(value);
-                        // Avoid memory leak by clearing the reference.
-                        observers[i] = null!;
+                        for (var i = 0; i < count; i++)
+                            observers[i].OnNext(value);
                     }
-
-                    ArrayPool<IObserver<T>>.Shared.Return(observers);
+                    finally
+                    {
+                        // A throwing observer must not strand the rental or retain later observers.
+                        ArrayPool<IObserver<T>>.Shared.Return(observers, clearArray: true);
+                    }
                 }
             }
         }

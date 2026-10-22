@@ -20,6 +20,14 @@ namespace Avalonia.Data
     [RequiresDynamicCode(TrimmingMessages.ReflectionBindingRequiresDynamicCodeMessage)]
     public class ReflectionBinding : BindingBase
     {
+        private const int MaxSharedPaths = 128;
+        private const int MaxSharedPathLength = 256;
+        private const int MaxSharedPathNodes = 32;
+        private static readonly object s_pathCacheLock = new();
+        private static readonly Dictionary<string, ParsedPath> s_pathCache = new(StringComparer.Ordinal);
+        private static readonly Queue<string> s_pathCacheOrder = new();
+        private ParsedPath? _parsedPath;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ReflectionBinding"/> class.
         /// </summary>
@@ -136,13 +144,19 @@ namespace Avalonia.Data
             var isRooted = false;
             var enableDataValidation = targetProperty?.GetMetadata(target).EnableDataValidation ?? false;
 
-            // Build the expression nodes from the binding path.
-            if (!string.IsNullOrEmpty(Path))
+            // Only syntax is shared. Source nodes, resolved types, name scopes and observer
+            // state must be rebuilt for every target, including recycled containers.
+            var path = Path;
+            if (!string.IsNullOrEmpty(path))
             {
-                var reader = new CharacterReader(Path.AsSpan());
-                var (astPool, sourceMode) = BindingExpressionGrammar.ParseToPooledList(ref reader);
+                var parsed = _parsedPath;
+                if (parsed is null || parsed.Path != path)
+                    _parsedPath = parsed = GetParsedPath(path);
+
+                // Keep an owned snapshot across user type-resolution callbacks, which may create
+                // another binding and overwrite the grammar's shared scratch list.
                 nodes = ExpressionNodeFactory.CreateFromAst(
-                    astPool,
+                    parsed.Nodes,
                     TypeResolver,
                     GetNameScope(),
                     out isRooted);
@@ -223,6 +237,43 @@ namespace Avalonia.Data
             }
 
             return (mode, trigger);
+        }
+
+        private static ParsedPath GetParsedPath(string path)
+        {
+            var share = path.Length <= MaxSharedPathLength;
+            if (share)
+            {
+                lock (s_pathCacheLock)
+                {
+                    if (s_pathCache.TryGetValue(path, out var cached))
+                        return cached;
+                }
+            }
+
+            var (ast, _) = BindingExpressionGrammar.Parse(path);
+            var parsed = new ParsedPath(path, ast);
+            if (!share || ast.Count > MaxSharedPathNodes)
+                return parsed;
+
+            lock (s_pathCacheLock)
+            {
+                if (s_pathCache.TryGetValue(path, out var cached))
+                    return cached;
+                if (s_pathCache.Count == MaxSharedPaths)
+                    s_pathCache.Remove(s_pathCacheOrder.Dequeue());
+                s_pathCache.Add(path, parsed);
+                s_pathCacheOrder.Enqueue(path);
+            }
+            return parsed;
+        }
+
+        // Syntax contains no resolved types, sources, targets, converters or name scopes.
+        // The bounded shared cache also serves newly allocated descriptions with common paths.
+        private sealed class ParsedPath(string path, List<BindingExpressionGrammar.INode> nodes)
+        {
+            public string Path { get; } = path;
+            public List<BindingExpressionGrammar.INode> Nodes { get; } = nodes;
         }
     }
 }

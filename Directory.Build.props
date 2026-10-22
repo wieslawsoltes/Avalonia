@@ -20,4 +20,7 @@
     <!-- TODO hackfix for https://github.com/AvaloniaUI/Avalonia/issues/22465 until Avalonia XAML supports optimized publish targets -->
     <UseOptimizedPublish>false</UseOptimizedPublish>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(AvaloniaPerfCounters)' == 'true'">
+    <DefineConstants>$(DefineConstants);AVALONIA_PERF_COUNTERS</DefineConstants>
+  </PropertyGroup>
 </Project>

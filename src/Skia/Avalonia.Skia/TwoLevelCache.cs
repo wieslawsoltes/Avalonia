@@ -62,7 +62,10 @@ namespace Avalonia.Skia
             return false;
         }
 
-        public TValue GetOrAdd(TKey key, Func<TKey, TValue> factory)
+        public TValue GetOrAdd(TKey key, Func<TKey, TValue> factory) =>
+            GetOrAdd(key, factory, static (k, f) => f(k));
+
+        public TValue GetOrAdd<TState>(TKey key, TState state, Func<TKey, TState, TValue> factory)
         {
             // Check if key already exists
             if (TryGet(key, out var existing) && existing != null)
@@ -71,7 +74,7 @@ namespace Avalonia.Skia
             }
 
             // Key doesn't exist, create new value
-            var value = factory(key);
+            var value = factory(key, state);
 
             // Primary is empty - store in primary
             if (_primaryValue == null)

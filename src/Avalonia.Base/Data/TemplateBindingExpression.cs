@@ -112,7 +112,11 @@ internal class TemplateBindingExpression : UntypedBindingExpressionBase
             if (_converter is not null)
                 value = Convert(_converter, _converterCulture, _converterParameter, value, TargetType, ref error);
 
-            value = ConvertToTargetType(value);
+            // Identically typed properties already satisfy the target conversion. Keep converters,
+            // parameterless bindings and mismatched types on the general path (including errors).
+            if (_converter is not null || _property is null || _property.PropertyType != TargetType ||
+                ReferenceEquals(value, AvaloniaProperty.UnsetValue))
+                value = ConvertToTargetType(value);
             PublishValue(value, error);
             _hasPublishedValue = true;
 
